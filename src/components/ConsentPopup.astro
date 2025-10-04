@@ -2,47 +2,220 @@
 // src/components/ConsentPopup.astro
 ---
 
-<div id="consent-popup" class="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center p-4 hidden">
-  <div class="bg-white rounded-t-3xl md:rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-2xl transform transition-all">
-    <h2 class="text-2xl font-bold text-primary mb-4">🍪 Çerez Politikası</h2>
-    <p class="text-gray-600 mb-6 leading-relaxed">
-      Web sitemizde size en iyi deneyimi sunabilmek için çerezler kullanıyoruz. Sitemizi kullanmaya devam ederek çerez politikamızı kabul etmiş olursunuz.
-    </p>
-    <div class="flex flex-col sm:flex-row gap-3">
-      <button
-        id="accept-cookies"
-        class="flex-1 bg-secondary hover:bg-primary text-gray-900 hover:text-white font-bold py-3 px-6 rounded-lg transition"
-      >
+<div id="consent-popup" class="consent-popup">
+  <div class="consent-content">
+    <div class="consent-icon">
+      <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+    </div>
+    <div class="consent-text">
+      <h3>Çerez Kullanımı</h3>
+      <p>
+        Web sitemizde size daha iyi hizmet sunabilmek için çerezler kullanıyoruz.
+        Siteyi kullanmaya devam ederek çerez kullanımını kabul etmiş olursunuz.
+        <a href="/cerez-politikasi" class="consent-link">Detaylı bilgi</a>
+      </p>
+    </div>
+    <div class="consent-actions">
+      <button id="consent-accept" class="consent-btn accept">
         Kabul Et
       </button>
-      <a
-        href="/kullanim-kosullari"
-        class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg transition text-center"
-      >
-        Detaylı Bilgi
-      </a>
+      <button id="consent-reject" class="consent-btn reject">
+        Reddet
+      </button>
     </div>
   </div>
 </div>
 
+<style>
+  .consent-popup {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    padding: 20px;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .consent-popup.show {
+    transform: translateY(0);
+  }
+
+  .consent-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .consent-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .consent-text {
+    flex: 1;
+  }
+
+  .consent-text h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 8px 0;
+  }
+
+  .consent-text p {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .consent-link {
+    color: #dc2626;
+    font-weight: 600;
+    text-decoration: underline;
+    margin-left: 4px;
+  }
+
+  .consent-link:hover {
+    color: #b91c1c;
+  }
+
+  .consent-actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .consent-btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .consent-btn.accept {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    color: white;
+  }
+
+  .consent-btn.accept:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+  }
+
+  .consent-btn.reject {
+    background: #f3f4f6;
+    color: #6b7280;
+  }
+
+  .consent-btn.reject:hover {
+    background: #e5e7eb;
+    color: #374151;
+  }
+
+  @media (max-width: 768px) {
+    .consent-popup {
+      padding: 16px;
+    }
+
+    .consent-content {
+      flex-direction: column;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .consent-icon {
+      width: 40px;
+      height: 40px;
+    }
+
+    .consent-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .consent-text h3 {
+      font-size: 16px;
+    }
+
+    .consent-text p {
+      font-size: 13px;
+    }
+
+    .consent-actions {
+      width: 100%;
+      flex-direction: column;
+    }
+
+    .consent-btn {
+      width: 100%;
+    }
+  }
+</style>
+
 <script>
-  function showConsentPopup() {
-    const consent = localStorage.getItem('cookieConsent');
-    if (!consent) {
-      const popup = document.getElementById('consent-popup');
-      if (popup) {
-        setTimeout(() => {
-          popup.classList.remove('hidden');
-        }, 1000);
-      }
+  const CONSENT_KEY = 'cookie-consent';
+  const popup = document.getElementById('consent-popup');
+  const acceptBtn = document.getElementById('consent-accept');
+  const rejectBtn = document.getElementById('consent-reject');
+
+  function showPopup() {
+    if (popup) {
+      setTimeout(() => {
+        popup.classList.add('show');
+      }, 1000);
     }
   }
 
-  document.getElementById('accept-cookies')?.addEventListener('click', () => {
-    localStorage.setItem('cookieConsent', 'accepted');
-    const popup = document.getElementById('consent-popup');
-    if (popup) popup.classList.add('hidden');
+  function hidePopup() {
+    if (popup) {
+      popup.classList.remove('show');
+    }
+  }
+
+  function saveConsent(accepted: boolean) {
+    localStorage.setItem(CONSENT_KEY, accepted ? 'accepted' : 'rejected');
+    hidePopup();
+  }
+
+  // Check if user has already given consent
+  const consent = localStorage.getItem(CONSENT_KEY);
+  if (!consent) {
+    showPopup();
+  }
+
+  // Event listeners
+  acceptBtn?.addEventListener('click', () => {
+    saveConsent(true);
+    // Enable analytics, tracking, etc.
+    console.log('Cookies accepted');
   });
 
-  document.addEventListener('DOMContentLoaded', showConsentPopup);
+  rejectBtn?.addEventListener('click', () => {
+    saveConsent(false);
+    // Disable analytics, tracking, etc.
+    console.log('Cookies rejected');
+  });
 </script>

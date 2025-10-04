@@ -1,0 +1,789 @@
+---
+// src/pages/urun/[slug].astro
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+// Örnek ürün verisi - gerçek uygulamada API'den veya veritabanından gelecek
+const product = {
+  id: 'pastirma-antrikot-1',
+  name: 'Antrikot Pastırma',
+  category: 'Pastırma',
+  price: 450,
+  unit: 'kg',
+  images: [
+    '/assets/image/products/pastirma-1.jpg',
+    '/assets/image/products/pastirma-2.jpg',
+    '/assets/image/products/pastirma-3.jpg'
+  ],
+  description: 'Geleneksel yöntemlerle hazırlanmış, özenle seçilmiş antrikot etinden üretilen Kayseri pastırması. Çemenle kaplanmış ve doğal ortamda kurutulmuştur.',
+  features: [
+    '100% Dana Eti',
+    'Doğal Çemen',
+    'Katkısız Üretim',
+    'Geleneksel Yöntem',
+    'Vakumlu Paket'
+  ],
+  variants: [
+    { value: 0.25, label: '250gr', price: 112.50 },
+    { value: 0.5, label: '500gr', price: 225 },
+    { value: 1, label: '1kg', price: 450 }
+  ]
+};
+
+// İlgili ürünler
+const relatedProducts = [
+  { id: '1', name: 'Sırt Pastırma', image: '/assets/image/products/pastirma-sirt.jpg', price: 420 },
+  { id: '2', name: 'Dana Sucuk', image: '/assets/image/products/sucuk.jpg', price: 380 },
+  { id: '3', name: 'Kayseri Mantısı', image: '/assets/image/products/manti.jpg', price: 150 }
+];
+---
+
+<BaseLayout title={product.name}>
+  <div class="product-detail-page">
+    <div class="container">
+      <div class="product-main">
+        <!-- Ürün Görselleri -->
+        <div class="product-gallery">
+          <div class="main-image-container">
+            <img
+              id="mainImage"
+              src={product.images[0]}
+              alt={product.name}
+              loading="eager"
+            />
+          </div>
+          <div class="thumbnail-container">
+            {product.images.map((image, index) => (
+              <img
+                src={image}
+                alt={`${product.name} ${index + 1}`}
+                class={`thumbnail ${index === 0 ? 'active' : ''}`}
+                data-index={index}
+                loading="lazy"
+              />
+            ))}
+          </div>
+          <div class="swipe-indicator">
+            <span class="swipe-dot active"></span>
+            <span class="swipe-dot"></span>
+            <span class="swipe-dot"></span>
+          </div>
+        </div>
+
+        <!-- Ürün Bilgileri -->
+        <div class="product-info">
+          <div class="product-category">{product.category}</div>
+          <h1 class="product-title">{product.name}</h1>
+
+          <div class="product-price-section">
+            <span class="product-price" id="displayPrice">{product.price.toFixed(2)} ₺</span>
+            <span class="product-unit">/ {product.unit}</span>
+          </div>
+
+          <!-- Varyasyon Seçimi -->
+          <div class="variant-section">
+            <label class="variant-label">Miktar Seçin:</label>
+            <div class="variant-options">
+              {product.variants.map((variant, index) => (
+                <button
+                  class={`variant-btn ${index === 2 ? 'active' : ''}`}
+                  data-value={variant.value}
+                  data-price={variant.price}
+                >
+                  {variant.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <!-- Miktar Seçimi -->
+          <div class="quantity-section">
+            <label class="quantity-label">Adet:</label>
+            <div class="quantity-controls">
+              <button class="quantity-btn" id="decreaseQty">-</button>
+              <input type="number" id="quantity" value="1" min="1" max="99" readonly />
+              <button class="quantity-btn" id="increaseQty">+</button>
+            </div>
+          </div>
+
+          <!-- Toplam Fiyat -->
+          <div class="total-price-section">
+            <span class="total-label">Toplam:</span>
+            <span class="total-price" id="totalPrice">{product.price.toFixed(2)} ₺</span>
+          </div>
+
+          <!-- Sepete Ekle Butonu -->
+          <button class="add-to-cart-btn-large" id="addToCartBtn">
+            Sepete Ekle
+          </button>
+
+          <!-- Ürün Özellikleri -->
+          <div class="product-features">
+            <h3>Ürün Özellikleri</h3>
+            <ul>
+              {product.features.map(feature => (
+                <li>{feature}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ürün Açıklaması -->
+      <div class="product-description-section">
+        <h2>Ürün Açıklaması</h2>
+        <p>{product.description}</p>
+      </div>
+
+      <!-- İlgili Ürünler -->
+      <div class="related-products-section">
+        <h2>İlgili Ürünler</h2>
+        <div class="related-products-grid">
+          {relatedProducts.map(item => (
+            <div class="related-product-card">
+              <img src={item.image} alt={item.name} loading="lazy" />
+              <h3>{item.name}</h3>
+              <span class="price">{item.price.toFixed(2)} ₺</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- SSS Bölümü -->
+      <div class="faq-section">
+        <h2>Sıkça Sorulan Sorular</h2>
+        <div class="faq-item">
+          <button class="faq-question">Ürün nasıl saklanmalı?</button>
+          <div class="faq-answer">
+            <p>Pastırma buzdolabında 0-4 derece arasında saklanmalıdır. Vakumlu ambalajı açıldıktan sonra hava almayacak şekilde streç film ile sarılmalıdır.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">Kargo süresi ne kadar?</button>
+          <div class="faq-answer">
+            <p>Siparişiniz 1-3 iş günü içinde kargoya teslim edilir. Kayseri içi 24-48 saat, Kayseri dışı 2-7 iş günü içinde teslim edilir.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">İade politikanız nedir?</button>
+          <div class="faq-answer">
+            <p>Ürünü teslim aldıktan sonra 3 gün içinde koşulsuz iade hakkınız bulunmaktadır.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .product-detail-page {
+      padding: 40px 0;
+      background: #faf9f7;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .product-main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 40px;
+    }
+
+    /* Galeri */
+    .product-gallery {
+      position: sticky;
+      top: 20px;
+      height: fit-content;
+    }
+
+    .main-image-container {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 15px;
+      background: #f5f5f5;
+    }
+
+    .main-image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: zoom-in;
+    }
+
+    .thumbnail-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .thumbnail {
+      width: calc(33.333% - 7px);
+      aspect-ratio: 1;
+      border-radius: 8px;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .thumbnail:hover {
+      border-color: #dc2626;
+    }
+
+    .thumbnail.active {
+      border-color: #dc2626;
+    }
+
+    .swipe-indicator {
+      display: none;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .swipe-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #d1d5db;
+      transition: all 0.3s ease;
+    }
+
+    .swipe-dot.active {
+      background: #dc2626;
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    /* Ürün Bilgileri */
+    .product-category {
+      color: #dc2626;
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .product-title {
+      font-size: 32px;
+      color: #1f2937;
+      margin: 0 0 20px 0;
+      font-weight: 700;
+    }
+
+    .product-price-section {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 30px;
+    }
+
+    .product-price {
+      font-size: 36px;
+      font-weight: 700;
+      color: #dc2626;
+    }
+
+    .product-unit {
+      font-size: 18px;
+      color: #6b7280;
+    }
+
+    /* Varyasyon */
+    .variant-section {
+      margin-bottom: 25px;
+    }
+
+    .variant-label {
+      display: block;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 12px;
+    }
+
+    .variant-options {
+      display: flex;
+      gap: 10px;
+    }
+
+    .variant-btn {
+      flex: 1;
+      padding: 12px 20px;
+      border: 2px solid #e5e7eb;
+      background: white;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .variant-btn:hover {
+      border-color: #dc2626;
+      color: #dc2626;
+    }
+
+    .variant-btn.active {
+      border-color: #dc2626;
+      background: #dc2626;
+      color: white;
+    }
+
+    /* Miktar */
+    .quantity-section {
+      margin-bottom: 25px;
+    }
+
+    .quantity-label {
+      display: block;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 12px;
+    }
+
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      width: fit-content;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .quantity-btn {
+      width: 45px;
+      height: 45px;
+      border: none;
+      background: white;
+      font-size: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .quantity-btn:hover {
+      background: #f3f4f6;
+    }
+
+    #quantity {
+      width: 60px;
+      height: 45px;
+      border: none;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 600;
+      border-left: 2px solid #e5e7eb;
+      border-right: 2px solid #e5e7eb;
+    }
+
+    /* Toplam Fiyat */
+    .total-price-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background: #f9fafb;
+      border-radius: 8px;
+      margin-bottom: 25px;
+    }
+
+    .total-label {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .total-price {
+      font-size: 28px;
+      font-weight: 700;
+      color: #dc2626;
+    }
+
+    /* Sepete Ekle */
+    .add-to-cart-btn-large {
+      width: 100%;
+      padding: 18px;
+      background: #dc2626;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 30px;
+    }
+
+    .add-to-cart-btn-large:hover {
+      background: #b91c1c;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    .add-to-cart-btn-large:active {
+      transform: translateY(0);
+    }
+
+    /* Özellikler */
+    .product-features {
+      padding: 20px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+
+    .product-features h3 {
+      font-size: 18px;
+      margin: 0 0 15px 0;
+      color: #1f2937;
+    }
+
+    .product-features ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .product-features li {
+      padding: 8px 0;
+      color: #4b5563;
+      position: relative;
+      padding-left: 25px;
+    }
+
+    .product-features li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #16a34a;
+      font-weight: 700;
+    }
+
+    /* Açıklama */
+    .product-description-section {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 40px;
+    }
+
+    .product-description-section h2 {
+      font-size: 24px;
+      margin: 0 0 20px 0;
+      color: #1f2937;
+    }
+
+    .product-description-section p {
+      line-height: 1.8;
+      color: #4b5563;
+      font-size: 16px;
+    }
+
+    /* İlgili Ürünler */
+    .related-products-section {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 40px;
+    }
+
+    .related-products-section h2 {
+      font-size: 24px;
+      margin: 0 0 25px 0;
+      color: #1f2937;
+    }
+
+    .related-products-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .related-product-card {
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .related-product-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .related-product-card img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .related-product-card h3 {
+      font-size: 16px;
+      margin: 0 0 8px 0;
+      color: #1f2937;
+    }
+
+    .related-product-card .price {
+      font-size: 18px;
+      font-weight: 700;
+      color: #dc2626;
+    }
+
+    /* SSS */
+    .faq-section {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+    }
+
+    .faq-section h2 {
+      font-size: 24px;
+      margin: 0 0 25px 0;
+      color: #1f2937;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 20px 0;
+    }
+
+    .faq-item:last-child {
+      border-bottom: none;
+    }
+
+    .faq-question {
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .faq-question:after {
+      content: "+";
+      font-size: 24px;
+      color: #dc2626;
+      transition: transform 0.3s ease;
+    }
+
+    .faq-item.active .faq-question:after {
+      transform: rotate(45deg);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .faq-item.active .faq-answer {
+      max-height: 200px;
+      margin-top: 15px;
+    }
+
+    .faq-answer p {
+      color: #6b7280;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .product-main {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        padding: 20px;
+      }
+
+      .product-gallery {
+        position: relative;
+      }
+
+      .thumbnail-container {
+        display: none;
+      }
+
+      .swipe-indicator {
+        display: flex;
+      }
+
+      .product-title {
+        font-size: 24px;
+      }
+
+      .product-price {
+        font-size: 28px;
+      }
+
+      .variant-options {
+        flex-direction: column;
+      }
+
+      .related-products-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <script>
+    // Galeri fonksiyonları
+    const mainImage = document.getElementById('mainImage');
+    const thumbnails = document.querySelectorAll('.thumbnail');
+    const swipeDots = document.querySelectorAll('.swipe-dot');
+    let currentIndex = 0;
+
+    thumbnails.forEach((thumb, index) => {
+      thumb.addEventListener('click', () => {
+        currentIndex = index;
+        updateGallery();
+      });
+    });
+
+    function updateGallery() {
+      mainImage.src = thumbnails[currentIndex].src;
+      thumbnails.forEach((t, i) => {
+        t.classList.toggle('active', i === currentIndex);
+      });
+      swipeDots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentIndex);
+      });
+    }
+
+    // Touch swipe
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    mainImage.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    });
+
+    mainImage.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    });
+
+    function handleSwipe() {
+      if (touchEndX < touchStartX - 50 && currentIndex < thumbnails.length - 1) {
+        currentIndex++;
+        updateGallery();
+      }
+      if (touchEndX > touchStartX + 50 && currentIndex > 0) {
+        currentIndex--;
+        updateGallery();
+      }
+    }
+
+    // Varyasyon seçimi
+    const variantBtns = document.querySelectorAll('.variant-btn');
+    const displayPrice = document.getElementById('displayPrice');
+    const totalPrice = document.getElementById('totalPrice');
+    let selectedVariant = { value: 1, price: 450 };
+
+    variantBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        variantBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedVariant = {
+          value: parseFloat(btn.dataset.value),
+          price: parseFloat(btn.dataset.price)
+        };
+        updatePrices();
+      });
+    });
+
+    // Miktar kontrolü
+    const quantityInput = document.getElementById('quantity');
+    const increaseBtn = document.getElementById('increaseQty');
+    const decreaseBtn = document.getElementById('decreaseQty');
+
+    increaseBtn.addEventListener('click', () => {
+      if (parseInt(quantityInput.value) < 99) {
+        quantityInput.value = parseInt(quantityInput.value) + 1;
+        updatePrices();
+      }
+    });
+
+    decreaseBtn.addEventListener('click', () => {
+      if (parseInt(quantityInput.value) > 1) {
+        quantityInput.value = parseInt(quantityInput.value) - 1;
+        updatePrices();
+      }
+    });
+
+    function updatePrices() {
+      const quantity = parseInt(quantityInput.value);
+      const total = selectedVariant.price * quantity;
+      displayPrice.textContent = selectedVariant.price.toFixed(2) + ' ₺';
+      totalPrice.textContent = total.toFixed(2) + ' ₺';
+    }
+
+    // Sepete ekle
+    const addToCartBtn = document.getElementById('addToCartBtn');
+    addToCartBtn.addEventListener('click', () => {
+      const quantity = parseInt(quantityInput.value);
+      const product = {
+        id: 'pastirma-antrikot-1',
+        name: 'Antrikot Pastırma',
+        variant: selectedVariant.value + 'kg',
+        price: selectedVariant.price,
+        quantity: quantity,
+        image: mainImage.src
+      };
+
+      let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const existingItem = cart.find(item =>
+        item.id === product.id && item.variant === product.variant
+      );
+
+      if (existingItem) {
+        existingItem.quantity += quantity;
+      } else {
+        cart.push(product);
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+
+      addToCartBtn.textContent = '✓ Sepete Eklendi!';
+      addToCartBtn.style.background = '#16a34a';
+
+      setTimeout(() => {
+        addToCartBtn.textContent = 'Sepete Ekle';
+        addToCartBtn.style.background = '#dc2626';
+      }, 2000);
+    });
+
+    // SSS Accordion
+    const faqQuestions = document.querySelectorAll('.faq-question');
+    faqQuestions.forEach(question => {
+      question.addEventListener('click', () => {
+        const item = question.parentElement;
+        const wasActive = item.classList.contains('active');
+
+        document.querySelectorAll('.faq-item').forEach(i => {
+          i.classList.remove('active');
+        });
+
+        if (!wasActive) {
+          item.classList.add('active');
+        }
+      });
+    });
+  </script>
+</BaseLayout>

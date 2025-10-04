@@ -1,0 +1,271 @@
+---
+// src/pages/kayseri-sofrasi.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Kayseri Yemekleri - Pastırma Adası">
+  <div class="container">
+    <div class="hero-section">
+      <h1>Pastırma Adası - Kayseri Yemekleri</h1>
+      <p>Kayseri'nin en özel lezzetlerini keşfedin</p>
+    </div>
+
+    <div class="menu-grid">
+      <!-- Kayseri Mantısı -->
+      <div class="menu-card">
+        <img
+          class="menu-image-inner"
+          src="https://pastirmaadasi.com/wp-content/uploads/2025/08/kayseri-mantisi.webp"
+          alt="Kayseri Mantısı"
+          loading="lazy"
+        />
+        <div>
+          <div class="menu-header">
+            <h2 class="menu-title">Kayseri Mantısı</h2>
+            <div class="price-badge">300₺</div>
+          </div>
+          <div class="menu-section">
+            <p>• Geleneksel Kayseri mantısı, yoğurt ve tereyağı ile servis edilir.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Yağlama -->
+      <div class="menu-card">
+        <img
+          class="menu-image-inner"
+          src="https://pastirmaadasi.com/wp-content/uploads/2025/08/yaglama.webp"
+          alt="Yağlama"
+          loading="lazy"
+        />
+        <div>
+          <div class="menu-header">
+            <h2 class="menu-title">Yağlama</h2>
+            <div class="price-badge">380₺</div>
+          </div>
+          <div class="menu-section">
+            <p>• Kat kat açılmış hamurun, sos ve tereyağı ile buluştuğu nefis Kayseri lezzeti.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kâğıtta Pastırma -->
+      <div class="menu-card">
+        <img
+          class="menu-image-inner"
+          src="https://pastirmaadasi.com/wp-content/uploads/2025/08/kagitta-pastirma.webp"
+          alt="Kâğıtta Pastırma"
+          loading="lazy"
+        />
+        <div>
+          <div class="menu-header">
+            <h2 class="menu-title">Kâğıtta Pastırma</h2>
+            <div class="price-badge">380₺</div>
+          </div>
+          <div class="menu-section">
+            <p>• Özel soslarla marine edilmiş pastırmanın kâğıtta fırınlanmış lezzeti.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pastırma Kebabı -->
+      <div class="menu-card">
+        <img
+          class="menu-image-inner"
+          src="https://pastirmaadasi.com/wp-content/uploads/2025/08/pastirma-kebabi.webp"
+          alt="Pastırma Kebabı"
+          loading="lazy"
+        />
+        <div>
+          <div class="menu-header">
+            <h2 class="menu-title">Pastırma Kebabı</h2>
+            <div class="price-badge">450₺</div>
+          </div>
+          <div class="menu-section">
+            <p>• Izgara veya fırın seçenekleriyle servis edilen, özel baharatlı pastırma kebabı.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA Butonlar -->
+    <div class="cta-buttons">
+      <a
+        class="cta-btn location-btn"
+        href="https://maps.google.com/?q=Pastırma+Adası+Kayseri"
+        target="_blank"
+        rel="noopener"
+      >
+        📍 Konum Al
+      </a>
+      <a class="cta-btn call-btn" href="tel:+905077623838">
+        📞 Ara
+      </a>
+    </div>
+  </div>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      line-height: 1.6;
+      color: #333;
+      background: #faf9f7;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .hero-section {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 40px 20px;
+      background: white;
+      border-radius: 20px;
+      border: 2px solid #f2e6c9;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.05);
+    }
+
+    .hero-section h1 {
+      font-size: 2.6rem;
+      margin-bottom: 15px;
+      color: #444;
+      font-weight: bold;
+    }
+
+    .hero-section p {
+      font-size: 1.2rem;
+      color: #7a6a35;
+    }
+
+    .menu-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    .menu-card {
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+      border: 2px solid #f2e6c9;
+      transition: all 0.3s ease;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      overflow: hidden;
+    }
+
+    .menu-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 50px rgba(0,0,0,0.12);
+    }
+
+    .menu-header {
+      margin-bottom: 20px;
+    }
+
+    .menu-title {
+      font-size: 1.8rem;
+      color: #7a6a35;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .price-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
+      color: #333;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin: 10px 0;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    }
+
+    .menu-section p {
+      margin: 5px 0;
+      color: #555;
+      line-height: 1.4;
+    }
+
+    .menu-image-inner {
+      width: 200px;
+      height: 200px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+      object-fit: cover;
+    }
+
+    .cta-buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 25px;
+      margin-top: 50px;
+      flex-wrap: wrap;
+    }
+
+    .cta-btn {
+      display: inline-block;
+      padding: 20px 40px;
+      border-radius: 60px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.3rem;
+      text-transform: uppercase;
+      color: white;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 15px 50px rgba(0,0,0,0.25);
+    }
+
+    .location-btn {
+      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    }
+
+    .call-btn {
+      background: linear-gradient(135deg, #ff6b35 0%, #ff5722 100%);
+    }
+
+    @media (max-width: 768px) {
+      .hero-section h1 {
+        font-size: 2rem;
+      }
+
+      .menu-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .menu-image-inner {
+        width: 80%;
+        height: auto;
+        margin-bottom: 15px;
+      }
+
+      .cta-btn {
+        width: 220px;
+        text-align: center;
+      }
+    }
+  </style>
+</BaseLayout>
