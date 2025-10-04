@@ -1,0 +1,168 @@
+---
+// src/components/Footer.astro
+---
+
+<div class="footer-container">
+  <div class="footer-content">
+    <div class="footer-grid">
+      <div class="footer-section">
+        <h3>Pastırma Adası</h3>
+        <p>Kaliteli etin ve eşsiz lezzetin buluştuğu adres. Geleneksel tatları modern dokunuşlarla sunuyoruz. Sofranıza değer katın!</p>
+      </div>
+
+      <div class="footer-section">
+        <h3>Hızlı Linkler</h3>
+        <ul>
+          <li><a href="/online-alisveris">Online Alışveriş</a></li>
+          <li><a href="/kayseri-sofrasi">Kayseri Sofrası</a></li>
+          <li><a href="/kayseri-serpme-kahvaltisi">Kahvaltı Menüsü</a></li>
+          <li><a href="/gizlilik-politikasi">Gizlilik Politikası</a></li>
+          <li><a href="/iade-politikasi">İade Politikası</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h3>İletişim</h3>
+        <ul class="contact-list">
+          <li>📍 Tablakaya, Yeni Bağlar Cd. No:17/A</li>
+          <li>38200 Talas/Kayseri</li>
+          <li>📞 <a href="tel:+905077623838">0507 762 38 38</a></li>
+          <li>✉️ <a href="mailto:pastirmaadasi@gmail.com">pastirmaadasi@gmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h3>Güvenli Ödeme</h3>
+        <div class="payment-icons">
+          <div class="payment-icon">Visa</div>
+          <div class="payment-icon">Mastercard</div>
+          <div class="payment-icon">İyzico</div>
+        </div>
+        <p class="ssl-text">256-bit SSL Sertifikası</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; {new Date().getFullYear()} Pastırma Adası. Tüm hakları saklıdır.</p>
+      <div class="footer-links">
+        <a href="/mesafeli-satis-sozlesmesi">Mesafeli Satış Sözleşmesi</a>
+        <a href="/teslimat-ve-iade">Teslimat ve İade</a>
+        <a href="/kullanim-kosullari">Kullanım Koşulları</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .footer-container {
+    background: #1a1a1a;
+    color: white;
+  }
+
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .footer-section h3 {
+    color: var(--secondary);
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .footer-section p {
+    color: #ccc;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .footer-section ul {
+    list-style: none;
+  }
+
+  .footer-section ul li {
+    margin-bottom: 0.5rem;
+  }
+
+  .footer-section a {
+    color: #ccc;
+    font-size: 0.9rem;
+  }
+
+  .footer-section a:hover {
+    color: var(--secondary);
+  }
+
+  .contact-list li {
+    color: #ccc;
+    font-size: 0.9rem;
+  }
+
+  .payment-icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .payment-icon {
+    background: white;
+    color: var(--text-dark);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: bold;
+  }
+
+  .ssl-text {
+    font-size: 0.75rem;
+    color: #999;
+    margin-top: 0.75rem;
+  }
+
+  .footer-bottom {
+    border-top: 1px solid #333;
+    padding-top: 1.5rem;
+    text-align: center;
+  }
+
+  .footer-bottom p {
+    color: #999;
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .footer-links a {
+    color: #999;
+    font-size: 0.875rem;
+  }
+
+  .footer-links a:hover {
+    color: var(--secondary);
+  }
+
+  @media (max-width: 768px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .footer-links {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+</style>

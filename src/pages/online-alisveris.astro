@@ -1,0 +1,369 @@
+---
+// src/pages/online-alisveris.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ProductCard from '../components/ProductCard.astro';
+
+const pastirmaUrunleri = [
+  { id: 1, name: 'Antrikot Pastırma', price: 1200, image: '/assets/image/products/antrikot-pastirma.jpg', unit: 'kg' },
+  { id: 2, name: 'Sırt Pastırma', price: 1100, image: '/assets/image/products/sirt-pastirma.jpg', unit: 'kg' },
+  { id: 3, name: 'Bonfile Pastırma', price: 1300, image: '/assets/image/products/bonfile-pastirma.jpg', unit: 'kg' },
+  { id: 4, name: 'Karaparça Pastırma', price: 950, image: '/assets/image/products/karaparca-pastirma.jpg', unit: 'kg' }
+];
+
+const sucukUrunleri = [
+  { id: 5, name: 'Dana Parmak Sucuk', price: 850, image: '/assets/image/products/parmak-sucuk.jpg', unit: 'kg' },
+  { id: 6, name: 'Dana Kangal Sucuk', price: 800, image: '/assets/image/products/kangal-sucuk.jpg', unit: 'kg' },
+  { id: 7, name: 'Varyanta Sucuk', price: 900, image: '/assets/image/products/varyanta-sucuk.jpg', unit: 'kg' },
+  { id: 8, name: 'Çubuk Sucuk', price: 45, image: '/assets/image/products/cubuk-sucuk.jpg', unit: 'adet' },
+  { id: 9, name: 'Sarma Sucuk', price: 40, image: '/assets/image/products/sarma-sucuk.jpg', unit: 'adet' }
+];
+
+const mantiUrunleri = [
+  { id: 10, name: 'Kayseri El Mantısı', price: 180, image: '/assets/image/products/el-manti.jpg', unit: 'kg' },
+  { id: 11, name: 'Bohça Mantı', price: 200, image: '/assets/image/products/bohca-manti.jpg', unit: 'kg' }
+];
+---
+
+<BaseLayout title="Online Alışveriş" description="Kayseri'nin en kaliteli pastırma, sucuk ve mantı ürünlerini online sipariş edin">
+  <Header slot="header" />
+
+  <!-- Hero Banner -->
+  <section class="page-hero">
+    <div class="container">
+      <div class="hero-text">
+        <h1>Online Alışveriş</h1>
+        <p>Kayseri'nin eşsiz lezzetlerini kapınıza kadar getiriyoruz</p>
+        <div class="hero-badges">
+          <span class="badge badge-secondary">✓ 1000₺ üzeri ücretsiz kargo</span>
+          <span class="badge badge-secondary">✓ Hızlı teslimat</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slider Banner -->
+  <section class="banner-slider-section">
+    <div class="container">
+      <div class="slider-wrapper">
+        <div id="banner-slider" class="banner-slider">
+          <div class="banner-slide">
+            <img src="/assets/image/banners/banner1.jpg" alt="Kampanya 1" loading="lazy">
+            <div class="banner-content">
+              <h3>Yeni Sezon Kampanyası</h3>
+              <p>Tüm pastırmalarda %10 indirim</p>
+            </div>
+          </div>
+          <div class="banner-slide">
+            <img src="/assets/image/banners/banner2.jpg" alt="Kampanya 2" loading="lazy">
+            <div class="banner-content">
+              <h3>Özel Sucuk Çeşitleri</h3>
+              <p>Geleneksel tatlar modern lezzetlerle buluşuyor</p>
+            </div>
+          </div>
+          <div class="banner-slide">
+            <img src="/assets/image/banners/banner3.jpg" alt="Kampanya 3" loading="lazy">
+            <div class="banner-content">
+              <h3>El Yapımı Mantı</h3>
+              <p>Annenizin elinden çıkmış gibi</p>
+            </div>
+          </div>
+        </div>
+
+        <button id="prev-btn" class="slider-btn slider-btn-prev">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button id="next-btn" class="slider-btn slider-btn-next">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        <div class="slider-dots">
+          <button class="slider-dot active"></button>
+          <button class="slider-dot"></button>
+          <button class="slider-dot"></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Kayseri Pastırması -->
+  <section class="products-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Kayseri Pastırması</h2>
+        <a href="/products/pastirma" class="view-all-link">
+          Tümünü Gör
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+      <div class="products-grid">
+        {pastirmaUrunleri.map(product => (
+          <ProductCard {...product} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Kayseri Sucuğu -->
+  <section class="products-section section-gray">
+    <div class="container">
+      <div class="section-header">
+        <h2>Kayseri Sucuğu</h2>
+        <a href="/products/sucuk" class="view-all-link">
+          Tümünü Gör
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+      <div class="products-grid">
+        {sucukUrunleri.map(product => (
+          <ProductCard {...product} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Kayseri Mantısı -->
+  <section class="products-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Kayseri Mantısı</h2>
+        <a href="/products/manti" class="view-all-link">
+          Tümünü Gör
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+      <div class="products-grid">
+        {mantiUrunleri.map(product => (
+          <ProductCard {...product} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  .page-hero {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    padding: 4rem 1rem;
+  }
+
+  .hero-text h1 {
+    font-size: 3rem;
+    color: white;
+    margin-bottom: 1rem;
+  }
+
+  .hero-text p {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .hero-badges .badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 8px 16px;
+  }
+
+  .banner-slider-section {
+    padding: 2rem 1rem;
+    background: var(--bg-gray);
+  }
+
+  .slider-wrapper {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 10px 30px var(--shadow-lg);
+  }
+
+  .banner-slider {
+    display: flex;
+    transition: transform 0.5s ease;
+  }
+
+  .banner-slide {
+    min-width: 100%;
+    position: relative;
+  }
+
+  .banner-slide img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+  }
+
+  .banner-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2rem;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    color: white;
+  }
+
+  .banner-content h3 {
+    font-size: 2rem;
+    color: white;
+    margin-bottom: 0.5rem;
+  }
+
+  .banner-content p {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    z-index: 10;
+  }
+
+  .slider-btn:hover {
+    background: white;
+  }
+
+  .slider-btn-prev { left: 1rem; }
+  .slider-btn-next { right: 1rem; }
+
+  .slider-dots {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+  }
+
+  .slider-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    padding: 0;
+  }
+
+  .slider-dot.active {
+    background: white;
+  }
+
+  .products-section {
+    padding: 4rem 1rem;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .section-header h2 {
+    font-size: 2rem;
+  }
+
+  .view-all-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--secondary);
+    font-weight: bold;
+  }
+
+  .view-all-link:hover {
+    color: var(--primary);
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .hero-text h1 {
+      font-size: 2rem;
+    }
+
+    .banner-slide img {
+      height: 250px;
+    }
+
+    .banner-content h3 {
+      font-size: 1.5rem;
+    }
+
+    .products-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  let currentSlide = 0;
+  const totalSlides = 3;
+  const slider = document.getElementById('banner-slider');
+  const dots = document.querySelectorAll('.slider-dot');
+
+  function updateSlider() {
+    if (slider) {
+      slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === currentSlide);
+      });
+    }
+  }
+
+  document.getElementById('next-btn')?.addEventListener('click', () => {
+    currentSlide = (currentSlide + 1) % totalSlides;
+    updateSlider();
+  });
+
+  document.getElementById('prev-btn')?.addEventListener('click', () => {
+    currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+    updateSlider();
+  });
+
+  dots.forEach((dot, index) => {
+    dot.addEventListener('click', () => {
+      currentSlide = index;
+      updateSlider();
+    });
+  });
+
+  setInterval(() => {
+    currentSlide = (currentSlide + 1) % totalSlides;
+    updateSlider();
+  }, 5000);
+</script>

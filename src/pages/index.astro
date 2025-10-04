@@ -1,11 +1,340 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// src/pages/index.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<BaseLayout title="Ana Sayfa" description="Pastırma Adası - Kayseri'nin eşsiz lezzetleri">
+  <Header slot="header" />
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title fade-in">Pastırma Adası</h1>
+      <p class="hero-subtitle">Kaliteli etin ve eşsiz lezzetin buluştuğu adres</p>
+
+      <div class="hero-cards">
+        <a href="/online-alisveris" class="hero-card">
+          <div class="hero-card-image">
+            <img
+              src="/assets/image/online-shopping.jpg"
+              alt="Online Alışveriş"
+              loading="lazy"
+            />
+          </div>
+          <div class="hero-card-content">
+            <h2>Online Alışveriş</h2>
+            <p>Ürünlerimizi keşfedin ve sipariş verin</p>
+            <span class="hero-card-arrow">Hemen Alışverişe Başla →</span>
+          </div>
+        </a>
+
+        <a href="/kayseri-sofrasi" class="hero-card">
+          <div class="hero-card-image">
+            <img
+              src="/assets/image/kayseri-sofrasi.jpg"
+              alt="Kayseri Sofrası"
+              loading="lazy"
+            />
+          </div>
+          <div class="hero-card-content">
+            <h2>Kayseri Sofrası</h2>
+            <p>Restoranımızda yöresel lezzetler</p>
+            <span class="hero-card-arrow">Menümüzü İnceleyin →</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="scroll-indicator">
+      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+      </svg>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section">
+    <div class="container">
+      <h2 class="section-title">Neden Pastırma Adası?</h2>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3>Kaliteli Ürünler</h3>
+          <p>Özenle seçilmiş, geleneksel yöntemlerle üretilmiş ürünler</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3>Hızlı Teslimat</h3>
+          <p>1000₺ üzeri siparişlerde ücretsiz kargo</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+          </div>
+          <h3>Güvenli Ödeme</h3>
+          <p>İyzico ile güvenli ve kolay ödeme</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Kayseri'nin Eşsiz Lezzetleri</h2>
+      <p>Geleneksel tatları modern dokunuşlarla sunuyoruz. Sofranıza değer katın!</p>
+      <div class="cta-buttons">
+        <a href="/online-alisveris" class="btn btn-primary btn-large">Alışverişe Başla</a>
+        <a href="tel:+905077623838" class="btn btn-outline btn-large">Bizi Arayın</a>
+      </div>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  .hero-section {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(122, 106, 53, 0.1) 0%, rgba(212, 175, 55, 0.1) 100%);
+    padding: 2rem 1rem;
+  }
+
+  .hero-content {
+    max-width: 1200px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .hero-title {
+    font-size: 3.5rem;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    animation: fadeIn 1s ease-out;
+  }
+
+  .hero-subtitle {
+    font-size: 1.5rem;
+    color: var(--text-gray);
+    margin-bottom: 3rem;
+  }
+
+  .hero-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .hero-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    transition: all 0.5s ease;
+    position: relative;
+  }
+
+  .hero-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  }
+
+  .hero-card-image {
+    position: relative;
+    padding-top: 75%;
+    overflow: hidden;
+  }
+
+  .hero-card-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s ease;
+  }
+
+  .hero-card:hover .hero-card-image img {
+    transform: scale(1.1);
+  }
+
+  .hero-card-content {
+    padding: 2rem;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    color: white;
+  }
+
+  .hero-card-content h2 {
+    font-size: 1.75rem;
+    color: white;
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-card-content p {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 1rem;
+  }
+
+  .hero-card-arrow {
+    display: inline-block;
+    color: var(--secondary);
+    font-weight: bold;
+    transition: transform 0.3s ease;
+  }
+
+  .hero-card:hover .hero-card-arrow {
+    transform: translateX(10px);
+  }
+
+  .scroll-indicator {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: bounce 2s infinite;
+    color: var(--primary);
+  }
+
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateX(-50%) translateY(0);
+    }
+    50% {
+      transform: translateX(-50%) translateY(10px);
+    }
+  }
+
+  .features-section {
+    padding: 5rem 1rem;
+    background: white;
+  }
+
+  .section-title {
+    font-size: 2.5rem;
+    text-align: center;
+    color: var(--primary);
+    margin-bottom: 3rem;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+
+  .feature-card {
+    text-align: center;
+    padding: 2rem;
+    border-radius: var(--radius-md);
+    background: var(--bg-gray);
+    transition: var(--transition);
+  }
+
+  .feature-card:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .feature-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(212, 175, 55, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: var(--secondary);
+  }
+
+  .feature-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .feature-card p {
+    color: var(--text-gray);
+  }
+
+  .cta-section {
+    padding: 5rem 1rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    text-align: center;
+  }
+
+  .cta-section h2 {
+    font-size: 2.5rem;
+    color: white;
+    margin-bottom: 1rem;
+  }
+
+  .cta-section p {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1.25rem;
+    }
+
+    .hero-cards {
+      grid-template-columns: 1fr;
+    }
+
+    .section-title {
+      font-size: 2rem;
+    }
+
+    .cta-section h2 {
+      font-size: 2rem;
+    }
+
+    .cta-buttons {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+</style>

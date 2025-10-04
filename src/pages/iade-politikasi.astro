@@ -1,0 +1,51 @@
+---
+// src/pages/iade-politikasi.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout title="İade Politikası" description="Pastırma Adası İade Politikası">
+  <Header slot="header" />
+
+  <section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4 max-w-4xl">
+      <div class="bg-white rounded-2xl shadow-md p-8 md:p-12">
+        <h1 class="text-4xl font-bold text-primary mb-6">İade Politikamız</h1>
+
+        <div class="prose prose-lg max-w-none">
+          <p class="text-gray-700 leading-relaxed mb-6">
+            Değerli Müşterimiz, Pastırma Adası olarak ürün iade ve alışverişten cayma politikamız, işletmemizin ana prensip olarak belirlediği 'sınırsız müşteri memnuniyeti' vizyonunu esas almaktadır.
+          </p>
+
+          <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded-r-lg mb-6">
+            <p class="text-gray-800 font-bold text-lg mb-2">3 Gün İçinde Ücretsiz İade</p>
+            <p class="text-gray-700">
+              Gerek mağazamızdan gerek www.pastirmaadasi.com internet sitemiz üzerinden almış olduğunuz her ürünü koşulsuz ve <strong>3 gün içerisinde, ücretsiz</strong> iade hakkına sahipsiniz.
+            </p>
+          </div>
+
+          <h2 class="text-2xl font-bold text-primary mt-8 mb-4">İade Süreci</h2>
+          <ul class="list-disc list-inside text-gray-700 space-y-3 mb-6">
+            <li>Paketinizin kargoya verildiğine dair bilgilendirme mesajı ulaşmadan önce iptal edebilirsiniz</li>
+            <li>Kargoya verilmiş ürünleri herhangi bir sebeple iade edebilirsiniz</li>
+            <li>İade işlemini aşağıdaki adresimize karşı ödemeli olarak gerçekleştirebilirsiniz</li>
+            <li>Alışveriş tutarının iadesini talep edebilir veya yeni sipariş oluşturabilirsiniz</li>
+          </ul>
+
+          <div class="bg-secondary/10 border-l-4 border-secondary p-6 rounded-r-lg mt-8">
+            <p class="text-gray-700 font-semibold mb-2">İade Adresi</p>
+            <p class="text-gray-600">
+              Pastırma Adası<br>
+              Cumhuriyet Mh. Nazmi Toker Cad. No:8/A<br>
+              Melikgazi / Kayseri<br>
+              Tel: <a href="tel:+905077623838" class="text-primary hover:text-secondary">0507 762 38 38</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>
