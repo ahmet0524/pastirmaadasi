@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
-// Ürün verileri (normalde JSON, API veya DB’den gelir)
+// Ürünleri burada tanımla (ileride JSON ya da ayrı dosyadan alabilirsin)
 const products = [
   {
     slug: 'antrikot-pastirma',
@@ -15,7 +15,8 @@ const products = [
       '/assets/image/products/pastirma-2.jpg',
       '/assets/image/products/pastirma-3.jpg'
     ],
-    description: 'Geleneksel yöntemlerle hazırlanmış, özenle seçilmiş antrikot etinden üretilen Kayseri pastırması...',
+    description:
+      'Geleneksel yöntemlerle hazırlanmış, özenle seçilmiş antrikot etinden üretilen Kayseri pastırması...',
     features: [
       '100% Dana Eti',
       'Doğal Çemen',
@@ -24,28 +25,34 @@ const products = [
       'Vakumlu Paket'
     ],
     variants: [
-      { value: 0.25, label: '250gr', price: 112.50 },
+      { value: 0.25, label: '250gr', price: 112.5 },
       { value: 0.5, label: '500gr', price: 225 },
       { value: 1, label: '1kg', price: 450 }
     ]
   }
 ];
 
-// 🔑 Astro bu fonksiyona bakarak hangi sayfaları build edecek karar verir
+// 🔑 Astro hangi slug’lar için sayfa oluşturacağını buradan öğreniyor
 export async function getStaticPaths() {
-  return products.map(product => ({
+  return products.map((product) => ({
     params: { slug: product.slug },
     props: { product }
   }));
 }
 
-// Seçilen ürün props’tan gelecek
+// seçilen ürün props’tan geliyor
 const { product } = Astro.props;
 
-// İlgili ürünler (sabit bırakabilirsin)
+// örnek ilgili ürünler
 const relatedProducts = [
   { id: '1', name: 'Sırt Pastırma', image: '/assets/image/products/pastirma-sirt.jpg', price: 420 },
   { id: '2', name: 'Dana Sucuk', image: '/assets/image/products/sucuk.jpg', price: 380 },
   { id: '3', name: 'Kayseri Mantısı', image: '/assets/image/products/manti.jpg', price: 150 }
 ];
 ---
+
+<BaseLayout>
+  <h1>{product.name}</h1>
+  <p>{product.description}</p>
+  <p>Fiyat: {product.price} TL / {product.unit}</p>
+</BaseLayout>
