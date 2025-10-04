@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getSession } from '../../../lib/auth';
+
+const session = await getSession();
+if (!session) {
+  throw Astro.redirect('/admin/login');
+}
+---
+
+<BaseLayout title="Yeni Kupon Oluştur">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <!-- Sidebar -->
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Yeni Kupon Oluştur</h1>
+        <p>İndirim kuponu tanımlayın</p>
+      </header>
+
+      <div class="form-container">
+        <form id="coupon-form" class="product-form">
+          <!-- form alanları burada -->
+        </form>
+      </div>
+    </main>
+  </div>
+</BaseLayout>
