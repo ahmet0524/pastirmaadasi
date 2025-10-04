@@ -1,0 +1,156 @@
+---
+// src/pages/manti.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProductCard from '../components/ProductCard.astro';
+
+const products = [
+  {
+    id: 'kayseri-el-mantisi',
+    name: 'Kayseri El Mantısı',
+    image: '/assets/image/products/el-mantisi.jpg',
+    price: 150,
+    weight: '500gr',
+    description: 'El açması hamur ile hazırlanan geleneksel Kayseri mantısı.',
+    category: 'Mantı'
+  },
+  {
+    id: 'bohca-manti',
+    name: 'Bohça Mantı',
+    image: '/assets/image/products/bohca-manti.jpg',
+    price: 180,
+    weight: '500gr',
+    description: 'Özel bohça şeklinde hazırlanan, nefis mantı.',
+    category: 'Mantı',
+    discount: 10
+  },
+  {
+    id: 'su-boregi',
+    name: 'Su Böreği',
+    image: '/assets/image/products/su-boregi.jpg',
+    price: 120,
+    weight: '1 kg',
+    description: 'Kat kat açılmış ince yufka ile hazırlanan peynirli su böreği.',
+    category: 'Un Mamülleri'
+  }
+];
+---
+
+<BaseLayout title="Mantı ve Un Mamülleri" description="Geleneksel el emeği ile hazırlanan mantı ve böreklermiz.">
+  <div class="category-page">
+    <section class="category-hero manti-hero">
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <h1 class="hero-title">Mantı ve Un Mamülleri</h1>
+        <p class="hero-description">
+          El emeği ile hazırlanan, lezzet dolu mantı ve böreklermiz
+        </p>
+      </div>
+    </section>
+
+    <section class="products-section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Ürünlerimiz</h2>
+        </div>
+        <div class="products-grid">
+          {products.map(product => <ProductCard {...product} />)}
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <style>
+    .manti-hero {
+      background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+    }
+
+    .category-page {
+      min-height: 100vh;
+    }
+
+    .category-hero {
+      position: relative;
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, transparent 0%, rgba(0,0,0,0.3) 100%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      color: white;
+      max-width: 800px;
+      padding: 0 20px;
+    }
+
+    .hero-title {
+      font-size: 48px;
+      font-weight: 800;
+      margin: 0 0 16px 0;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero-description {
+      font-size: 18px;
+      line-height: 1.6;
+      margin: 0;
+      opacity: 0.95;
+    }
+
+    .products-section {
+      padding: 80px 0;
+      background: #faf9f7;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .section-header h2 {
+      font-size: 36px;
+      font-weight: 700;
+      color: #1f2937;
+      margin: 0;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 32px;
+    }
+
+    @media (max-width: 768px) {
+      .category-hero {
+        height: 300px;
+      }
+
+      .hero-title {
+        font-size: 32px;
+      }
+
+      .products-section {
+        padding: 60px 0;
+      }
+
+      .products-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</BaseLayout>

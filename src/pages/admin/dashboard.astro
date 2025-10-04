@@ -1,0 +1,364 @@
+---
+// src/pages/admin/dashboard.astro
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getSession } from '../../lib/auth';
+import { supabaseAdmin } from '../../lib/supabase';
+
+// Auth kontrolü
+const session = await getSession();
+if (!session) {
+  return Astro.redirect('/admin/login');
+}
+
+// İstatistikleri çek
+const { data: products } = await supabaseAdmin.from('products').select('id, is_active');
+const { data: orders } = await supabaseAdmin.from('orders').select('total, status');
+const { data: coupons } = await supabaseAdmin.from('coupons').select('id, is_active');
+
+const stats = {
+  totalProducts: products?.length || 0,
+  activeProducts: products?.filter(p => p.is_active).length || 0,
+  totalOrders: orders?.length || 0,
+  pendingOrders: orders?.filter(o => o.status === 'pending').length || 0,
+  totalRevenue: orders?.reduce((sum, o) => sum + parseFloat(o.total), 0) || 0,
+  activeCoupons: coupons?.filter(c => c.is_active).length || 0
+};
+---
+
+<BaseLayout title="Admin Dashboard">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <h2>Pastırma Adası</h2>
+        <p>Admin Panel</p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-item active">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          Dashboard
+        </a>
+        <a href="/admin/products" class="nav-item">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          Ürünler
+        </a>
+        <a href="/admin/orders" class="nav-item">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          Siparişler
+        </a>
+        <a href="/admin/coupons" class="nav-item">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+          </svg>
+          Kuponlar
+        </a>
+        <a href="/" class="nav-item">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+          Siteyi Görüntüle
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="btn btn-outline btn-full">
+          Çıkış Yap
+        </button>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Dashboard</h1>
+        <p>Hoş geldiniz! İşte güncel istatistikleriniz</p>
+      </header>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Toplam Ürün</p>
+            <p class="stat-value">{stats.totalProducts}</p>
+            <p class="stat-detail">{stats.activeProducts} aktif</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Siparişler</p>
+            <p class="stat-value">{stats.totalOrders}</p>
+            <p class="stat-detail">{stats.pendingOrders} beklemede</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Toplam Gelir</p>
+            <p class="stat-value">{stats.totalRevenue.toFixed(2)}₺</p>
+            <p class="stat-detail">Bu ay</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Kuponlar</p>
+            <p class="stat-value">{stats.activeCoupons}</p>
+            <p class="stat-detail">aktif kupon</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <h2>Hızlı İşlemler</h2>
+        <div class="actions-grid">
+          <a href="/admin/products/new" class="action-card">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <h3>Yeni Ürün Ekle</h3>
+            <p>Kataloğa yeni ürün ekleyin</p>
+          </a>
+
+          <a href="/admin/coupons/new" class="action-card">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            <h3>Yeni Kupon Oluştur</h3>
+            <p>İndirim kuponu tanımlayın</p>
+          </a>
+
+          <a href="/admin/orders" class="action-card">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <h3>Siparişleri Görüntüle</h3>
+            <p>Bekleyen siparişleri yönetin</p>
+          </a>
+        </div>
+      </div>
+    </main>
+  </div>
+</BaseLayout>
+
+<style>
+  .admin-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+  }
+
+  .admin-sidebar {
+    background: #1a1a1a;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+
+  .sidebar-header {
+    padding: 2rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .sidebar-header h2 {
+    color: var(--secondary);
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .sidebar-header p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.875rem;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 1.5rem 0;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.2s;
+  }
+
+  .nav-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+  }
+
+  .nav-item.active {
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--secondary);
+    border-left: 3px solid var(--secondary);
+  }
+
+  .sidebar-footer {
+    padding: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .admin-main {
+    background: var(--bg-gray);
+    padding: 2rem;
+    overflow-y: auto;
+  }
+
+  .admin-header {
+    margin-bottom: 2rem;
+  }
+
+  .admin-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .admin-header p {
+    color: var(--text-gray);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    box-shadow: 0 2px 10px var(--shadow);
+  }
+
+  .stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .stat-content {
+    flex: 1;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: var(--text-gray);
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-detail {
+    font-size: 0.875rem;
+    color: var(--text-light);
+  }
+
+  .quick-actions {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: 2rem;
+    box-shadow: 0 2px 10px var(--shadow);
+  }
+
+  .quick-actions h2 {
+    margin-bottom: 1.5rem;
+  }
+
+  .actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .action-card {
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    text-align: center;
+    transition: var(--transition);
+  }
+
+  .action-card:hover {
+    border-color: var(--secondary);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px var(--shadow);
+  }
+
+  .action-card svg {
+    color: var(--secondary);
+    margin-bottom: 1rem;
+  }
+
+  .action-card h3 {
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .action-card p {
+    font-size: 0.875rem;
+    color: var(--text-gray);
+  }
+
+  @media (max-width: 1024px) {
+    .admin-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .admin-sidebar {
+      position: relative;
+      height: auto;
+    }
+  }
+</style>
+
+<script>
+  import { supabase } from '../../lib/supabase';
+
+  document.getElementById('logout-btn')?.addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    document.cookie = 'sb-access-token=; path=/; max-age=0';
+    window.location.href = '/admin/login';
+  });
+</script>

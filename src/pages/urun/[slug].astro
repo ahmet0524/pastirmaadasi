@@ -1,58 +1,754 @@
 ---
+// src/pages/urun/[slug].astro
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { getProducts, getProductBySlug } from '../../lib/products';
 
-// Ürünleri burada tanımla (ileride JSON ya da ayrı dosyadan alabilirsin)
-const products = [
-  {
-    slug: 'antrikot-pastirma',
-    id: 'pastirma-antrikot-1',
-    name: 'Antrikot Pastırma',
-    category: 'Pastırma',
-    price: 450,
-    unit: 'kg',
-    images: [
-      '/assets/image/products/pastirma-1.jpg',
-      '/assets/image/products/pastirma-2.jpg',
-      '/assets/image/products/pastirma-3.jpg'
-    ],
-    description:
-      'Geleneksel yöntemlerle hazırlanmış, özenle seçilmiş antrikot etinden üretilen Kayseri pastırması...',
-    features: [
-      '100% Dana Eti',
-      'Doğal Çemen',
-      'Katkısız Üretim',
-      'Geleneksel Yöntem',
-      'Vakumlu Paket'
-    ],
-    variants: [
-      { value: 0.25, label: '250gr', price: 112.5 },
-      { value: 0.5, label: '500gr', price: 225 },
-      { value: 1, label: '1kg', price: 450 }
-    ]
-  }
-];
+// Type tanımları
+interface ProductVariant {
+  label: string;
+  value: string;
+  price: number;
+}
 
-// 🔑 Astro hangi slug’lar için sayfa oluşturacağını buradan öğreniyor
+// Tüm ürünlerin slug'larını al (build zamanında)
 export async function getStaticPaths() {
+  const products = await getProducts();
+
   return products.map((product) => ({
     params: { slug: product.slug },
     props: { product }
   }));
 }
 
-// seçilen ürün props’tan geliyor
 const { product } = Astro.props;
 
-// örnek ilgili ürünler
-const relatedProducts = [
-  { id: '1', name: 'Sırt Pastırma', image: '/assets/image/products/pastirma-sirt.jpg', price: 420 },
-  { id: '2', name: 'Dana Sucuk', image: '/assets/image/products/sucuk.jpg', price: 380 },
-  { id: '3', name: 'Kayseri Mantısı', image: '/assets/image/products/manti.jpg', price: 150 }
-];
+// İlgili ürünleri çek (aynı kategoriden)
+const relatedProductsData = await getProducts({ category: product.category });
+const relatedProducts = relatedProductsData
+  .filter(p => p.id !== product.id)
+  .slice(0, 3);
+
+// Varyantları parse et (JSONB olarak geliyor)
+const variants: ProductVariant[] = product.variants || [];
 ---
 
-<BaseLayout>
-  <h1>{product.name}</h1>
-  <p>{product.description}</p>
-  <p>Fiyat: {product.price} TL / {product.unit}</p>
+<BaseLayout title={product.name} description={product.description}>
+  <Header slot="header" />
+
+  <section class="product-detail-page">
+    <div class="container">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb">
+        <a href="/">Ana Sayfa</a>
+        <span>/</span>
+        <a href="/online-alisveris">Ürünler</a>
+        <span>/</span>
+        <a href={`/online-alisveris?category=${product.category}`}>{product.category}</a>
+        <span>/</span>
+        <span>{product.name}</span>
+      </nav>
+
+      <div class="product-layout">
+        <!-- Sol: Görsel Galerisi -->
+        <div class="product-gallery">
+          <div class="main-image">
+            <img
+              id="main-product-image"
+              src={product.images?.[0] || '/assets/image/placeholder.jpg'}
+              alt={product.name}
+              loading="eager"
+            />
+          </div>
+
+          {product.images && product.images.length > 1 && (
+            <div class="thumbnail-gallery">
+              {product.images.map((image, index) => (
+                <button
+                  class={`thumbnail ${index === 0 ? 'active' : ''}`}
+                  data-image={image}
+                  type="button"
+                >
+                  <img src={image} alt={`${product.name} ${index + 1}`} />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <!-- Sağ: Ürün Bilgileri -->
+        <div class="product-info">
+          <span class="product-category">{product.category}</span>
+          <h1 class="product-title">{product.name}</h1>
+
+          <div class="product-price">
+            <span class="price-amount" id="display-price">{product.price}₺</span>
+            <span class="price-unit">/ {product.unit}</span>
+          </div>
+
+          {product.stock !== undefined && (
+            <div class="stock-info">
+              {product.stock > 0 ? (
+                <span class="in-stock">✓ Stokta var ({product.stock} adet)</span>
+              ) : (
+                <span class="out-of-stock">✗ Stokta yok</span>
+              )}
+            </div>
+          )}
+
+          <!-- Varyant Seçimi -->
+          {variants.length > 0 && (
+            <div class="variant-selector">
+              <label>Miktar Seçin:</label>
+              <div class="variant-buttons">
+                {variants.map((variant, index) => (
+                  <button
+                    type="button"
+                    class={`variant-btn ${index === 0 ? 'active' : ''}`}
+                    data-value={variant.value}
+                    data-price={variant.price}
+                  >
+                    {variant.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <!-- Adet/Miktar Seçici -->
+          <div class="quantity-selector">
+            <label>Adet:</label>
+            <div class="quantity-controls">
+              <button type="button" class="qty-btn minus">-</button>
+              <input type="number" id="quantity" value="1" min="1" max="99" readonly />
+              <button type="button" class="qty-btn plus">+</button>
+            </div>
+          </div>
+
+          <!-- Toplam Fiyat -->
+          <div class="total-price">
+            <span>Toplam:</span>
+            <span id="total-price" class="total-amount">{product.price}₺</span>
+          </div>
+
+          <!-- Sepete Ekle -->
+          <button
+            id="add-to-cart"
+            class="btn btn-primary btn-full btn-large"
+            type="button"
+            data-product-id={product.id}
+            data-product-name={product.name}
+            data-product-slug={product.slug}
+            data-product-image={product.images?.[0]}
+            data-product-unit={product.unit}
+          >
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+            Sepete Ekle
+          </button>
+
+          <!-- Özellikler -->
+          {product.features && product.features.length > 0 && (
+            <div class="product-features">
+              <h3>Ürün Özellikleri</h3>
+              <ul>
+                {product.features.map((feature) => (
+                  <li>
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <!-- Güvenlik Rozetleri -->
+          <div class="trust-badges">
+            <div class="badge-item">
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              Güvenli Alışveriş
+            </div>
+            <div class="badge-item">
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+              </svg>
+              1000₺ Üzeri Kargo Bedava
+            </div>
+            <div class="badge-item">
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              3 Gün İçinde İade
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ürün Açıklaması -->
+      {product.description && (
+        <div class="product-description">
+          <h2>Ürün Açıklaması</h2>
+          <p>{product.description}</p>
+        </div>
+      )}
+
+      <!-- İlgili Ürünler -->
+      {relatedProducts.length > 0 && (
+        <div class="related-products">
+          <h2>Benzer Ürünler</h2>
+          <div class="products-grid">
+            {relatedProducts.map(related => (
+              <a href={`/urun/${related.slug}`} class="related-product-card">
+                <img src={related.images?.[0] || '/assets/image/placeholder.jpg'} alt={related.name} />
+                <h3>{related.name}</h3>
+                <p class="product-price">{related.price}₺ / {related.unit}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <Footer slot="footer" />
 </BaseLayout>
+
+<style>
+  .product-detail-page {
+    padding: 2rem 1rem;
+    min-height: 100vh;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    font-size: 0.875rem;
+    color: var(--text-gray);
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb a {
+    color: var(--text-gray);
+  }
+
+  .breadcrumb a:hover {
+    color: var(--primary);
+  }
+
+  .breadcrumb span:last-child {
+    color: var(--text-dark);
+    font-weight: 600;
+  }
+
+  .product-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    margin-bottom: 4rem;
+  }
+
+  .product-gallery {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+  }
+
+  .main-image {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 20px var(--shadow);
+  }
+
+  .main-image img {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    object-fit: contain;
+    border-radius: var(--radius-md);
+  }
+
+  .thumbnail-gallery {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .thumbnail {
+    width: 80px;
+    height: 80px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    cursor: pointer;
+    transition: var(--transition);
+    background: white;
+    padding: 0;
+  }
+
+  .thumbnail:hover,
+  .thumbnail.active {
+    border-color: var(--secondary);
+  }
+
+  .thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .product-info {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 20px var(--shadow);
+  }
+
+  .product-category {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--primary);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .product-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-dark);
+  }
+
+  .product-price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .price-amount {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--primary);
+  }
+
+  .price-unit {
+    font-size: 1.125rem;
+    color: var(--text-gray);
+  }
+
+  .stock-info {
+    margin-bottom: 1.5rem;
+  }
+
+  .in-stock {
+    color: #10b981;
+    font-weight: 600;
+  }
+
+  .out-of-stock {
+    color: #ef4444;
+    font-weight: 600;
+  }
+
+  .variant-selector,
+  .quantity-selector {
+    margin-bottom: 1.5rem;
+  }
+
+  .variant-selector label,
+  .quantity-selector label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--text-dark);
+  }
+
+  .variant-buttons {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .variant-btn {
+    padding: 12px 24px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .variant-btn:hover {
+    border-color: var(--secondary);
+  }
+
+  .variant-btn.active {
+    border-color: var(--secondary);
+    background: var(--secondary);
+    color: var(--text-dark);
+  }
+
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: fit-content;
+  }
+
+  .qty-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-gray);
+    color: var(--text-dark);
+    font-size: 1.25rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    border: none;
+    cursor: pointer;
+  }
+
+  .qty-btn:hover {
+    background: var(--secondary);
+  }
+
+  #quantity {
+    width: 80px;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: bold;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 8px;
+  }
+
+  .total-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: var(--bg-gray);
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .total-amount {
+    font-size: 2rem;
+    color: var(--primary);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+
+  .btn-full {
+    width: 100%;
+  }
+
+  .btn-large {
+    padding: 1.25rem 2rem;
+    font-size: 1.125rem;
+  }
+
+  .product-features {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .product-features h3 {
+    margin-bottom: 1rem;
+  }
+
+  .product-features ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .product-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    color: var(--text-gray);
+  }
+
+  .product-features li svg {
+    color: var(--secondary);
+    flex-shrink: 0;
+  }
+
+  .trust-badges {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .badge-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-gray);
+  }
+
+  .badge-item svg {
+    color: var(--secondary);
+    flex-shrink: 0;
+  }
+
+  .product-description {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 20px var(--shadow);
+    margin-bottom: 4rem;
+  }
+
+  .product-description h2 {
+    margin-bottom: 1rem;
+  }
+
+  .product-description p {
+    color: var(--text-gray);
+    line-height: 1.8;
+  }
+
+  .related-products {
+    margin-top: 4rem;
+  }
+
+  .related-products h2 {
+    margin-bottom: 2rem;
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .related-product-card {
+    background: white;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: 0 2px 10px var(--shadow);
+    transition: var(--transition);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .related-product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px var(--shadow-lg);
+  }
+
+  .related-product-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+
+  .related-product-card h3 {
+    padding: 1rem 1rem 0.5rem;
+    font-size: 1.125rem;
+  }
+
+  .related-product-card .product-price {
+    padding: 0 1rem 1rem;
+    color: var(--primary);
+    font-weight: bold;
+  }
+
+  @media (min-width: 1024px) {
+    .product-layout {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .product-title {
+      font-size: 1.5rem;
+    }
+
+    .price-amount {
+      font-size: 2rem;
+    }
+
+    .total-amount {
+      font-size: 1.5rem;
+    }
+
+    .trust-badges {
+      grid-template-columns: 1fr;
+    }
+
+    .product-gallery {
+      position: static;
+    }
+  }
+
+  /* Notification */
+  .notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--secondary);
+    color: var(--text-dark);
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 20px var(--shadow-lg);
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+  }
+
+  .notification.show {
+    transform: translateX(0);
+  }
+</style>
+
+<script>
+  let currentPrice = parseFloat(document.getElementById('display-price')?.textContent || '0');
+  let selectedVariant = currentPrice;
+  let quantity = 1;
+
+  // Thumbnail navigation
+  document.querySelectorAll('.thumbnail').forEach(thumb => {
+    thumb.addEventListener('click', (e) => {
+      const target = e.currentTarget as HTMLElement;
+      const imageUrl = target.dataset.image;
+      const mainImage = document.getElementById('main-product-image') as HTMLImageElement;
+
+      if (mainImage && imageUrl) {
+        mainImage.src = imageUrl;
+      }
+
+      document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+      target.classList.add('active');
+    });
+  });
+
+  // Variant selection
+  document.querySelectorAll('.variant-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const target = e.currentTarget as HTMLElement;
+      selectedVariant = parseFloat(target.dataset.price || '0');
+
+      document.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
+      target.classList.add('active');
+
+      const displayPrice = document.getElementById('display-price');
+      if (displayPrice) {
+        displayPrice.textContent = `${selectedVariant}₺`;
+      }
+
+      updateTotalPrice();
+    });
+  });
+
+  // Quantity controls
+  document.querySelector('.qty-btn.minus')?.addEventListener('click', () => {
+    const input = document.getElementById('quantity') as HTMLInputElement;
+    if (quantity > 1) {
+      quantity--;
+      input.value = quantity.toString();
+      updateTotalPrice();
+    }
+  });
+
+  document.querySelector('.qty-btn.plus')?.addEventListener('click', () => {
+    const input = document.getElementById('quantity') as HTMLInputElement;
+    quantity++;
+    input.value = quantity.toString();
+    updateTotalPrice();
+  });
+
+  function updateTotalPrice() {
+    const total = selectedVariant * quantity;
+    const totalEl = document.getElementById('total-price');
+    if (totalEl) {
+      totalEl.textContent = `${total.toFixed(2)}₺`;
+    }
+  }
+
+  // Add to cart
+  document.getElementById('add-to-cart')?.addEventListener('click', (e) => {
+    const btn = e.currentTarget as HTMLElement;
+    const product = {
+      id: btn.dataset.productId,
+      name: btn.dataset.productName,
+      slug: btn.dataset.productSlug,
+      price: selectedVariant,
+      image: btn.dataset.productImage,
+      unit: btn.dataset.productUnit,
+      quantity: quantity
+    };
+
+    let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const existingIndex = cart.findIndex((item: any) =>
+      item.id === product.id && item.price === product.price
+    );
+
+    if (existingIndex > -1) {
+      cart[existingIndex].quantity += quantity;
+    } else {
+      cart.push(product);
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    window.dispatchEvent(new Event('cartUpdated'));
+
+    // Notification
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.textContent = 'Ürün sepete eklendi!';
+    document.body.appendChild(notification);
+
+    setTimeout(() => notification.classList.add('show'), 10);
+    setTimeout(() => {
+      notification.classList.remove('show');
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
+  });
+</script>

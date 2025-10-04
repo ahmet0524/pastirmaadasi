@@ -1,0 +1,59 @@
+# Kalan Kategori Sayfaları
+
+## 1. kavurma.astro
+```astro
+---
+// src/pages/kavurma.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProductCard from '../components/ProductCard.astro';
+
+const products = [
+  {
+    id: 'dana-kavurma',
+    name: 'Dana Kavurma',
+    image: '/assets/image/products/dana-kavurma.jpg',
+    price: 420,
+    weight: '1 kg',
+    description: 'Özenle seçilmiş dana etinden, kendi yağında pişirilen geleneksel kavurma.',
+    category: 'Kavurma'
+  },
+  {
+    id: 'pastirmali-kavurma',
+    name: 'Pastırmalı Kavurma',
+    image: '/assets/image/products/pastirmali-kavurma.jpg',
+    price: 480,
+    weight: '1 kg',
+    description: 'Pastırma ve kuzu etinin muhteşem uyumu, özel baharatlarla.',
+    category: 'Kavurma',
+    discount: 10
+  }
+];
+---
+
+<BaseLayout title="Kavurma" description="Geleneksel yöntemlerle hazırlanan, lezzetli kavurma çeşitlerimiz.">
+  <div class="category-page">
+    <section class="category-hero kavurma-hero">
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <h1 class="hero-title">Kavurma</h1>
+        <p class="hero-description">
+          Kendi yağında pişirilen, geleneksel lezzet kavurmalarımız
+        </p>
+      </div>
+    </section>
+
+    <section class="products-section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Kavurma Çeşitlerimiz</h2>
+        </div>
+        <div class="products-grid">
+          {products.map(product => <ProductCard {...product} />)}
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <style>
+    .kavurma-hero {
+      background: linear-gradient(

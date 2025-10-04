@@ -1,0 +1,346 @@
+---
+// src/pages/sucuk.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProductCard from '../components/ProductCard.astro';
+
+const products = [
+  {
+    id: 'dana-parmak-sucuk',
+    name: 'Dana Parmak Sucuk',
+    image: '/assets/image/products/parmak-sucuk.jpg',
+    price: 380,
+    weight: '1 kg',
+    description: 'İnce ve uzun yapısı ile kolayca dilimlenebilen, yoğun aromalı dana sucuğu.',
+    category: 'Sucuk'
+  },
+  {
+    id: 'dana-kangal-sucuk',
+    name: 'Dana Kangal Sucuk',
+    image: '/assets/image/products/kangal-sucuk.jpg',
+    price: 380,
+    weight: '1 kg',
+    description: 'Geleneksel kangal şeklinde, özel baharatlarla hazırlanmış dana sucuğu.',
+    category: 'Sucuk'
+  },
+  {
+    id: 'varyanta-sucuk',
+    name: 'Varyanta/Osmanlı Sucuk',
+    image: '/assets/image/products/varyanta-sucuk.jpg',
+    price: 420,
+    weight: '1 kg',
+    description: 'Osmanlı usulü özel baharatlarla, eski lezzetleri günümüze taşıyan premium sucuk.',
+    category: 'Sucuk',
+    discount: 15
+  },
+  {
+    id: 'cubuk-sucuk',
+    name: 'Çubuk Sucuk',
+    image: '/assets/image/products/cubuk-sucuk.jpg',
+    price: 35,
+    weight: 'Adet',
+    description: 'Pratik kullanım için çubuk şeklinde hazırlanmış, lezzetli sucuk.',
+    category: 'Sucuk'
+  },
+  {
+    id: 'sarma-sucuk',
+    name: 'Sarma Sucuk',
+    image: '/assets/image/products/sarma-sucuk.jpg',
+    price: 40,
+    weight: 'Adet',
+    description: 'Özel sarma tekniği ile üretilen, geleneksel lezzet.',
+    category: 'Sucuk'
+  }
+];
+---
+
+<BaseLayout
+  title="Kayseri Sucuğu"
+  description="Geleneksel yöntemlerle üretilen, farklı şekil ve boyutlarda Kayseri sucuğu çeşitlerimiz."
+>
+  <div class="category-page">
+    <section class="category-hero sucuk-hero">
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <h1 class="hero-title">Kayseri Sucuğu</h1>
+        <p class="hero-description">
+          Özenle seçilmiş dana etinden, özel baharat karışımıyla hazırlanan geleneksel Kayseri sucuklarımız
+        </p>
+        <div class="hero-features">
+          <div class="feature">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            100% Dana Eti
+          </div>
+          <div class="feature">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            Özel Baharat
+          </div>
+          <div class="feature">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            Doğal Kurutma
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="products-section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Sucuk Çeşitlerimiz</h2>
+          <p>Farklı form ve boyutlarda, her damak tadına uygun sucuklar</p>
+        </div>
+
+        <div class="products-grid">
+          {products.map(product => (
+            <ProductCard {...product} />
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="info-section">
+      <div class="container">
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-icon sucuk-icon">
+              <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <h3>Helal Sertifikalı</h3>
+            <p>Tüm ürünlerimiz helal kesim ve hijyenik üretim standartlarına uygundur.</p>
+          </div>
+          <div class="info-card">
+            <div class="info-icon sucuk-icon">
+              <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+              </svg>
+            </div>
+            <h3>Vakumlu Paket</h3>
+            <p>Ürünlerimiz vakumlu ambalajda, tazeliğini koruyarak gönderilir.</p>
+          </div>
+          <div class="info-card">
+            <div class="info-icon sucuk-icon">
+              <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <h3>Uzun Raf Ömrü</h3>
+            <p>Doğru saklama koşullarında uzun süre taze kalır.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <style>
+    .sucuk-hero {
+      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    }
+
+    .sucuk-icon {
+      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    }
+
+    .category-page {
+      min-height: 100vh;
+    }
+
+    .category-hero {
+      position: relative;
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .category-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('/assets/image/banners/sucuk-pattern.jpg') center/cover;
+      opacity: 0.1;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.3) 100%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      color: white;
+      max-width: 800px;
+      padding: 0 20px;
+    }
+
+    .hero-title {
+      font-size: 48px;
+      font-weight: 800;
+      margin: 0 0 16px 0;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero-description {
+      font-size: 18px;
+      line-height: 1.6;
+      margin: 0 0 32px 0;
+      opacity: 0.95;
+    }
+
+    .hero-features {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .products-section {
+      padding: 80px 0;
+      background: #faf9f7;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .section-header h2 {
+      font-size: 36px;
+      font-weight: 700;
+      color: #1f2937;
+      margin: 0 0 12px 0;
+    }
+
+    .section-header p {
+      font-size: 18px;
+      color: #6b7280;
+      margin: 0;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 32px;
+    }
+
+    .info-section {
+      padding: 80px 0;
+      background: white;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 32px;
+    }
+
+    .info-card {
+      text-align: center;
+      padding: 32px;
+      background: #faf9f7;
+      border-radius: 16px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .info-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 32px rgba(220, 38, 38, 0.1);
+    }
+
+    .info-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 20px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .info-card h3 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1f2937;
+      margin: 0 0 12px 0;
+    }
+
+    .info-card p {
+      font-size: 16px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    @media (max-width: 768px) {
+      .category-hero {
+        height: 300px;
+      }
+
+      .hero-title {
+        font-size: 32px;
+      }
+
+      .hero-description {
+        font-size: 16px;
+      }
+
+      .hero-features {
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .products-section {
+        padding: 60px 0;
+      }
+
+      .section-header h2 {
+        font-size: 28px;
+      }
+
+      .products-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .info-section {
+        padding: 60px 0;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+    }
+  </style>
+</BaseLayout>
