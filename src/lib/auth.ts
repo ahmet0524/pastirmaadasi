@@ -1,5 +1,5 @@
 // src/lib/auth.ts
-import { supabaseAdmin } from './supabase';
+import { supabaseAdmin } from '../lib/supabase';
 
 /**
  * getSession
