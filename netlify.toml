@@ -5,8 +5,11 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+  external_node_modules = ["iyzipay"]
 
+# SPA routing için catch-all redirect (functions hariç)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false  # Functions'ları override etmemesi için
