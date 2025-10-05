@@ -569,7 +569,7 @@ import Footer from '../components/Footer.astro';
     const billingAddress = sameAddress ? shippingAddress : formData.get('billingAddress') as string;
 
     try {
-      const response = await fetch('/api/create-payments', {
+      const response = await fetch('/api/create-payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
