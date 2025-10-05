@@ -1,8 +1,29 @@
 const Iyzipay = require('iyzipay');
 
 exports.handler = async (event) => {
+  // CORS headers
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Content-Type': 'application/json'
+  };
+
+  // OPTIONS isteği için
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers,
+      body: ''
+    };
+  }
+
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
+    return {
+      statusCode: 405,
+      headers,
+      body: JSON.stringify({ error: 'Method Not Allowed' })
+    };
   }
 
   try {
@@ -22,7 +43,7 @@ exports.handler = async (event) => {
       currency: Iyzipay.CURRENCY.TRY,
       basketId: body.basketId,
       paymentGroup: Iyzipay.PAYMENT_GROUP.PRODUCT,
-      callbackUrl: `${process.env.URL}/odeme-sonuc`,
+      callbackUrl: `https://pastirmaadasi.netlify.app/odeme-sonuc`,
       enabledInstallments: [1, 2, 3, 6, 9],
       buyer: body.buyer,
       shippingAddress: body.shippingAddress,
@@ -34,15 +55,16 @@ exports.handler = async (event) => {
       iyzipay.checkoutFormInitialize.create(paymentRequest, (err, result) => {
         resolve({
           statusCode: err ? 400 : 200,
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify(err || result)
         });
       });
     });
   } catch (error) {
+    console.error('Payment error:', error);
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({ error: error.message })
     };
   }
