@@ -535,7 +535,6 @@ import Footer from '../components/Footer.astro';
   sameAddressCheckbox?.addEventListener('change', () => {
     billingAddressSection?.classList.toggle('hidden', sameAddressCheckbox.checked);
 
-    // Aynı adres seçiliyse, zorunluluğu kaldır
     const billingInputs = billingAddressSection?.querySelectorAll('input, textarea');
     billingInputs?.forEach(input => {
       (input as HTMLInputElement).required = !sameAddressCheckbox.checked;
@@ -555,7 +554,6 @@ import Footer from '../components/Footer.astro';
     const formData = new FormData(checkoutForm);
     const sameAddress = (document.getElementById('same-address') as HTMLInputElement).checked;
 
-    // Form verilerini al
     const name = formData.get('name') as string;
     const surname = formData.get('surname') as string;
     const email = formData.get('email') as string;
@@ -569,6 +567,7 @@ import Footer from '../components/Footer.astro';
     const billingAddress = sameAddress ? shippingAddress : formData.get('billingAddress') as string;
 
     try {
+      console.log('Sending payment request...');
       const response = await fetch('/.netlify/functions/create-payment', {
         method: 'POST',
         headers: {
@@ -613,12 +612,21 @@ import Footer from '../components/Footer.astro';
       });
 
       const data = await response.json();
+      console.log('Payment response:', data);
 
-      if (data.status === 'success' && data.paymentPageUrl) {
-        // Başarılı - Iyzico ödeme sayfasına yönlendir
-        window.location.href = data.paymentPageUrl;
+      if (response.ok && data.status === 'success') {
+        if (data.paymentPageUrl) {
+          console.log('Redirecting to:', data.paymentPageUrl);
+          window.location.href = data.paymentPageUrl;
+        } else {
+          console.error('Payment page URL not found:', data);
+          alert('Ödeme sayfası bulunamadı. Lütfen tekrar deneyin.');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Ödemeye Geç';
+        }
       } else {
-        alert('Ödeme başlatılamadı: ' + (data.errorMessage || 'Bilinmeyen hata'));
+        console.error('Payment failed:', data);
+        alert('Ödeme başlatılamadı: ' + (data.errorMessage || data.error || 'Bilinmeyen hata'));
         submitBtn.disabled = false;
         submitBtn.textContent = 'Ödemeye Geç';
       }

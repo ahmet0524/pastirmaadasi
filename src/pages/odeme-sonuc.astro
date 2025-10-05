@@ -196,7 +196,6 @@ import Footer from '../components/Footer.astro';
 </style>
 
 <script>
-  // URL parametrelerinden token'ı al ve backend'e doğrulat
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get('token');
   const resultContent = document.getElementById('result-content');
@@ -206,24 +205,25 @@ import Footer from '../components/Footer.astro';
   }
 
   if (token) {
-    fetch('/api/verify-payment', {
+    console.log('Token found:', token);
+    fetch('/.netlify/functions/verify-payment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token })
     })
-    .then(res => res.json())
+    .then(res => {
+      console.log('Verify response status:', res.status);
+      return res.json();
+    })
     .then(data => {
+      console.log('Verify response data:', data);
       if (!resultContent) return;
 
       if (data.status === 'success') {
-        // Sepeti temizle
         localStorage.removeItem('cart');
         localStorage.removeItem('discountPercent');
-
-        // Sepet sayısını güncelle
         window.dispatchEvent(new Event('cartUpdated'));
 
-        // Başarı mesajı göster
         resultContent.className = 'result-box success';
         resultContent.innerHTML = `
           <div class="success-icon">
@@ -257,7 +257,6 @@ import Footer from '../components/Footer.astro';
           </div>
         `;
       } else {
-        // Hata mesajı göster
         resultContent.className = 'result-box error';
         resultContent.innerHTML = `
           <div class="error-icon">
@@ -285,8 +284,8 @@ import Footer from '../components/Footer.astro';
         <div class="error-icon">
           <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
+          </svg>
+        </div>
         <h2>⚠️ Bir Hata Oluştu</h2>
         <p>Ödeme durumu kontrol edilemedi.</p>
         <p>Lütfen müşteri hizmetleri ile iletişime geçin.</p>
@@ -298,7 +297,6 @@ import Footer from '../components/Footer.astro';
       `;
     });
   } else {
-    // Token yok
     if (resultContent) {
       resultContent.className = 'result-box error';
       resultContent.innerHTML = `
