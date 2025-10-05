@@ -27,7 +27,22 @@ exports.handler = async (event) => {
   }
 
   try {
+    // Environment variables kontrolü
+    if (!process.env.IYZICO_API_KEY || !process.env.IYZICO_SECRET_KEY) {
+      console.error('Environment variables missing!');
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({
+          error: 'Server configuration error',
+          details: 'API keys not configured'
+        })
+      };
+    }
+
+    console.log('Parsing request body...');
     const body = JSON.parse(event.body);
+    console.log('Body parsed successfully');
 
     const iyzipay = new Iyzipay({
       apiKey: process.env.IYZICO_API_KEY,
