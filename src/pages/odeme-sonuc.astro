@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Ödeme Sonucu">
+  <section class="payment-result">
+    <div class="container">
+      <div id="result-content">
+        <p>Ödeme durumu kontrol ediliyor...</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  // URL parametrelerinden token'ı al ve backend'e doğrulat
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+
+  if (token) {
+    fetch('/api/verify-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'success') {
+        // Sepeti temizle
+        localStorage.removeItem('cart');
+        // Başarı mesajı göster
+        document.getElementById('result-content')!.innerHTML = `
+          <h2>✅ Ödeme Başarılı!</h2>
+          <p>Siparişiniz alındı.</p>
+        `;
+      } else {
+        document.getElementById('result-content')!.innerHTML = `
+          <h2>❌ Ödeme Başarısız</h2>
+          <p>${data.errorMessage}</p>
+        `;
+      }
+    });
+  }
+</script>
