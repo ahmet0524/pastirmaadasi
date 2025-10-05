@@ -1,6 +1,23 @@
 ---
-export const prerender = false;
+import { supabaseAdmin } from '../../lib/supabase';
 
+// Static build için tüm ürün slug'larını al
+export async function getStaticPaths() {
+  const { data: products } = await supabaseAdmin
+    .from('products')
+    .select('slug')
+    .eq('is_active', true);
+
+  if (!products || products.length === 0) {
+    return [];
+  }
+
+  return products.map(product => ({
+    params: { slug: product.slug }
+  }));
+}
+
+// Buradan sonra mevcut kodunuz devam ediyor
 // src/pages/urun/[slug].astro
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
