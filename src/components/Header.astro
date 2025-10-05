@@ -49,6 +49,11 @@
 <style>
   .header-container {
     width: 100%;
+    background: white;
+    box-shadow: 0 2px 8px var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
 
   .header-content {
@@ -62,8 +67,14 @@
 
   .logo {
     font-size: 1.75rem;
-    font-weight: bold;
+    font-weight: 800;
     color: var(--primary);
+    text-decoration: none;
+    transition: var(--transition);
+  }
+
+  .logo:hover {
+    color: var(--primary-dark);
   }
 
   .desktop-nav {
@@ -74,18 +85,40 @@
 
   .desktop-nav a {
     color: var(--text-dark);
-    font-weight: 500;
+    font-weight: 600;
+    transition: var(--transition);
+    position: relative;
+  }
+
+  .desktop-nav a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--primary);
+    transition: width 0.3s ease;
   }
 
   .desktop-nav a:hover {
     color: var(--primary);
   }
 
+  .desktop-nav a:hover::after {
+    width: 100%;
+  }
+
   .mobile-menu-btn {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: none;
+    border: none;
     padding: 0.5rem;
     color: var(--text-dark);
+    cursor: pointer;
+    transition: var(--transition);
   }
 
   .mobile-menu-btn:hover {
@@ -101,8 +134,11 @@
   .header-actions button,
   .header-actions a {
     background: none;
+    border: none;
     padding: 0.5rem;
     color: var(--text-dark);
+    cursor: pointer;
+    transition: var(--transition);
   }
 
   .header-actions button:hover,
@@ -116,10 +152,17 @@
     margin: 0 auto;
     padding: 1rem 1.5rem;
     border-top: 1px solid var(--border-color);
+    background: white;
   }
 
   .mobile-menu.active {
     display: block;
+    animation: slideDown 0.3s ease;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .mobile-menu nav {
@@ -132,28 +175,20 @@
     padding: 0.75rem 0;
     color: var(--text-dark);
     border-bottom: 1px solid var(--border-color);
+    transition: var(--transition);
+    font-weight: 600;
   }
 
   .mobile-menu nav a:hover {
     color: var(--primary);
+    padding-left: 10px;
   }
 
   @media (min-width: 1024px) {
-    .desktop-nav {
-      display: flex;
-    }
-
-    .header-actions {
-      display: flex;
-    }
-
-    .mobile-menu-btn {
-      display: none;
-    }
-
-    .mobile-menu {
-      display: none !important;
-    }
+    .desktop-nav { display: flex; }
+    .header-actions { display: flex; }
+    .mobile-menu-btn { display: none; }
+    .mobile-menu { display: none !important; }
   }
 </style>
 

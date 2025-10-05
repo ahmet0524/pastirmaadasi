@@ -115,7 +115,7 @@ import Footer from '../components/Footer.astro';
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, rgba(122, 106, 53, 0.1) 0%, rgba(212, 175, 55, 0.1) 100%);
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--bg-light) 100%);
     padding: 2rem 1rem;
   }
 
@@ -129,7 +129,7 @@ import Footer from '../components/Footer.astro';
     font-size: 3.5rem;
     color: var(--primary);
     margin-bottom: 1.5rem;
-    animation: fadeIn 1s ease-out;
+    font-weight: 800;
   }
 
   .hero-subtitle {
@@ -150,20 +150,23 @@ import Footer from '../components/Footer.astro';
     background: white;
     border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-    transition: all 0.5s ease;
+    box-shadow: 0 10px 40px var(--shadow);
+    transition: var(--transition);
     position: relative;
+    text-decoration: none;
+    color: inherit;
   }
 
   .hero-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 20px 60px var(--shadow-lg);
   }
 
   .hero-card-image {
     position: relative;
     padding-top: 75%;
     overflow: hidden;
+    background: var(--bg-gray);
   }
 
   .hero-card-image img {
@@ -182,7 +185,7 @@ import Footer from '../components/Footer.astro';
 
   .hero-card-content {
     padding: 2rem;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    background: linear-gradient(to top, rgba(31, 41, 55, 0.95), transparent);
     position: absolute;
     bottom: 0;
     left: 0;
@@ -198,14 +201,14 @@ import Footer from '../components/Footer.astro';
 
   .hero-card-content p {
     font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.95);
     margin-bottom: 1rem;
   }
 
   .hero-card-arrow {
     display: inline-block;
-    color: var(--secondary);
-    font-weight: bold;
+    color: var(--accent);
+    font-weight: 700;
     transition: transform 0.3s ease;
   }
 
@@ -223,12 +226,8 @@ import Footer from '../components/Footer.astro';
   }
 
   @keyframes bounce {
-    0%, 100% {
-      transform: translateX(-50%) translateY(0);
-    }
-    50% {
-      transform: translateX(-50%) translateY(10px);
-    }
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(10px); }
   }
 
   .features-section {
@@ -239,8 +238,9 @@ import Footer from '../components/Footer.astro';
   .section-title {
     font-size: 2.5rem;
     text-align: center;
-    color: var(--primary);
+    color: var(--text-dark);
     margin-bottom: 3rem;
+    font-weight: 700;
   }
 
   .features-grid {
@@ -252,39 +252,44 @@ import Footer from '../components/Footer.astro';
   .feature-card {
     text-align: center;
     padding: 2rem;
-    border-radius: var(--radius-md);
-    background: var(--bg-gray);
+    border-radius: var(--radius-lg);
+    background: var(--bg-light);
     transition: var(--transition);
+    border: 2px solid transparent;
   }
 
   .feature-card:hover {
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px var(--shadow);
+    border-color: var(--primary);
+    transform: translateY(-5px);
   }
 
   .feature-icon {
     width: 80px;
     height: 80px;
-    background: rgba(212, 175, 55, 0.2);
+    background: var(--primary-light);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 1.5rem;
-    color: var(--secondary);
+    color: var(--primary);
   }
 
   .feature-card h3 {
     font-size: 1.25rem;
     margin-bottom: 1rem;
+    color: var(--text-dark);
   }
 
   .feature-card p {
     color: var(--text-gray);
+    line-height: 1.6;
   }
 
   .cta-section {
     padding: 5rem 1rem;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
     color: white;
     text-align: center;
   }
@@ -297,7 +302,7 @@ import Footer from '../components/Footer.astro';
 
   .cta-section p {
     font-size: 1.25rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.95);
     margin-bottom: 2rem;
     max-width: 600px;
     margin-left: auto;
@@ -312,29 +317,12 @@ import Footer from '../components/Footer.astro';
   }
 
   @media (max-width: 768px) {
-    .hero-title {
-      font-size: 2.5rem;
-    }
-
-    .hero-subtitle {
-      font-size: 1.25rem;
-    }
-
-    .hero-cards {
-      grid-template-columns: 1fr;
-    }
-
-    .section-title {
-      font-size: 2rem;
-    }
-
-    .cta-section h2 {
-      font-size: 2rem;
-    }
-
-    .cta-buttons {
-      flex-direction: column;
-      align-items: stretch;
-    }
+    .hero-title { font-size: 2.5rem; }
+    .hero-subtitle { font-size: 1.25rem; }
+    .hero-cards { grid-template-columns: 1fr; }
+    .section-title { font-size: 2rem; }
+    .cta-section h2 { font-size: 2rem; }
+    .cta-buttons { flex-direction: column; align-items: center; }
+    .cta-buttons .btn { width: 100%; max-width: 300px; }
   }
 </style>
