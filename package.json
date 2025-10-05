@@ -9,6 +9,7 @@
     "preview": "astro preview"
   },
   "dependencies": {
+    "@astrojs/node": "^9.4.4",
     "@astrojs/sitemap": "^3.0.0",
     "@supabase/supabase-js": "^2.58.0",
     "astro": "^5.14.1",

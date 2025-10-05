@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://pastirmaadasi.com',
+  site: 'https://pastirmaadasi.netlify.app',
   integrations: [sitemap()],
-  output: 'static'
+  // output ve adapter yok - static site
 });

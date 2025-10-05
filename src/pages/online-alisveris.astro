@@ -4,26 +4,19 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ProductCard from '../components/ProductCard.astro';
+import { supabaseAdmin } from '../lib/supabase';
 
-const pastirmaUrunleri = [
-  { id: 1, name: 'Antrikot Pastırma', price: 1200, image: '/assets/image/products/antrikot-pastirma.jpg', unit: 'kg' },
-  { id: 2, name: 'Sırt Pastırma', price: 1100, image: '/assets/image/products/sirt-pastirma.jpg', unit: 'kg' },
-  { id: 3, name: 'Bonfile Pastırma', price: 1300, image: '/assets/image/products/bonfile-pastirma.jpg', unit: 'kg' },
-  { id: 4, name: 'Karaparça Pastırma', price: 950, image: '/assets/image/products/karaparca-pastirma.jpg', unit: 'kg' }
-];
+// Supabase'den ürünleri çek
+const { data: allProducts } = await supabaseAdmin
+  .from('products')
+  .select('*')
+  .eq('is_active', true)
+  .order('created_at', { ascending: false });
 
-const sucukUrunleri = [
-  { id: 5, name: 'Dana Parmak Sucuk', price: 850, image: '/assets/image/products/parmak-sucuk.jpg', unit: 'kg' },
-  { id: 6, name: 'Dana Kangal Sucuk', price: 800, image: '/assets/image/products/kangal-sucuk.jpg', unit: 'kg' },
-  { id: 7, name: 'Varyanta Sucuk', price: 900, image: '/assets/image/products/varyanta-sucuk.jpg', unit: 'kg' },
-  { id: 8, name: 'Çubuk Sucuk', price: 45, image: '/assets/image/products/cubuk-sucuk.jpg', unit: 'adet' },
-  { id: 9, name: 'Sarma Sucuk', price: 40, image: '/assets/image/products/sarma-sucuk.jpg', unit: 'adet' }
-];
-
-const mantiUrunleri = [
-  { id: 10, name: 'Kayseri El Mantısı', price: 180, image: '/assets/image/products/el-manti.jpg', unit: 'kg' },
-  { id: 11, name: 'Bohça Mantı', price: 200, image: '/assets/image/products/bohca-manti.jpg', unit: 'kg' }
-];
+// Kategorilere göre ayır
+const pastirmaUrunleri = allProducts?.filter(p => p.category === 'Pastırma') || [];
+const sucukUrunleri = allProducts?.filter(p => p.category === 'Sucuk') || [];
+const mantiUrunleri = allProducts?.filter(p => p.category === 'Mantı') || [];
 ---
 
 <BaseLayout title="Online Alışveriş" description="Kayseri'nin en kaliteli pastırma, sucuk ve mantı ürünlerini online sipariş edin">
@@ -36,14 +29,15 @@ const mantiUrunleri = [
         <h1>Online Alışveriş</h1>
         <p>Kayseri'nin eşsiz lezzetlerini kapınıza kadar getiriyoruz</p>
         <div class="hero-badges">
-          <span class="badge badge-secondary">✓ 1000₺ üzeri ücretsiz kargo</span>
-          <span class="badge badge-secondary">✓ Hızlı teslimat</span>
+          <span class="badge">✓ 1000₺ üzeri ücretsiz kargo</span>
+          <span class="badge">✓ Hızlı teslimat</span>
+          <span class="badge">✓ Güvenli ödeme</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Slider Banner -->
+  <!-- Kaydırmalı Banner Slider -->
   <section class="banner-slider-section">
     <div class="container">
       <div class="slider-wrapper">
@@ -53,6 +47,7 @@ const mantiUrunleri = [
             <div class="banner-content">
               <h3>Yeni Sezon Kampanyası</h3>
               <p>Tüm pastırmalarda %10 indirim</p>
+              <a href="/kategori/pastirma" class="banner-btn">İncele →</a>
             </div>
           </div>
           <div class="banner-slide">
@@ -60,6 +55,7 @@ const mantiUrunleri = [
             <div class="banner-content">
               <h3>Özel Sucuk Çeşitleri</h3>
               <p>Geleneksel tatlar modern lezzetlerle buluşuyor</p>
+              <a href="/kategori/sucuk" class="banner-btn">İncele →</a>
             </div>
           </div>
           <div class="banner-slide">
@@ -67,89 +63,117 @@ const mantiUrunleri = [
             <div class="banner-content">
               <h3>El Yapımı Mantı</h3>
               <p>Annenizin elinden çıkmış gibi</p>
+              <a href="/kategori/manti" class="banner-btn">İncele →</a>
             </div>
           </div>
         </div>
 
-        <button id="prev-btn" class="slider-btn slider-btn-prev">
+        <button id="prev-btn" class="slider-btn slider-btn-prev" aria-label="Önceki">
           <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <button id="next-btn" class="slider-btn slider-btn-next">
+        <button id="next-btn" class="slider-btn slider-btn-next" aria-label="Sonraki">
           <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
 
-        <div class="slider-dots">
-          <button class="slider-dot active"></button>
-          <button class="slider-dot"></button>
-          <button class="slider-dot"></button>
+        <div class="slider-dots" id="slider-dots">
+          <button class="slider-dot active" aria-label="Slayt 1"></button>
+          <button class="slider-dot" aria-label="Slayt 2"></button>
+          <button class="slider-dot" aria-label="Slayt 3"></button>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Kayseri Pastırması -->
-  <section class="products-section">
-    <div class="container">
-      <div class="section-header">
-        <h2>Kayseri Pastırması</h2>
-        <a href="/products/pastirma" class="view-all-link">
-          Tümünü Gör
-          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </a>
+  {pastirmaUrunleri.length > 0 && (
+    <section class="products-section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Kayseri Pastırması</h2>
+          <a href="/kategori/pastirma" class="view-all-link">
+            Tümünü Gör
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+        <div class="products-grid">
+          {pastirmaUrunleri.slice(0, 4).map(product => (
+            <ProductCard
+              id={product.id}
+              slug={product.slug}
+              name={product.name}
+              price={product.price}
+              image={product.images?.[0] || '/assets/image/placeholder.jpg'}
+              unit={product.unit}
+            />
+          ))}
+        </div>
       </div>
-      <div class="products-grid">
-        {pastirmaUrunleri.map(product => (
-          <ProductCard {...product} />
-        ))}
-      </div>
-    </div>
-  </section>
+    </section>
+  )}
 
   <!-- Kayseri Sucuğu -->
-  <section class="products-section section-gray">
-    <div class="container">
-      <div class="section-header">
-        <h2>Kayseri Sucuğu</h2>
-        <a href="/products/sucuk" class="view-all-link">
-          Tümünü Gör
-          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </a>
+  {sucukUrunleri.length > 0 && (
+    <section class="products-section section-gray">
+      <div class="container">
+        <div class="section-header">
+          <h2>Kayseri Sucuğu</h2>
+          <a href="/kategori/sucuk" class="view-all-link">
+            Tümünü Gör
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+        <div class="products-grid">
+          {sucukUrunleri.slice(0, 5).map(product => (
+            <ProductCard
+              id={product.id}
+              slug={product.slug}
+              name={product.name}
+              price={product.price}
+              image={product.images?.[0] || '/assets/image/placeholder.jpg'}
+              unit={product.unit}
+            />
+          ))}
+        </div>
       </div>
-      <div class="products-grid">
-        {sucukUrunleri.map(product => (
-          <ProductCard {...product} />
-        ))}
-      </div>
-    </div>
-  </section>
+    </section>
+  )}
 
   <!-- Kayseri Mantısı -->
-  <section class="products-section">
-    <div class="container">
-      <div class="section-header">
-        <h2>Kayseri Mantısı</h2>
-        <a href="/products/manti" class="view-all-link">
-          Tümünü Gör
-          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </a>
+  {mantiUrunleri.length > 0 && (
+    <section class="products-section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Kayseri Mantısı</h2>
+          <a href="/kategori/manti" class="view-all-link">
+            Tümünü Gör
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+        <div class="products-grid">
+          {mantiUrunleri.slice(0, 2).map(product => (
+            <ProductCard
+              id={product.id}
+              slug={product.slug}
+              name={product.name}
+              price={product.price}
+              image={product.images?.[0] || '/assets/image/placeholder.jpg'}
+              unit={product.unit}
+            />
+          ))}
+        </div>
       </div>
-      <div class="products-grid">
-        {mantiUrunleri.map(product => (
-          <ProductCard {...product} />
-        ))}
-      </div>
-    </div>
-  </section>
+    </section>
+  )}
 
   <Footer slot="footer" />
 </BaseLayout>
@@ -159,6 +183,7 @@ const mantiUrunleri = [
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     color: white;
     padding: 4rem 1rem;
+    text-align: center;
   }
 
   .hero-text h1 {
@@ -177,29 +202,34 @@ const mantiUrunleri = [
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
+    justify-content: center;
   }
 
-  .hero-badges .badge {
+  .badge {
     background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
     color: white;
-    padding: 8px 16px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.875rem;
   }
 
   .banner-slider-section {
-    padding: 2rem 1rem;
-    background: var(--bg-gray);
+    padding: 3rem 1rem;
+    background: #f9fafb;
   }
 
   .slider-wrapper {
     position: relative;
     border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: 0 10px 30px var(--shadow-lg);
+    box-shadow: 0 10px 40px var(--shadow-lg);
   }
 
   .banner-slider {
     display: flex;
-    transition: transform 0.5s ease;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .banner-slide {
@@ -209,8 +239,9 @@ const mantiUrunleri = [
 
   .banner-slide img {
     width: 100%;
-    height: 400px;
+    height: 450px;
     object-fit: cover;
+    display: block;
   }
 
   .banner-content {
@@ -218,79 +249,116 @@ const mantiUrunleri = [
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 2rem;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    padding: 3rem 2rem;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, transparent 100%);
     color: white;
   }
 
   .banner-content h3 {
-    font-size: 2rem;
+    font-size: 2.5rem;
     color: white;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 700;
   }
 
   .banner-content p {
-    font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 1.5rem;
+  }
+
+  .banner-btn {
+    display: inline-block;
+    padding: 0.875rem 2rem;
+    background: var(--primary);
+    color: white;
+    border-radius: 50px;
+    font-weight: 700;
+    transition: all 0.3s;
+    text-decoration: none;
+  }
+
+  .banner-btn:hover {
+    background: var(--primary-dark);
+    transform: translateX(5px);
   }
 
   .slider-btn {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.9);
-    width: 48px;
-    height: 48px;
+    background: rgba(255, 255, 255, 0.95);
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--primary);
     z-index: 10;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 
   .slider-btn:hover {
     background: white;
+    transform: translateY(-50%) scale(1.1);
   }
 
-  .slider-btn-prev { left: 1rem; }
-  .slider-btn-next { right: 1rem; }
+  .slider-btn-prev { left: 1.5rem; }
+  .slider-btn-next { right: 1.5rem; }
 
   .slider-dots {
     position: absolute;
-    bottom: 1rem;
+    bottom: 1.5rem;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 8px;
+    gap: 12px;
     z-index: 10;
   }
 
   .slider-dot {
-    width: 8px;
-    height: 8px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.5);
+    border: none;
     padding: 0;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .slider-dot:hover {
+    background: rgba(255, 255, 255, 0.8);
   }
 
   .slider-dot.active {
     background: white;
+    width: 32px;
+    border-radius: 6px;
   }
 
   .products-section {
     padding: 4rem 1rem;
   }
 
+  .section-gray {
+    background: #f9fafb;
+  }
+
   .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
   }
 
   .section-header h2 {
-    font-size: 2rem;
+    font-size: 2.25rem;
+    font-weight: 700;
   }
 
   .view-all-link {
@@ -298,17 +366,20 @@ const mantiUrunleri = [
     align-items: center;
     gap: 0.5rem;
     color: var(--secondary);
-    font-weight: bold;
+    font-weight: 700;
+    font-size: 1.125rem;
+    transition: all 0.3s;
   }
 
   .view-all-link:hover {
     color: var(--primary);
+    gap: 0.75rem;
   }
 
   .products-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
+    gap: 2rem;
   }
 
   @media (max-width: 768px) {
@@ -316,16 +387,52 @@ const mantiUrunleri = [
       font-size: 2rem;
     }
 
+    .hero-text p {
+      font-size: 1rem;
+    }
+
+    .hero-badges {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
     .banner-slide img {
-      height: 250px;
+      height: 280px;
+    }
+
+    .banner-content {
+      padding: 1.5rem;
     }
 
     .banner-content h3 {
       font-size: 1.5rem;
     }
 
+    .banner-content p {
+      font-size: 1rem;
+    }
+
+    .slider-btn {
+      width: 40px;
+      height: 40px;
+    }
+
+    .slider-btn-prev { left: 0.75rem; }
+    .slider-btn-next { right: 0.75rem; }
+
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .section-header h2 {
+      font-size: 1.75rem;
+    }
+
     .products-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
     }
   }
 </style>
@@ -362,6 +469,7 @@ const mantiUrunleri = [
     });
   });
 
+  // Otomatik geçiş (5 saniyede bir)
   setInterval(() => {
     currentSlide = (currentSlide + 1) % totalSlides;
     updateSlider();

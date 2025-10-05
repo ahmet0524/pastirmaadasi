@@ -64,7 +64,7 @@ import Footer from '../components/Footer.astro';
             </div>
 
             <button id="checkout-btn" class="btn btn-primary btn-full btn-large" disabled>
-              Satın Al
+              Ödemeye Geç
             </button>
 
             <a href="/online-alisveris" class="continue-shopping">
@@ -564,13 +564,6 @@ import Footer from '../components/Footer.astro';
     return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   }
 
-  function calculateTotal(): number {
-    const subtotal = calculateSubtotal();
-    const shipping = subtotal >= 1000 ? 0 : 50;
-    const discount = (subtotal * discountPercent) / 100;
-    return subtotal + shipping - discount;
-  }
-
   // Kupon uygulama
   document.getElementById('apply-coupon')?.addEventListener('click', () => {
     const input = document.getElementById('coupon-input') as HTMLInputElement;
@@ -586,6 +579,9 @@ import Footer from '../components/Footer.astro';
       message.textContent = `Kupon uygulandı! %${discountPercent} indirim`;
       message.classList.add('success');
       input.disabled = true;
+
+      // İndirim oranını kaydet
+      localStorage.setItem('discountPercent', discountPercent.toString());
       updateSummary();
     } else {
       message.textContent = 'Geçersiz kupon kodu';
@@ -594,74 +590,15 @@ import Footer from '../components/Footer.astro';
     message.classList.remove('hidden');
   });
 
-  // Ödeme işlemi - Iyzico entegrasyonu
-  document.getElementById('checkout-btn')?.addEventListener('click', async () => {
+  // Ödemeye Geç butonu - Ödeme sayfasına yönlendir
+  document.getElementById('checkout-btn')?.addEventListener('click', () => {
     if (cart.length === 0) return;
 
-    const checkoutBtn = document.getElementById('checkout-btn') as HTMLButtonElement;
-    checkoutBtn.disabled = true;
-    checkoutBtn.textContent = 'İşleniyor...';
+    // İndirim oranını localStorage'a kaydet
+    localStorage.setItem('discountPercent', discountPercent.toString());
 
-    try {
-      const response = await fetch('/api/create-payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          price: calculateSubtotal().toFixed(2),
-          paidPrice: calculateTotal().toFixed(2),
-          basketId: `BASKET-${Date.now()}`,
-          buyer: {
-            id: 'BY789',
-            name: 'John',
-            surname: 'Doe',
-            gsmNumber: '+905350000000',
-            email: 'email@email.com',
-            identityNumber: '74300864791',
-            registrationAddress: 'Nidakule Göztepe, Merdivenköy Mah. Bora Sok. No:1',
-            ip: '85.34.78.112',
-            city: 'Istanbul',
-            country: 'Turkey'
-          },
-          shippingAddress: {
-            contactName: 'Jane Doe',
-            city: 'Istanbul',
-            country: 'Turkey',
-            address: 'Nidakule Göztepe, Merdivenköy Mah. Bora Sok. No:1',
-          },
-          billingAddress: {
-            contactName: 'Jane Doe',
-            city: 'Istanbul',
-            country: 'Turkey',
-            address: 'Nidakule Göztepe, Merdivenköy Mah. Bora Sok. No:1',
-          },
-          basketItems: cart.map(item => ({
-            id: item.id.toString(),
-            name: item.name,
-            category1: 'Gıda',
-            itemType: 'PHYSICAL',
-            price: (item.price * item.quantity).toFixed(2)
-          }))
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.status === 'success') {
-        // Iyzico ödeme formuna yönlendir
-        window.location.href = data.paymentPageUrl;
-      } else {
-        alert('Ödeme başlatılamadı: ' + (data.errorMessage || 'Bilinmeyen hata'));
-        checkoutBtn.disabled = false;
-        checkoutBtn.textContent = 'Satın Al';
-      }
-    } catch (error) {
-      console.error('Ödeme hatası:', error);
-      alert('Bir hata oluştu. Lütfen tekrar deneyin.');
-      checkoutBtn.disabled = false;
-      checkoutBtn.textContent = 'Satın Al';
-    }
+    // Ödeme sayfasına yönlendir
+    window.location.href = '/odeme';
   });
 
   document.addEventListener('DOMContentLoaded', loadCart);

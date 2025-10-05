@@ -11,11 +11,11 @@ import Footer from '../components/Footer.astro';
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-content">
-      <h1 class="hero-title fade-in">Pastırma Adası</h1>
+      <h1 class="hero-title">Pastırma Adası</h1>
       <p class="hero-subtitle">Kaliteli etin ve eşsiz lezzetin buluştuğu adres</p>
 
       <div class="hero-cards">
-        <a href="/online-alisveris" class="hero-card">
+        <div class="hero-card" data-link="/online-alisveris">
           <div class="hero-card-image">
             <img
               src="/assets/image/online-shopping.jpg"
@@ -28,9 +28,9 @@ import Footer from '../components/Footer.astro';
             <p>Ürünlerimizi keşfedin ve sipariş verin</p>
             <span class="hero-card-arrow">Hemen Alışverişe Başla →</span>
           </div>
-        </a>
+        </div>
 
-        <a href="/kayseri-sofrasi" class="hero-card">
+        <div class="hero-card" data-link="/kayseri-sofrasi">
           <div class="hero-card-image">
             <img
               src="/assets/image/kayseri-sofrasi.jpg"
@@ -43,7 +43,7 @@ import Footer from '../components/Footer.astro';
             <p>Restoranımızda yöresel lezzetler</p>
             <span class="hero-card-arrow">Menümüzü İnceleyin →</span>
           </div>
-        </a>
+        </div>
       </div>
     </div>
 
@@ -53,6 +53,12 @@ import Footer from '../components/Footer.astro';
       </svg>
     </div>
   </section>
+
+  <!-- Perde Animasyonu -->
+  <div id="curtain-overlay" class="curtain-overlay">
+    <div class="curtain curtain-left"></div>
+    <div class="curtain curtain-right"></div>
+  </div>
 
   <!-- Features Section -->
   <section class="features-section">
@@ -130,12 +136,25 @@ import Footer from '../components/Footer.astro';
     color: var(--primary);
     margin-bottom: 1.5rem;
     font-weight: 800;
+    animation: fadeInUp 0.8s ease;
   }
 
   .hero-subtitle {
     font-size: 1.5rem;
     color: var(--text-gray);
     margin-bottom: 3rem;
+    animation: fadeInUp 0.8s ease 0.2s both;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .hero-cards {
@@ -151,14 +170,18 @@ import Footer from '../components/Footer.astro';
     border-radius: var(--radius-lg);
     overflow: hidden;
     box-shadow: 0 10px 40px var(--shadow);
-    transition: var(--transition);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-    text-decoration: none;
-    color: inherit;
+    cursor: pointer;
+    animation: fadeInUp 0.8s ease 0.4s both;
+  }
+
+  .hero-card:nth-child(2) {
+    animation-delay: 0.6s;
   }
 
   .hero-card:hover {
-    transform: translateY(-10px);
+    transform: translateY(-15px) scale(1.02);
     box-shadow: 0 20px 60px var(--shadow-lg);
   }
 
@@ -180,7 +203,7 @@ import Footer from '../components/Footer.astro';
   }
 
   .hero-card:hover .hero-card-image img {
-    transform: scale(1.1);
+    transform: scale(1.15);
   }
 
   .hero-card-content {
@@ -214,6 +237,60 @@ import Footer from '../components/Footer.astro';
 
   .hero-card:hover .hero-card-arrow {
     transform: translateX(10px);
+  }
+
+  /* Perde Animasyonu */
+  .curtain-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .curtain-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+  }
+
+  .curtain {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+  }
+
+  .curtain-left {
+    left: 0;
+    transform: translateX(-100%);
+  }
+
+  .curtain-right {
+    right: 0;
+    transform: translateX(100%);
+  }
+
+  .curtain-overlay.active .curtain-left {
+    transform: translateX(0);
+  }
+
+  .curtain-overlay.active .curtain-right {
+    transform: translateX(0);
+  }
+
+  .curtain-overlay.closing .curtain-left {
+    transform: translateX(-100%);
+  }
+
+  .curtain-overlay.closing .curtain-right {
+    transform: translateX(100%);
   }
 
   .scroll-indicator {
@@ -326,3 +403,25 @@ import Footer from '../components/Footer.astro';
     .cta-buttons .btn { width: 100%; max-width: 300px; }
   }
 </style>
+
+<script>
+  // Perde animasyonu ile sayfa geçişi
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.hero-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const link = card.getAttribute('data-link');
+        const curtain = document.getElementById('curtain-overlay');
+
+        if (curtain && link) {
+          // Perdeyi aç
+          curtain.classList.add('active');
+
+          // 1 saniye sonra sayfaya git
+          setTimeout(() => {
+            window.location.href = link;
+          }, 1000);
+        }
+      });
+    });
+  });
+</script>

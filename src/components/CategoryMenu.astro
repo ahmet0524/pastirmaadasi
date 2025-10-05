@@ -1,0 +1,345 @@
+---
+// src/components/CategoryMenu.astro
+const categories = [
+  { name: 'Pastırma', icon: '🥩', slug: 'pastirma' },
+  { name: 'Sucuk', icon: '🌭', slug: 'sucuk' },
+  { name: 'Mantı', icon: '🥟', slug: 'manti' },
+  { name: 'Kavurma', icon: '🍖', slug: 'kavurma' },
+  { name: 'Füme Et', icon: '🥓', slug: 'fume-et' },
+  { name: 'Salam/Sosis', icon: '🌭', slug: 'salam-sosis' },
+  { name: 'Baharat', icon: '🌶️', slug: 'baharat' },
+];
+
+const yoreselUrunler = [
+  { name: 'Peynir', slug: 'peynir' },
+  { name: 'Zeytin', slug: 'zeytin' },
+  { name: 'Bal', slug: 'bal' },
+  { name: 'Reçel', slug: 'recel' },
+  { name: 'Turşu', slug: 'tursu' },
+  { name: 'Sirke', slug: 'sirke' },
+  { name: 'Kahvaltılıklar', slug: 'kahvaltiliklar' },
+];
+---
+
+<!-- Menü Butonu -->
+<button id="category-menu-btn" class="menu-btn" aria-label="Kategoriler Menüsü">
+  <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+  </svg>
+  <span>MENÜ</span>
+</button>
+
+<!-- Menü Overlay -->
+<div id="category-menu-overlay" class="menu-overlay">
+  <div id="category-menu" class="category-menu">
+    <div class="menu-header">
+      <h2>Kategoriler</h2>
+      <button id="close-menu-btn" class="close-btn" aria-label="Kapat">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <nav class="menu-nav">
+      <div class="menu-section">
+        <h3>Ana Kategoriler</h3>
+        <ul class="menu-list">
+          {categories.map(cat => (
+            <li>
+              <a href={`/kategori/${cat.slug}`} class="menu-item">
+                <span class="menu-icon">{cat.icon}</span>
+                <span>{cat.name}</span>
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="menu-section">
+        <h3>Yöresel Ürünler</h3>
+        <ul class="menu-list submenu">
+          {yoreselUrunler.map(item => (
+            <li>
+              <a href={`/kategori/${item.slug}`} class="menu-item">
+                <span>{item.name}</span>
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="menu-section menu-footer">
+        <a href="/online-alisveris" class="menu-highlight">
+          🛍️ Tüm Ürünleri Gör
+        </a>
+      </div>
+    </nav>
+  </div>
+</div>
+
+<style>
+  .menu-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.25rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .menu-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .menu-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .category-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 380px;
+    background: white;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .menu-overlay.active .category-menu {
+    transform: translateX(0);
+  }
+
+  .menu-header {
+    position: sticky;
+    top: 0;
+    background: var(--primary);
+    color: white;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+  }
+
+  .menu-header h2 {
+    font-size: 1.5rem;
+    margin: 0;
+    color: white;
+  }
+
+  .close-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+  }
+
+  .menu-nav {
+    padding: 1.5rem;
+  }
+
+  .menu-section {
+    margin-bottom: 2rem;
+  }
+
+  .menu-section h3 {
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-gray);
+    margin-bottom: 1rem;
+    padding: 0 0.5rem;
+  }
+
+  .menu-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .menu-list li {
+    margin-bottom: 0.25rem;
+  }
+
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    color: var(--text-dark);
+    font-weight: 600;
+    transition: all 0.3s;
+    text-decoration: none;
+  }
+
+  .menu-item:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+    padding-left: 1.5rem;
+  }
+
+  .menu-icon {
+    font-size: 1.5rem;
+    width: 32px;
+    text-align: center;
+  }
+
+  .menu-item svg:last-child {
+    margin-left: auto;
+    opacity: 0.5;
+  }
+
+  .submenu .menu-item {
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    font-size: 0.9375rem;
+  }
+
+  .menu-highlight {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    border-radius: var(--radius-lg);
+    font-weight: 700;
+    font-size: 1.125rem;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+
+  .menu-highlight:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .menu-footer {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 1rem 0 0;
+    border-top: 1px solid var(--border-color);
+    margin-top: auto;
+  }
+
+  @media (max-width: 768px) {
+    .menu-btn {
+      top: 15px;
+      left: 15px;
+      padding: 0.75rem 1rem;
+      font-size: 0.8125rem;
+    }
+
+    .category-menu {
+      max-width: 85%;
+    }
+
+    .menu-header {
+      padding: 1.25rem;
+    }
+
+    .menu-header h2 {
+      font-size: 1.25rem;
+    }
+  }
+
+  /* Scrollbar styling */
+  .category-menu::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .category-menu::-webkit-scrollbar-track {
+    background: var(--bg-light);
+  }
+
+  .category-menu::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 4px;
+  }
+</style>
+
+<script>
+  const menuBtn = document.getElementById('category-menu-btn');
+  const menuOverlay = document.getElementById('category-menu-overlay');
+  const closeBtn = document.getElementById('close-menu-btn');
+
+  function openMenu() {
+    menuOverlay?.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMenu() {
+    menuOverlay?.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  menuBtn?.addEventListener('click', openMenu);
+  closeBtn?.addEventListener('click', closeMenu);
+
+  menuOverlay?.addEventListener('click', (e) => {
+    if (e.target === menuOverlay) {
+      closeMenu();
+    }
+  });
+
+  // ESC tuşu ile kapatma
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menuOverlay?.classList.contains('active')) {
+      closeMenu();
+    }
+  });
+</script>
