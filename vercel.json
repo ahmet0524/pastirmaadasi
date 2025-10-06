@@ -5,11 +5,11 @@
   "rewrites": [
     {
       "source": "/api/create-payment",
-      "destination": "/api/create-payment.js"
+      "destination": "/api/create-payment.cjs"
     },
     {
       "source": "/api/verify-payment",
-      "destination": "/api/verify-payment.js"
+      "destination": "/api/verify-payment.cjs"
     }
   ]
 }
