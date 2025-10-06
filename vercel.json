@@ -2,10 +2,14 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "astro",
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "source": "/api/create-payment",
+      "destination": "/api/create-payment.js"
+    },
+    {
+      "source": "/api/verify-payment",
+      "destination": "/api/verify-payment.js"
     }
   ]
 }
