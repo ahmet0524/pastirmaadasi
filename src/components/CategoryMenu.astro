@@ -1,13 +1,13 @@
 ---
 // src/components/CategoryMenu.astro
 const categories = [
-  { name: 'Pastırma', icon: '🥩', slug: 'pastirma' },
-  { name: 'Sucuk', icon: '🌭', slug: 'sucuk' },
-  { name: 'Mantı', icon: '🥟', slug: 'manti' },
-  { name: 'Kavurma', icon: '🍖', slug: 'kavurma' },
-  { name: 'Füme Et', icon: '🥓', slug: 'fume-et' },
-  { name: 'Salam/Sosis', icon: '🌭', slug: 'salam-sosis' },
-  { name: 'Baharat', icon: '🌶️', slug: 'baharat' },
+  { name: 'Pastırma', slug: 'pastirma' },
+  { name: 'Sucuk', slug: 'sucuk' },
+  { name: 'Mantı', slug: 'manti' },
+  { name: 'Kavurma', slug: 'kavurma' },
+  { name: 'Füme Et', slug: 'fume-et' },
+  { name: 'Salam/Sosis', slug: 'salam-sosis' },
+  { name: 'Baharat', slug: 'baharat' },
 ];
 
 const yoreselUrunler = [
@@ -23,19 +23,19 @@ const yoreselUrunler = [
 
 <!-- Menü Butonu -->
 <button id="category-menu-btn" class="menu-btn" aria-label="Kategoriler Menüsü">
-  <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
   </svg>
-  <span>MENÜ</span>
+  <span>Kategoriler</span>
 </button>
 
 <!-- Menü Overlay -->
 <div id="category-menu-overlay" class="menu-overlay">
   <div id="category-menu" class="category-menu">
     <div class="menu-header">
-      <h2>Kategoriler</h2>
+      <h2>Ürün Kategorileri</h2>
       <button id="close-menu-btn" class="close-btn" aria-label="Kapat">
-        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
@@ -43,14 +43,13 @@ const yoreselUrunler = [
 
     <nav class="menu-nav">
       <div class="menu-section">
-        <h3>Ana Kategoriler</h3>
+        <h3>Ana Ürünler</h3>
         <ul class="menu-list">
           {categories.map(cat => (
             <li>
-              <a href={`/kategori/${cat.slug}`} class="menu-item">
-                <span class="menu-icon">{cat.icon}</span>
+              <a href={`/${cat.slug}`} class="menu-item">
                 <span>{cat.name}</span>
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
               </a>
@@ -61,12 +60,12 @@ const yoreselUrunler = [
 
       <div class="menu-section">
         <h3>Yöresel Ürünler</h3>
-        <ul class="menu-list submenu">
+        <ul class="menu-list">
           {yoreselUrunler.map(item => (
             <li>
-              <a href={`/kategori/${item.slug}`} class="menu-item">
+              <a href={`/${item.slug}`} class="menu-item submenu-item">
                 <span>{item.name}</span>
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
               </a>
@@ -77,7 +76,10 @@ const yoreselUrunler = [
 
       <div class="menu-section menu-footer">
         <a href="/online-alisveris" class="menu-highlight">
-          🛍️ Tüm Ürünleri Gör
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <span>Tüm Ürünler</span>
         </a>
       </div>
     </nav>
@@ -92,23 +94,33 @@ const yoreselUrunler = [
     z-index: 999;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.875rem 1.25rem;
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 0.875rem;
+    gap: 0.625rem;
+    padding: 0.875rem 1.5rem;
+    background: white;
+    color: var(--text-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9375rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
 
   .menu-btn:hover {
-    background: var(--primary-dark);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+
+  .menu-btn svg {
+    transition: transform 0.3s ease;
+  }
+
+  .menu-btn:hover svg {
+    transform: rotate(90deg);
   }
 
   .menu-overlay {
@@ -117,7 +129,7 @@ const yoreselUrunler = [
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
     z-index: 1000;
     opacity: 0;
@@ -136,12 +148,12 @@ const yoreselUrunler = [
     left: 0;
     bottom: 0;
     width: 100%;
-    max-width: 380px;
+    max-width: 340px;
     background: white;
     transform: translateX(-100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     overflow-y: auto;
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
   }
 
   .menu-overlay.active .category-menu {
@@ -151,56 +163,58 @@ const yoreselUrunler = [
   .menu-header {
     position: sticky;
     top: 0;
-    background: var(--primary);
-    color: white;
-    padding: 1.5rem;
+    background: white;
+    padding: 1.75rem 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid var(--border-color);
     z-index: 10;
   }
 
   .menu-header h2 {
-    font-size: 1.5rem;
+    font-size: 1.375rem;
+    font-weight: 700;
     margin: 0;
-    color: white;
+    color: var(--text-dark);
+    letter-spacing: -0.02em;
   }
 
   .close-btn {
-    background: rgba(255, 255, 255, 0.2);
+    background: transparent;
     border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: var(--text-gray);
     cursor: pointer;
     transition: all 0.3s;
   }
 
   .close-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: rotate(90deg);
+    background: var(--bg-light);
+    color: var(--text-dark);
   }
 
   .menu-nav {
-    padding: 1.5rem;
+    padding: 1.5rem 1rem;
   }
 
   .menu-section {
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
   }
 
   .menu-section h3 {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
     color: var(--text-gray);
-    margin-bottom: 1rem;
-    padding: 0 0.5rem;
+    margin-bottom: 0.75rem;
+    padding: 0 0.75rem;
   }
 
   .menu-list {
@@ -216,35 +230,55 @@ const yoreselUrunler = [
   .menu-item {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 0.75rem;
-    padding: 1rem;
-    border-radius: var(--radius-md);
+    padding: 0.875rem 0.75rem;
+    border-radius: 8px;
     color: var(--text-dark);
-    font-weight: 600;
-    transition: all 0.3s;
+    font-weight: 500;
+    font-size: 0.9375rem;
+    transition: all 0.25s ease;
     text-decoration: none;
+    position: relative;
+  }
+
+  .menu-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0;
+    background: var(--primary);
+    border-radius: 0 2px 2px 0;
+    transition: height 0.25s ease;
   }
 
   .menu-item:hover {
-    background: var(--primary-light);
+    background: var(--bg-light);
     color: var(--primary);
+    padding-left: 1rem;
+  }
+
+  .menu-item:hover::before {
+    height: 60%;
+  }
+
+  .menu-item svg {
+    flex-shrink: 0;
+    opacity: 0.4;
+    transition: all 0.25s ease;
+  }
+
+  .menu-item:hover svg {
+    opacity: 1;
+    transform: translateX(2px);
+  }
+
+  .submenu-item {
+    font-size: 0.875rem;
     padding-left: 1.5rem;
-  }
-
-  .menu-icon {
-    font-size: 1.5rem;
-    width: 32px;
-    text-align: center;
-  }
-
-  .menu-item svg:last-child {
-    margin-left: auto;
-    opacity: 0.5;
-  }
-
-  .submenu .menu-item {
-    padding: 0.75rem 1rem 0.75rem 2.5rem;
-    font-size: 0.9375rem;
   }
 
   .menu-highlight {
@@ -252,36 +286,40 @@ const yoreselUrunler = [
     align-items: center;
     justify-content: center;
     gap: 0.75rem;
-    padding: 1.25rem;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    padding: 1rem;
+    background: var(--primary);
     color: white;
-    border-radius: var(--radius-lg);
-    font-weight: 700;
-    font-size: 1.125rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9375rem;
     text-decoration: none;
     transition: all 0.3s;
+    border: 2px solid var(--primary);
   }
 
   .menu-highlight:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   .menu-footer {
     position: sticky;
     bottom: 0;
     background: white;
-    padding: 1rem 0 0;
+    padding: 1rem 0 0.5rem;
     border-top: 1px solid var(--border-color);
     margin-top: auto;
+    margin-bottom: 0;
   }
 
   @media (max-width: 768px) {
     .menu-btn {
       top: 15px;
       left: 15px;
-      padding: 0.75rem 1rem;
-      font-size: 0.8125rem;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.875rem;
     }
 
     .category-menu {
@@ -289,26 +327,34 @@ const yoreselUrunler = [
     }
 
     .menu-header {
-      padding: 1.25rem;
+      padding: 1.5rem 1.25rem;
     }
 
     .menu-header h2 {
       font-size: 1.25rem;
     }
+
+    .menu-nav {
+      padding: 1.25rem 0.875rem;
+    }
   }
 
   /* Scrollbar styling */
   .category-menu::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
 
   .category-menu::-webkit-scrollbar-track {
-    background: var(--bg-light);
+    background: transparent;
   }
 
   .category-menu::-webkit-scrollbar-thumb {
-    background: var(--primary);
-    border-radius: 4px;
+    background: var(--border-color);
+    border-radius: 3px;
+  }
+
+  .category-menu::-webkit-scrollbar-thumb:hover {
+    background: var(--text-gray);
   }
 </style>
 
@@ -330,6 +376,7 @@ const yoreselUrunler = [
   menuBtn?.addEventListener('click', openMenu);
   closeBtn?.addEventListener('click', closeMenu);
 
+  // Overlay tıklaması ile kapatma
   menuOverlay?.addEventListener('click', (e) => {
     if (e.target === menuOverlay) {
       closeMenu();
@@ -341,5 +388,13 @@ const yoreselUrunler = [
     if (e.key === 'Escape' && menuOverlay?.classList.contains('active')) {
       closeMenu();
     }
+  });
+
+  // Menü linklerine tıklandığında menüyü kapat
+  const menuLinks = document.querySelectorAll('.menu-item, .menu-highlight');
+  menuLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      closeMenu();
+    });
   });
 </script>

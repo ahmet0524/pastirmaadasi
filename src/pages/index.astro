@@ -5,14 +5,16 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<BaseLayout title="Ana Sayfa" description="Pastırma Adası - Kayseri'nin eşsiz lezzetleri">
+<BaseLayout title="Pastırma Adası" description="Kayseri'nin eşsiz lezzetleri">
   <Header slot="header" />
 
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-content">
-      <h1 class="hero-title">Pastırma Adası</h1>
-      <p class="hero-subtitle">Kaliteli etin ve eşsiz lezzetin buluştuğu adres</p>
+      <div class="hero-header">
+        <h1 class="hero-title">Pastırma Adası</h1>
+        <p class="hero-subtitle">Kaliteli etin ve eşsiz lezzetin buluştuğu adres</p>
+      </div>
 
       <div class="hero-cards">
         <div class="hero-card" data-link="/online-alisveris">
@@ -20,13 +22,23 @@ import Footer from '../components/Footer.astro';
             <img
               src="/assets/image/online-shopping.jpg"
               alt="Online Alışveriş"
-              loading="lazy"
+              loading="eager"
             />
           </div>
           <div class="hero-card-content">
+            <div class="card-icon">
+              <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+            </div>
             <h2>Online Alışveriş</h2>
             <p>Ürünlerimizi keşfedin ve sipariş verin</p>
-            <span class="hero-card-arrow">Hemen Alışverişe Başla →</span>
+            <span class="hero-card-arrow">
+              Hemen Alışverişe Başla
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </span>
           </div>
         </div>
 
@@ -35,19 +47,30 @@ import Footer from '../components/Footer.astro';
             <img
               src="/assets/image/kayseri-sofrasi.jpg"
               alt="Kayseri Sofrası"
-              loading="lazy"
+              loading="eager"
             />
           </div>
           <div class="hero-card-content">
+            <div class="card-icon">
+              <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+              </svg>
+            </div>
             <h2>Kayseri Sofrası</h2>
             <p>Restoranımızda yöresel lezzetler</p>
-            <span class="hero-card-arrow">Menümüzü İnceleyin →</span>
+            <span class="hero-card-arrow">
+              Menümüzü İnceleyin
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </span>
           </div>
         </div>
       </div>
     </div>
 
     <div class="scroll-indicator">
+      <span>Aşağı Kaydırın</span>
       <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
       </svg>
@@ -58,6 +81,9 @@ import Footer from '../components/Footer.astro';
   <div id="curtain-overlay" class="curtain-overlay">
     <div class="curtain curtain-left"></div>
     <div class="curtain curtain-right"></div>
+    <div class="curtain-logo">
+      <h2>Pastırma Adası</h2>
+    </div>
   </div>
 
   <!-- Features Section -->
@@ -89,11 +115,27 @@ import Footer from '../components/Footer.astro';
         <div class="feature-card">
           <div class="feature-icon">
             <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" />
             </svg>
           </div>
-          <h3>Güvenli Ödeme</h3>
-          <p>İyzico ile güvenli ve kolay ödeme</p>
+          <h3>İki Farklı Deneyim</h3>
+          <p>Online alışveriş ve restoranımızda yöresel lezzetler</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Info Section -->
+  <section class="info-section">
+    <div class="container">
+      <div class="info-content">
+        <div class="info-text">
+          <h2>Kayseri'nin Eşsiz Lezzetleri</h2>
+          <p>Geleneksel tatları modern dokunuşlarla sunuyoruz. Pastırma Adası olarak, Kayseri'nin en kaliteli pastırma, sucuk ve mantılarını hem online hem de restoranımızda sizlere sunuyoruz.</p>
+          <p>Yılların deneyimi ve titiz üretim süreçleriyle hazırlanan ürünlerimiz, sofranıza değer katıyor.</p>
+        </div>
+        <div class="info-image">
+          <img src="/assets/image/about.jpg" alt="Hakkımızda" loading="lazy" />
         </div>
       </div>
     </div>
@@ -102,11 +144,11 @@ import Footer from '../components/Footer.astro';
   <!-- CTA Section -->
   <section class="cta-section">
     <div class="container">
-      <h2>Kayseri'nin Eşsiz Lezzetleri</h2>
-      <p>Geleneksel tatları modern dokunuşlarla sunuyoruz. Sofranıza değer katın!</p>
+      <h2>Hemen Keşfetmeye Başlayın</h2>
+      <p>Online alışveriş yapın veya restoranımızda yöresel lezzetleri tadın</p>
       <div class="cta-buttons">
-        <a href="/online-alisveris" class="btn btn-primary btn-large">Alışverişe Başla</a>
-        <a href="tel:+905077623838" class="btn btn-outline btn-large">Bizi Arayın</a>
+        <a href="/online-alisveris" class="btn btn-light btn-large">Online Alışveriş</a>
+        <a href="/kayseri-sofrasi" class="btn btn-outline-light btn-large">Kayseri Sofrası</a>
       </div>
     </div>
   </section>
@@ -121,28 +163,32 @@ import Footer from '../components/Footer.astro';
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--primary-light) 0%, var(--bg-light) 100%);
+    background: linear-gradient(135deg, #fef3e2 0%, #fff5e6 50%, #fef8f0 100%);
     padding: 2rem 1rem;
   }
 
   .hero-content {
     max-width: 1200px;
     width: 100%;
+  }
+
+  .hero-header {
     text-align: center;
+    margin-bottom: 4rem;
   }
 
   .hero-title {
-    font-size: 3.5rem;
+    font-size: 4rem;
     color: var(--primary);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     font-weight: 800;
+    letter-spacing: -0.02em;
     animation: fadeInUp 0.8s ease;
   }
 
   .hero-subtitle {
     font-size: 1.5rem;
     color: var(--text-gray);
-    margin-bottom: 3rem;
     animation: fadeInUp 0.8s ease 0.2s both;
   }
 
@@ -159,21 +205,21 @@ import Footer from '../components/Footer.astro';
 
   .hero-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    max-width: 900px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3rem;
+    max-width: 1000px;
     margin: 0 auto;
   }
 
   .hero-card {
     background: white;
-    border-radius: var(--radius-lg);
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 10px 40px var(--shadow);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     animation: fadeInUp 0.8s ease 0.4s both;
+    position: relative;
   }
 
   .hero-card:nth-child(2) {
@@ -181,13 +227,13 @@ import Footer from '../components/Footer.astro';
   }
 
   .hero-card:hover {
-    transform: translateY(-15px) scale(1.02);
-    box-shadow: 0 20px 60px var(--shadow-lg);
+    transform: translateY(-20px) scale(1.03);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
   }
 
   .hero-card-image {
     position: relative;
-    padding-top: 75%;
+    padding-top: 60%;
     overflow: hidden;
     background: var(--bg-gray);
   }
@@ -203,40 +249,67 @@ import Footer from '../components/Footer.astro';
   }
 
   .hero-card:hover .hero-card-image img {
-    transform: scale(1.15);
+    transform: scale(1.1);
   }
 
   .hero-card-content {
-    padding: 2rem;
-    background: linear-gradient(to top, rgba(31, 41, 55, 0.95), transparent);
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    padding: 2.5rem;
+    text-align: center;
+  }
+
+  .card-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--primary-light);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: var(--primary);
+    transition: all 0.3s ease;
+  }
+
+  .hero-card:hover .card-icon {
+    background: var(--primary);
     color: white;
+    transform: rotate(5deg) scale(1.1);
   }
 
   .hero-card-content h2 {
-    font-size: 1.75rem;
-    color: white;
-    margin-bottom: 0.5rem;
+    font-size: 1.875rem;
+    color: var(--text-dark);
+    margin-bottom: 0.75rem;
+    font-weight: 700;
   }
 
   .hero-card-content p {
-    font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.95);
-    margin-bottom: 1rem;
+    font-size: 1.125rem;
+    color: var(--text-gray);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
   }
 
   .hero-card-arrow {
-    display: inline-block;
-    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary);
     font-weight: 700;
-    transition: transform 0.3s ease;
+    font-size: 1.125rem;
+    transition: all 0.3s ease;
   }
 
   .hero-card:hover .hero-card-arrow {
-    transform: translateX(10px);
+    gap: 1rem;
+  }
+
+  .hero-card-arrow svg {
+    transition: transform 0.3s ease;
+  }
+
+  .hero-card:hover .hero-card-arrow svg {
+    transform: translateX(5px);
   }
 
   /* Perde Animasyonu */
@@ -264,7 +337,7 @@ import Footer from '../components/Footer.astro';
     width: 50%;
     height: 100%;
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+    transition: transform 1s cubic-bezier(0.77, 0, 0.175, 1);
   }
 
   .curtain-left {
@@ -285,12 +358,20 @@ import Footer from '../components/Footer.astro';
     transform: translateX(0);
   }
 
-  .curtain-overlay.closing .curtain-left {
-    transform: translateX(-100%);
+  .curtain-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 3rem;
+    font-weight: 800;
+    opacity: 0;
+    transition: opacity 0.3s ease 0.5s;
   }
 
-  .curtain-overlay.closing .curtain-right {
-    transform: translateX(100%);
+  .curtain-overlay.active .curtain-logo {
+    opacity: 1;
   }
 
   .scroll-indicator {
@@ -298,8 +379,19 @@ import Footer from '../components/Footer.astro';
     bottom: 2rem;
     left: 50%;
     transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
     animation: bounce 2s infinite;
     color: var(--primary);
+  }
+
+  .scroll-indicator span {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   @keyframes bounce {
@@ -308,80 +400,123 @@ import Footer from '../components/Footer.astro';
   }
 
   .features-section {
-    padding: 5rem 1rem;
+    padding: 6rem 1rem;
     background: white;
   }
 
   .section-title {
-    font-size: 2.5rem;
+    font-size: 2.75rem;
     text-align: center;
     color: var(--text-dark);
-    margin-bottom: 3rem;
+    margin-bottom: 4rem;
     font-weight: 700;
   }
 
   .features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
   }
 
   .feature-card {
     text-align: center;
-    padding: 2rem;
-    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    border-radius: 16px;
     background: var(--bg-light);
-    transition: var(--transition);
-    border: 2px solid transparent;
+    transition: all 0.3s ease;
   }
 
   .feature-card:hover {
-    box-shadow: 0 10px 30px var(--shadow);
-    border-color: var(--primary);
-    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transform: translateY(-8px);
   }
 
   .feature-icon {
-    width: 80px;
-    height: 80px;
-    background: var(--primary-light);
+    width: 90px;
+    height: 90px;
+    background: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 1.5rem;
     color: var(--primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
   .feature-card h3 {
-    font-size: 1.25rem;
+    font-size: 1.375rem;
     margin-bottom: 1rem;
     color: var(--text-dark);
   }
 
   .feature-card p {
     color: var(--text-gray);
-    line-height: 1.6;
+    line-height: 1.7;
+    font-size: 1.0625rem;
+  }
+
+  .info-section {
+    padding: 6rem 1rem;
+    background: var(--bg-light);
+  }
+
+  .info-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .info-text h2 {
+    font-size: 2.5rem;
+    color: var(--text-dark);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+  }
+
+  .info-text p {
+    color: var(--text-gray);
+    line-height: 1.8;
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+  }
+
+  .info-image {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  }
+
+  .info-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .cta-section {
-    padding: 5rem 1rem;
+    padding: 6rem 1rem;
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
     color: white;
     text-align: center;
   }
 
   .cta-section h2 {
-    font-size: 2.5rem;
+    font-size: 2.75rem;
     color: white;
     margin-bottom: 1rem;
+    font-weight: 700;
   }
 
   .cta-section p {
     font-size: 1.25rem;
     color: rgba(255, 255, 255, 0.95);
-    margin-bottom: 2rem;
-    max-width: 600px;
+    margin-bottom: 2.5rem;
+    max-width: 700px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -389,18 +524,82 @@ import Footer from '../components/Footer.astro';
   .cta-buttons {
     display: flex;
     justify-content: center;
-    gap: 1rem;
+    gap: 1.5rem;
     flex-wrap: wrap;
   }
 
+  .btn-light {
+    background: white;
+    color: var(--primary);
+  }
+
+  .btn-light:hover {
+    background: var(--bg-light);
+    transform: translateY(-2px);
+  }
+
+  .btn-outline-light {
+    background: transparent;
+    color: white;
+    border: 2px solid white;
+  }
+
+  .btn-outline-light:hover {
+    background: white;
+    color: var(--primary);
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 1024px) {
+    .hero-cards {
+      gap: 2rem;
+    }
+
+    .info-content {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+  }
+
   @media (max-width: 768px) {
-    .hero-title { font-size: 2.5rem; }
-    .hero-subtitle { font-size: 1.25rem; }
-    .hero-cards { grid-template-columns: 1fr; }
-    .section-title { font-size: 2rem; }
-    .cta-section h2 { font-size: 2rem; }
-    .cta-buttons { flex-direction: column; align-items: center; }
-    .cta-buttons .btn { width: 100%; max-width: 300px; }
+    .hero-title {
+      font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1.125rem;
+    }
+
+    .hero-cards {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .section-title {
+      font-size: 2rem;
+    }
+
+    .features-grid {
+      gap: 2rem;
+    }
+
+    .info-text h2 {
+      font-size: 2rem;
+    }
+
+    .cta-section h2 {
+      font-size: 2rem;
+    }
+
+    .cta-buttons {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .cta-buttons .btn {
+      width: 100%;
+      max-width: 300px;
+    }
   }
 </style>
 
@@ -416,10 +615,10 @@ import Footer from '../components/Footer.astro';
           // Perdeyi aç
           curtain.classList.add('active');
 
-          // 1 saniye sonra sayfaya git
+          // 1.2 saniye sonra sayfaya git
           setTimeout(() => {
             window.location.href = link;
-          }, 1000);
+          }, 1200);
         }
       });
     });
