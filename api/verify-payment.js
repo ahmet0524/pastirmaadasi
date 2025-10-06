@@ -1,60 +1,30 @@
-// api/verify-payment.cjs
-const Iyzipay = require('iyzipay');
+import Iyzipay from 'iyzipay';
 
-module.exports = async (req, res) => {
-  // CORS headers
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
 
-  // OPTIONS isteği için
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Sadece POST kabul et
   if (req.method !== 'POST') {
-    console.log('❌ Invalid method:', req.method);
-    return res.status(405).json({
+    return res.status(405).json({ 
       status: 'error',
-      errorMessage: 'Method Not Allowed - Only POST accepted'
+      errorMessage: 'Method Not Allowed'
     });
   }
 
   try {
-    console.log('🔄 Verifying payment...');
-
-    // Body parsing
-    let body = req.body;
-    if (typeof body === 'string') {
-      try {
-        body = JSON.parse(body);
-      } catch (e) {
-        console.error('❌ Invalid JSON body:', e);
-        return res.status(400).json({
-          status: 'error',
-          errorMessage: 'Geçersiz istek formatı'
-        });
-      }
-    }
-
-    const { token } = body;
-
-    console.log('📦 Received token:', token ? 'exists' : 'missing');
+    console.log('Verifying payment...');
+    
+    const { token } = req.body;
 
     if (!token) {
-      console.log('❌ No token provided');
       return res.status(400).json({
         status: 'error',
-        errorMessage: 'Token bulunamadı. Lütfen ödeme işlemini yeniden başlatın.'
-      });
-    }
-
-    if (!process.env.IYZICO_API_KEY || !process.env.IYZICO_SECRET_KEY) {
-      console.error('❌ Environment variables missing!');
-      return res.status(500).json({
-        status: 'error',
-        errorMessage: 'Sunucu yapılandırma hatası. Lütfen site yöneticisiyle iletişime geçin.'
+        errorMessage: 'Token bulunamadı'
       });
     }
 
@@ -64,8 +34,6 @@ module.exports = async (req, res) => {
       uri: 'https://sandbox-api.iyzipay.com'
     });
 
-    console.log('📤 Calling Iyzico retrieve API with token:', token);
-
     return new Promise((resolve) => {
       iyzipay.checkoutForm.retrieve({
         locale: Iyzipay.LOCALE.TR,
@@ -73,30 +41,15 @@ module.exports = async (req, res) => {
         token: token
       }, (err, result) => {
         if (err) {
-          console.error('❌ Iyzico retrieve error (full):', JSON.stringify(err, null, 2));
-
-          // Hata mesajını düzgün çıkar
-          let errorMessage = 'Doğrulama başarısız';
-
-          if (err.errorMessage) {
-            errorMessage = err.errorMessage;
-          } else if (err.message) {
-            errorMessage = err.message;
-          } else if (typeof err === 'string') {
-            errorMessage = err;
-          }
-
+          console.error('Iyzico error:', err);
           res.status(400).json({
             status: 'error',
-            errorMessage: errorMessage,
-            errorCode: err.errorCode || 'UNKNOWN'
+            errorMessage: err.errorMessage || 'Doğrulama başarısız'
           });
-          resolve();
         } else {
-          console.log('✅ Iyzico result (full):', JSON.stringify(result, null, 2));
-
+          console.log('Iyzico result:', result.status, result.paymentStatus);
+          
           if (result.status === 'success' && result.paymentStatus === 'SUCCESS') {
-            console.log('✅ Payment verified successfully');
             res.status(200).json({
               status: 'success',
               paymentId: result.paymentId,
@@ -105,28 +58,21 @@ module.exports = async (req, res) => {
               paymentStatus: result.paymentStatus
             });
           } else {
-            console.log('⚠️ Payment not successful:', result.paymentStatus);
-
-            let errorMessage = 'Ödeme başarısız';
-            if (result.errorMessage) {
-              errorMessage = result.errorMessage;
-            }
-
             res.status(400).json({
               status: 'error',
-              errorMessage: errorMessage,
+              errorMessage: result.errorMessage || 'Ödeme başarısız',
               paymentStatus: result.paymentStatus
             });
           }
-          resolve();
         }
+        resolve();
       });
     });
   } catch (error) {
-    console.error('❌ Verification error (full):', error);
+    console.error('Verification error:', error);
     return res.status(500).json({
       status: 'error',
-      errorMessage: 'Sunucu hatası: ' + (error.message || 'Bilinmeyen hata')
+      errorMessage: 'Sunucu hatası: ' + error.message
     });
   }
-};
+}
