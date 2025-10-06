@@ -28,32 +28,45 @@ module.exports = async (req, res) => {
       console.error('❌ Environment variables missing!');
       return res.status(500).json({
         status: 'error',
-        errorMessage: 'Server configuration error'
+        errorMessage: 'Sunucu yapılandırma hatası. Lütfen site yöneticisiyle iletişime geçin.'
       });
     }
 
-    // Body parsing güvencesi
-    let body;
-    try {
-      body = JSON.parse(req.body || '{}');
-    } catch (e) {
-      console.error('Invalid JSON body:', e);
-      return res.status(400).json({ status: 'error', errorMessage: 'Invalid JSON body' });
+    // Body parsing
+    let body = req.body;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        console.error('❌ Invalid JSON body:', e);
+        return res.status(400).json({ 
+          status: 'error', 
+          errorMessage: 'Geçersiz istek formatı' 
+        });
+      }
     }
     
     console.log('📦 Request body received:', {
       price: body.price,
       paidPrice: body.paidPrice,
       basketId: body.basketId,
-      itemCount: body.basketItems?.length
+      itemCount: body.basketItems?.length,
+      buyer: body.buyer ? 'exists' : 'missing',
+      shippingAddress: body.shippingAddress ? 'exists' : 'missing',
+      billingAddress: body.billingAddress ? 'exists' : 'missing'
     });
 
     // Body validation
     if (!body.price || !body.paidPrice || !body.buyer || !body.basketItems) {
-      console.error('❌ Missing required fields');
+      console.error('❌ Missing required fields:', {
+        hasPrice: !!body.price,
+        hasPaidPrice: !!body.paidPrice,
+        hasBuyer: !!body.buyer,
+        hasBasketItems: !!body.basketItems
+      });
       return res.status(400).json({
         status: 'error',
-        errorMessage: 'Eksik ödeme bilgileri'
+        errorMessage: 'Eksik ödeme bilgileri. Lütfen tüm alanları doldurun.'
       });
     }
 
@@ -82,27 +95,36 @@ module.exports = async (req, res) => {
       basketItems: body.basketItems
     };
 
-    console.log('📤 Sending request to Iyzico...');
+    console.log('📤 Sending request to Iyzico with data:', JSON.stringify(paymentRequest, null, 2));
 
     return new Promise((resolve) => {
       iyzipay.checkoutFormInitialize.create(paymentRequest, (err, result) => {
         if (err) {
-          console.error('❌ Iyzico error:', err);
+          console.error('❌ Iyzico error (full):', JSON.stringify(err, null, 2));
+          
+          // Hata mesajını düzgün çıkar
+          let errorMessage = 'Ödeme başlatılamadı';
+          
+          if (err.errorMessage) {
+            errorMessage = err.errorMessage;
+          } else if (err.message) {
+            errorMessage = err.message;
+          } else if (typeof err === 'string') {
+            errorMessage = err;
+          }
+          
           res.status(400).json({
             status: 'error',
-            errorMessage: err.errorMessage || 'Ödeme başlatılamadı',
-            errorCode: err.errorCode
+            errorMessage: errorMessage,
+            errorCode: err.errorCode || 'UNKNOWN',
+            errorGroup: err.errorGroup || 'UNKNOWN'
           });
           resolve();
         } else {
-          console.log('✅ Iyzico response:', {
-            status: result.status,
-            hasPaymentPageUrl: !!result.paymentPageUrl,
-            token: result.token ? 'exists' : 'missing'
-          });
+          console.log('✅ Iyzico response (full):', JSON.stringify(result, null, 2));
 
           if (result.status === 'success' && result.paymentPageUrl) {
-            console.log('✅ Payment page URL generated');
+            console.log('✅ Payment page URL generated successfully');
             res.status(200).json({
               status: 'success',
               paymentPageUrl: result.paymentPageUrl,
@@ -110,10 +132,17 @@ module.exports = async (req, res) => {
             });
           } else {
             console.error('❌ Invalid Iyzico response:', result);
+            
+            let errorMessage = 'Ödeme sayfası oluşturulamadı';
+            if (result.errorMessage) {
+              errorMessage = result.errorMessage;
+            }
+            
             res.status(400).json({
               status: 'error',
-              errorMessage: result.errorMessage || 'Ödeme sayfası oluşturulamadı',
-              iyzicoStatus: result.status
+              errorMessage: errorMessage,
+              iyzicoStatus: result.status,
+              errorCode: result.errorCode || 'UNKNOWN'
             });
           }
           resolve();
@@ -122,10 +151,10 @@ module.exports = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Payment error:', error);
+    console.error('❌ Payment error (full):', error);
     return res.status(500).json({
       status: 'error',
-      errorMessage: 'Sunucu hatası: ' + error.message
+      errorMessage: 'Sunucu hatası: ' + (error.message || 'Bilinmeyen hata')
     });
   }
 };
