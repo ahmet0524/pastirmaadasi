@@ -1,15 +1,5 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "framework": "astro",
-  "rewrites": [
-    {
-      "source": "/api/create-payment",
-      "destination": "/api/create-payment.cjs"
-    },
-    {
-      "source": "/api/verify-payment",
-      "destination": "/api/verify-payment.cjs"
-    }
-  ]
+  "framework": "astro"
 }

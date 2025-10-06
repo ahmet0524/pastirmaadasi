@@ -1,7 +1,7 @@
-// api/create-payment.cjs
-const Iyzipay = require('iyzipay');
+// api/create-payment.js
+import Iyzipay from 'iyzipay';
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -32,20 +32,9 @@ module.exports = async (req, res) => {
       });
     }
 
-    // Body parsing
-    let body = req.body;
-    if (typeof body === 'string') {
-      try {
-        body = JSON.parse(body);
-      } catch (e) {
-        console.error('❌ Invalid JSON body:', e);
-        return res.status(400).json({ 
-          status: 'error', 
-          errorMessage: 'Geçersiz istek formatı' 
-        });
-      }
-    }
-    
+    // Vercel otomatik parse eder, ama güvenlik için kontrol
+    const body = req.body;
+
     console.log('📦 Request body received:', {
       price: body.price,
       paidPrice: body.paidPrice,
@@ -95,16 +84,16 @@ module.exports = async (req, res) => {
       basketItems: body.basketItems
     };
 
-    console.log('📤 Sending request to Iyzico with data:', JSON.stringify(paymentRequest, null, 2));
+    console.log('📤 Sending request to Iyzico...');
 
     return new Promise((resolve) => {
       iyzipay.checkoutFormInitialize.create(paymentRequest, (err, result) => {
         if (err) {
           console.error('❌ Iyzico error (full):', JSON.stringify(err, null, 2));
-          
+
           // Hata mesajını düzgün çıkar
           let errorMessage = 'Ödeme başlatılamadı';
-          
+
           if (err.errorMessage) {
             errorMessage = err.errorMessage;
           } else if (err.message) {
@@ -112,7 +101,7 @@ module.exports = async (req, res) => {
           } else if (typeof err === 'string') {
             errorMessage = err;
           }
-          
+
           res.status(400).json({
             status: 'error',
             errorMessage: errorMessage,
@@ -132,12 +121,12 @@ module.exports = async (req, res) => {
             });
           } else {
             console.error('❌ Invalid Iyzico response:', result);
-            
+
             let errorMessage = 'Ödeme sayfası oluşturulamadı';
             if (result.errorMessage) {
               errorMessage = result.errorMessage;
             }
-            
+
             res.status(400).json({
               status: 'error',
               errorMessage: errorMessage,
@@ -157,4 +146,4 @@ module.exports = async (req, res) => {
       errorMessage: 'Sunucu hatası: ' + (error.message || 'Bilinmeyen hata')
     });
   }
-};
+}
