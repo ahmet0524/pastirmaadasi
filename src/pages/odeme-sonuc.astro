@@ -206,7 +206,7 @@ import Footer from '../components/Footer.astro';
 
   if (token) {
     console.log('Token found:', token);
-    fetch('/.netlify/functions/verify-payment', {
+    fetch('/api/create-payment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token })

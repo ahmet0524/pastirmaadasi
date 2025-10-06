@@ -568,7 +568,7 @@ import Footer from '../components/Footer.astro';
 
     try {
       console.log('Sending payment request...');
-      const response = await fetch('/.netlify/functions/create-payment', {
+      const response = await fetch('/api/create-payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
