@@ -566,73 +566,110 @@ import Footer from '../components/Footer.astro';
     const billingCity = sameAddress ? shippingCity : formData.get('billingCity') as string;
     const billingAddress = sameAddress ? shippingAddress : formData.get('billingAddress') as string;
 
+    const subtotal = calculateSubtotal();
+    const total = calculateTotal();
+
+    console.log('📦 Payment Request Prepared:');
+    console.log('💰 Subtotal:', subtotal);
+    console.log('💰 Total:', total);
+    console.log('👤 Buyer:', name, surname);
+    console.log('📧 Email:', email);
+
+    const paymentData = {
+      price: subtotal.toFixed(2),
+      paidPrice: total.toFixed(2),
+      basketId: `BASKET-${Date.now()}`,
+      buyer: {
+        id: `BY${Date.now()}`,
+        name: name,
+        surname: surname,
+        gsmNumber: phone,
+        email: email,
+        identityNumber: identity,
+        registrationAddress: shippingAddress,
+        ip: '85.34.78.112',
+        city: shippingCity,
+        country: 'Turkey'
+      },
+      shippingAddress: {
+        contactName: `${name} ${surname}`,
+        city: shippingCity,
+        country: 'Turkey',
+        address: shippingAddress
+      },
+      billingAddress: {
+        contactName: `${name} ${surname}`,
+        city: billingCity,
+        country: 'Turkey',
+        address: billingAddress
+      },
+      basketItems: cart.map(item => ({
+        id: item.id.toString(),
+        name: item.name,
+        category1: 'Gıda',
+        itemType: 'PHYSICAL',
+        price: (item.price * item.quantity).toFixed(2)
+      }))
+    };
+
+    console.log('📤 Sending request to /api/create-payment...');
+    console.log('📦 Payload:', JSON.stringify(paymentData, null, 2));
+
     try {
-      console.log('Sending payment request...');
       const response = await fetch('/api/create-payment', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        body: JSON.stringify({
-          price: calculateSubtotal().toFixed(2),
-          paidPrice: calculateTotal().toFixed(2),
-          basketId: `BASKET-${Date.now()}`,
-          buyer: {
-            id: `BY${Date.now()}`,
-            name: name,
-            surname: surname,
-            gsmNumber: phone,
-            email: email,
-            identityNumber: identity,
-            registrationAddress: shippingAddress,
-            ip: '85.34.78.112',
-            city: shippingCity,
-            country: 'Turkey'
-          },
-          shippingAddress: {
-            contactName: `${name} ${surname}`,
-            city: shippingCity,
-            country: 'Turkey',
-            address: shippingAddress
-          },
-          billingAddress: {
-            contactName: `${name} ${surname}`,
-            city: billingCity,
-            country: 'Turkey',
-            address: billingAddress
-          },
-          basketItems: cart.map(item => ({
-            id: item.id.toString(),
-            name: item.name,
-            category1: 'Gıda',
-            itemType: 'PHYSICAL',
-            price: (item.price * item.quantity).toFixed(2)
-          }))
-        })
+        body: JSON.stringify(paymentData)
       });
 
-      const data = await response.json();
-      console.log('Payment response:', data);
+      console.log('📥 Response Status:', response.status);
+      console.log('📥 Response OK:', response.ok);
+
+      let data;
+      try {
+        data = await response.json();
+        console.log('📥 Response Data:', data);
+      } catch (jsonError) {
+        console.error('❌ JSON Parse Error:', jsonError);
+        const text = await response.text();
+        console.error('❌ Response Text:', text);
+        throw new Error('Invalid JSON response from server');
+      }
 
       if (response.ok && data.status === 'success') {
         if (data.paymentPageUrl) {
-          console.log('Redirecting to:', data.paymentPageUrl);
-          window.location.href = data.paymentPageUrl;
+          console.log('✅ Payment page URL received:', data.paymentPageUrl);
+          console.log('✅ Redirecting in 1 second...');
+
+          setTimeout(() => {
+            console.log('🚀 Redirecting now...');
+            window.location.href = data.paymentPageUrl;
+          }, 1000);
         } else {
-          console.error('Payment page URL not found:', data);
+          console.error('❌ No payment page URL in response:', data);
           alert('Ödeme sayfası bulunamadı. Lütfen tekrar deneyin.');
           submitBtn.disabled = false;
           submitBtn.textContent = 'Ödemeye Geç';
         }
       } else {
-        console.error('Payment failed:', data);
-        alert('Ödeme başlatılamadı: ' + (data.errorMessage || data.error || 'Bilinmeyen hata'));
+        console.error('❌ Payment request failed:', data);
+        const errorMsg = data.errorMessage || data.error || 'Bilinmeyen hata';
+        console.error('❌ Error message:', errorMsg);
+        alert('Ödeme başlatılamadı: ' + errorMsg);
         submitBtn.disabled = false;
         submitBtn.textContent = 'Ödemeye Geç';
       }
     } catch (error) {
-      console.error('Ödeme hatası:', error);
-      alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+      console.error('❌ Network/Fetch Error:', error);
+      console.error('❌ Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
+      alert('Bir hata oluştu: ' + error.message + '\n\nLütfen console loglarını kontrol edin (F12)');
       submitBtn.disabled = false;
       submitBtn.textContent = 'Ödemeye Geç';
     }
