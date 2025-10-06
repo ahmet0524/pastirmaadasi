@@ -1,39 +1,48 @@
-// api/create-payment.js
 const Iyzipay = require('iyzipay');
 
-// Vercel Serverless Function Format
-module.exports = async (req, res) => {
+exports.handler = async (event) => {
   // CORS headers
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Content-Type': 'application/json'
+  };
 
-  // OPTIONS request için
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+  // OPTIONS isteği için
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers,
+      body: ''
+    };
   }
 
-  if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method Not Allowed' });
-    return;
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers,
+      body: JSON.stringify({ error: 'Method Not Allowed' })
+    };
   }
 
   try {
     // Environment variables kontrolü
     if (!process.env.IYZICO_API_KEY || !process.env.IYZICO_SECRET_KEY) {
       console.error('Environment variables missing!');
-      res.status(500).json({
-        status: 'error',
-        error: 'Server configuration error',
-        errorMessage: 'API keys not configured'
-      });
-      return;
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({
+          error: 'Server configuration error',
+          details: 'API keys not configured'
+        })
+      };
     }
 
-    console.log('Creating payment request...');
-    const body = req.body;
+    console.log('Parsing request body...');
+    const body = JSON.parse(event.body);
+    console.log('Body parsed successfully');
 
     const iyzipay = new Iyzipay({
       apiKey: process.env.IYZICO_API_KEY,
@@ -49,7 +58,7 @@ module.exports = async (req, res) => {
       currency: Iyzipay.CURRENCY.TRY,
       basketId: body.basketId,
       paymentGroup: Iyzipay.PAYMENT_GROUP.PRODUCT,
-      callbackUrl: `${process.env.SITE_URL || 'https://pastirmaadasi.vercel.app'}/odeme-sonuc`,
+      callbackUrl: `https://pastirmaadasi.netlify.app/odeme-sonuc`,
       enabledInstallments: [1, 2, 3, 6, 9],
       buyer: body.buyer,
       shippingAddress: body.shippingAddress,
@@ -57,39 +66,21 @@ module.exports = async (req, res) => {
       basketItems: body.basketItems
     };
 
-    console.log('Calling Iyzico API...');
-
-    iyzipay.checkoutFormInitialize.create(paymentRequest, (err, result) => {
-      if (err) {
-        console.error('Iyzico error:', err);
-        res.status(400).json({
-          status: 'error',
-          error: err.errorMessage || 'Payment initialization failed',
-          errorMessage: err.errorMessage
+    return new Promise((resolve) => {
+      iyzipay.checkoutFormInitialize.create(paymentRequest, (err, result) => {
+        resolve({
+          statusCode: err ? 400 : 200,
+          headers,
+          body: JSON.stringify(err || result)
         });
-      } else {
-        console.log('Iyzico response status:', result.status);
-        if (result.status === 'success' && result.paymentPageUrl) {
-          res.status(200).json({
-            status: 'success',
-            paymentPageUrl: result.paymentPageUrl,
-            token: result.token
-          });
-        } else {
-          res.status(400).json({
-            status: 'error',
-            error: result.errorMessage || 'Payment page URL not generated',
-            errorMessage: result.errorMessage
-          });
-        }
-      }
+      });
     });
   } catch (error) {
     console.error('Payment error:', error);
-    res.status(500).json({
-      status: 'error',
-      error: error.message,
-      errorMessage: 'Sunucu hatası'
-    });
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: error.message })
+    };
   }
 };
