@@ -196,108 +196,118 @@ import Footer from '../components/Footer.astro';
 </style>
 
 <script>
-  const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get('token');
-  const resultContent = document.getElementById('result-content');
+  // Client-side script - bu browser'da çalışır
+  document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const resultContent = document.getElementById('result-content');
 
-  if (!resultContent) {
-    console.error('Result content element not found');
-  }
+    if (!resultContent) {
+      console.error('Result content element not found');
+      return;
+    }
 
-  if (token) {
-    console.log('Token found:', token);
-    fetch('/api/create-payment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token })
-    })
-    .then(res => {
-      console.log('Verify response status:', res.status);
-      return res.json();
-    })
-    .then(data => {
-      console.log('Verify response data:', data);
-      if (!resultContent) return;
+    if (token) {
+      console.log('Token found, verifying payment:', token);
 
-      if (data.status === 'success') {
-        localStorage.removeItem('cart');
-        localStorage.removeItem('discountPercent');
-        window.dispatchEvent(new Event('cartUpdated'));
+      // API'ye istek at
+      fetch('/api/verify-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ token })
+      })
+      .then(res => {
+        console.log('Verify response status:', res.status);
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log('Verify response data:', data);
 
-        resultContent.className = 'result-box success';
-        resultContent.innerHTML = `
-          <div class="success-icon">
-            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h2>✅ Ödeme Başarılı!</h2>
-          <p>Siparişiniz başarıyla alındı.</p>
-          <p>Kısa süre içinde e-posta ile sipariş detaylarınız gönderilecektir.</p>
+        if (data.status === 'success') {
+          // Sepeti temizle
+          localStorage.removeItem('cart');
+          localStorage.removeItem('discountPercent');
+          window.dispatchEvent(new Event('cartUpdated'));
 
-          <div class="order-details">
-            <h3>Sipariş Detayları</h3>
-            <div class="detail-row">
-              <span>Ödeme ID:</span>
-              <span>${data.paymentId || 'N/A'}</span>
+          resultContent.className = 'result-box success';
+          resultContent.innerHTML = `
+            <div class="success-icon">
+              <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
             </div>
-            <div class="detail-row">
-              <span>Tutar:</span>
-              <span>${data.paidPrice || data.price}₺</span>
-            </div>
-            <div class="detail-row">
-              <span>Durum:</span>
-              <span style="color: #10b981;">Başarılı</span>
-            </div>
-          </div>
+            <h2>✅ Ödeme Başarılı!</h2>
+            <p>Siparişiniz başarıyla alındı.</p>
+            <p>Kısa süre içinde e-posta ile sipariş detaylarınız gönderilecektir.</p>
 
-          <div class="action-buttons">
-            <a href="/" class="btn btn-primary">Ana Sayfaya Dön</a>
-            <a href="/online-alisveris" class="btn btn-secondary">Alışverişe Devam Et</a>
-          </div>
-        `;
-      } else {
+            <div class="order-details">
+              <h3>Sipariş Detayları</h3>
+              <div class="detail-row">
+                <span>Ödeme ID:</span>
+                <span>${data.paymentId || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span>Tutar:</span>
+                <span>${data.paidPrice || data.price}₺</span>
+              </div>
+              <div class="detail-row">
+                <span>Durum:</span>
+                <span style="color: #10b981;">Başarılı</span>
+              </div>
+            </div>
+
+            <div class="action-buttons">
+              <a href="/" class="btn btn-primary">Ana Sayfaya Dön</a>
+              <a href="/online-alisveris" class="btn btn-secondary">Alışverişe Devam Et</a>
+            </div>
+          `;
+        } else {
+          resultContent.className = 'result-box error';
+          resultContent.innerHTML = `
+            <div class="error-icon">
+              <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <h2>❌ Ödeme Başarısız</h2>
+            <p>${data.errorMessage || 'Ödeme işlemi tamamlanamadı.'}</p>
+            <p>Lütfen tekrar deneyin veya farklı bir ödeme yöntemi kullanın.</p>
+
+            <div class="action-buttons">
+              <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
+              <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
+            </div>
+          `;
+        }
+      })
+      .catch(error => {
+        console.error('Payment verification error:', error);
+
         resultContent.className = 'result-box error';
         resultContent.innerHTML = `
           <div class="error-icon">
             <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <h2>❌ Ödeme Başarısız</h2>
-          <p>${data.errorMessage || 'Ödeme işlemi tamamlanamadı.'}</p>
-          <p>Lütfen tekrar deneyin veya farklı bir ödeme yöntemi kullanın.</p>
+          <h2>⚠️ Bir Hata Oluştu</h2>
+          <p>Ödeme durumu kontrol edilemedi.</p>
+          <p>Hata detayı: ${error.message}</p>
 
           <div class="action-buttons">
             <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
             <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
           </div>
         `;
-      }
-    })
-    .catch(error => {
-      console.error('Payment verification error:', error);
-      if (!resultContent) return;
-
-      resultContent.className = 'result-box error';
-      resultContent.innerHTML = `
-        <div class="error-icon">
-          <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-        </div>
-        <h2>⚠️ Bir Hata Oluştu</h2>
-        <p>Ödeme durumu kontrol edilemedi.</p>
-        <p>Lütfen müşteri hizmetleri ile iletişime geçin.</p>
-
-        <div class="action-buttons">
-          <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
-          <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
-        </div>
-      `;
-    });
-  } else {
-    if (resultContent) {
+      });
+    } else {
+      // Token yok
       resultContent.className = 'result-box error';
       resultContent.innerHTML = `
         <div class="error-icon">
@@ -314,5 +324,5 @@ import Footer from '../components/Footer.astro';
         </div>
       `;
     }
-  }
+  });
 </script>
