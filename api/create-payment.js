@@ -65,7 +65,7 @@ export default async function handler(req, res) {
       uri: 'https://sandbox-api.iyzipay.com'
     });
 
-    const callbackUrl = `${process.env.SITE_URL || 'https://pastirmaadasi.vercel.app'}/odeme-sonuc`;
+    const callbackUrl = `${process.env.SITE_URL || 'https://pastirmaadasi.vercel.app'}/api/payment-callback`;
     console.log('🔗 Callback URL:', callbackUrl);
 
     const paymentRequest = {
