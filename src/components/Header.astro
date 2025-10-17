@@ -10,10 +10,26 @@ import CategoryMenu from './CategoryMenu.astro';
     </a>
 
     <nav class="desktop-nav">
-      <a href="/online-alisveris">Online Alışveriş</a>
+      <a href="/pastirma">Pastırma</a>
+      <a href="/sucuk">Sucuk</a>
+      <a href="/kavurma">Kavurma</a>
+      <a href="/manti">Mantı</a>
+      <div class="dropdown">
+        <button class="dropdown-btn">
+          Şarküteri
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div class="dropdown-content">
+          <a href="/kategori/peynir">Peynir Çeşitlerimiz</a>
+          <a href="/kategori/zeytin">Zeytin Çeşitlerimiz</a>
+          <a href="/kategori/bal">Bal Çeşitlerimiz</a>
+          <a href="/kategori/baharat">Baharat Çeşitlerimiz</a>
+        </div>
+      </div>
+      <a href="/kayseri-serpme-kahvaltisi">Kayseri Kahvaltısı</a>
       <a href="/kayseri-sofrasi">Kayseri Sofrası</a>
-      <a href="/kayseri-serpme-kahvaltisi">Kahvaltı</a>
-      <a href="tel:+905077623838">📞 0507 762 38 38</a>
     </nav>
 
     <div class="header-actions">
@@ -31,21 +47,43 @@ import CategoryMenu from './CategoryMenu.astro';
     </div>
 
     <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Menü">
-      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
     </button>
   </div>
 
   <!-- Mobile Menu -->
   <div id="mobile-menu" class="mobile-menu">
-    <nav>
-      <a href="/online-alisveris">Online Alışveriş</a>
-      <a href="/kayseri-sofrasi">Kayseri Sofrası</a>
-      <a href="/kayseri-serpme-kahvaltisi">Kahvaltı</a>
-      <a href="tel:+905077623838">📞 0507 762 38 38</a>
-      <a href="/sepet">🛒 Sepetim</a>
-    </nav>
+    <div class="mobile-menu-overlay"></div>
+    <div class="mobile-menu-content">
+      <div class="mobile-menu-header">
+        <span class="mobile-menu-title">Menü</span>
+        <button id="close-mobile-menu" class="close-btn" aria-label="Kapat">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <nav>
+        <a href="/pastirma">Pastırma</a>
+        <a href="/sucuk">Sucuk</a>
+        <a href="/kavurma">Kavurma</a>
+        <a href="/manti">Mantı</a>
+        <a href="/kategori/peynir">Peynir Çeşitlerimiz</a>
+        <a href="/kategori/baharat">Baharat Çeşitlerimiz</a>
+        <a href="/kategori/zeytin">Zeytin Çeşitlerimiz</a>
+        <a href="/kategori/bal">Bal Çeşitlerimiz</a>
+        <a href="/kayseri-serpme-kahvaltisi">Kayseri Kahvaltısı</a>
+        <a href="/kayseri-sofrasi">Kayseri Sofrası</a>
+        <a href="/sepet" class="cart-link">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <span>Sepetim</span>
+        </a>
+      </nav>
+    </div>
   </div>
 
   <!-- Search Modal -->
@@ -75,9 +113,6 @@ import CategoryMenu from './CategoryMenu.astro';
   </div>
 </div>
 
-<!-- Kategori Menüsü Component'i -->
-<CategoryMenu />
-
 <style>
   .header-container {
     width: 100%;
@@ -89,12 +124,13 @@ import CategoryMenu from './CategoryMenu.astro';
   }
 
   .header-content {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 1rem 1.5rem;
+    padding: 1rem 2rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 2rem;
   }
 
   .logo {
@@ -103,6 +139,7 @@ import CategoryMenu from './CategoryMenu.astro';
     color: var(--primary);
     text-decoration: none;
     transition: var(--transition);
+    white-space: nowrap;
   }
 
   .logo:hover {
@@ -113,19 +150,24 @@ import CategoryMenu from './CategoryMenu.astro';
     display: none;
     align-items: center;
     gap: 2rem;
+    flex: 1;
+    justify-content: center;
   }
 
   .desktop-nav a {
     color: var(--text-dark);
     font-weight: 600;
+    font-size: 1rem;
     transition: var(--transition);
     position: relative;
+    white-space: nowrap;
+    padding: 0.5rem 0;
   }
 
   .desktop-nav a::after {
     content: '';
     position: absolute;
-    bottom: -4px;
+    bottom: 0;
     left: 0;
     width: 0;
     height: 2px;
@@ -139,6 +181,89 @@ import CategoryMenu from './CategoryMenu.astro';
 
   .desktop-nav a:hover::after {
     width: 100%;
+  }
+
+  /* Dropdown Menu */
+  .dropdown {
+    position: relative;
+  }
+
+  .dropdown-btn {
+    background: none;
+    border: none;
+    color: var(--text-dark);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: var(--transition);
+    white-space: nowrap;
+  }
+
+  .dropdown-btn:hover {
+    color: var(--primary);
+  }
+
+  .dropdown-btn svg {
+    transition: transform 0.3s ease;
+  }
+
+  .dropdown:hover .dropdown-btn svg {
+    transform: rotate(180deg);
+  }
+
+  .dropdown-content {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    min-width: 220px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-radius: var(--radius-md);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+    z-index: 100;
+  }
+
+  .dropdown:hover .dropdown-content {
+    opacity: 1;
+    visibility: visible;
+    margin-top: 1rem;
+  }
+
+  .dropdown-content a {
+    display: block;
+    padding: 0.875rem 1.25rem;
+    color: var(--text-dark);
+    font-weight: 500;
+    font-size: 0.9375rem;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+  }
+
+  .dropdown-content a:first-child {
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
+
+  .dropdown-content a:last-child {
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+  }
+
+  .dropdown-content a:hover {
+    background: var(--bg-light);
+    color: var(--primary);
+    border-left-color: var(--primary);
+    padding-left: 1.5rem;
+  }
+
+  .dropdown-content a::after {
+    display: none;
   }
 
   .header-actions {
@@ -189,56 +314,157 @@ import CategoryMenu from './CategoryMenu.astro';
 
   .mobile-menu-btn {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     background: none;
     border: none;
     padding: 0.5rem;
-    color: var(--text-dark);
     cursor: pointer;
-    transition: var(--transition);
+    gap: 5px;
+    width: 40px;
+    height: 40px;
   }
 
-  .mobile-menu-btn:hover {
-    color: var(--primary);
+  .hamburger-line {
+    width: 24px;
+    height: 2px;
+    background: var(--text-dark);
+    transition: all 0.3s ease;
+    border-radius: 2px;
   }
 
+  .mobile-menu-btn:hover .hamburger-line {
+    background: var(--primary);
+  }
+
+  .mobile-menu-btn.active .hamburger-line:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .mobile-menu-btn.active .hamburger-line:nth-child(2) {
+    opacity: 0;
+  }
+
+  .mobile-menu-btn.active .hamburger-line:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  /* Mobile Menu */
   .mobile-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
     display: none;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--border-color);
-    background: white;
   }
 
   .mobile-menu.active {
     display: block;
-    animation: slideDown 0.3s ease;
   }
 
-  @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+  .mobile-menu-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .mobile-menu-content {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 85%;
+    max-width: 320px;
+    background: white;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+    animation: slideInRight 0.3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  @keyframes slideInRight {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+
+  .mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .mobile-menu-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-gray);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .close-btn:hover {
+    background: var(--bg-light);
+    color: var(--text-dark);
   }
 
   .mobile-menu nav {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    padding: 1rem 0;
+    overflow-y: auto;
+    flex: 1;
   }
 
   .mobile-menu nav a {
-    padding: 0.75rem 0;
+    padding: 1rem 1.5rem;
     color: var(--text-dark);
-    border-bottom: 1px solid var(--border-color);
-    transition: var(--transition);
-    font-weight: 600;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-size: 1rem;
+    border-left: 3px solid transparent;
   }
 
-  .mobile-menu nav a:hover {
+  .mobile-menu nav a:hover,
+  .mobile-menu nav a:active {
+    background: var(--bg-light);
     color: var(--primary);
-    padding-left: 10px;
+    border-left-color: var(--primary);
+  }
+
+  .mobile-menu nav a.cart-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: auto;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+    margin-top: 1rem;
   }
 
   /* Search Modal */
@@ -295,25 +521,6 @@ import CategoryMenu from './CategoryMenu.astro';
   .search-header h3 {
     font-size: 1.25rem;
     margin: 0;
-  }
-
-  .close-btn {
-    background: none;
-    border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-gray);
-    cursor: pointer;
-    transition: all 0.3s;
-  }
-
-  .close-btn:hover {
-    background: var(--bg-light);
-    color: var(--text-dark);
   }
 
   .search-input-wrapper {
@@ -394,9 +601,12 @@ import CategoryMenu from './CategoryMenu.astro';
   }
 
   @media (min-width: 1024px) {
-    .desktop-nav { display: flex; }
-    .mobile-menu-btn { display: none; }
-    .mobile-menu { display: none !important; }
+    .desktop-nav {
+      display: flex;
+    }
+    .mobile-menu-btn {
+      display: none;
+    }
   }
 
   @media (max-width: 768px) {
@@ -407,13 +617,40 @@ import CategoryMenu from './CategoryMenu.astro';
     .logo {
       font-size: 1.5rem;
     }
+
+    .mobile-menu-content {
+      width: 90%;
+      max-width: 100%;
+    }
   }
 </style>
 
 <script>
   // Mobile menu toggle
-  document.getElementById('mobile-menu-btn')?.addEventListener('click', () => {
-    document.getElementById('mobile-menu')?.classList.toggle('active');
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const closeMobileMenu = document.getElementById('close-mobile-menu');
+  const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+
+  function openMobileMenu() {
+    mobileMenu?.classList.add('active');
+    mobileMenuBtn?.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMobileMenuFunc() {
+    mobileMenu?.classList.remove('active');
+    mobileMenuBtn?.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  mobileMenuBtn?.addEventListener('click', openMobileMenu);
+  closeMobileMenu?.addEventListener('click', closeMobileMenuFunc);
+  mobileMenuOverlay?.addEventListener('click', closeMobileMenuFunc);
+
+  // Close mobile menu on navigation
+  document.querySelectorAll('.mobile-menu nav a').forEach(link => {
+    link.addEventListener('click', closeMobileMenuFunc);
   });
 
   // Search modal
@@ -438,7 +675,7 @@ import CategoryMenu from './CategoryMenu.astro';
     }
   });
 
-  // Search functionality (basit client-side arama)
+  // Search functionality
   let searchTimeout: NodeJS.Timeout;
 
   searchInput?.addEventListener('input', (e) => {
@@ -451,7 +688,6 @@ import CategoryMenu from './CategoryMenu.astro';
     }
 
     searchTimeout = setTimeout(async () => {
-      // Supabase'den arama
       try {
         const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
         const results = await response.json();
@@ -497,3 +733,4 @@ import CategoryMenu from './CategoryMenu.astro';
 
   document.addEventListener('DOMContentLoaded', updateHeaderCartCount);
   window.addEventListener('cartUpdated', updateHeaderCartCount);
+</script>

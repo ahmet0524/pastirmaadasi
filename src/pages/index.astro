@@ -340,22 +340,22 @@ import Footer from '../components/Footer.astro';
     transition: transform 1s cubic-bezier(0.77, 0, 0.175, 1);
   }
 
-  .curtain-left {
+ .curtain-left {
     left: 0;
-    transform: translateX(-100%);
+    transform: translateX(0);
   }
 
   .curtain-right {
     right: 0;
-    transform: translateX(100%);
+    transform: translateX(0);
   }
 
   .curtain-overlay.active .curtain-left {
-    transform: translateX(0);
+    transform: translateX(-100%);
   }
 
   .curtain-overlay.active .curtain-right {
-    transform: translateX(0);
+    transform: translateX(100%);
   }
 
   .curtain-logo {
