@@ -3,38 +3,43 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { supabase } from '../lib/supabase';
 
-const product = {
-  id: "blok-dana-kavurma",
-  name: "Blok Dana Kavurma",
-  weight: "1000 gr",
-  description: "Özenle seçilmiş dana etinden, geleneksel yöntemlerle hazırlanmış, dondurulmuş blok kavurma",
-  price: 1200,
-  features: [
-    "100% Dana Eti",
-    "Dondurulmuş Ürün",
-    "Katkısız ve Doğal",
-    "Geleneksel Üretim"
-  ],
-  image: "/assets/image/blok-dana-kavurma.jpg"
-};
+// 🎯 Supabase'den kavurma ürünlerini çek
+const { data: products, error } = await supabase
+  .from('products')
+  .select('*')
+  .eq('category', 'Kavurma')
+  .eq('is_active', true);
+
+if (error) {
+  console.error('Supabase hatası:', error);
+}
+
+// İlk ürünü al (tek ürün var)
+const product = products?.[0];
+
+// Eğer ürün yoksa 404 göster
+if (!product) {
+  return Astro.redirect('/404');
+}
 ---
 
-<BaseLayout title="Blok Dana Kavurma - Pastırma Adası" description="1000 gr dondurulmuş blok dana kavurma. Geleneksel yöntemlerle hazırlanmış, katkısız ve doğal.">
+<BaseLayout title={`${product.name} - Pastırma Adası`} description={product.description}>
   <Header slot="header" />
 
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-overlay"></div>
     <div class="hero-content">
-      <h1 class="hero-title">Blok Dana Kavurma</h1>
+      <h1 class="hero-title">{product.name}</h1>
       <p class="hero-subtitle">Dondurulmuş, pratik ve lezzetli</p>
       <div class="hero-features">
         <div class="hero-feature">
           <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span>1000 gr Blok</span>
+          <span>{product.unit}</span>
         </div>
         <div class="hero-feature">
           <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,20 +63,27 @@ const product = {
       <div class="product-detail-grid">
         <div class="product-image-container">
           <div class="product-main-image">
-            <img src={product.image} alt={product.name} />
+            <img src={product.images?.[0] || '/assets/image/placeholder.jpg'} alt={product.name} />
             <div class="product-badge">Dondurulmuş Ürün</div>
+
+            {product.stock <= 10 && product.stock > 0 && (
+              <div class="stock-warning">Son {product.stock} adet!</div>
+            )}
+            {product.stock === 0 && (
+              <div class="out-of-stock">Stokta Yok</div>
+            )}
           </div>
         </div>
 
         <div class="product-info">
           <h2 class="product-name">{product.name}</h2>
-          <p class="product-weight">{product.weight}</p>
+          <p class="product-weight">{product.unit}</p>
           <p class="product-description">{product.description}</p>
 
           <div class="product-features">
             <h3>Ürün Özellikleri</h3>
             <ul>
-              {product.features.map(feature => (
+              {product.features?.map((feature: string) => (
                 <li>
                   <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -87,30 +99,41 @@ const product = {
               <span class="price-label">Fiyat</span>
               <div class="price-wrapper">
                 <span class="product-price">{product.price.toLocaleString('tr-TR')}₺</span>
-                <span class="price-unit">/ {product.weight}</span>
+                <span class="price-unit">/ {product.unit}</span>
               </div>
             </div>
 
-            <div class="quantity-selector">
-              <button class="quantity-btn" id="decrease-qty">
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                </svg>
-              </button>
-              <input type="number" id="quantity" value="1" min="1" max="99" readonly />
-              <button class="quantity-btn" id="increase-qty">
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-              </button>
-            </div>
+            {product.stock > 0 ? (
+              <>
+                <div class="quantity-selector">
+                  <button class="quantity-btn" id="decrease-qty">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                    </svg>
+                  </button>
+                  <input type="number" id="quantity" value="1" min="1" max={product.stock} readonly />
+                  <button class="quantity-btn" id="increase-qty">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                  </button>
+                </div>
 
-            <button class="btn btn-primary btn-large add-to-cart">
-              <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              Sepete Ekle
-            </button>
+                <button class="btn btn-primary btn-large add-to-cart">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  Sepete Ekle
+                </button>
+              </>
+            ) : (
+              <div class="out-of-stock-message">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Bu ürün şu anda stokta yok
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -135,7 +158,7 @@ const product = {
               <div class="stat-label">Katkı Maddesi</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">1 KG</div>
+              <div class="stat-number">{product.unit}</div>
               <div class="stat-label">Blok Gramaj</div>
             </div>
           </div>
@@ -341,6 +364,30 @@ const product = {
     box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
   }
 
+  .stock-warning {
+    position: absolute;
+    top: 4.5rem;
+    left: 1.5rem;
+    background: #f59e0b;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+
+  .out-of-stock {
+    position: absolute;
+    top: 4.5rem;
+    left: 1.5rem;
+    background: #ef4444;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+
   .product-info {
     display: flex;
     flex-direction: column;
@@ -486,6 +533,19 @@ const product = {
 
   .add-to-cart {
     width: 100%;
+    justify-content: center;
+  }
+
+  .out-of-stock-message {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    background: #fee;
+    border: 2px solid #ef4444;
+    border-radius: var(--radius-md);
+    color: #ef4444;
+    font-weight: 600;
     justify-content: center;
   }
 
@@ -771,13 +831,14 @@ const product = {
   }
 </style>
 
-<script>
-  // Miktar artırma/azaltma
+<script define:vars={{ product }}>
   document.addEventListener('DOMContentLoaded', () => {
     const decreaseBtn = document.getElementById('decrease-qty');
     const increaseBtn = document.getElementById('increase-qty');
-    const quantityInput = document.getElementById('quantity') as HTMLInputElement;
+    const quantityInput = document.getElementById('quantity');
+    const addToCartBtn = document.querySelector('.add-to-cart');
 
+    // Miktar artır/azalt
     decreaseBtn?.addEventListener('click', () => {
       const currentValue = parseInt(quantityInput.value);
       if (currentValue > 1) {
@@ -787,44 +848,44 @@ const product = {
 
     increaseBtn?.addEventListener('click', () => {
       const currentValue = parseInt(quantityInput.value);
-      if (currentValue < 99) {
+      const maxStock = product.stock || 99;
+      if (currentValue < maxStock) {
         quantityInput.value = (currentValue + 1).toString();
       }
     });
 
-    // Sepete ekleme
-    const addToCartBtn = document.querySelector('.add-to-cart');
-    
+    // Sepete ekle
     addToCartBtn?.addEventListener('click', () => {
       const quantity = parseInt(quantityInput.value);
-      
+
       let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      
-      const existingItem = cart.find((item: any) => item.id === 'blok-dana-kavurma');
-      
+
+      const existingItem = cart.find(item => item.id === product.id);
+
       if (existingItem) {
         existingItem.quantity += quantity;
       } else {
         cart.push({
-          id: 'blok-dana-kavurma',
-          name: 'Blok Dana Kavurma',
-          price: 1200,
+          id: product.id,
+          slug: product.slug,
+          name: product.name,
+          price: product.price,
           quantity: quantity,
-          weight: '1000 gr',
-          type: 'kavurma'
+          unit: product.unit,
+          image: product.images?.[0] || '/assets/image/placeholder.jpg',
+          category: 'kavurma'
         });
       }
-      
+
       localStorage.setItem('cart', JSON.stringify(cart));
-      
       window.dispatchEvent(new Event('cartUpdated'));
-      
-      // Geri bildirim
-      const btn = addToCartBtn as HTMLButtonElement;
+
+      // Görsel geri bildirim
+      const btn = addToCartBtn;
       const originalHTML = btn.innerHTML;
       btn.innerHTML = '✓ Sepete Eklendi';
-      btn.style.background = 'var(--success, #10b981)';
-      
+      btn.style.background = '#10b981';
+
       setTimeout(() => {
         btn.innerHTML = originalHTML;
         btn.style.background = '';
