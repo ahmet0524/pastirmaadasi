@@ -63,7 +63,45 @@ if (!product) {
       <div class="product-detail-grid">
         <div class="product-image-container">
           <div class="product-main-image">
-            <img src={product.images?.[0] || '/assets/image/placeholder.jpg'} alt={product.name} />
+            <!-- Image Slider -->
+            <div class="image-slider" id="image-slider">
+              <div class="slider-track" id="slider-track">
+                {product.images?.map((image: string, index: number) => (
+                  <div class="slider-item">
+                    <img src={image} alt={`${product.name} - ${index + 1}`} />
+                  </div>
+                ))}
+              </div>
+
+              <!-- Navigation Arrows -->
+              {product.images && product.images.length > 1 && (
+                <>
+                  <button class="slider-arrow slider-arrow-prev" id="slider-prev">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button class="slider-arrow slider-arrow-next" id="slider-next">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </>
+              )}
+            </div>
+
+            <!-- Dots Indicator -->
+            {product.images && product.images.length > 1 && (
+              <div class="slider-dots" id="slider-dots">
+                {product.images.map((_: any, index: number) => (
+                  <button
+                    class={`slider-dot ${index === 0 ? 'active' : ''}`}
+                    data-index={index}
+                  ></button>
+                ))}
+              </div>
+            )}
+
             <div class="product-badge">Dondurulmuş Ürün</div>
 
             {product.stock <= 10 && product.stock > 0 && (
@@ -354,6 +392,103 @@ if (!product) {
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Image Slider */
+  .image-slider {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .slider-track {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .slider-item {
+    min-width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-gray);
+  }
+
+  .slider-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+
+  /* Slider Arrows */
+  .slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 2;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .slider-arrow:hover {
+    background: white;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .slider-arrow svg {
+    color: var(--primary);
+  }
+
+  .slider-arrow-prev {
+    left: 1rem;
+  }
+
+  .slider-arrow-next {
+    right: 1rem;
+  }
+
+  /* Slider Dots */
+  .slider-dots {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 2;
+  }
+
+  .slider-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    border: 2px solid white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+  }
+
+  .slider-dot:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: scale(1.2);
+  }
+
+  .slider-dot.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    width: 32px;
+    border-radius: 6px;
   }
 
   .product-main-image img {
