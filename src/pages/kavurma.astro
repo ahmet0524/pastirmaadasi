@@ -96,9 +96,9 @@ if (!product) {
 
           <div class="product-purchase">
             <div class="product-price-box">
-              <span class="price-label">Fiyat</span>
+              <span class="price-label">Birim Fiyat</span>
               <div class="price-wrapper">
-                <span class="product-price">{product.price.toLocaleString('tr-TR')}₺</span>
+                <span class="product-price" id="unit-price">{product.price.toLocaleString('tr-TR')}₺</span>
                 <span class="price-unit">/ {product.unit}</span>
               </div>
             </div>
@@ -106,17 +106,28 @@ if (!product) {
             {product.stock > 0 ? (
               <>
                 <div class="quantity-selector">
-                  <button class="quantity-btn" id="decrease-qty">
+                  <button class="quantity-btn" id="decrease-qty" type="button">
                     <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
                     </svg>
                   </button>
-                  <input type="number" id="quantity" value="1" min="1" max={product.stock} readonly />
-                  <button class="quantity-btn" id="increase-qty">
+                  <input
+                    type="text"
+                    id="quantity"
+                    value="1"
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                  />
+                  <button class="quantity-btn" id="increase-qty" type="button">
                     <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
                   </button>
+                </div>
+
+                <div class="total-price-box">
+                  <span class="total-label">Toplam Fiyat</span>
+                  <span class="total-price" id="total-price">{product.price.toLocaleString('tr-TR')}₺</span>
                 </div>
 
                 <button class="btn btn-primary btn-large add-to-cart">
@@ -522,13 +533,57 @@ if (!product) {
   }
 
   #quantity {
-    width: 60px;
+    width: 80px;
     text-align: center;
     font-size: 1.25rem;
     font-weight: 700;
-    border: none;
-    background: transparent;
+    border: 2px solid var(--border-color);
+    background: white;
     color: var(--text-dark);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem;
+    cursor: text;
+  }
+
+  #quantity:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  /* Chrome, Safari, Edge, Opera - spinner'ları gizle */
+  #quantity::-webkit-outer-spin-button,
+  #quantity::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox - spinner'ları gizle */
+  #quantity[type=number] {
+    -moz-appearance: textfield;
+  }
+
+  /* Toplam Fiyat Kutusu */
+  .total-price-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--primary-light) 0%, rgba(217, 119, 6, 0.1) 100%);
+    border-radius: var(--radius-md);
+    border: 2px solid var(--primary);
+  }
+
+  .total-label {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+
+  .total-price {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--primary);
+    line-height: 1;
   }
 
   .add-to-cart {
@@ -831,48 +886,102 @@ if (!product) {
   }
 </style>
 
-<script define:vars={{ product }}>
+<script>
+  // Product verisini global'e al
+  const productData = JSON.parse(document.getElementById('product-data')?.textContent || '{}');
+
   document.addEventListener('DOMContentLoaded', () => {
     const decreaseBtn = document.getElementById('decrease-qty');
     const increaseBtn = document.getElementById('increase-qty');
     const quantityInput = document.getElementById('quantity');
+    const totalPriceElement = document.getElementById('total-price');
     const addToCartBtn = document.querySelector('.add-to-cart');
 
-    // Miktar artır/azalt
-    decreaseBtn?.addEventListener('click', () => {
-      const currentValue = parseInt(quantityInput.value);
+    const unitPrice = productData.price || 1200;
+    const maxStock = productData.stock || 99;
+
+    console.log('Init:', { unitPrice, maxStock, quantityInput }); // Debug
+
+    // Toplam fiyatı güncelle
+    function updateTotalPrice() {
+      const quantity = parseInt(quantityInput.value) || 1;
+      const total = unitPrice * quantity;
+      if (totalPriceElement) {
+        totalPriceElement.textContent = total.toLocaleString('tr-TR') + '₺';
+      }
+      console.log('Total updated:', { quantity, total }); // Debug
+    }
+
+    // Miktar azalt
+    decreaseBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const currentValue = parseInt(quantityInput.value) || 1;
       if (currentValue > 1) {
         quantityInput.value = (currentValue - 1).toString();
+        updateTotalPrice();
       }
+      console.log('Decreased to:', quantityInput.value); // Debug
     });
 
-    increaseBtn?.addEventListener('click', () => {
-      const currentValue = parseInt(quantityInput.value);
-      const maxStock = product.stock || 99;
+    // Miktar artır
+    increaseBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const currentValue = parseInt(quantityInput.value) || 1;
       if (currentValue < maxStock) {
         quantityInput.value = (currentValue + 1).toString();
+        updateTotalPrice();
       }
+      console.log('Increased to:', quantityInput.value); // Debug
+    });
+
+    // Manuel input değişikliği - keyup kullan
+    quantityInput?.addEventListener('keyup', (e) => {
+      let value = parseInt(quantityInput.value);
+
+      if (isNaN(value) || value < 1) {
+        // Boşsa 1 yapma, kullanıcı yazmaya devam edebilir
+        return;
+      }
+
+      if (value > maxStock) {
+        quantityInput.value = maxStock.toString();
+      }
+
+      updateTotalPrice();
+    });
+
+    // Input'tan çıkınca kontrol et
+    quantityInput?.addEventListener('blur', () => {
+      let value = parseInt(quantityInput.value);
+
+      if (isNaN(value) || value < 1) {
+        quantityInput.value = '1';
+      } else if (value > maxStock) {
+        quantityInput.value = maxStock.toString();
+      }
+
+      updateTotalPrice();
     });
 
     // Sepete ekle
     addToCartBtn?.addEventListener('click', () => {
-      const quantity = parseInt(quantityInput.value);
+      const quantity = parseInt(quantityInput.value) || 1;
 
       let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
-      const existingItem = cart.find(item => item.id === product.id);
+      const existingItem = cart.find(item => item.id === productData.id);
 
       if (existingItem) {
         existingItem.quantity += quantity;
       } else {
         cart.push({
-          id: product.id,
-          slug: product.slug,
-          name: product.name,
-          price: product.price,
+          id: productData.id,
+          slug: productData.slug,
+          name: productData.name,
+          price: productData.price,
           quantity: quantity,
-          unit: product.unit,
-          image: product.images?.[0] || '/assets/image/placeholder.jpg',
+          unit: productData.unit,
+          image: productData.images?.[0] || '/assets/image/placeholder.jpg',
           category: 'kavurma'
         });
       }
@@ -883,7 +992,7 @@ if (!product) {
       // Görsel geri bildirim
       const btn = addToCartBtn;
       const originalHTML = btn.innerHTML;
-      btn.innerHTML = '✓ Sepete Eklendi';
+      btn.innerHTML = '✓ Sepete Eklendi (' + quantity + ' adet)';
       btn.style.background = '#10b981';
 
       setTimeout(() => {
@@ -893,3 +1002,6 @@ if (!product) {
     });
   });
 </script>
+
+<!-- Product data for script -->
+<script id="product-data" type="application/json" set:html={JSON.stringify(product)} />
