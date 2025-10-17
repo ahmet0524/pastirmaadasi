@@ -1136,6 +1136,261 @@ if (!product) {
       }, 2000);
     });
   });
+
+  // sepet.astro sayfasındaki <script> bloğuna ekleyin
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  // Sepeti yükle ve göster
+  function loadCart() {
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const cartContainer = document.getElementById('cart-items');
+    const emptyMessage = document.getElementById('empty-cart-message');
+    const cartSummary = document.getElementById('cart-summary');
+
+    if (cart.length === 0) {
+      // Sepet boş
+      if (cartContainer) cartContainer.innerHTML = '';
+      if (emptyMessage) emptyMessage.style.display = 'block';
+      if (cartSummary) cartSummary.style.display = 'none';
+      return;
+    }
+
+    // Sepet dolu
+    if (emptyMessage) emptyMessage.style.display = 'none';
+    if (cartSummary) cartSummary.style.display = 'block';
+
+    let html = '';
+    let total = 0;
+
+    cart.forEach((item, index) => {
+      const itemTotal = item.price * item.quantity;
+      total += itemTotal;
+
+      html += `
+        <div class="cart-item" data-index="${index}">
+          <div class="cart-item-image">
+            <img src="${item.image}" alt="${item.name}">
+          </div>
+          <div class="cart-item-info">
+            <h3>${item.name}</h3>
+            <p class="item-unit">${item.unit}</p>
+            <p class="item-price">${item.price.toLocaleString('tr-TR')}₺</p>
+          </div>
+          <div class="cart-item-quantity">
+            <button class="qty-btn decrease-qty" data-index="${index}">
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+              </svg>
+            </button>
+            <input
+              type="number"
+              class="qty-input"
+              value="${item.quantity}"
+              min="1"
+              data-index="${index}"
+              readonly
+            >
+            <button class="qty-btn increase-qty" data-index="${index}">
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+          </div>
+          <div class="cart-item-total">
+            <p class="item-total-price">${itemTotal.toLocaleString('tr-TR')}₺</p>
+          </div>
+          <button class="remove-item" data-index="${index}" title="Ürünü Kaldır">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
+      `;
+    });
+
+    if (cartContainer) {
+      cartContainer.innerHTML = html;
+    }
+
+    // Toplam fiyatı güncelle
+    updateCartSummary(total, cart.length);
+
+    // Event listener'ları ekle
+    attachCartEventListeners();
+  }
+
+  // Sepet özetini güncelle
+  function updateCartSummary(total, itemCount) {
+    const subtotalElement = document.getElementById('cart-subtotal');
+    const totalElement = document.getElementById('cart-total');
+    const itemCountElement = document.getElementById('cart-item-count');
+
+    if (subtotalElement) subtotalElement.textContent = total.toLocaleString('tr-TR') + '₺';
+    if (totalElement) totalElement.textContent = total.toLocaleString('tr-TR') + '₺';
+    if (itemCountElement) itemCountElement.textContent = itemCount;
+  }
+
+  // Event listener'ları ekle
+  function attachCartEventListeners() {
+    // Miktar artırma
+    document.querySelectorAll('.increase-qty').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const index = parseInt(e.currentTarget.dataset.index);
+        updateQuantity(index, 1);
+      });
+    });
+
+    // Miktar azaltma
+    document.querySelectorAll('.decrease-qty').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const index = parseInt(e.currentTarget.dataset.index);
+        updateQuantity(index, -1);
+      });
+    });
+
+    // Ürün silme
+    document.querySelectorAll('.remove-item').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const index = parseInt(e.currentTarget.dataset.index);
+        removeItem(index);
+      });
+    });
+  }
+
+  // Miktar güncelleme
+  function updateQuantity(index, change) {
+    let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+    if (cart[index]) {
+      cart[index].quantity += change;
+
+      // Miktar 0'dan küçükse ürünü kaldır
+      if (cart[index].quantity <= 0) {
+        removeItem(index);
+        return;
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+      window.dispatchEvent(new Event('cartUpdated'));
+      loadCart();
+    }
+  }
+
+  // Ürün kaldırma
+  function removeItem(index) {
+    let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+    // Onay sor
+    const item = cart[index];
+    if (!item) return;
+
+    if (confirm(`"${item.name}" ürününü sepetten çıkarmak istediğinize emin misiniz?`)) {
+      // Animasyon için item'ı işaretle
+      const itemElement = document.querySelector(`.cart-item[data-index="${index}"]`);
+      if (itemElement) {
+        itemElement.style.animation = 'slideOutRight 0.3s ease';
+
+        setTimeout(() => {
+          cart.splice(index, 1);
+          localStorage.setItem('cart', JSON.stringify(cart));
+          window.dispatchEvent(new Event('cartUpdated'));
+          loadCart();
+        }, 300);
+      } else {
+        cart.splice(index, 1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        window.dispatchEvent(new Event('cartUpdated'));
+        loadCart();
+      }
+    }
+  }
+
+  // Sepeti tamamen temizle
+  function clearCart() {
+    if (confirm('Sepetinizdeki tüm ürünleri silmek istediğinize emin misiniz?')) {
+      localStorage.removeItem('cart');
+      window.dispatchEvent(new Event('cartUpdated'));
+      loadCart();
+    }
+  }
+
+  // Sepeti temizle butonu
+  const clearCartBtn = document.getElementById('clear-cart-btn');
+  if (clearCartBtn) {
+    clearCartBtn.addEventListener('click', clearCart);
+  }
+
+  // İlk yüklemede sepeti göster
+  loadCart();
+
+  // Sepet güncellendiğinde yeniden yükle
+  window.addEventListener('cartUpdated', loadCart);
+});
+
+// CSS için animasyon
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideOutRight {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+  }
+
+  .cart-item {
+    transition: all 0.3s ease;
+  }
+
+  .remove-item {
+    background: #fee;
+    border: 1px solid #fca5a5;
+    color: #dc2626;
+    padding: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .remove-item:hover {
+    background: #fecaca;
+    border-color: #dc2626;
+    transform: scale(1.1);
+  }
+
+  .qty-btn {
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    color: #374151;
+    padding: 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .qty-btn:hover {
+    background: #e5e7eb;
+    border-color: #d1d5db;
+  }
+
+  .qty-input {
+    width: 60px;
+    text-align: center;
+    font-weight: 600;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 0.5rem;
+    background: white;
+  }
+`;
+document.head.appendChild(style);
 </script>
 
 <!-- Product data for script -->
