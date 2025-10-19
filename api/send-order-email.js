@@ -187,7 +187,7 @@ export default async function handler(req, res) {
       </html>
     `;
 
-    const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'siparis@successodysseyhub.com';
 
     console.log('Sending from:', fromEmail);
 
