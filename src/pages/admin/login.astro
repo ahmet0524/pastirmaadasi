@@ -1,11 +1,6 @@
 ---
 // src/pages/admin/login.astro
 import BaseLayout from '../../layouts/BaseLayout.astro';
-
-// Eğer zaten giriş yapmışsa dashboard'a yönlendir
-if (Astro.cookies.has('sb-access-token')) {
-  return Astro.redirect('/admin/dashboard');
-}
 ---
 
 <BaseLayout title="Admin Girişi">
@@ -14,37 +9,37 @@ if (Astro.cookies.has('sb-access-token')) {
       <div class="login-card">
         <h1>Admin Paneli</h1>
         <p class="login-subtitle">Pastırma Adası Yönetim Sistemi</p>
-        
+
         <form id="login-form" class="login-form">
           <div class="form-group">
             <label for="email">E-posta</label>
-            <input 
-              type="email" 
-              id="email" 
-              name="email" 
-              required 
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
               placeholder="pastirmaadasi@gmail.com"
             />
           </div>
-          
+
           <div class="form-group">
             <label for="password">Şifre</label>
-            <input 
-              type="password" 
-              id="password" 
-              name="password" 
-              required 
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
               placeholder="••••••••"
             />
           </div>
-          
+
           <div id="error-message" class="error-message hidden"></div>
-          
+
           <button type="submit" class="btn btn-primary btn-full btn-large">
             Giriş Yap
           </button>
         </form>
-        
+
         <p class="login-footer">
           <a href="/">← Ana Sayfaya Dön</a>
         </p>
@@ -62,45 +57,45 @@ if (Astro.cookies.has('sb-access-token')) {
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     padding: 2rem;
   }
-  
+
   .login-container {
     width: 100%;
     max-width: 450px;
   }
-  
+
   .login-card {
     background: white;
     border-radius: var(--radius-lg);
     padding: 3rem;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   }
-  
+
   .login-card h1 {
     text-align: center;
     margin-bottom: 0.5rem;
   }
-  
+
   .login-subtitle {
     text-align: center;
     color: var(--text-gray);
     margin-bottom: 2rem;
   }
-  
+
   .login-form {
     margin-bottom: 1.5rem;
   }
-  
+
   .form-group {
     margin-bottom: 1.5rem;
   }
-  
+
   .form-group label {
     display: block;
     font-weight: bold;
     margin-bottom: 0.5rem;
     color: var(--text-dark);
   }
-  
+
   .error-message {
     background: #fee;
     color: #c33;
@@ -109,17 +104,17 @@ if (Astro.cookies.has('sb-access-token')) {
     margin-bottom: 1rem;
     font-size: 0.875rem;
   }
-  
+
   .login-footer {
     text-align: center;
     margin-top: 1.5rem;
   }
-  
+
   .login-footer a {
     color: var(--primary);
     font-weight: 500;
   }
-  
+
   .login-footer a:hover {
     color: var(--secondary);
   }
@@ -127,30 +122,40 @@ if (Astro.cookies.has('sb-access-token')) {
 
 <script>
   import { supabase } from '../../lib/supabase';
-  
+
+  // Sayfa yüklendiğinde oturum kontrolü yap
+  async function checkSession() {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (session) {
+      // Zaten giriş yapmışsa dashboard'a yönlendir
+      window.location.href = '/admin/dashboard';
+    }
+  }
+
+  checkSession();
+
   document.getElementById('login-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const form = e.target as HTMLFormElement;
     const email = (form.querySelector('#email') as HTMLInputElement).value;
     const password = (form.querySelector('#password') as HTMLInputElement).value;
     const errorDiv = document.getElementById('error-message');
-    
+
     if (!errorDiv) return;
-    
+
     errorDiv.classList.add('hidden');
-    
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
-      
+
       if (error) throw error;
-      
-      // Cookie'yi set et
-      document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=3600`;
-      
+
+      // Supabase otomatik olarak session'ı localStorage'a kaydeder
       // Dashboard'a yönlendir
       window.location.href = '/admin/dashboard';
     } catch (error: any) {
