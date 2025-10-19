@@ -196,7 +196,6 @@ import Footer from '../components/Footer.astro';
 </style>
 
 <script>
-  // Client-side script - bu browser'da çalışır
   document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
@@ -210,6 +209,18 @@ import Footer from '../components/Footer.astro';
     if (token) {
       console.log('Token found, verifying payment:', token);
 
+      // LocalStorage'dan sipariş bilgilerini al
+      const orderData = localStorage.getItem('pendingOrder');
+      let parsedOrderData = null;
+
+      if (orderData) {
+        try {
+          parsedOrderData = JSON.parse(orderData);
+        } catch (e) {
+          console.error('Error parsing order data:', e);
+        }
+      }
+
       // API'ye istek at
       fetch('/api/verify-payment', {
         method: 'POST',
@@ -217,7 +228,10 @@ import Footer from '../components/Footer.astro';
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({ token })
+        body: JSON.stringify({
+          token,
+          orderData: parsedOrderData
+        })
       })
       .then(res => {
         console.log('Verify response status:', res.status);
@@ -230,9 +244,10 @@ import Footer from '../components/Footer.astro';
         console.log('Verify response data:', data);
 
         if (data.status === 'success') {
-          // Sepeti temizle
+          // Sepeti ve pending order'ı temizle
           localStorage.removeItem('cart');
           localStorage.removeItem('discountPercent');
+          localStorage.removeItem('pendingOrder');
           window.dispatchEvent(new Event('cartUpdated'));
 
           resultContent.className = 'result-box success';
@@ -294,35 +309,3 @@ import Footer from '../components/Footer.astro';
           <div class="error-icon">
             <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <h2>⚠️ Bir Hata Oluştu</h2>
-          <p>Ödeme durumu kontrol edilemedi.</p>
-          <p>Hata detayı: ${error.message}</p>
-
-          <div class="action-buttons">
-            <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
-            <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
-          </div>
-        `;
-      });
-    } else {
-      // Token yok
-      resultContent.className = 'result-box error';
-      resultContent.innerHTML = `
-        <div class="error-icon">
-          <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-        </div>
-        <h2>⚠️ Geçersiz İstek</h2>
-        <p>Ödeme bilgisi bulunamadı.</p>
-
-        <div class="action-buttons">
-          <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
-          <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
-        </div>
-      `;
-    }
-  });
-</script>

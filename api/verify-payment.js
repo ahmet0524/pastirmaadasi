@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   try {
     console.log('Verifying payment...');
     
-    const { token } = req.body;
+    const { token, orderData } = req.body;
 
     if (!token) {
       return res.status(400).json({
@@ -39,17 +39,46 @@ export default async function handler(req, res) {
         locale: Iyzipay.LOCALE.TR,
         conversationId: Date.now().toString(),
         token: token
-      }, (err, result) => {
+      }, async (err, result) => {
         if (err) {
           console.error('Iyzico error:', err);
           res.status(400).json({
             status: 'error',
             errorMessage: err.errorMessage || 'Doğrulama başarısız'
           });
+          resolve();
         } else {
           console.log('Iyzico result:', result.status, result.paymentStatus);
-          
+
           if (result.status === 'success' && result.paymentStatus === 'SUCCESS') {
+            // Ödeme başarılı - Email gönder
+            try {
+              if (orderData) {
+                const emailResponse = await fetch(`${req.headers.origin || 'https://successodysseyhub.com'}/api/send-order-email`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    customerEmail: orderData.customerEmail,
+                    customerName: orderData.customerName,
+                    customerPhone: orderData.customerPhone,
+                    customerAddress: orderData.customerAddress,
+                    items: orderData.items,
+                    totalPrice: result.paidPrice,
+                    paymentId: result.paymentId
+                  })
+                });
+
+                if (!emailResponse.ok) {
+                  console.error('Email sending failed');
+                }
+              }
+            } catch (emailError) {
+              console.error('Email error:', emailError);
+              // Email hatası ödeme başarısını etkilemez
+            }
+
             res.status(200).json({
               status: 'success',
               paymentId: result.paymentId,
