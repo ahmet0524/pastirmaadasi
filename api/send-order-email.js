@@ -17,7 +17,20 @@ export default async function handler(req, res) {
   }
 
   try {
-    const resend = new Resend(process.env.RESEND_API_KEY);
+    // API Key kontrolü
+    const apiKey = process.env.RESEND_API_KEY;
+
+    if (!apiKey) {
+      console.error('RESEND_API_KEY is not defined in environment variables');
+      return res.status(500).json({
+        status: 'error',
+        errorMessage: 'Email servisi yapılandırılmamış (API key eksik)'
+      });
+    }
+
+    console.log('API Key found, length:', apiKey.length);
+
+    const resend = new Resend(apiKey);
 
     const {
       customerEmail,
@@ -35,6 +48,8 @@ export default async function handler(req, res) {
         errorMessage: 'Gerekli bilgiler eksik'
       });
     }
+
+    console.log('Sending email to:', customerEmail);
 
     // Ürün listesi HTML
     const itemsHtml = items.map(item => `
@@ -66,7 +81,7 @@ export default async function handler(req, res) {
         <div style="max-width: 600px; margin: 0 auto; background-color: white;">
           <!-- Header -->
           <div style="background-color: #dc2626; padding: 30px 20px; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">Manav Yüzbaşıoğlu</h1>
+            <h1 style="color: white; margin: 0; font-size: 28px;">Pastırma Adası</h1>
             <p style="color: #fee2e2; margin: 10px 0 0 0;">Siparişiniz Alındı!</p>
           </div>
 
@@ -164,7 +179,7 @@ export default async function handler(req, res) {
           <!-- Footer -->
           <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
             <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-              &copy; ${new Date().getFullYear()} Manav Yüzbaşıoğlu. Tüm hakları saklıdır.
+              &copy; ${new Date().getFullYear()} Pastırma Adası. Tüm hakları saklıdır.
             </p>
           </div>
         </div>
@@ -172,13 +187,19 @@ export default async function handler(req, res) {
       </html>
     `;
 
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+
+    console.log('Sending from:', fromEmail);
+
     // Müşteriye email gönder
     const customerEmailResult = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'siparis@successodysseyhub.com',
+      from: fromEmail,
       to: customerEmail,
       subject: `Sipariş Onayı - ${paymentId || new Date().getTime()}`,
       html: emailHtml
     });
+
+    console.log('Customer email sent:', customerEmailResult);
 
     // İşletmeye bildirim emaili
     const adminEmailHtml = `
@@ -234,11 +255,13 @@ export default async function handler(req, res) {
     const adminEmail = process.env.ADMIN_EMAIL || 'successodysseyhub@gmail.com';
 
     await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'siparis@successodysseyhub.com',
+      from: fromEmail,
       to: adminEmail,
       subject: `🛒 Yeni Sipariş - ${customerName || customerEmail}`,
       html: adminEmailHtml
     });
+
+    console.log('Admin email sent to:', adminEmail);
 
     return res.status(200).json({
       status: 'success',
