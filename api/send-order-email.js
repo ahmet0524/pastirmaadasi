@@ -231,7 +231,7 @@ export default async function handler(req, res) {
     `;
 
     // İşletme emailini environment variable'dan al
-    const adminEmail = process.env.ADMIN_EMAIL || 'info@manavyuzbasioglu.com';
+    const adminEmail = process.env.ADMIN_EMAIL || 'successodysseyhub@gmail.com';
 
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'siparis@successodysseyhub.com',
