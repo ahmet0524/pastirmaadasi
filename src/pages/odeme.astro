@@ -1,13 +1,5 @@
-interface CartItem {
-    id: number;
-    name: string;
-    price: number;
-    image: string;
-    unit: string;
-    quantity: number;
-  }
-
-  let cart: CartItem[] = [];
+<script>
+  let cart = [];
   let discountPercent = 0;
 
   function loadCart() {
@@ -47,7 +39,7 @@ interface CartItem {
     updateSummary();
   }
 
-  function calculateSubtotal(): number {
+  function calculateSubtotal() {
     return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   }
 
@@ -70,7 +62,7 @@ interface CartItem {
     if (totalEl) totalEl.textContent = `${total.toFixed(2)}₺`;
   }
 
-  function calculateTotal(): number {
+  function calculateTotal() {
     const subtotal = calculateSubtotal();
     const shipping = subtotal >= 1000 ? 0 : 50;
     const discount = (subtotal * discountPercent) / 100;
@@ -78,168 +70,167 @@ interface CartItem {
   }
 
   // Fatura adresi toggle
-  const sameAddressCheckbox = document.getElementById('same-address') as HTMLInputElement;
+  const sameAddressCheckbox = document.getElementById('same-address');
   const billingAddressSection = document.getElementById('billing-address-section');
 
-  sameAddressCheckbox?.addEventListener('change', () => {
-    billingAddressSection?.classList.toggle('hidden', sameAddressCheckbox.checked);
+  if (sameAddressCheckbox) {
+    sameAddressCheckbox.addEventListener('change', () => {
+      if (billingAddressSection) {
+        billingAddressSection.classList.toggle('hidden', sameAddressCheckbox.checked);
 
-    const billingInputs = billingAddressSection?.querySelectorAll('input, textarea');
-    billingInputs?.forEach(input => {
-      (input as HTMLInputElement).required = !sameAddressCheckbox.checked;
+        const billingInputs = billingAddressSection.querySelectorAll('input, textarea');
+        billingInputs.forEach(input => {
+          input.required = !sameAddressCheckbox.checked;
+        });
+      }
     });
-  });
+  }
 
   // Form gönderimi
-  const checkoutForm = document.getElementById('checkout-form') as HTMLFormElement;
+  const checkoutForm = document.getElementById('checkout-form');
 
-  checkoutForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  if (checkoutForm) {
+    checkoutForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-    const submitBtn = document.getElementById('submit-payment') as HTMLButtonElement;
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'İşleniyor...';
+      const submitBtn = document.getElementById('submit-payment');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'İşleniyor...';
 
-    const formData = new FormData(checkoutForm);
-    const sameAddress = (document.getElementById('same-address') as HTMLInputElement).checked;
+      const formData = new FormData(checkoutForm);
+      const sameAddress = document.getElementById('same-address').checked;
 
-    const name = formData.get('name') as string;
-    const surname = formData.get('surname') as string;
-    const email = formData.get('email') as string;
-    const phone = formData.get('phone') as string;
-    const identity = formData.get('identity') as string;
+      const name = formData.get('name');
+      const surname = formData.get('surname');
+      const email = formData.get('email');
+      const phone = formData.get('phone');
+      const identity = formData.get('identity');
 
-    const shippingCity = formData.get('shippingCity') as string;
-    const shippingAddress = formData.get('shippingAddress') as string;
+      const shippingCity = formData.get('shippingCity');
+      const shippingAddress = formData.get('shippingAddress');
 
-    const billingCity = sameAddress ? shippingCity : formData.get('billingCity') as string;
-    const billingAddress = sameAddress ? shippingAddress : formData.get('billingAddress') as string;
+      const billingCity = sameAddress ? shippingCity : formData.get('billingCity');
+      const billingAddress = sameAddress ? shippingAddress : formData.get('billingAddress');
 
-    const subtotal = calculateSubtotal();
-    const total = calculateTotal();
+      const subtotal = calculateSubtotal();
+      const total = calculateTotal();
 
-    console.log('📦 Payment Request Prepared:');
-    console.log('💰 Subtotal:', subtotal);
-    console.log('💰 Total:', total);
-    console.log('👤 Buyer:', name, surname);
-    console.log('📧 Email:', email);
+      console.log('📦 Payment Request Prepared:');
+      console.log('💰 Subtotal:', subtotal);
+      console.log('💰 Total:', total);
+      console.log('👤 Buyer:', name, surname);
+      console.log('📧 Email:', email);
 
-    // ✅ CRITICAL: Sipariş bilgilerini localStorage'a kaydet
-    // Bu bilgiler ödeme sonrası email göndermek için kullanılacak
-    const orderData = {
-      customerEmail: email,
-      customerName: `${name} ${surname}`,
-      customerPhone: phone,
-      customerAddress: shippingAddress,
-      items: cart.map(item => ({
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price
-      }))
-    };
+      // ✅ CRITICAL: Sipariş bilgilerini localStorage'a kaydet
+      const orderData = {
+        customerEmail: email,
+        customerName: `${name} ${surname}`,
+        customerPhone: phone,
+        customerAddress: shippingAddress,
+        items: cart.map(item => ({
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price
+        }))
+      };
 
-    console.log('💾 Saving order data to localStorage:', orderData);
-    localStorage.setItem('pendingOrder', JSON.stringify(orderData));
-    console.log('✅ Order data saved successfully');
+      console.log('💾 Saving order data to localStorage:', orderData);
+      localStorage.setItem('pendingOrder', JSON.stringify(orderData));
+      console.log('✅ Order data saved successfully');
 
-    const paymentData = {
-      price: subtotal.toFixed(2),
-      paidPrice: total.toFixed(2),
-      basketId: `BASKET-${Date.now()}`,
-      buyer: {
-        id: identity,
-        name: name,
-        surname: surname,
-        gsmNumber: phone,
-        email: email,
-        identityNumber: identity,
-        registrationAddress: shippingAddress,
-        ip: '85.34.78.112',
-        city: shippingCity,
-        country: 'Turkey'
-      },
-      shippingAddress: {
-        contactName: `${name} ${surname}`,
-        city: shippingCity,
-        country: 'Turkey',
-        address: shippingAddress
-      },
-      billingAddress: {
-        contactName: `${name} ${surname}`,
-        city: billingCity,
-        country: 'Turkey',
-        address: billingAddress
-      },
-      basketItems: cart.map(item => ({
-        id: item.id.toString(),
-        name: item.name,
-        category1: 'Gıda',
-        itemType: 'PHYSICAL',
-        price: (item.price * item.quantity).toFixed(2)
-      }))
-    };
-
-    console.log('📤 Sending request to /api/create-payment...');
-    console.log('📦 Payload:', JSON.stringify(paymentData, null, 2));
-
-    try {
-      const response = await fetch('/api/create-payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+      const paymentData = {
+        price: subtotal.toFixed(2),
+        paidPrice: total.toFixed(2),
+        basketId: `BASKET-${Date.now()}`,
+        buyer: {
+          id: identity,
+          name: name,
+          surname: surname,
+          gsmNumber: phone,
+          email: email,
+          identityNumber: identity,
+          registrationAddress: shippingAddress,
+          ip: '85.34.78.112',
+          city: shippingCity,
+          country: 'Turkey'
         },
-        body: JSON.stringify(paymentData)
-      });
+        shippingAddress: {
+          contactName: `${name} ${surname}`,
+          city: shippingCity,
+          country: 'Turkey',
+          address: shippingAddress
+        },
+        billingAddress: {
+          contactName: `${name} ${surname}`,
+          city: billingCity,
+          country: 'Turkey',
+          address: billingAddress
+        },
+        basketItems: cart.map(item => ({
+          id: item.id.toString(),
+          name: item.name,
+          category1: 'Gıda',
+          itemType: 'PHYSICAL',
+          price: (item.price * item.quantity).toFixed(2)
+        }))
+      };
 
-      console.log('📥 Response Status:', response.status);
-      console.log('📥 Response OK:', response.ok);
+      console.log('📤 Sending request to /api/create-payment...');
 
-      let data;
       try {
-        data = await response.json();
-        console.log('📥 Response Data:', data);
-      } catch (jsonError) {
-        console.error('❌ JSON Parse Error:', jsonError);
-        const text = await response.text();
-        console.error('❌ Response Text:', text);
-        throw new Error('Invalid JSON response from server');
-      }
+        const response = await fetch('/api/create-payment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(paymentData)
+        });
 
-      if (response.ok && data.status === 'success') {
-        if (data.paymentPageUrl) {
-          console.log('✅ Payment page URL received:', data.paymentPageUrl);
-          console.log('✅ Redirecting in 1 second...');
+        console.log('📥 Response Status:', response.status);
 
-          setTimeout(() => {
-            console.log('🚀 Redirecting now...');
-            window.location.href = data.paymentPageUrl;
-          }, 1000);
+        let data;
+        try {
+          data = await response.json();
+          console.log('📥 Response Data:', data);
+        } catch (jsonError) {
+          console.error('❌ JSON Parse Error:', jsonError);
+          const text = await response.text();
+          console.error('❌ Response Text:', text);
+          throw new Error('Invalid JSON response from server');
+        }
+
+        if (response.ok && data.status === 'success') {
+          if (data.paymentPageUrl) {
+            console.log('✅ Payment page URL received:', data.paymentPageUrl);
+            console.log('✅ Redirecting in 1 second...');
+
+            setTimeout(() => {
+              console.log('🚀 Redirecting now...');
+              window.location.href = data.paymentPageUrl;
+            }, 1000);
+          } else {
+            console.error('❌ No payment page URL in response:', data);
+            alert('Ödeme sayfası bulunamadı. Lütfen tekrar deneyin.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Ödemeye Geç';
+          }
         } else {
-          console.error('❌ No payment page URL in response:', data);
-          alert('Ödeme sayfası bulunamadı. Lütfen tekrar deneyin.');
+          console.error('❌ Payment request failed:', data);
+          const errorMsg = data.errorMessage || data.error || 'Bilinmeyen hata';
+          console.error('❌ Error message:', errorMsg);
+          alert('Ödeme başlatılamadı: ' + errorMsg);
           submitBtn.disabled = false;
           submitBtn.textContent = 'Ödemeye Geç';
         }
-      } else {
-        console.error('❌ Payment request failed:', data);
-        const errorMsg = data.errorMessage || data.error || 'Bilinmeyen hata';
-        console.error('❌ Error message:', errorMsg);
-        alert('Ödeme başlatılamadı: ' + errorMsg);
+      } catch (error) {
+        console.error('❌ Network/Fetch Error:', error);
+        alert('Bir hata oluştu: ' + error.message);
         submitBtn.disabled = false;
         submitBtn.textContent = 'Ödemeye Geç';
       }
-    } catch (error) {
-      console.error('❌ Network/Fetch Error:', error);
-      console.error('❌ Error details:', {
-        name: error.name,
-        message: error.message,
-        stack: error.stack
-      });
-      alert('Bir hata oluştu: ' + error.message + '\n\nLütfen console loglarını kontrol edin (F12)');
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Ödemeye Geç';
-    }
-  });
+    });
+  }
 
   document.addEventListener('DOMContentLoaded', loadCart);
+</script>
