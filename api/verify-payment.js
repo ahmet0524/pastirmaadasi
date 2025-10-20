@@ -99,7 +99,7 @@ export default async function handler(req, res) {
 
               // 🔸 Alıcıya mail
               await resend.emails.send({
-                from: process.env.RESEND_FROM_EMAIL || 'siparis@pastirmaadasi.com',
+                from: process.env.RESEND_FROM_EMAIL || 'siparis@successodyssey.com',
                 to: customerEmail,
                 subject: `Sipariş Onayı - ${paymentId}`,
                 html: emailHtml
@@ -107,7 +107,7 @@ export default async function handler(req, res) {
 
               // 🔸 Satıcıya bilgilendirme maili
               await resend.emails.send({
-                from: process.env.RESEND_FROM_EMAIL || 'siparis@pastirmaadasi.com',
+                from: process.env.RESEND_FROM_EMAIL || 'siparis@successodyssey.com',
                 to: process.env.ADMIN_EMAIL || 'successodysseyhub@gmail.com',
                 subject: `🧾 Yeni Sipariş - ${customerName}`,
                 html: emailHtml

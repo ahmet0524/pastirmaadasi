@@ -108,7 +108,7 @@ export async function POST({ request }) {
 
           const adminEmail = import.meta.env.ADMIN_EMAIL || 'ayavuz0524@gmail.com';
           await resend.emails.send({
-            from: import.meta.env.RESEND_FROM_EMAIL || 'Pastırma Adası <noreply@pastirmaadasi.com>',
+            from: import.meta.env.RESEND_FROM_EMAIL || 'Pastırma Adası <siparis@successodysseyhub.com>',
             to: adminEmail,
             subject: `🔔 Yeni Ödeme - ${result.paymentId}`,
             html: adminHTML,
