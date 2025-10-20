@@ -5,20 +5,20 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<BaseLayout title="Ãƒâ€“deme Bilgileri" description="SipariÃ…Å¸ bilgilerinizi girin ve ÃƒÂ¶deme yapÃ„Â±n">
+<BaseLayout title="Ã–deme Bilgileri" description="SipariÅŸ bilgilerinizi girin ve Ã¶deme yapÄ±n">
   <Header slot="header" />
 
   <section class="checkout-page">
     <div class="container">
-      <h1>Ãƒâ€“deme Bilgileri</h1>
+      <h1>Ã–deme Bilgileri</h1>
 
       <div class="checkout-layout">
         <!-- Sol taraf - Form -->
         <div class="checkout-form-section">
           <form id="checkout-form">
-            <!-- Ã„Â°letiÃ…Å¸im Bilgileri -->
+            <!-- Ä°letiÅŸim Bilgileri -->
             <div class="form-section">
-              <h2>Ã„Â°letiÃ…Å¸im Bilgileri</h2>
+              <h2>Ä°letiÅŸim Bilgileri</h2>
               <div class="form-grid">
                 <div class="form-group">
                   <label for="name">Ad *</label>
@@ -48,11 +48,11 @@ import Footer from '../components/Footer.astro';
               <h2>Teslimat Adresi</h2>
               <div class="form-grid">
                 <div class="form-group">
-                  <label for="shipping-city">Ã…Å¾ehir *</label>
+                  <label for="shipping-city">Åžehir *</label>
                   <input type="text" id="shipping-city" name="shippingCity" required />
                 </div>
                 <div class="form-group">
-                  <label for="shipping-district">Ã„Â°lÃƒÂ§e *</label>
+                  <label for="shipping-district">Ä°lÃ§e *</label>
                   <input type="text" id="shipping-district" name="shippingDistrict" required />
                 </div>
                 <div class="form-group full-width">
@@ -66,18 +66,18 @@ import Footer from '../components/Footer.astro';
             <div class="form-section">
               <div class="checkbox-group">
                 <input type="checkbox" id="same-address" checked />
-                <label for="same-address">Fatura adresi teslimat adresi ile aynÃ„Â±</label>
+                <label for="same-address">Fatura adresi teslimat adresi ile aynÄ±</label>
               </div>
 
               <div id="billing-address-section" class="hidden">
                 <h3>Fatura Adresi</h3>
                 <div class="form-grid">
                   <div class="form-group">
-                    <label for="billing-city">Ã…Å¾ehir *</label>
+                    <label for="billing-city">Åžehir *</label>
                     <input type="text" id="billing-city" name="billingCity" />
                   </div>
                   <div class="form-group">
-                    <label for="billing-district">Ã„Â°lÃƒÂ§e *</label>
+                    <label for="billing-district">Ä°lÃ§e *</label>
                     <input type="text" id="billing-district" name="billingDistrict" />
                   </div>
                   <div class="form-group full-width">
@@ -88,49 +88,49 @@ import Footer from '../components/Footer.astro';
               </div>
             </div>
 
-            <!-- SipariÃ…Å¸ Notu (Opsiyonel) -->
+            <!-- SipariÅŸ Notu (Opsiyonel) -->
             <div class="form-section">
-              <h2>SipariÃ…Å¸ Notu (Opsiyonel)</h2>
+              <h2>SipariÅŸ Notu (Opsiyonel)</h2>
               <div class="form-group">
-                <textarea id="order-note" name="orderNote" rows="3" placeholder="SipariÃ…Å¸iniz hakkÃ„Â±nda not ekleyebilirsiniz..."></textarea>
+                <textarea id="order-note" name="orderNote" rows="3" placeholder="SipariÅŸiniz hakkÄ±nda not ekleyebilirsiniz..."></textarea>
               </div>
             </div>
           </form>
         </div>
 
-        <!-- SaÃ„Å¸ taraf - SipariÃ…Å¸ Ãƒâ€“zeti -->
+        <!-- SaÄŸ taraf - SipariÅŸ Ã–zeti -->
         <div class="order-summary-section">
           <div class="summary-card">
-            <h2>SipariÃ…Å¸ Ãƒâ€“zeti</h2>
+            <h2>SipariÅŸ Ã–zeti</h2>
 
             <div id="order-items" class="order-items"></div>
 
             <div class="summary-details">
               <div class="summary-row">
                 <span>Ara Toplam</span>
-                <span id="summary-subtotal">0Ã¢â€šÂº</span>
+                <span id="summary-subtotal">0â‚º</span>
               </div>
               <div class="summary-row">
                 <span>Kargo</span>
-                <span id="summary-shipping">0Ã¢â€šÂº</span>
+                <span id="summary-shipping">0â‚º</span>
               </div>
               <div id="summary-discount-row" class="summary-row discount-row hidden">
-                <span>Ã„Â°ndirim</span>
-                <span id="summary-discount">0Ã¢â€šÂº</span>
+                <span>Ä°ndirim</span>
+                <span id="summary-discount">0â‚º</span>
               </div>
             </div>
 
             <div class="summary-total">
               <span>Toplam</span>
-              <span id="summary-total">0Ã¢â€šÂº</span>
+              <span id="summary-total">0â‚º</span>
             </div>
 
             <button type="submit" form="checkout-form" id="submit-payment" class="btn btn-primary btn-full btn-large">
-              Ãƒâ€“demeye GeÃƒÂ§
+              Ã–demeye GeÃ§
             </button>
 
             <a href="/sepet" class="back-to-cart">
-              Ã¢â€ Â Sepete DÃƒÂ¶n
+              â† Sepete DÃ¶n
             </a>
 
             <div class="payment-info">
@@ -138,13 +138,13 @@ import Footer from '../components/Footer.astro';
                 <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                 </svg>
-                Ã„Â°yzico gÃƒÂ¼venli ÃƒÂ¶deme altyapÃ„Â±sÃ„Â±
+                Ä°yzico gÃ¼venli Ã¶deme altyapÄ±sÄ±
               </p>
               <p>
                 <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                 </svg>
-                SSL sertifikasÃ„Â± ile korumalÃ„Â±
+                SSL sertifikasÄ± ile korumalÄ±
               </p>
             </div>
           </div>
@@ -487,10 +487,10 @@ import Footer from '../components/Footer.astro';
         </div>
         <div class="order-item-details">
           <h4>${item.name}</h4>
-          <p>${item.quantity} adet Ãƒâ€” ${item.price}Ã¢â€šÂº</p>
+          <p>${item.quantity} adet Ã— ${item.price}â‚º</p>
         </div>
         <div class="order-item-price">
-          ${(item.price * item.quantity).toFixed(2)}Ã¢â€šÂº
+          ${(item.price * item.quantity).toFixed(2)}â‚º
         </div>
       </div>
     `).join('');
@@ -514,11 +514,11 @@ import Footer from '../components/Footer.astro';
     const discountRow = document.getElementById('summary-discount-row');
     const totalEl = document.getElementById('summary-total');
 
-    if (subtotalEl) subtotalEl.textContent = `${subtotal.toFixed(2)}Ã¢â€šÂº`;
-    if (shippingEl) shippingEl.textContent = shipping === 0 ? 'ÃƒÅ“cretsiz' : `${shipping}Ã¢â€šÂº`;
-    if (discountEl) discountEl.textContent = `-${discount.toFixed(2)}Ã¢â€šÂº`;
+    if (subtotalEl) subtotalEl.textContent = `${subtotal.toFixed(2)}â‚º`;
+    if (shippingEl) shippingEl.textContent = shipping === 0 ? 'Ãœcretsiz' : `${shipping}â‚º`;
+    if (discountEl) discountEl.textContent = `-${discount.toFixed(2)}â‚º`;
     if (discountRow) discountRow.classList.toggle('hidden', discount === 0);
-    if (totalEl) totalEl.textContent = `${total.toFixed(2)}Ã¢â€šÂº`;
+    if (totalEl) totalEl.textContent = `${total.toFixed(2)}â‚º`;
   }
 
   function calculateTotal(): number {
@@ -535,13 +535,14 @@ import Footer from '../components/Footer.astro';
   sameAddressCheckbox?.addEventListener('change', () => {
     billingAddressSection?.classList.toggle('hidden', sameAddressCheckbox.checked);
 
+    // AynÄ± adres seÃ§iliyse, zorunluluÄŸu kaldÄ±r
     const billingInputs = billingAddressSection?.querySelectorAll('input, textarea');
     billingInputs?.forEach(input => {
       (input as HTMLInputElement).required = !sameAddressCheckbox.checked;
     });
   });
 
-  // Form gÃƒÂ¶nderimi
+  // Form gÃ¶nderimi
   const checkoutForm = document.getElementById('checkout-form') as HTMLFormElement;
 
   checkoutForm?.addEventListener('submit', async (e) => {
@@ -549,11 +550,12 @@ import Footer from '../components/Footer.astro';
 
     const submitBtn = document.getElementById('submit-payment') as HTMLButtonElement;
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Ã„Â°Ã…Å¸leniyor...';
+    submitBtn.textContent = 'Ä°ÅŸleniyor...';
 
     const formData = new FormData(checkoutForm);
     const sameAddress = (document.getElementById('same-address') as HTMLInputElement).checked;
 
+    // Form verilerini al
     const name = formData.get('name') as string;
     const surname = formData.get('surname') as string;
     const email = formData.get('email') as string;
@@ -566,112 +568,65 @@ import Footer from '../components/Footer.astro';
     const billingCity = sameAddress ? shippingCity : formData.get('billingCity') as string;
     const billingAddress = sameAddress ? shippingAddress : formData.get('billingAddress') as string;
 
-    const subtotal = calculateSubtotal();
-    const total = calculateTotal();
-
-    console.log('Ã°Å¸â€œÂ¦ Payment Request Prepared:');
-    console.log('Ã°Å¸â€™Â° Subtotal:', subtotal);
-    console.log('Ã°Å¸â€™Â° Total:', total);
-    console.log('Ã°Å¸â€˜Â¤ Buyer:', name, surname);
-    console.log('Ã°Å¸â€œÂ§ Email:', email);
-
-    const paymentData = {
-      price: subtotal.toFixed(2),
-      paidPrice: total.toFixed(2),
-      basketId: `BASKET-${Date.now()}`,
-      buyer: {
-        id: identity,
-        name: name,
-        surname: surname,
-        gsmNumber: phone,
-        email: email,
-        identityNumber: identity,
-        registrationAddress: shippingAddress,
-        ip: '85.34.78.112',
-        city: shippingCity,
-        country: 'Turkey'
-      },
-      shippingAddress: {
-        contactName: `${name} ${surname}`,
-        city: shippingCity,
-        country: 'Turkey',
-        address: shippingAddress
-      },
-      billingAddress: {
-        contactName: `${name} ${surname}`,
-        city: billingCity,
-        country: 'Turkey',
-        address: billingAddress
-      },
-      basketItems: cart.map(item => ({
-        id: item.id.toString(),
-        name: item.name,
-        category1: 'GÃ„Â±da',
-        itemType: 'PHYSICAL',
-        price: (item.price * item.quantity).toFixed(2)
-      }))
-    };
-
-    console.log('Ã°Å¸â€œÂ¤ Sending request to /api/create-payment...');
-    console.log('Ã°Å¸â€œÂ¦ Payload:', JSON.stringify(paymentData, null, 2));
-
     try {
-      const response = await fetch('/api/create-payment', {
+      const response = await fetch('/api/create-payments', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(paymentData)
+        body: JSON.stringify({
+          price: calculateSubtotal().toFixed(2),
+          paidPrice: calculateTotal().toFixed(2),
+          basketId: `BASKET-${Date.now()}`,
+          buyer: {
+            id: `BY${Date.now()}`,
+            name: name,
+            surname: surname,
+            gsmNumber: phone,
+            email: email,
+            identityNumber: identity,
+            registrationAddress: shippingAddress,
+            ip: '85.34.78.112',
+            city: shippingCity,
+            country: 'Turkey'
+          },
+          shippingAddress: {
+            contactName: `${name} ${surname}`,
+            city: shippingCity,
+            country: 'Turkey',
+            address: shippingAddress
+          },
+          billingAddress: {
+            contactName: `${name} ${surname}`,
+            city: billingCity,
+            country: 'Turkey',
+            address: billingAddress
+          },
+          basketItems: cart.map(item => ({
+            id: item.id.toString(),
+            name: item.name,
+            category1: 'GÄ±da',
+            itemType: 'PHYSICAL',
+            price: (item.price * item.quantity).toFixed(2)
+          }))
+        })
       });
 
-      console.log('Ã°Å¸â€œÂ¥ Response Status:', response.status);
-      console.log('Ã°Å¸â€œÂ¥ Response OK:', response.ok);
+      const data = await response.json();
 
-      let data;
-      try {
-        data = await response.json();
-        console.log('Ã°Å¸â€œÂ¥ Response Data:', data);
-      } catch (jsonError) {
-        console.error('Ã¢ÂÅ’ JSON Parse Error:', jsonError);
-        const text = await response.text();
-        console.error('Ã¢ÂÅ’ Response Text:', text);
-        throw new Error('Invalid JSON response from server');
-      }
-
-      if (response.ok && data.status === 'success') {
-        if (data.paymentPageUrl) {
-          console.log('Ã¢Å“â€¦ Payment page URL received:', data.paymentPageUrl);
-          console.log('Ã¢Å“â€¦ Redirecting in 1 second...');
-
-          setTimeout(() => {
-            console.log('Ã°Å¸Å¡â‚¬ Redirecting now...');
-            window.location.href = data.paymentPageUrl;
-          }, 1000);
-        } else {
-          console.error('Ã¢ÂÅ’ No payment page URL in response:', data);
-          alert('Ãƒâ€“deme sayfasÃ„Â± bulunamadÃ„Â±. LÃƒÂ¼tfen tekrar deneyin.');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Ãƒâ€“demeye GeÃƒÂ§';
-        }
+      if (data.status === 'success' && data.paymentPageUrl) {
+        // BaÅŸarÄ±lÄ± - Iyzico Ã¶deme sayfasÄ±na yÃ¶nlendir
+        window.location.href = data.paymentPageUrl;
       } else {
-        console.error('Ã¢ÂÅ’ Payment request failed:', data);
-        const errorMsg = data.errorMessage || data.error || 'Bilinmeyen hata';
-        console.error('Ã¢ÂÅ’ Error message:', errorMsg);
-        alert('Ãƒâ€“deme baÃ…Å¸latÃ„Â±lamadÃ„Â±: ' + errorMsg);
+        alert('Ã–deme baÅŸlatÄ±lamadÄ±: ' + (data.errorMessage || 'Bilinmeyen hata'));
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Ãƒâ€“demeye GeÃƒÂ§';
+        submitBtn.textContent = 'Ã–demeye GeÃ§';
       }
     } catch (error) {
-      console.error('Ã¢ÂÅ’ Network/Fetch Error:', error);
-      console.error('Ã¢ÂÅ’ Error details:', {
-        name: error.name,
-        message: error.message,
-        stack: error.stack
-      });
-      alert('Bir hata oluÃ…Å¸tu: ' + error.message + '\n\nLÃƒÂ¼tfen console loglarÃ„Â±nÃ„Â± kontrol edin (F12)');
+      console.error('Ã–deme hatasÄ±:', error);
+      alert('Bir hata oluÅŸtu. LÃ¼tfen tekrar deneyin.');
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Ãƒâ€“demeye GeÃƒÂ§';
+      submitBtn.textContent = 'Ã–demeye GeÃ§';
     }
   });
 
