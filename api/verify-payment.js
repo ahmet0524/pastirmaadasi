@@ -77,12 +77,17 @@ export default async function handler(req, res) {
 
               console.log('📧 Email payload prepared:', JSON.stringify(emailPayload, null, 2));
 
-              // ✅ DÜZELTME: HTTP fetch ile email API'sini çağır
-              const emailApiUrl = process.env.VERCEL_URL
-                ? `https://${process.env.VERCEL_URL}/api/send-order-email`
-                : 'http://localhost:3000/api/send-order-email';
+              // ✅ DÜZELTİLDİ: Absolute URL ile fetch
+              const protocol = req.headers['x-forwarded-proto'] || 'https';
+              const host = req.headers['x-forwarded-host'] || req.headers.host;
+              const emailApiUrl = `${protocol}://${host}/api/send-order-email`;
 
-              console.log('📤 Sending request to:', emailApiUrl);
+              console.log('📤 Email API URL:', emailApiUrl);
+              console.log('📤 Protocol:', protocol);
+              console.log('📤 Host:', host);
+
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 saniye timeout
 
               const emailResponse = await fetch(emailApiUrl, {
                 method: 'POST',
@@ -90,16 +95,29 @@ export default async function handler(req, res) {
                   'Content-Type': 'application/json',
                   'Accept': 'application/json'
                 },
-                body: JSON.stringify(emailPayload)
-              });
+                body: JSON.stringify(emailPayload),
+                signal: controller.signal
+              }).finally(() => clearTimeout(timeoutId));
 
               console.log('📥 Email API response status:', emailResponse.status);
 
-              const emailResult = await emailResponse.json();
-              console.log('📧 Email API response:', JSON.stringify(emailResult, null, 2));
+              const responseText = await emailResponse.text();
+              console.log('📄 Email API response text:', responseText);
+
+              let emailResult;
+              try {
+                emailResult = JSON.parse(responseText);
+                console.log('📧 Email API response:', JSON.stringify(emailResult, null, 2));
+              } catch (parseError) {
+                console.error('❌ Failed to parse email response:', parseError);
+                console.error('📄 Raw response:', responseText);
+                throw new Error('Invalid JSON response from email API');
+              }
 
               if (emailResult.status === 'success') {
                 console.log('✅ Email sent successfully!');
+                console.log('📧 Customer Email ID:', emailResult.customerEmailId);
+                console.log('📧 Admin Email ID:', emailResult.adminEmailId);
               } else {
                 console.error('❌ Email sending failed:', emailResult.errorMessage);
               }
