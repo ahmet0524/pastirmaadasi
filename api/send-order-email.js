@@ -31,6 +31,7 @@ export default async function handler(req, res) {
     }
 
     console.log('✅ API Key found, length:', apiKey.length);
+    console.log('🔑 API Key preview:', apiKey.substring(0, 10) + '...');
 
     const resend = new Resend(apiKey);
 
@@ -199,8 +200,10 @@ export default async function handler(req, res) {
     `;
 
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'siparis@successodysseyhub.com';
+    const adminEmail = process.env.ADMIN_EMAIL || 'successodysseyhub@gmail.com';
 
     console.log('📤 Sending from:', fromEmail);
+    console.log('📤 Admin email:', adminEmail);
 
     // Müşteriye email gönder
     console.log('📧 Sending customer email...');
@@ -211,7 +214,7 @@ export default async function handler(req, res) {
       html: emailHtml
     });
 
-    console.log('✅ Customer email sent:', customerEmailResult);
+    console.log('✅ Customer email result:', customerEmailResult);
 
     // İşletmeye bildirim emaili
     const adminEmailHtml = `
@@ -263,10 +266,7 @@ export default async function handler(req, res) {
       </html>
     `;
 
-    // İşletme emailini environment variable'dan al
-    const adminEmail = process.env.ADMIN_EMAIL || 'successodysseyhub@gmail.com';
-
-    console.log('📧 Sending admin email to:', adminEmail);
+    console.log('📧 Sending admin email...');
     const adminEmailResult = await resend.emails.send({
       from: fromEmail,
       to: adminEmail,
@@ -274,22 +274,30 @@ export default async function handler(req, res) {
       html: adminEmailHtml
     });
 
-    console.log('✅ Admin email sent:', adminEmailResult);
+    console.log('✅ Admin email result:', adminEmailResult);
 
+    // ✅ DÜZELTİLDİ: Email ID'leri response'a ekle
     return res.status(200).json({
       status: 'success',
       message: 'Email başarıyla gönderildi',
       emailId: customerEmailResult.id,
       customerEmailId: customerEmailResult.id,
-      adminEmailId: adminEmailResult.id
+      adminEmailId: adminEmailResult.id,
+      details: {
+        customerEmail: customerEmailResult,
+        adminEmail: adminEmailResult
+      }
     });
 
   } catch (error) {
     console.error('❌ Email sending error:', error);
-    console.error('📍 Error stack:', error.stack);
+    console.error('🔍 Error stack:', error.stack);
+    console.error('🔍 Error details:', JSON.stringify(error, null, 2));
+
     return res.status(500).json({
       status: 'error',
-      errorMessage: 'Email gönderilemedi: ' + error.message
+      errorMessage: 'Email gönderilemedi: ' + error.message,
+      errorDetails: error.message
     });
   }
 }

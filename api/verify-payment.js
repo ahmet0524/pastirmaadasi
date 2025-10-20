@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('🔍 Verifying payment...');
+    console.log('🔍 === PAYMENT VERIFICATION STARTED ===');
 
     const { token, orderData } = req.body;
 
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
       });
     }
 
-    console.log('📦 Order data received:', orderData);
+    console.log('📦 Order data received:', JSON.stringify(orderData, null, 2));
 
     const iyzipay = new Iyzipay({
       apiKey: process.env.IYZICO_API_KEY,
@@ -60,11 +60,11 @@ export default async function handler(req, res) {
         });
 
         if (result.status === 'success' && result.paymentStatus === 'SUCCESS') {
+          console.log('💰 Payment successful! Preparing email...');
+
           // Ödeme başarılı - Email gönder
           if (orderData) {
             try {
-              console.log('📧 Preparing to send email...');
-
               const emailPayload = {
                 customerEmail: orderData.customerEmail,
                 customerName: orderData.customerName,
@@ -75,40 +75,38 @@ export default async function handler(req, res) {
                 paymentId: result.paymentId
               };
 
-              console.log('📤 Email payload:', emailPayload);
+              console.log('📧 Email payload prepared:', JSON.stringify(emailPayload, null, 2));
 
-              // ✅ DÜZELTİLDİ: Internal Vercel function call
-              // Vercel'de aynı proje içindeki serverless functionlar birbirini doğrudan çağırabilir
-              const { sendOrderEmail } = await import('./send-order-email.js');
+              // ✅ DÜZELTME: HTTP fetch ile email API'sini çağır
+              const emailApiUrl = process.env.VERCEL_URL
+                ? `https://${process.env.VERCEL_URL}/api/send-order-email`
+                : 'http://localhost:3000/api/send-order-email';
 
-              // Email fonksiyonunu direkt çağır (HTTP isteği yerine)
-              const mockReq = {
+              console.log('📤 Sending request to:', emailApiUrl);
+
+              const emailResponse = await fetch(emailApiUrl, {
                 method: 'POST',
-                body: emailPayload
-              };
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json'
+                },
+                body: JSON.stringify(emailPayload)
+              });
 
-              const mockRes = {
-                status: (code) => ({
-                  json: (data) => {
-                    console.log(`📧 Email API response [${code}]:`, data);
-                    return data;
-                  },
-                  end: () => {}
-                }),
-                setHeader: () => {}
-              };
+              console.log('📥 Email API response status:', emailResponse.status);
 
-              try {
-                await sendOrderEmail.default(mockReq, mockRes);
-                console.log('✅ Email sent successfully');
-              } catch (emailError) {
-                console.error('❌ Email sending failed:', emailError);
-                // Email hatası ödeme başarısını etkilemez
+              const emailResult = await emailResponse.json();
+              console.log('📧 Email API response:', JSON.stringify(emailResult, null, 2));
+
+              if (emailResult.status === 'success') {
+                console.log('✅ Email sent successfully!');
+              } else {
+                console.error('❌ Email sending failed:', emailResult.errorMessage);
               }
 
             } catch (emailError) {
               console.error('❌ Email error:', emailError.message);
-              console.error('📍 Email error stack:', emailError.stack);
+              console.error('🔍 Email error stack:', emailError.stack);
               // Email hatası ödeme başarısını etkilemez
             }
           } else {
@@ -135,6 +133,7 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error('❌ Verification error:', error);
+    console.error('🔍 Error stack:', error.stack);
     return res.status(500).json({
       status: 'error',
       errorMessage: 'Sunucu hatası: ' + error.message
