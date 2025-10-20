@@ -8,7 +8,12 @@ export async function POST({ request }) {
     if (!token) {
       return new Response(
         JSON.stringify({ status: 'error', errorMessage: 'Token eksik' }),
-        { status: 400 }
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
       );
     }
 
@@ -48,7 +53,12 @@ export async function POST({ request }) {
           status: 'error',
           errorMessage: result.errorMessage || 'Ödeme başarısız',
         }),
-        { status: 400 }
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
       );
     }
 
@@ -137,6 +147,7 @@ export async function POST({ request }) {
             messageId: adminMailResult.id
           });
 
+          // Her iki mail de başarılı
           emailSent = true;
         }
       } catch (error) {
@@ -146,21 +157,31 @@ export async function POST({ request }) {
           name: error.name,
           stack: error.stack
         });
-        emailError = error.message;
+        emailError = error.message || 'E-posta gönderilemedi';
+        emailSent = false; // Açıkça false olarak işaretle
       }
     }
 
     // Başarılı yanıt (mail hatası olsa bile ödeme başarılı)
+    const responseData = {
+      status: 'success',
+      paymentId: result.paymentId,
+      paidPrice: result.paidPrice,
+      paymentStatus: result.paymentStatus,
+      emailSent: emailSent,
+      emailError: emailError,
+    };
+
+    console.log('📤 Gönderilen response:', responseData);
+
     return new Response(
-      JSON.stringify({
-        status: 'success',
-        paymentId: result.paymentId,
-        paidPrice: result.paidPrice,
-        paymentStatus: result.paymentStatus,
-        emailSent,
-        emailError,
-      }),
-      { status: 200 }
+      JSON.stringify(responseData),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
     );
   } catch (error) {
     console.error('💥 Sunucu hatası:', error);
@@ -169,7 +190,12 @@ export async function POST({ request }) {
         status: 'error',
         errorMessage: error.message || 'Sunucu hatası',
       }),
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
     );
   }
 }

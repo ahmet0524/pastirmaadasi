@@ -50,6 +50,7 @@ import Footer from "../components/Footer.astro";
     border-top-color: #dc2626;
     border-radius: 50%;
     animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
   }
 
   @keyframes spin {
@@ -185,114 +186,126 @@ import Footer from "../components/Footer.astro";
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get("token");
-  const resultContent = document.getElementById("result-content");
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+    const resultContent = document.getElementById("result-content");
 
-  if (!resultContent) return;
+    if (!resultContent) return;
 
-  if (token) {
-    fetch("/api/verify-payment", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({ token }),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("HTTP Error " + res.status);
-        return res.json();
+    if (token) {
+      console.log('🔍 Token bulundu:', token);
+
+      fetch("/api/verify-payment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({ token }),
       })
-      .then((data) => {
-        if (data.status === "success") {
-          // Mail durumu kontrolü
-          let emailStatusHTML = '';
-          if (data.emailSent) {
-            emailStatusHTML = '<p style="color:#10b981; font-size:14px; margin-top:10px;">✅ E-posta gönderildi</p>';
-          } else if (data.emailError) {
-            emailStatusHTML = `<p style="color:#f59e0b; font-size:14px; margin-top:10px;">⚠️ E-posta gönderim hatası: ${data.emailError}</p>`;
+        .then((res) => {
+          console.log('📡 Response status:', res.status);
+          if (!res.ok) throw new Error("HTTP Error " + res.status);
+          return res.json();
+        })
+        .then((data) => {
+          // Console'a tam response'u yazdır (debug için)
+          console.log('📦 API Response:', data);
+
+          if (data.status === "success") {
+            // Mail durumu kontrolü
+            let emailStatusHTML = '';
+            if (data.emailSent === true) {
+              emailStatusHTML = '<p style="color:#10b981; font-size:14px; margin-top:10px;">✅ E-posta gönderildi</p>';
+            } else if (data.emailError) {
+              emailStatusHTML = `<p style="color:#f59e0b; font-size:14px; margin-top:10px;">⚠️ E-posta gönderim hatası: ${data.emailError}</p>`;
+            } else if (data.emailSent === false) {
+              emailStatusHTML = '<p style="color:#f59e0b; font-size:14px; margin-top:10px;">⚠️ E-posta gönderilemedi</p>';
+            }
+
+            resultContent.className = "result-box success";
+            resultContent.innerHTML = `
+              <div class="success-icon">
+                <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h2>✅ Ödeme Başarılı!</h2>
+              <p>Siparişiniz başarıyla alındı.</p>
+              <p>Kısa süre içinde e-posta ile sipariş detaylarınız gönderilecektir.</p>
+              ${emailStatusHTML}
+              <div class="order-details">
+                <h3>Sipariş Detayları</h3>
+                <div class="detail-row"><span>Ödeme ID:</span><span>${data.paymentId || "N/A"}</span></div>
+                <div class="detail-row"><span>Tutar:</span><span>${data.paidPrice || data.price} ₺</span></div>
+                <div class="detail-row"><span>Durum:</span><span style="color:#10b981;">Başarılı</span></div>
+              </div>
+              <div class="action-buttons">
+                <a href="/" class="btn btn-primary">Ana Sayfaya Dön</a>
+                <a href="/online-alisveris" class="btn btn-secondary">Alışverişe Devam Et</a>
+              </div>
+            `;
+
+            // Console'a yazdır (detaylı)
+            console.log('📧 Email durumu:', {
+              emailSent: data.emailSent,
+              emailSentType: typeof data.emailSent,
+              emailError: data.emailError,
+              emailErrorType: typeof data.emailError
+            });
+          } else {
+            resultContent.className = "result-box error";
+            resultContent.innerHTML = `
+              <div class="error-icon">
+                <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <h2>❌ Ödeme Başarısız</h2>
+              <p>${data.errorMessage || "Ödeme işlemi tamamlanamadı."}</p>
+              <p>Lütfen tekrar deneyin veya farklı bir ödeme yöntemi kullanın.</p>
+              <div class="action-buttons">
+                <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
+                <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
+              </div>
+            `;
           }
-
-          resultContent.className = "result-box success";
-          resultContent.innerHTML = `
-            <div class="success-icon">
-              <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2>✅ Ödeme Başarılı!</h2>
-            <p>Siparişiniz başarıyla alındı.</p>
-            <p>Kısa süre içinde e-posta ile sipariş detaylarınız gönderilecektir.</p>
-            ${emailStatusHTML}
-            <div class="order-details">
-              <h3>Sipariş Detayları</h3>
-              <div class="detail-row"><span>Ödeme ID:</span><span>${data.paymentId || "N/A"}</span></div>
-              <div class="detail-row"><span>Tutar:</span><span>${data.paidPrice || data.price} ₺</span></div>
-              <div class="detail-row"><span>Durum:</span><span style="color:#10b981;">Başarılı</span></div>
-            </div>
-            <div class="action-buttons">
-              <a href="/" class="btn btn-primary">Ana Sayfaya Dön</a>
-              <a href="/online-alisveris" class="btn btn-secondary">Alışverişe Devam Et</a>
-            </div>
-          `;
-
-          // Console'a yazdır
-          console.log('📧 Email durumu:', {
-            emailSent: data.emailSent,
-            emailError: data.emailError
-          });
-        } else {
+        })
+        .catch((error) => {
+          console.error('❌ Fetch error:', error);
           resultContent.className = "result-box error";
           resultContent.innerHTML = `
             <div class="error-icon">
               <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
-            <h2>❌ Ödeme Başarısız</h2>
-            <p>${data.errorMessage || "Ödeme işlemi tamamlanamadı."}</p>
-            <p>Lütfen tekrar deneyin veya farklı bir ödeme yöntemi kullanın.</p>
+            <h2>⚠️ Bir Hata Oluştu</h2>
+            <p>Ödeme doğrulama sırasında bir hata meydana geldi.</p>
+            <p>Lütfen daha sonra tekrar deneyin veya destek ekibiyle iletişime geçin.</p>
             <div class="action-buttons">
               <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
               <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
             </div>
           `;
-        }
-      })
-      .catch((error) => {
-        resultContent.className = "result-box error";
-        resultContent.innerHTML = `
-          <div class="error-icon">
-            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <h2>⚠️ Bir Hata Oluştu</h2>
-          <p>Ödeme doğrulama sırasında bir hata meydana geldi.</p>
-          <p>Lütfen daha sonra tekrar deneyin veya destek ekibiyle iletişime geçin.</p>
-          <div class="action-buttons">
-            <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
-            <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
-          </div>
-        `;
-      });
-  } else {
-    resultContent.className = "result-box error";
-    resultContent.innerHTML = `
-      <div class="error-icon">
-        <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-      </div>
-      <h2>⚠️ Geçersiz İstek</h2>
-      <p>Ödeme doğrulama bilgisi bulunamadı.</p>
-      <p>Lütfen sipariş sürecinizi yeniden başlatın.</p>
-      <div class="action-buttons">
-        <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
-        <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
-      </div>
-    `;
-  }
-});
+        });
+    } else {
+      console.warn('⚠️ Token bulunamadı!');
+      resultContent.className = "result-box error";
+      resultContent.innerHTML = `
+        <div class="error-icon">
+          <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <h2>⚠️ Geçersiz İstek</h2>
+        <p>Ödeme doğrulama bilgisi bulunamadı.</p>
+        <p>Lütfen sipariş sürecinizi yeniden başlatın.</p>
+        <div class="action-buttons">
+          <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
+          <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
+        </div>
+      `;
+    }
+  });
 </script>
