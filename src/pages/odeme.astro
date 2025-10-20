@@ -5,20 +5,20 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<BaseLayout title="Ödeme Bilgileri" description="Sipariş bilgilerinizi girin ve ödeme yapın">
+<BaseLayout title="Ãƒâ€“deme Bilgileri" description="SipariÃ…Å¸ bilgilerinizi girin ve ÃƒÂ¶deme yapÃ„Â±n">
   <Header slot="header" />
 
   <section class="checkout-page">
     <div class="container">
-      <h1>Ödeme Bilgileri</h1>
+      <h1>Ãƒâ€“deme Bilgileri</h1>
 
       <div class="checkout-layout">
         <!-- Sol taraf - Form -->
         <div class="checkout-form-section">
           <form id="checkout-form">
-            <!-- İletişim Bilgileri -->
+            <!-- Ã„Â°letiÃ…Å¸im Bilgileri -->
             <div class="form-section">
-              <h2>İletişim Bilgileri</h2>
+              <h2>Ã„Â°letiÃ…Å¸im Bilgileri</h2>
               <div class="form-grid">
                 <div class="form-group">
                   <label for="name">Ad *</label>
@@ -48,11 +48,11 @@ import Footer from '../components/Footer.astro';
               <h2>Teslimat Adresi</h2>
               <div class="form-grid">
                 <div class="form-group">
-                  <label for="shipping-city">Şehir *</label>
+                  <label for="shipping-city">Ã…Å¾ehir *</label>
                   <input type="text" id="shipping-city" name="shippingCity" required />
                 </div>
                 <div class="form-group">
-                  <label for="shipping-district">İlçe *</label>
+                  <label for="shipping-district">Ã„Â°lÃƒÂ§e *</label>
                   <input type="text" id="shipping-district" name="shippingDistrict" required />
                 </div>
                 <div class="form-group full-width">
@@ -66,18 +66,18 @@ import Footer from '../components/Footer.astro';
             <div class="form-section">
               <div class="checkbox-group">
                 <input type="checkbox" id="same-address" checked />
-                <label for="same-address">Fatura adresi teslimat adresi ile aynı</label>
+                <label for="same-address">Fatura adresi teslimat adresi ile aynÃ„Â±</label>
               </div>
 
               <div id="billing-address-section" class="hidden">
                 <h3>Fatura Adresi</h3>
                 <div class="form-grid">
                   <div class="form-group">
-                    <label for="billing-city">Şehir *</label>
+                    <label for="billing-city">Ã…Å¾ehir *</label>
                     <input type="text" id="billing-city" name="billingCity" />
                   </div>
                   <div class="form-group">
-                    <label for="billing-district">İlçe *</label>
+                    <label for="billing-district">Ã„Â°lÃƒÂ§e *</label>
                     <input type="text" id="billing-district" name="billingDistrict" />
                   </div>
                   <div class="form-group full-width">
@@ -88,49 +88,49 @@ import Footer from '../components/Footer.astro';
               </div>
             </div>
 
-            <!-- Sipariş Notu (Opsiyonel) -->
+            <!-- SipariÃ…Å¸ Notu (Opsiyonel) -->
             <div class="form-section">
-              <h2>Sipariş Notu (Opsiyonel)</h2>
+              <h2>SipariÃ…Å¸ Notu (Opsiyonel)</h2>
               <div class="form-group">
-                <textarea id="order-note" name="orderNote" rows="3" placeholder="Siparişiniz hakkında not ekleyebilirsiniz..."></textarea>
+                <textarea id="order-note" name="orderNote" rows="3" placeholder="SipariÃ…Å¸iniz hakkÃ„Â±nda not ekleyebilirsiniz..."></textarea>
               </div>
             </div>
           </form>
         </div>
 
-        <!-- Sağ taraf - Sipariş Özeti -->
+        <!-- SaÃ„Å¸ taraf - SipariÃ…Å¸ Ãƒâ€“zeti -->
         <div class="order-summary-section">
           <div class="summary-card">
-            <h2>Sipariş Özeti</h2>
+            <h2>SipariÃ…Å¸ Ãƒâ€“zeti</h2>
 
             <div id="order-items" class="order-items"></div>
 
             <div class="summary-details">
               <div class="summary-row">
                 <span>Ara Toplam</span>
-                <span id="summary-subtotal">0₺</span>
+                <span id="summary-subtotal">0Ã¢â€šÂº</span>
               </div>
               <div class="summary-row">
                 <span>Kargo</span>
-                <span id="summary-shipping">0₺</span>
+                <span id="summary-shipping">0Ã¢â€šÂº</span>
               </div>
               <div id="summary-discount-row" class="summary-row discount-row hidden">
-                <span>İndirim</span>
-                <span id="summary-discount">0₺</span>
+                <span>Ã„Â°ndirim</span>
+                <span id="summary-discount">0Ã¢â€šÂº</span>
               </div>
             </div>
 
             <div class="summary-total">
               <span>Toplam</span>
-              <span id="summary-total">0₺</span>
+              <span id="summary-total">0Ã¢â€šÂº</span>
             </div>
 
             <button type="submit" form="checkout-form" id="submit-payment" class="btn btn-primary btn-full btn-large">
-              Ödemeye Geç
+              Ãƒâ€“demeye GeÃƒÂ§
             </button>
 
             <a href="/sepet" class="back-to-cart">
-              ← Sepete Dön
+              Ã¢â€ Â Sepete DÃƒÂ¶n
             </a>
 
             <div class="payment-info">
@@ -138,13 +138,13 @@ import Footer from '../components/Footer.astro';
                 <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                 </svg>
-                İyzico güvenli ödeme altyapısı
+                Ã„Â°yzico gÃƒÂ¼venli ÃƒÂ¶deme altyapÃ„Â±sÃ„Â±
               </p>
               <p>
                 <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                 </svg>
-                SSL sertifikası ile korumalı
+                SSL sertifikasÃ„Â± ile korumalÃ„Â±
               </p>
             </div>
           </div>
@@ -449,8 +449,6 @@ import Footer from '../components/Footer.astro';
 </style>
 
 <script>
-  // ✅ TÜM KOD <script> TAG İÇİNDE (CLIENT-SIDE)
-  
   interface CartItem {
     id: number;
     name: string;
@@ -489,10 +487,10 @@ import Footer from '../components/Footer.astro';
         </div>
         <div class="order-item-details">
           <h4>${item.name}</h4>
-          <p>${item.quantity} adet × ${item.price}₺</p>
+          <p>${item.quantity} adet Ãƒâ€” ${item.price}Ã¢â€šÂº</p>
         </div>
         <div class="order-item-price">
-          ${(item.price * item.quantity).toFixed(2)}₺
+          ${(item.price * item.quantity).toFixed(2)}Ã¢â€šÂº
         </div>
       </div>
     `).join('');
@@ -516,11 +514,11 @@ import Footer from '../components/Footer.astro';
     const discountRow = document.getElementById('summary-discount-row');
     const totalEl = document.getElementById('summary-total');
 
-    if (subtotalEl) subtotalEl.textContent = `${subtotal.toFixed(2)}₺`;
-    if (shippingEl) shippingEl.textContent = shipping === 0 ? 'Ücretsiz' : `${shipping}₺`;
-    if (discountEl) discountEl.textContent = `-${discount.toFixed(2)}₺`;
+    if (subtotalEl) subtotalEl.textContent = `${subtotal.toFixed(2)}Ã¢â€šÂº`;
+    if (shippingEl) shippingEl.textContent = shipping === 0 ? 'ÃƒÅ“cretsiz' : `${shipping}Ã¢â€šÂº`;
+    if (discountEl) discountEl.textContent = `-${discount.toFixed(2)}Ã¢â€šÂº`;
     if (discountRow) discountRow.classList.toggle('hidden', discount === 0);
-    if (totalEl) totalEl.textContent = `${total.toFixed(2)}₺`;
+    if (totalEl) totalEl.textContent = `${total.toFixed(2)}Ã¢â€šÂº`;
   }
 
   function calculateTotal(): number {
@@ -543,7 +541,7 @@ import Footer from '../components/Footer.astro';
     });
   });
 
-  // Form gönderimi
+  // Form gÃƒÂ¶nderimi
   const checkoutForm = document.getElementById('checkout-form') as HTMLFormElement;
 
   checkoutForm?.addEventListener('submit', async (e) => {
@@ -551,7 +549,7 @@ import Footer from '../components/Footer.astro';
 
     const submitBtn = document.getElementById('submit-payment') as HTMLButtonElement;
     submitBtn.disabled = true;
-    submitBtn.textContent = 'İşleniyor...';
+    submitBtn.textContent = 'Ã„Â°Ã…Å¸leniyor...';
 
     const formData = new FormData(checkoutForm);
     const sameAddress = (document.getElementById('same-address') as HTMLInputElement).checked;
@@ -563,7 +561,6 @@ import Footer from '../components/Footer.astro';
     const identity = formData.get('identity') as string;
 
     const shippingCity = formData.get('shippingCity') as string;
-    const shippingDistrict = formData.get('shippingDistrict') as string;
     const shippingAddress = formData.get('shippingAddress') as string;
 
     const billingCity = sameAddress ? shippingCity : formData.get('billingCity') as string;
@@ -572,28 +569,11 @@ import Footer from '../components/Footer.astro';
     const subtotal = calculateSubtotal();
     const total = calculateTotal();
 
-    // ✅ EKLEME: Order data'yı localStorage'a kaydet
-    const orderData = {
-      customerEmail: email,
-      customerName: `${name} ${surname}`,
-      customerPhone: phone,
-      customerAddress: `${shippingAddress}, ${shippingDistrict}, ${shippingCity}`,
-      items: cart.map(item => ({
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity
-      })),
-      totalPrice: total.toFixed(2)
-    };
-
-    console.log('💾 Saving order data to localStorage:', orderData);
-    localStorage.setItem('pendingOrder', JSON.stringify(orderData));
-
-    console.log('📦 Payment Request Prepared:');
-    console.log('💰 Subtotal:', subtotal);
-    console.log('💰 Total:', total);
-    console.log('👤 Buyer:', name, surname);
-    console.log('📧 Email:', email);
+    console.log('Ã°Å¸â€œÂ¦ Payment Request Prepared:');
+    console.log('Ã°Å¸â€™Â° Subtotal:', subtotal);
+    console.log('Ã°Å¸â€™Â° Total:', total);
+    console.log('Ã°Å¸â€˜Â¤ Buyer:', name, surname);
+    console.log('Ã°Å¸â€œÂ§ Email:', email);
 
     const paymentData = {
       price: subtotal.toFixed(2),
@@ -626,13 +606,14 @@ import Footer from '../components/Footer.astro';
       basketItems: cart.map(item => ({
         id: item.id.toString(),
         name: item.name,
-        category1: 'Gıda',
+        category1: 'GÃ„Â±da',
         itemType: 'PHYSICAL',
         price: (item.price * item.quantity).toFixed(2)
       }))
     };
 
-    console.log('📤 Sending request to /api/create-payment...');
+    console.log('Ã°Å¸â€œÂ¤ Sending request to /api/create-payment...');
+    console.log('Ã°Å¸â€œÂ¦ Payload:', JSON.stringify(paymentData, null, 2));
 
     try {
       const response = await fetch('/api/create-payment', {
@@ -644,42 +625,53 @@ import Footer from '../components/Footer.astro';
         body: JSON.stringify(paymentData)
       });
 
-      console.log('📥 Response Status:', response.status);
+      console.log('Ã°Å¸â€œÂ¥ Response Status:', response.status);
+      console.log('Ã°Å¸â€œÂ¥ Response OK:', response.ok);
 
       let data;
       try {
         data = await response.json();
-        console.log('📥 Response Data:', data);
+        console.log('Ã°Å¸â€œÂ¥ Response Data:', data);
       } catch (jsonError) {
-        console.error('❌ JSON Parse Error:', jsonError);
+        console.error('Ã¢ÂÅ’ JSON Parse Error:', jsonError);
         const text = await response.text();
-        console.error('❌ Response Text:', text);
+        console.error('Ã¢ÂÅ’ Response Text:', text);
         throw new Error('Invalid JSON response from server');
       }
 
       if (response.ok && data.status === 'success') {
         if (data.paymentPageUrl) {
-          console.log('✅ Payment page URL received:', data.paymentPageUrl);
-          console.log('✅ Redirecting...');
-          window.location.href = data.paymentPageUrl;
+          console.log('Ã¢Å“â€¦ Payment page URL received:', data.paymentPageUrl);
+          console.log('Ã¢Å“â€¦ Redirecting in 1 second...');
+
+          setTimeout(() => {
+            console.log('Ã°Å¸Å¡â‚¬ Redirecting now...');
+            window.location.href = data.paymentPageUrl;
+          }, 1000);
         } else {
-          console.error('❌ No payment page URL in response:', data);
-          alert('Ödeme sayfası bulunamadı. Lütfen tekrar deneyin.');
+          console.error('Ã¢ÂÅ’ No payment page URL in response:', data);
+          alert('Ãƒâ€“deme sayfasÃ„Â± bulunamadÃ„Â±. LÃƒÂ¼tfen tekrar deneyin.');
           submitBtn.disabled = false;
-          submitBtn.textContent = 'Ödemeye Geç';
+          submitBtn.textContent = 'Ãƒâ€“demeye GeÃƒÂ§';
         }
       } else {
-        console.error('❌ Payment request failed:', data);
+        console.error('Ã¢ÂÅ’ Payment request failed:', data);
         const errorMsg = data.errorMessage || data.error || 'Bilinmeyen hata';
-        alert('Ödeme başlatılamadı: ' + errorMsg);
+        console.error('Ã¢ÂÅ’ Error message:', errorMsg);
+        alert('Ãƒâ€“deme baÃ…Å¸latÃ„Â±lamadÃ„Â±: ' + errorMsg);
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Ödemeye Geç';
+        submitBtn.textContent = 'Ãƒâ€“demeye GeÃƒÂ§';
       }
     } catch (error) {
-      console.error('❌ Network/Fetch Error:', error);
-      alert('Bir hata oluştu: ' + (error as Error).message);
+      console.error('Ã¢ÂÅ’ Network/Fetch Error:', error);
+      console.error('Ã¢ÂÅ’ Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
+      alert('Bir hata oluÃ…Å¸tu: ' + error.message + '\n\nLÃƒÂ¼tfen console loglarÃ„Â±nÃ„Â± kontrol edin (F12)');
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Ödemeye Geç';
+      submitBtn.textContent = 'Ãƒâ€“demeye GeÃƒÂ§';
     }
   });
 

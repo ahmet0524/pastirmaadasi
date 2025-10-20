@@ -17,19 +17,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('🔍 === PAYMENT VERIFICATION STARTED ===');
+    console.log('Verifying payment...');
 
     const { token, orderData } = req.body;
 
     if (!token) {
-      console.error('❌ No token provided');
+      console.error('No token provided');
       return res.status(400).json({
         status: 'error',
-        errorMessage: 'Token bulunamadı'
+        errorMessage: 'Token bulunamadÄ±'
       });
     }
 
-    console.log('📦 Order data received:', orderData ? 'Yes' : 'No');
+    console.log('Order data received:', orderData);
 
     const iyzipay = new Iyzipay({
       apiKey: process.env.IYZICO_API_KEY,
@@ -44,23 +44,27 @@ export default async function handler(req, res) {
         token: token
       }, async (err, result) => {
         if (err) {
-          console.error('❌ Iyzico error:', err);
+          console.error('Iyzico error:', err);
           res.status(400).json({
             status: 'error',
-            errorMessage: err.errorMessage || 'Doğrulama başarısız'
+            errorMessage: err.errorMessage || 'DoÄŸrulama baÅŸarÄ±sÄ±z'
           });
           resolve();
           return;
         }
 
-        console.log('✅ Payment status:', result.paymentStatus);
+        console.log('Iyzico result:', {
+          status: result.status,
+          paymentStatus: result.paymentStatus,
+          paymentId: result.paymentId
+        });
 
         if (result.status === 'success' && result.paymentStatus === 'SUCCESS') {
-          console.log('💰 Payment successful! Sending email...');
-
-          // ✅ Ödeme başarılı - Email gönder
+          // Ã–deme baÅŸarÄ±lÄ± - Email gÃ¶nder
           if (orderData) {
             try {
+              console.log('Preparing to send email...');
+
               const emailPayload = {
                 customerEmail: orderData.customerEmail,
                 customerName: orderData.customerName,
@@ -71,46 +75,40 @@ export default async function handler(req, res) {
                 paymentId: result.paymentId
               };
 
-              console.log('📧 Email payload prepared');
+              console.log('Email payload:', emailPayload);
 
-              // ✅ DÜZELTİLDİ: Absolute URL oluştur
+              // âœ… DÃœZELTÄ°LDÄ°: Relative path kullan, external URL deÄŸil
+              // Vercel'de aynÄ± domain iÃ§indeki API'leri Ã§aÄŸÄ±rmak iÃ§in
               const baseUrl = process.env.VERCEL_URL
                 ? `https://${process.env.VERCEL_URL}`
                 : 'http://localhost:3000';
 
-              const emailApiUrl = `${baseUrl}/api/send-order-email`;
+              console.log('Calling email API at:', `${baseUrl}/api/send-order-email`);
 
-              console.log('📤 Email API URL:', emailApiUrl);
-
-              const emailResponse = await fetch(emailApiUrl, {
+              const emailResponse = await fetch(`${baseUrl}/api/send-order-email`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
-                  'Accept': 'application/json'
                 },
-                body: JSON.stringify(emailPayload),
+                body: JSON.stringify(emailPayload)
               });
 
-              console.log('📥 Email API response status:', emailResponse.status);
+              console.log('Email response status:', emailResponse.status);
 
               if (emailResponse.ok) {
                 const emailResult = await emailResponse.json();
-                console.log('✅ Email sent successfully!');
-                console.log('📧 Email IDs:', {
-                  customer: emailResult.customerEmailId,
-                  admin: emailResult.adminEmailId
-                });
+                console.log('Email sent successfully:', emailResult);
               } else {
                 const errorText = await emailResponse.text();
-                console.error('❌ Email API error:', errorText);
+                console.error('Email sending failed:', errorText);
               }
-
             } catch (emailError) {
-              console.error('❌ Email error:', emailError.message);
-              // Email hatası ödeme başarısını etkilemez
+              console.error('Email error:', emailError.message);
+              console.error('Email error stack:', emailError.stack);
+              // Email hatasÄ± Ã¶deme baÅŸarÄ±sÄ±nÄ± etkilemez
             }
           } else {
-            console.warn('⚠️ No order data provided, skipping email');
+            console.warn('No order data provided, skipping email');
           }
 
           res.status(200).json({
@@ -121,10 +119,10 @@ export default async function handler(req, res) {
             paymentStatus: result.paymentStatus
           });
         } else {
-          console.log('❌ Payment failed:', result.errorMessage);
+          console.log('Payment failed:', result.errorMessage);
           res.status(400).json({
             status: 'error',
-            errorMessage: result.errorMessage || 'Ödeme başarısız',
+            errorMessage: result.errorMessage || 'Ã–deme baÅŸarÄ±sÄ±z',
             paymentStatus: result.paymentStatus
           });
         }
@@ -132,10 +130,10 @@ export default async function handler(req, res) {
       });
     });
   } catch (error) {
-    console.error('❌ Verification error:', error);
+    console.error('Verification error:', error);
     return res.status(500).json({
       status: 'error',
-      errorMessage: 'Sunucu hatası: ' + error.message
+      errorMessage: 'Sunucu hatasÄ±: ' + error.message
     });
   }
 }

@@ -5,14 +5,14 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<BaseLayout title="Ödeme Sonucu" description="Ödeme işleminizin sonucu">
+<BaseLayout title="Ã–deme Sonucu" description="Ã–deme iÅŸleminizin sonucu">
   <Header slot="header" />
 
   <section class="payment-result-page">
     <div class="container">
       <div id="result-content" class="result-box loading">
         <div class="loading-spinner"></div>
-        <p>Ödeme durumu kontrol ediliyor...</p>
+        <p>Ã–deme durumu kontrol ediliyor...</p>
       </div>
     </div>
   </section>
@@ -254,29 +254,29 @@ import Footer from '../components/Footer.astro';
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2>✅ Ödeme Başarılı!</h2>
-            <p>Siparişiniz başarıyla alındı.</p>
-            <p>Kısa süre içinde e-posta ile sipariş detaylarınız gönderilecektir.</p>
+            <h2>âœ… Ã–deme BaÅŸarÄ±lÄ±!</h2>
+            <p>SipariÅŸiniz baÅŸarÄ±yla alÄ±ndÄ±.</p>
+            <p>KÄ±sa sÃ¼re iÃ§inde e-posta ile sipariÅŸ detaylarÄ±nÄ±z gÃ¶nderilecektir.</p>
 
             <div class="order-details">
-              <h3>Sipariş Detayları</h3>
+              <h3>SipariÅŸ DetaylarÄ±</h3>
               <div class="detail-row">
-                <span>Ödeme ID:</span>
+                <span>Ã–deme ID:</span>
                 <span>${data.paymentId || 'N/A'}</span>
               </div>
               <div class="detail-row">
                 <span>Tutar:</span>
-                <span>${data.paidPrice || data.price}₺</span>
+                <span>${data.paidPrice || data.price}â‚º</span>
               </div>
               <div class="detail-row">
                 <span>Durum:</span>
-                <span style="color: #10b981;">Başarılı</span>
+                <span style="color: #10b981;">BaÅŸarÄ±lÄ±</span>
               </div>
             </div>
 
             <div class="action-buttons">
-              <a href="/" class="btn btn-primary">Ana Sayfaya Dön</a>
-              <a href="/online-alisveris" class="btn btn-secondary">Alışverişe Devam Et</a>
+              <a href="/" class="btn btn-primary">Ana Sayfaya DÃ¶n</a>
+              <a href="/online-alisveris" class="btn btn-secondary">AlÄ±ÅŸveriÅŸe Devam Et</a>
             </div>
           `;
         } else {
@@ -287,13 +287,13 @@ import Footer from '../components/Footer.astro';
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <h2>❌ Ödeme Başarısız</h2>
-            <p>${data.errorMessage || 'Ödeme işlemi tamamlanamadı.'}</p>
-            <p>Lütfen tekrar deneyin veya farklı bir ödeme yöntemi kullanın.</p>
+            <h2>âŒ Ã–deme BaÅŸarÄ±sÄ±z</h2>
+            <p>${data.errorMessage || 'Ã–deme iÅŸlemi tamamlanamadÄ±.'}</p>
+            <p>LÃ¼tfen tekrar deneyin veya farklÄ± bir Ã¶deme yÃ¶ntemi kullanÄ±n.</p>
 
             <div class="action-buttons">
-              <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
-              <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
+              <a href="/sepet" class="btn btn-primary">Sepete DÃ¶n</a>
+              <a href="/" class="btn btn-secondary">Ana Sayfaya DÃ¶n</a>
             </div>
           `;
         }
@@ -308,13 +308,13 @@ import Footer from '../components/Footer.astro';
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <h2>⚠️ Bir Hata Oluştu</h2>
-          <p>Ödeme doğrulama sırasında bir hata meydana geldi.</p>
-          <p>Lütfen daha sonra tekrar deneyin veya destek ekibiyle iletişime geçin.</p>
+          <h2>âš ï¸ Bir Hata OluÅŸtu</h2>
+          <p>Ã–deme doÄŸrulama sÄ±rasÄ±nda bir hata meydana geldi.</p>
+          <p>LÃ¼tfen daha sonra tekrar deneyin veya destek ekibiyle iletiÅŸime geÃ§in.</p>
 
           <div class="action-buttons">
-            <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
-            <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
+            <a href="/sepet" class="btn btn-primary">Sepete DÃ¶n</a>
+            <a href="/" class="btn btn-secondary">Ana Sayfaya DÃ¶n</a>
           </div>
         `;
       });
@@ -326,13 +326,13 @@ import Footer from '../components/Footer.astro';
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
         </div>
-        <h2>⚠️ Geçersiz İstek</h2>
-        <p>Ödeme doğrulama bilgisi bulunamadı.</p>
-        <p>Lütfen sipariş sürecinizi yeniden başlatın.</p>
+        <h2>âš ï¸ GeÃ§ersiz Ä°stek</h2>
+        <p>Ã–deme doÄŸrulama bilgisi bulunamadÄ±.</p>
+        <p>LÃ¼tfen sipariÅŸ sÃ¼recinizi yeniden baÅŸlatÄ±n.</p>
 
         <div class="action-buttons">
-          <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
-          <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
+          <a href="/sepet" class="btn btn-primary">Sepete DÃ¶n</a>
+          <a href="/" class="btn btn-secondary">Ana Sayfaya DÃ¶n</a>
         </div>
       `;
     }
