@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resend Email Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 600px;
+      width: 100%;
+      padding: 40px;
+    }
+    h1 {
+      color: #1f2937;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    .subtitle {
+      color: #6b7280;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    .test-section {
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .test-section h3 {
+      color: #374151;
+      margin-bottom: 16px;
+      font-size: 18px;
+    }
+    button {
+      width: 100%;
+      background: #dc2626;
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 12px;
+    }
+    button:hover {
+      background: #b91c1c;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .result {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.6;
+      display: none;
+    }
+    .result.success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 2px solid #10b981;
+      display: block;
+    }
+    .result.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 2px solid #ef4444;
+      display: block;
+    }
+    .result.loading {
+      background: #dbeafe;
+      color: #1e40af;
+      border: 2px solid #3b82f6;
+      display: block;
+    }
+    .info-box {
+      background: #fef3c7;
+      border: 2px solid #f59e0b;
+      color: #78350f;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .info-box strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    code {
+      background: #1f2937;
+      color: #10b981;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    pre {
+      background: #1f2937;
+      color: #e5e7eb;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📧 Resend Email Test</h1>
+    <p class="subtitle">Mail sisteminizi test edin</p>
+
+    <div class="info-box">
+      <strong>⚠️ ÖNEMLİ:</strong>
+      Bu test çalışmadan önce <code>/api/test-email.js</code> dosyasını oluşturmalısınız.
+      Domain doğrulanmadıysa, sadece <code>onboarding@resend.dev</code> çalışır!
+    </div>
+
+    <div class="test-section">
+      <h3>🧪 Test 1: Basit Mail Testi</h3>
+      <button onclick="testSimpleEmail()" id="testBtn1">Test Maili Gönder</button>
+      <div id="result1" class="result"></div>
+    </div>
+
+    <div class="test-section">
+      <h3>🔍 Test 2: API Key Kontrolü</h3>
+      <button onclick="checkAPIKey()" id="testBtn2">API Key Kontrol Et</button>
+      <div id="result2" class="result"></div>
+    </div>
+
+    <div class="test-section">
+      <h3>📋 Test 3: Server Console Logları</h3>
+      <button onclick="showInstructions()" id="testBtn3">Talimatları Göster</button>
+      <div id="result3" class="result"></div>
+    </div>
+  </div>
+
+  <script>
+    async function testSimpleEmail() {
+      const btn = document.getElementById('testBtn1');
+      const result = document.getElementById('result1');
+
+      btn.disabled = true;
+      result.className = 'result loading';
+      result.innerHTML = '⏳ Mail gönderiliyor...';
+
+      try {
+        const response = await fetch('/api/test-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          result.className = 'result success';
+          result.innerHTML = `
+            <strong>✅ Mail Başarıyla Gönderildi!</strong><br>
+            Message ID: ${data.messageId}<br><br>
+            📬 Mail kutunuzu kontrol edin (spam dahil)<br>
+            🔗 Resend Dashboard: <a href="https://resend.com/emails" target="_blank">Logs</a>
+          `;
+        } else {
+          result.className = 'result error';
+          result.innerHTML = `
+            <strong>❌ Mail Gönderilemedi</strong><br>
+            Hata: ${data.error}<br><br>
+            ${data.details ? '<pre>' + JSON.stringify(data.details, null, 2) + '</pre>' : ''}
+          `;
+        }
+      } catch (error) {
+        result.className = 'result error';
+        result.innerHTML = `
+          <strong>❌ Bağlantı Hatası</strong><br>
+          ${error.message}<br><br>
+          API endpoint'i mevcut değil olabilir. <code>/api/test-email.js</code> dosyasını oluşturdunuz mu?
+        `;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function checkAPIKey() {
+      const btn = document.getElementById('testBtn2');
+      const result = document.getElementById('result2');
+
+      btn.disabled = true;
+      result.className = 'result loading';
+      result.innerHTML = '🔍 Kontrol ediliyor...';
+
+      try {
+        const response = await fetch('/api/test-email');
+        const data = await response.json();
+
+        if (data.error && data.error.includes('RESEND_API_KEY')) {
+          result.className = 'result error';
+          result.innerHTML = `
+            <strong>❌ API Key Bulunamadı</strong><br><br>
+            <strong>Çözüm:</strong><br>
+            1. <code>.env</code> dosyasına ekleyin:<br>
+            <pre>RESEND_API_KEY=re_your_key_here</pre>
+            2. Server'ı yeniden başlatın (Ctrl+C → npm run dev)
+          `;
+        } else if (data.success) {
+          result.className = 'result success';
+          result.innerHTML = `
+            <strong>✅ API Key Doğru Yapılandırılmış</strong><br>
+            Resend sistemi çalışıyor!
+          `;
+        } else {
+          result.className = 'result error';
+          result.innerHTML = `
+            <strong>⚠️ Bilinmeyen Durum</strong><br>
+            Response: <pre>${JSON.stringify(data, null, 2)}</pre>
+          `;
+        }
+      } catch (error) {
+        result.className = 'result error';
+        result.innerHTML = `
+          <strong>❌ API Endpoint Hatası</strong><br>
+          ${error.message}
+        `;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function showInstructions() {
+      const result = document.getElementById('result3');
+      result.className = 'result success';
+      result.innerHTML = `
+        <strong>📋 Server Console'u Kontrol Edin</strong><br><br>
+        Terminal'de şunları görmelisiniz:<br>
+        <pre>📧 Mail gönderimi başlatılıyor...
+✅ Mail gönderildi! { id: 'xxx-xxx' }
+✅ Müşteriye mail gönderildi</pre>
+        <br>
+        <strong>Göremiyorsanız:</strong><br>
+        • <code>console.log</code> satırları silinmiş olabilir<br>
+        • Server yeniden başlatılmamış olabilir<br>
+        • API endpoint çağrılmamış olabilir
+      `;
+    }
+  </script>
+</body>
+</html>
