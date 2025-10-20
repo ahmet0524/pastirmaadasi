@@ -12,7 +12,7 @@ export async function POST({ request }) {
       );
     }
 
-    console.log('🔍 Ödeme doğrulama başlatıldı...');
+    console.log('🔍 Ödeme doğrulama başlatıldı...', { token });
 
     // Iyzico yapılandırması
     const iyzipay = new Iyzipay({
@@ -33,10 +33,16 @@ export async function POST({ request }) {
       );
     });
 
-    console.log('✅ Iyzico sonucu:', result);
+    console.log('✅ Iyzico sonucu:', {
+      status: result.status,
+      paymentStatus: result.paymentStatus,
+      paymentId: result.paymentId,
+      buyerEmail: result.buyer?.email
+    });
 
     // Ödeme başarısız ise
     if (result.status !== 'success' || result.paymentStatus !== 'SUCCESS') {
+      console.log('❌ Ödeme başarısız:', result.errorMessage);
       return new Response(
         JSON.stringify({
           status: 'error',
@@ -64,11 +70,13 @@ export async function POST({ request }) {
           console.warn('⚠️ Müşteri email adresi bulunamadı!');
           emailError = 'Müşteri email adresi bulunamadı';
         } else {
+          console.log('📧 Mail gönderimi başlatılıyor...', { customerEmail });
+
           // Müşteriye mail
           const customerHTML = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb; border-radius: 10px;">
               <h2 style="color: #dc2626;">🎉 Ödemeniz Başarıyla Alındı!</h2>
-              <p style="color: #374151;">Merhaba,</p>
+              <p style="color: #374151;">Merhaba ${result.buyer?.name || ''},</p>
               <p style="color: #374151;">Pastırma Adası'nı tercih ettiğiniz için teşekkür ederiz.</p>
 
               <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -76,6 +84,7 @@ export async function POST({ request }) {
                 <p><strong>Ödeme ID:</strong> ${result.paymentId}</p>
                 <p><strong>Tutar:</strong> ${result.paidPrice} ₺</p>
                 <p><strong>Durum:</strong> <span style="color: #10b981;">Başarılı</span></p>
+                <p><strong>Tarih:</strong> ${new Date().toLocaleString('tr-TR')}</p>
               </div>
 
               <p style="color: #6b7280; font-size: 14px;">Siparişiniz en kısa sürede hazırlanacaktır.</p>
@@ -84,41 +93,59 @@ export async function POST({ request }) {
             </div>
           `;
 
-          await resend.emails.send({
-            from: import.meta.env.RESEND_FROM_EMAIL || 'Pastırma Adası <siparis@successodysseyhub.com>',
+          const customerMailResult = await resend.emails.send({
+            from: 'Pastırma Adası <siparis@successodysseyhub.com>',
             to: customerEmail,
             subject: `✅ Ödeme Onayı - ${result.paymentId}`,
             html: customerHTML,
           });
 
-          console.log(`✅ Müşteriye mail gönderildi: ${customerEmail}`);
+          console.log('✅ Müşteriye mail gönderildi:', {
+            customerEmail,
+            messageId: customerMailResult.id
+          });
 
           // Admin'e bildirim maili
           const adminHTML = `
             <div style="font-family: Arial, sans-serif;">
               <h2>💰 Yeni Ödeme Alındı</h2>
               <p><strong>Ödeme ID:</strong> ${result.paymentId}</p>
-              <p><strong>Müşteri:</strong> ${customerEmail}</p>
+              <p><strong>Müşteri:</strong> ${result.buyer?.name} ${result.buyer?.surname}</p>
+              <p><strong>Email:</strong> ${customerEmail}</p>
               <p><strong>Tutar:</strong> ${result.paidPrice} ₺</p>
               <p><strong>Tarih:</strong> ${new Date().toLocaleString('tr-TR')}</p>
+              <hr/>
+              <h3>Ürünler:</h3>
+              <ul>
+                ${result.basketItems?.map(item => `<li>${item.name} - ${item.price} ₺</li>`).join('') || '<li>Bilgi yok</li>'}
+              </ul>
               <hr/>
               <p style="color: #6b7280;">Pastırma Adası - Otomatik Bildirim</p>
             </div>
           `;
 
-          const adminEmail = import.meta.env.ADMIN_EMAIL || 'ayavuz0524@gmail.com';
-          await resend.emails.send({
-            from: import.meta.env.RESEND_FROM_EMAIL || 'Pastırma Adası <siparis@successodysseyhub.com>',
+          const adminEmail = import.meta.env.ADMIN_EMAIL || 'successodysseyhub@gmail.com';
+          const adminMailResult = await resend.emails.send({
+            from: 'Pastırma Adası <siparis@successodysseyhub.com>',
             to: adminEmail,
             subject: `🔔 Yeni Ödeme - ${result.paymentId}`,
             html: adminHTML,
           });
 
-          console.log(`✅ Admin'e mail gönderildi: ${adminEmail}`);
+          console.log('✅ Admin\'e mail gönderildi:', {
+            adminEmail,
+            messageId: adminMailResult.id
+          });
+
           emailSent = true;
         }
       } catch (error) {
         console.error('❌ E-posta gönderim hatası:', error);
+        console.error('Hata detayı:', {
+          message: error.message,
+          name: error.name,
+          stack: error.stack
+        });
         emailError = error.message;
       }
     }
@@ -130,8 +157,8 @@ export async function POST({ request }) {
         paymentId: result.paymentId,
         paidPrice: result.paidPrice,
         paymentStatus: result.paymentStatus,
-        emailSent, // Mail gönderildi mi?
-        emailError, // Varsa mail hatası
+        emailSent,
+        emailError,
       }),
       { status: 200 }
     );
