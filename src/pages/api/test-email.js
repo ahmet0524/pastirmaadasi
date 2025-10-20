@@ -29,8 +29,8 @@ export async function GET() {
 
     // Test maili gönder
     const result = await resend.emails.send({
-      from: 'Test <onboarding@resend.dev>', // Resend'in test maili
-      to: 'successodysseyhub@gmail.com', // Kendinize gönderin
+      from: 'Pastırma Adası <onboarding@resend.dev>', // Resend'in test maili
+      to: 'successodysseyhub@gmail.com', // ⚠️ BURAYA KENDİ MAİLİNİZİ YAZIN
       subject: '🧪 Resend Test Maili',
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
