@@ -29,7 +29,7 @@ export default async function handler(req, res) {
       });
     }
 
-    console.log('📦 Order data received:', JSON.stringify(orderData, null, 2));
+    console.log('📦 Order data received:', orderData ? 'Yes' : 'No');
 
     const iyzipay = new Iyzipay({
       apiKey: process.env.IYZICO_API_KEY,
@@ -53,16 +53,12 @@ export default async function handler(req, res) {
           return;
         }
 
-        console.log('✅ Iyzico result:', {
-          status: result.status,
-          paymentStatus: result.paymentStatus,
-          paymentId: result.paymentId
-        });
+        console.log('✅ Payment status:', result.paymentStatus);
 
         if (result.status === 'success' && result.paymentStatus === 'SUCCESS') {
-          console.log('💰 Payment successful! Preparing email...');
+          console.log('💰 Payment successful! Sending email...');
 
-          // Ödeme başarılı - Email gönder
+          // ✅ Ödeme başarılı - Email gönder
           if (orderData) {
             try {
               const emailPayload = {
@@ -75,19 +71,16 @@ export default async function handler(req, res) {
                 paymentId: result.paymentId
               };
 
-              console.log('📧 Email payload prepared:', JSON.stringify(emailPayload, null, 2));
+              console.log('📧 Email payload prepared');
 
-              // ✅ DÜZELTİLDİ: Absolute URL ile fetch
-              const protocol = req.headers['x-forwarded-proto'] || 'https';
-              const host = req.headers['x-forwarded-host'] || req.headers.host;
-              const emailApiUrl = `${protocol}://${host}/api/send-order-email`;
+              // ✅ DÜZELTİLDİ: Absolute URL oluştur
+              const baseUrl = process.env.VERCEL_URL
+                ? `https://${process.env.VERCEL_URL}`
+                : 'http://localhost:3000';
+
+              const emailApiUrl = `${baseUrl}/api/send-order-email`;
 
               console.log('📤 Email API URL:', emailApiUrl);
-              console.log('📤 Protocol:', protocol);
-              console.log('📤 Host:', host);
-
-              const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 saniye timeout
 
               const emailResponse = await fetch(emailApiUrl, {
                 method: 'POST',
@@ -96,35 +89,24 @@ export default async function handler(req, res) {
                   'Accept': 'application/json'
                 },
                 body: JSON.stringify(emailPayload),
-                signal: controller.signal
-              }).finally(() => clearTimeout(timeoutId));
+              });
 
               console.log('📥 Email API response status:', emailResponse.status);
 
-              const responseText = await emailResponse.text();
-              console.log('📄 Email API response text:', responseText);
-
-              let emailResult;
-              try {
-                emailResult = JSON.parse(responseText);
-                console.log('📧 Email API response:', JSON.stringify(emailResult, null, 2));
-              } catch (parseError) {
-                console.error('❌ Failed to parse email response:', parseError);
-                console.error('📄 Raw response:', responseText);
-                throw new Error('Invalid JSON response from email API');
-              }
-
-              if (emailResult.status === 'success') {
+              if (emailResponse.ok) {
+                const emailResult = await emailResponse.json();
                 console.log('✅ Email sent successfully!');
-                console.log('📧 Customer Email ID:', emailResult.customerEmailId);
-                console.log('📧 Admin Email ID:', emailResult.adminEmailId);
+                console.log('📧 Email IDs:', {
+                  customer: emailResult.customerEmailId,
+                  admin: emailResult.adminEmailId
+                });
               } else {
-                console.error('❌ Email sending failed:', emailResult.errorMessage);
+                const errorText = await emailResponse.text();
+                console.error('❌ Email API error:', errorText);
               }
 
             } catch (emailError) {
               console.error('❌ Email error:', emailError.message);
-              console.error('🔍 Email error stack:', emailError.stack);
               // Email hatası ödeme başarısını etkilemez
             }
           } else {
@@ -151,7 +133,6 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error('❌ Verification error:', error);
-    console.error('🔍 Error stack:', error.stack);
     return res.status(500).json({
       status: 'error',
       errorMessage: 'Sunucu hatası: ' + error.message
