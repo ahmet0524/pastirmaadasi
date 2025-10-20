@@ -17,19 +17,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('Verifying payment...');
+    console.log('🔍 Verifying payment...');
 
     const { token, orderData } = req.body;
 
     if (!token) {
-      console.error('No token provided');
+      console.error('❌ No token provided');
       return res.status(400).json({
         status: 'error',
         errorMessage: 'Token bulunamadı'
       });
     }
 
-    console.log('Order data received:', orderData);
+    console.log('📦 Order data received:', orderData);
 
     const iyzipay = new Iyzipay({
       apiKey: process.env.IYZICO_API_KEY,
@@ -44,7 +44,7 @@ export default async function handler(req, res) {
         token: token
       }, async (err, result) => {
         if (err) {
-          console.error('Iyzico error:', err);
+          console.error('❌ Iyzico error:', err);
           res.status(400).json({
             status: 'error',
             errorMessage: err.errorMessage || 'Doğrulama başarısız'
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
           return;
         }
 
-        console.log('Iyzico result:', {
+        console.log('✅ Iyzico result:', {
           status: result.status,
           paymentStatus: result.paymentStatus,
           paymentId: result.paymentId
@@ -63,7 +63,7 @@ export default async function handler(req, res) {
           // Ödeme başarılı - Email gönder
           if (orderData) {
             try {
-              console.log('Preparing to send email...');
+              console.log('📧 Preparing to send email...');
 
               const emailPayload = {
                 customerEmail: orderData.customerEmail,
@@ -75,40 +75,44 @@ export default async function handler(req, res) {
                 paymentId: result.paymentId
               };
 
-              console.log('Email payload:', emailPayload);
+              console.log('📤 Email payload:', emailPayload);
 
-              // ✅ DÜZELTİLDİ: Relative path kullan, external URL değil
-              // Vercel'de aynı domain içindeki API'leri çağırmak için
-              const baseUrl = process.env.VERCEL_URL
-                ? `https://${process.env.VERCEL_URL}`
-                : 'http://localhost:3000';
+              // ✅ DÜZELTİLDİ: Internal Vercel function call
+              // Vercel'de aynı proje içindeki serverless functionlar birbirini doğrudan çağırabilir
+              const { sendOrderEmail } = await import('./send-order-email.js');
 
-              console.log('Calling email API at:', `${baseUrl}/api/send-order-email`);
-
-              const emailResponse = await fetch(`${baseUrl}/api/send-order-email`, {
+              // Email fonksiyonunu direkt çağır (HTTP isteği yerine)
+              const mockReq = {
                 method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(emailPayload)
-              });
+                body: emailPayload
+              };
 
-              console.log('Email response status:', emailResponse.status);
+              const mockRes = {
+                status: (code) => ({
+                  json: (data) => {
+                    console.log(`📧 Email API response [${code}]:`, data);
+                    return data;
+                  },
+                  end: () => {}
+                }),
+                setHeader: () => {}
+              };
 
-              if (emailResponse.ok) {
-                const emailResult = await emailResponse.json();
-                console.log('Email sent successfully:', emailResult);
-              } else {
-                const errorText = await emailResponse.text();
-                console.error('Email sending failed:', errorText);
+              try {
+                await sendOrderEmail.default(mockReq, mockRes);
+                console.log('✅ Email sent successfully');
+              } catch (emailError) {
+                console.error('❌ Email sending failed:', emailError);
+                // Email hatası ödeme başarısını etkilemez
               }
+
             } catch (emailError) {
-              console.error('Email error:', emailError.message);
-              console.error('Email error stack:', emailError.stack);
+              console.error('❌ Email error:', emailError.message);
+              console.error('📍 Email error stack:', emailError.stack);
               // Email hatası ödeme başarısını etkilemez
             }
           } else {
-            console.warn('No order data provided, skipping email');
+            console.warn('⚠️ No order data provided, skipping email');
           }
 
           res.status(200).json({
@@ -119,7 +123,7 @@ export default async function handler(req, res) {
             paymentStatus: result.paymentStatus
           });
         } else {
-          console.log('Payment failed:', result.errorMessage);
+          console.log('❌ Payment failed:', result.errorMessage);
           res.status(400).json({
             status: 'error',
             errorMessage: result.errorMessage || 'Ödeme başarısız',
@@ -130,7 +134,7 @@ export default async function handler(req, res) {
       });
     });
   } catch (error) {
-    console.error('Verification error:', error);
+    console.error('❌ Verification error:', error);
     return res.status(500).json({
       status: 'error',
       errorMessage: 'Sunucu hatası: ' + error.message
