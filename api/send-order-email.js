@@ -17,18 +17,20 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log('📧 === EMAIL API CALLED ===');
+
     // API Key kontrolü
     const apiKey = process.env.RESEND_API_KEY;
 
     if (!apiKey) {
-      console.error('RESEND_API_KEY is not defined in environment variables');
+      console.error('❌ RESEND_API_KEY is not defined in environment variables');
       return res.status(500).json({
         status: 'error',
         errorMessage: 'Email servisi yapılandırılmamış (API key eksik)'
       });
     }
 
-    console.log('API Key found, length:', apiKey.length);
+    console.log('✅ API Key found, length:', apiKey.length);
 
     const resend = new Resend(apiKey);
 
@@ -42,14 +44,23 @@ export default async function handler(req, res) {
       paymentId
     } = req.body;
 
+    console.log('📦 Request body received:', {
+      customerEmail,
+      customerName,
+      itemsCount: items?.length,
+      totalPrice,
+      paymentId
+    });
+
     if (!customerEmail || !items || !totalPrice) {
+      console.error('❌ Missing required fields');
       return res.status(400).json({
         status: 'error',
         errorMessage: 'Gerekli bilgiler eksik'
       });
     }
 
-    console.log('Sending email to:', customerEmail);
+    console.log('📧 Sending email to:', customerEmail);
 
     // Ürün listesi HTML
     const itemsHtml = items.map(item => `
@@ -189,9 +200,10 @@ export default async function handler(req, res) {
 
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'siparis@successodysseyhub.com';
 
-    console.log('Sending from:', fromEmail);
+    console.log('📤 Sending from:', fromEmail);
 
     // Müşteriye email gönder
+    console.log('📧 Sending customer email...');
     const customerEmailResult = await resend.emails.send({
       from: fromEmail,
       to: customerEmail,
@@ -199,7 +211,7 @@ export default async function handler(req, res) {
       html: emailHtml
     });
 
-    console.log('Customer email sent:', customerEmailResult);
+    console.log('✅ Customer email sent:', customerEmailResult);
 
     // İşletmeye bildirim emaili
     const adminEmailHtml = `
@@ -254,23 +266,27 @@ export default async function handler(req, res) {
     // İşletme emailini environment variable'dan al
     const adminEmail = process.env.ADMIN_EMAIL || 'successodysseyhub@gmail.com';
 
-    await resend.emails.send({
+    console.log('📧 Sending admin email to:', adminEmail);
+    const adminEmailResult = await resend.emails.send({
       from: fromEmail,
       to: adminEmail,
       subject: `🛒 Yeni Sipariş - ${customerName || customerEmail}`,
       html: adminEmailHtml
     });
 
-    console.log('Admin email sent to:', adminEmail);
+    console.log('✅ Admin email sent:', adminEmailResult);
 
     return res.status(200).json({
       status: 'success',
       message: 'Email başarıyla gönderildi',
-      emailId: customerEmailResult.id
+      emailId: customerEmailResult.id,
+      customerEmailId: customerEmailResult.id,
+      adminEmailId: adminEmailResult.id
     });
 
   } catch (error) {
-    console.error('Email sending error:', error);
+    console.error('❌ Email sending error:', error);
+    console.error('📍 Error stack:', error.stack);
     return res.status(500).json({
       status: 'error',
       errorMessage: 'Email gönderilemedi: ' + error.message
