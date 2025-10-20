@@ -1,18 +1,17 @@
 ---
-// src/pages/odeme-sonuc.astro
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
 ---
 
-<BaseLayout title="Ã–deme Sonucu" description="Ã–deme iÅŸleminizin sonucu">
+<BaseLayout title="Ödeme Sonucu" description="Ödeme işleminizin sonucu">
   <Header slot="header" />
 
   <section class="payment-result-page">
     <div class="container">
       <div id="result-content" class="result-box loading">
         <div class="loading-spinner"></div>
-        <p>Ã–deme durumu kontrol ediliyor...</p>
+        <p>Ödeme durumu kontrol ediliyor...</p>
       </div>
     </div>
   </section>
@@ -44,13 +43,6 @@ import Footer from '../components/Footer.astro';
     text-align: center;
   }
 
-  .result-box.loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-  }
-
   .loading-spinner {
     width: 60px;
     height: 60px;
@@ -61,35 +53,31 @@ import Footer from '../components/Footer.astro';
   }
 
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
-  .success-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 1.5rem;
-    background: #10b981;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .success-icon svg {
-    color: white;
-  }
-
+  .success-icon,
   .error-icon {
     width: 80px;
     height: 80px;
     margin: 0 auto 1.5rem;
-    background: #ef4444;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
+  .success-icon {
+    background: #10b981;
+  }
+
+  .error-icon {
+    background: #ef4444;
+  }
+
+  .success-icon svg,
   .error-icon svg {
     color: white;
   }
@@ -196,143 +184,98 @@ import Footer from '../components/Footer.astro';
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener("DOMContentLoaded", () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
-    const resultContent = document.getElementById('result-content');
+    const token = urlParams.get("token");
+    const resultContent = document.getElementById("result-content");
 
-    if (!resultContent) {
-      console.error('Result content element not found');
-      return;
-    }
+    if (!resultContent) return;
 
     if (token) {
-      console.log('Token found, verifying payment:', token);
-
-      const orderData = localStorage.getItem('pendingOrder');
-      let parsedOrderData = null;
-
-      if (orderData) {
-        try {
-          parsedOrderData = JSON.parse(orderData);
-        } catch (e) {
-          console.error('Error parsing order data:', e);
-        }
-      }
-
-      fetch('/api/verify-payment', {
-        method: 'POST',
+      fetch("/api/verify-payment", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
-        body: JSON.stringify({
-          token,
-          orderData: parsedOrderData
+        body: JSON.stringify({ token }),
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("HTTP Error " + res.status);
+          return res.json();
         })
-      })
-      .then(res => {
-        console.log('Verify response status:', res.status);
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then(data => {
-        console.log('Verify response data:', data);
-
-        if (data.status === 'success') {
-          localStorage.removeItem('cart');
-          localStorage.removeItem('discountPercent');
-          localStorage.removeItem('pendingOrder');
-          window.dispatchEvent(new Event('cartUpdated'));
-
-          resultContent.className = 'result-box success';
-          resultContent.innerHTML = `
-            <div class="success-icon">
-              <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2>âœ… Ã–deme BaÅŸarÄ±lÄ±!</h2>
-            <p>SipariÅŸiniz baÅŸarÄ±yla alÄ±ndÄ±.</p>
-            <p>KÄ±sa sÃ¼re iÃ§inde e-posta ile sipariÅŸ detaylarÄ±nÄ±z gÃ¶nderilecektir.</p>
-
-            <div class="order-details">
-              <h3>SipariÅŸ DetaylarÄ±</h3>
-              <div class="detail-row">
-                <span>Ã–deme ID:</span>
-                <span>${data.paymentId || 'N/A'}</span>
+        .then((data) => {
+          if (data.status === "success") {
+            resultContent.className = "result-box success";
+            resultContent.innerHTML = `
+              <div class="success-icon">
+                <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
               </div>
-              <div class="detail-row">
-                <span>Tutar:</span>
-                <span>${data.paidPrice || data.price}â‚º</span>
+              <h2>✅ Ödeme Başarılı!</h2>
+              <p>Siparişiniz başarıyla alındı.</p>
+              <p>Kısa süre içinde e-posta ile sipariş detaylarınız gönderilecektir.</p>
+              <div class="order-details">
+                <h3>Sipariş Detayları</h3>
+                <div class="detail-row"><span>Ödeme ID:</span><span>${data.paymentId || "N/A"}</span></div>
+                <div class="detail-row"><span>Tutar:</span><span>${data.paidPrice || data.price} ₺</span></div>
+                <div class="detail-row"><span>Durum:</span><span style="color:#10b981;">Başarılı</span></div>
               </div>
-              <div class="detail-row">
-                <span>Durum:</span>
-                <span style="color: #10b981;">BaÅŸarÄ±lÄ±</span>
+              <div class="action-buttons">
+                <a href="/" class="btn btn-primary">Ana Sayfaya Dön</a>
+                <a href="/online-alisveris" class="btn btn-secondary">Alışverişe Devam Et</a>
               </div>
-            </div>
-
-            <div class="action-buttons">
-              <a href="/" class="btn btn-primary">Ana Sayfaya DÃ¶n</a>
-              <a href="/online-alisveris" class="btn btn-secondary">AlÄ±ÅŸveriÅŸe Devam Et</a>
-            </div>
-          `;
-        } else {
-          resultContent.className = 'result-box error';
+            `;
+          } else {
+            resultContent.className = "result-box error";
+            resultContent.innerHTML = `
+              <div class="error-icon">
+                <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <h2>❌ Ödeme Başarısız</h2>
+              <p>${data.errorMessage || "Ödeme işlemi tamamlanamadı."}</p>
+              <p>Lütfen tekrar deneyin veya farklı bir ödeme yöntemi kullanın.</p>
+              <div class="action-buttons">
+                <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
+                <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
+              </div>
+            `;
+          }
+        })
+        .catch((error) => {
+          resultContent.className = "result-box error";
           resultContent.innerHTML = `
             <div class="error-icon">
               <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
-            <h2>âŒ Ã–deme BaÅŸarÄ±sÄ±z</h2>
-            <p>${data.errorMessage || 'Ã–deme iÅŸlemi tamamlanamadÄ±.'}</p>
-            <p>LÃ¼tfen tekrar deneyin veya farklÄ± bir Ã¶deme yÃ¶ntemi kullanÄ±n.</p>
-
+            <h2>⚠️ Bir Hata Oluştu</h2>
+            <p>Ödeme doğrulama sırasında bir hata meydana geldi.</p>
+            <p>Lütfen daha sonra tekrar deneyin veya destek ekibiyle iletişime geçin.</p>
             <div class="action-buttons">
-              <a href="/sepet" class="btn btn-primary">Sepete DÃ¶n</a>
-              <a href="/" class="btn btn-secondary">Ana Sayfaya DÃ¶n</a>
+              <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
+              <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
             </div>
           `;
-        }
-      })
-      .catch(error => {
-        console.error('Payment verification error:', error);
-
-        resultContent.className = 'result-box error';
-        resultContent.innerHTML = `
-          <div class="error-icon">
-            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <h2>âš ï¸ Bir Hata OluÅŸtu</h2>
-          <p>Ã–deme doÄŸrulama sÄ±rasÄ±nda bir hata meydana geldi.</p>
-          <p>LÃ¼tfen daha sonra tekrar deneyin veya destek ekibiyle iletiÅŸime geÃ§in.</p>
-
-          <div class="action-buttons">
-            <a href="/sepet" class="btn btn-primary">Sepete DÃ¶n</a>
-            <a href="/" class="btn btn-secondary">Ana Sayfaya DÃ¶n</a>
-          </div>
-        `;
-      });
+        });
     } else {
-      resultContent.className = 'result-box error';
+      resultContent.className = "result-box error";
       resultContent.innerHTML = `
         <div class="error-icon">
           <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
         </div>
-        <h2>âš ï¸ GeÃ§ersiz Ä°stek</h2>
-        <p>Ã–deme doÄŸrulama bilgisi bulunamadÄ±.</p>
-        <p>LÃ¼tfen sipariÅŸ sÃ¼recinizi yeniden baÅŸlatÄ±n.</p>
-
+        <h2>⚠️ Geçersiz İstek</h2>
+        <p>Ödeme doğrulama bilgisi bulunamadı.</p>
+        <p>Lütfen sipariş sürecinizi yeniden başlatın.</p>
         <div class="action-buttons">
-          <a href="/sepet" class="btn btn-primary">Sepete DÃ¶n</a>
-          <a href="/" class="btn btn-secondary">Ana Sayfaya DÃ¶n</a>
+          <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
+          <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
         </div>
       `;
     }

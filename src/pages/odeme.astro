@@ -1,155 +1,32 @@
 ---
-// src/pages/odeme.astro
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
 ---
 
-<BaseLayout title="Ã–deme Bilgileri" description="SipariÅŸ bilgilerinizi girin ve Ã¶deme yapÄ±n">
+<BaseLayout title="Ödeme Sayfası" description="Pastırma Adası ödeme işlemi">
   <Header slot="header" />
 
-  <section class="checkout-page">
+  <section class="payment-page">
     <div class="container">
-      <h1>Ã–deme Bilgileri</h1>
+      <h1>Ödeme Bilgileri</h1>
+      <p class="lead">Lütfen aşağıdaki bilgileri doldurarak ödemenizi tamamlayın.</p>
 
-      <div class="checkout-layout">
-        <!-- Sol taraf - Form -->
-        <div class="checkout-form-section">
-          <form id="checkout-form">
-            <!-- Ä°letiÅŸim Bilgileri -->
-            <div class="form-section">
-              <h2>Ä°letiÅŸim Bilgileri</h2>
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="name">Ad *</label>
-                  <input type="text" id="name" name="name" required />
-                </div>
-                <div class="form-group">
-                  <label for="surname">Soyad *</label>
-                  <input type="text" id="surname" name="surname" required />
-                </div>
-                <div class="form-group">
-                  <label for="email">E-posta *</label>
-                  <input type="email" id="email" name="email" required />
-                </div>
-                <div class="form-group">
-                  <label for="phone">Telefon *</label>
-                  <input type="tel" id="phone" name="phone" placeholder="+90 5XX XXX XX XX" required />
-                </div>
-                <div class="form-group full-width">
-                  <label for="identity">TC Kimlik No *</label>
-                  <input type="text" id="identity" name="identity" maxlength="11" pattern="[0-9]{11}" required />
-                </div>
-              </div>
-            </div>
-
-            <!-- Teslimat Adresi -->
-            <div class="form-section">
-              <h2>Teslimat Adresi</h2>
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="shipping-city">Åžehir *</label>
-                  <input type="text" id="shipping-city" name="shippingCity" required />
-                </div>
-                <div class="form-group">
-                  <label for="shipping-district">Ä°lÃ§e *</label>
-                  <input type="text" id="shipping-district" name="shippingDistrict" required />
-                </div>
-                <div class="form-group full-width">
-                  <label for="shipping-address">Adres *</label>
-                  <textarea id="shipping-address" name="shippingAddress" rows="3" required></textarea>
-                </div>
-              </div>
-            </div>
-
-            <!-- Fatura Adresi -->
-            <div class="form-section">
-              <div class="checkbox-group">
-                <input type="checkbox" id="same-address" checked />
-                <label for="same-address">Fatura adresi teslimat adresi ile aynÄ±</label>
-              </div>
-
-              <div id="billing-address-section" class="hidden">
-                <h3>Fatura Adresi</h3>
-                <div class="form-grid">
-                  <div class="form-group">
-                    <label for="billing-city">Åžehir *</label>
-                    <input type="text" id="billing-city" name="billingCity" />
-                  </div>
-                  <div class="form-group">
-                    <label for="billing-district">Ä°lÃ§e *</label>
-                    <input type="text" id="billing-district" name="billingDistrict" />
-                  </div>
-                  <div class="form-group full-width">
-                    <label for="billing-address">Adres *</label>
-                    <textarea id="billing-address" name="billingAddress" rows="3"></textarea>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- SipariÅŸ Notu (Opsiyonel) -->
-            <div class="form-section">
-              <h2>SipariÅŸ Notu (Opsiyonel)</h2>
-              <div class="form-group">
-                <textarea id="order-note" name="orderNote" rows="3" placeholder="SipariÅŸiniz hakkÄ±nda not ekleyebilirsiniz..."></textarea>
-              </div>
-            </div>
-          </form>
+      <form id="paymentForm" class="payment-form">
+        <div class="form-group">
+          <label for="buyerEmail">E-posta Adresi</label>
+          <input type="email" id="buyerEmail" name="buyerEmail" placeholder="ornek@mail.com" required />
         </div>
 
-        <!-- SaÄŸ taraf - SipariÅŸ Ã–zeti -->
-        <div class="order-summary-section">
-          <div class="summary-card">
-            <h2>SipariÅŸ Ã–zeti</h2>
-
-            <div id="order-items" class="order-items"></div>
-
-            <div class="summary-details">
-              <div class="summary-row">
-                <span>Ara Toplam</span>
-                <span id="summary-subtotal">0â‚º</span>
-              </div>
-              <div class="summary-row">
-                <span>Kargo</span>
-                <span id="summary-shipping">0â‚º</span>
-              </div>
-              <div id="summary-discount-row" class="summary-row discount-row hidden">
-                <span>Ä°ndirim</span>
-                <span id="summary-discount">0â‚º</span>
-              </div>
-            </div>
-
-            <div class="summary-total">
-              <span>Toplam</span>
-              <span id="summary-total">0â‚º</span>
-            </div>
-
-            <button type="submit" form="checkout-form" id="submit-payment" class="btn btn-primary btn-full btn-large">
-              Ã–demeye GeÃ§
-            </button>
-
-            <a href="/sepet" class="back-to-cart">
-              â† Sepete DÃ¶n
-            </a>
-
-            <div class="payment-info">
-              <p>
-                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                </svg>
-                Ä°yzico gÃ¼venli Ã¶deme altyapÄ±sÄ±
-              </p>
-              <p>
-                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                </svg>
-                SSL sertifikasÄ± ile korumalÄ±
-              </p>
-            </div>
-          </div>
+        <div class="form-group">
+          <label for="price">Tutar (₺)</label>
+          <input type="number" id="price" name="price" step="0.01" min="1" placeholder="100.00" required />
         </div>
-      </div>
+
+        <button type="submit" class="btn btn-primary">Ödemeyi Başlat</button>
+      </form>
+
+      <div id="resultMessage" class="result-message hidden"></div>
     </div>
   </section>
 
@@ -157,478 +34,178 @@ import Footer from '../components/Footer.astro';
 </BaseLayout>
 
 <style>
-  .checkout-page {
-    min-height: 100vh;
+  .payment-page {
     padding: 3rem 1rem;
     background: #f9fafb;
+    min-height: 100vh;
   }
 
   .container {
-    max-width: 1200px;
+    max-width: 600px;
     margin: 0 auto;
-  }
-
-  .checkout-page h1 {
-    font-size: 2.5rem;
-    margin-bottom: 2rem;
-    color: #1f2937;
-  }
-
-  .checkout-layout {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  .form-section {
-    background: white;
+    background: #fff;
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     padding: 2rem;
-    margin-bottom: 1.5rem;
   }
 
-  .form-section h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
+  h1 {
+    font-size: 2rem;
     color: #1f2937;
+    margin-bottom: 0.5rem;
+    text-align: center;
   }
 
-  .form-section h3 {
-    font-size: 1.25rem;
-    margin: 1.5rem 0 1rem;
-    color: #1f2937;
-  }
-
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+  .lead {
+    color: #6b7280;
+    text-align: center;
+    margin-bottom: 2rem;
   }
 
   .form-group {
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 1.5rem;
   }
 
-  .form-group.full-width {
-    grid-column: 1 / -1;
-  }
-
-  .form-group label {
+  label {
+    display: block;
     font-weight: 600;
-    margin-bottom: 0.5rem;
     color: #374151;
-    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
   }
 
-  .form-group input,
-  .form-group textarea {
-    padding: 0.75rem;
+  input {
+    width: 100%;
+    padding: 0.75rem 1rem;
     border: 1px solid #d1d5db;
     border-radius: 8px;
     font-size: 1rem;
-    transition: border-color 0.2s;
   }
 
-  .form-group input:focus,
-  .form-group textarea:focus {
-    outline: none;
+  input:focus {
     border-color: #dc2626;
-  }
-
-  .form-group textarea {
-    resize: vertical;
-    font-family: inherit;
-  }
-
-  .checkbox-group {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .checkbox-group input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-  }
-
-  .checkbox-group label {
-    cursor: pointer;
-    color: #374151;
-  }
-
-  .order-summary-section {
-    position: sticky;
-    top: 100px;
-    align-self: start;
-  }
-
-  .summary-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    padding: 1.5rem;
-  }
-
-  .summary-card h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
-    color: #1f2937;
-  }
-
-  .order-items {
-    max-height: 300px;
-    overflow-y: auto;
-    margin-bottom: 1.5rem;
-    padding-right: 0.5rem;
-  }
-
-  .order-item {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  .order-item:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-  }
-
-  .order-item-image {
-    width: 60px;
-    height: 60px;
-    border-radius: 6px;
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-
-  .order-item-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .order-item-details {
-    flex: 1;
-  }
-
-  .order-item-details h4 {
-    font-size: 0.875rem;
-    margin-bottom: 0.25rem;
-    color: #1f2937;
-  }
-
-  .order-item-details p {
-    font-size: 0.75rem;
-    color: #6b7280;
-  }
-
-  .order-item-price {
-    font-weight: bold;
-    color: #dc2626;
-    font-size: 0.875rem;
-  }
-
-  .summary-details {
-    padding: 1.5rem 0;
-    border-bottom: 1px solid #e5e7eb;
-    margin-bottom: 1.5rem;
-  }
-
-  .summary-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.75rem;
-    color: #6b7280;
-  }
-
-  .discount-row {
-    color: #10b981;
-  }
-
-  .summary-total {
-    display: flex;
-    justify-content: space-between;
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #dc2626;
-    margin-bottom: 1.5rem;
+    outline: none;
+    box-shadow: 0 0 0 1px #dc2626;
   }
 
   .btn {
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: none;
-    text-decoration: none;
-    display: inline-block;
-  }
-
-  .btn-primary {
     background: #dc2626;
     color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    width: 100%;
+    transition: background 0.2s;
   }
 
-  .btn-primary:hover:not(:disabled) {
+  .btn:hover {
     background: #b91c1c;
   }
 
-  .btn-primary:disabled {
-    background: #d1d5db;
-    cursor: not-allowed;
-  }
-
-  .btn-full {
-    width: 100%;
-  }
-
-  .btn-large {
-    padding: 1rem 2rem;
-    font-size: 1.125rem;
-  }
-
-  .back-to-cart {
-    display: block;
-    text-align: center;
-    color: #dc2626;
-    margin-top: 1rem;
-    text-decoration: none;
-  }
-
-  .back-to-cart:hover {
-    color: #b91c1c;
-  }
-
-  .payment-info {
+  .result-message {
     margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #e5e7eb;
+    text-align: center;
+    font-weight: 600;
+    padding: 1rem;
+    border-radius: 8px;
   }
 
-  .payment-info p {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
-    color: #6b7280;
+  .result-message.success {
+    background: #ecfdf5;
+    color: #065f46;
   }
 
-  .payment-info svg {
-    color: #10b981;
-    flex-shrink: 0;
+  .result-message.error {
+    background: #fef2f2;
+    color: #991b1b;
   }
 
   .hidden {
-    display: none !important;
-  }
-
-  @media (min-width: 1024px) {
-    .checkout-layout {
-      grid-template-columns: 2fr 1fr;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .checkout-page h1 {
-      font-size: 2rem;
-    }
-
-    .form-grid {
-      grid-template-columns: 1fr;
-    }
+    display: none;
   }
 </style>
 
 <script>
-  interface CartItem {
-    id: number;
-    name: string;
-    price: number;
-    image: string;
-    unit: string;
-    quantity: number;
-  }
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("paymentForm");
+    const resultMessage = document.getElementById("resultMessage");
 
-  let cart: CartItem[] = [];
-  let discountPercent = 0;
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      resultMessage.className = "result-message hidden";
 
-  function loadCart() {
-    const cartData = localStorage.getItem('cart');
-    const discountData = localStorage.getItem('discountPercent');
+      const buyerEmail = document.getElementById("buyerEmail").value;
+      const price = document.getElementById("price").value;
 
-    cart = cartData ? JSON.parse(cartData) : [];
-    discountPercent = discountData ? parseFloat(discountData) : 0;
-
-    if (cart.length === 0) {
-      window.location.href = '/sepet';
-      return;
-    }
-
-    renderOrderSummary();
-  }
-
-  function renderOrderSummary() {
-    const orderItemsContainer = document.getElementById('order-items');
-    if (!orderItemsContainer) return;
-
-    orderItemsContainer.innerHTML = cart.map(item => `
-      <div class="order-item">
-        <div class="order-item-image">
-          <img src="${item.image}" alt="${item.name}">
-        </div>
-        <div class="order-item-details">
-          <h4>${item.name}</h4>
-          <p>${item.quantity} adet Ã— ${item.price}â‚º</p>
-        </div>
-        <div class="order-item-price">
-          ${(item.price * item.quantity).toFixed(2)}â‚º
-        </div>
-      </div>
-    `).join('');
-
-    updateSummary();
-  }
-
-  function calculateSubtotal(): number {
-    return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  }
-
-  function updateSummary() {
-    const subtotal = calculateSubtotal();
-    const shipping = subtotal >= 1000 ? 0 : 50;
-    const discount = (subtotal * discountPercent) / 100;
-    const total = subtotal + shipping - discount;
-
-    const subtotalEl = document.getElementById('summary-subtotal');
-    const shippingEl = document.getElementById('summary-shipping');
-    const discountEl = document.getElementById('summary-discount');
-    const discountRow = document.getElementById('summary-discount-row');
-    const totalEl = document.getElementById('summary-total');
-
-    if (subtotalEl) subtotalEl.textContent = `${subtotal.toFixed(2)}â‚º`;
-    if (shippingEl) shippingEl.textContent = shipping === 0 ? 'Ãœcretsiz' : `${shipping}â‚º`;
-    if (discountEl) discountEl.textContent = `-${discount.toFixed(2)}â‚º`;
-    if (discountRow) discountRow.classList.toggle('hidden', discount === 0);
-    if (totalEl) totalEl.textContent = `${total.toFixed(2)}â‚º`;
-  }
-
-  function calculateTotal(): number {
-    const subtotal = calculateSubtotal();
-    const shipping = subtotal >= 1000 ? 0 : 50;
-    const discount = (subtotal * discountPercent) / 100;
-    return subtotal + shipping - discount;
-  }
-
-  // Fatura adresi toggle
-  const sameAddressCheckbox = document.getElementById('same-address') as HTMLInputElement;
-  const billingAddressSection = document.getElementById('billing-address-section');
-
-  sameAddressCheckbox?.addEventListener('change', () => {
-    billingAddressSection?.classList.toggle('hidden', sameAddressCheckbox.checked);
-
-    // AynÄ± adres seÃ§iliyse, zorunluluÄŸu kaldÄ±r
-    const billingInputs = billingAddressSection?.querySelectorAll('input, textarea');
-    billingInputs?.forEach(input => {
-      (input as HTMLInputElement).required = !sameAddressCheckbox.checked;
-    });
-  });
-
-  // Form gÃ¶nderimi
-  const checkoutForm = document.getElementById('checkout-form') as HTMLFormElement;
-
-  checkoutForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const submitBtn = document.getElementById('submit-payment') as HTMLButtonElement;
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Ä°ÅŸleniyor...';
-
-    const formData = new FormData(checkoutForm);
-    const sameAddress = (document.getElementById('same-address') as HTMLInputElement).checked;
-
-    // Form verilerini al
-    const name = formData.get('name') as string;
-    const surname = formData.get('surname') as string;
-    const email = formData.get('email') as string;
-    const phone = formData.get('phone') as string;
-    const identity = formData.get('identity') as string;
-
-    const shippingCity = formData.get('shippingCity') as string;
-    const shippingAddress = formData.get('shippingAddress') as string;
-
-    const billingCity = sameAddress ? shippingCity : formData.get('billingCity') as string;
-    const billingAddress = sameAddress ? shippingAddress : formData.get('billingAddress') as string;
-
-    try {
-      const response = await fetch('/api/create-payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          price: calculateSubtotal().toFixed(2),
-          paidPrice: calculateTotal().toFixed(2),
-          basketId: `BASKET-${Date.now()}`,
-          buyer: {
-            id: `BY${Date.now()}`,
-            name: name,
-            surname: surname,
-            gsmNumber: phone,
-            email: email,
-            identityNumber: identity,
-            registrationAddress: shippingAddress,
-            ip: '85.34.78.112',
-            city: shippingCity,
-            country: 'Turkey'
-          },
-          shippingAddress: {
-            contactName: `${name} ${surname}`,
-            city: shippingCity,
-            country: 'Turkey',
-            address: shippingAddress
-          },
-          billingAddress: {
-            contactName: `${name} ${surname}`,
-            city: billingCity,
-            country: 'Turkey',
-            address: billingAddress
-          },
-          basketItems: cart.map(item => ({
-            id: item.id.toString(),
-            name: item.name,
-            category1: 'GÄ±da',
-            itemType: 'PHYSICAL',
-            price: (item.price * item.quantity).toFixed(2)
-          }))
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.status === 'success' && data.paymentPageUrl) {
-        // BaÅŸarÄ±lÄ± - Iyzico Ã¶deme sayfasÄ±na yÃ¶nlendir
-        window.location.href = data.paymentPageUrl;
-      } else {
-        alert('Ã–deme baÅŸlatÄ±lamadÄ±: ' + (data.errorMessage || 'Bilinmeyen hata'));
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Ã–demeye GeÃ§';
+      if (!buyerEmail || !price) {
+        showMessage("Lütfen tüm alanları doldurun.", "error");
+        return;
       }
-    } catch (error) {
-      console.error('Ã–deme hatasÄ±:', error);
-      alert('Bir hata oluÅŸtu. LÃ¼tfen tekrar deneyin.');
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Ã–demeye GeÃ§';
+
+      const paymentData = {
+        price,
+        paidPrice: price,
+        buyer: {
+          id: "BY001",
+          name: "Ziyaretçi",
+          surname: "Kullanıcı",
+          email: buyerEmail,
+          identityNumber: "11111111111",
+          registrationAddress: "Kayseri, Türkiye",
+          ip: "85.34.78.112",
+          city: "Kayseri",
+          country: "Turkey",
+        },
+        shippingAddress: {
+          contactName: "Ziyaretçi Kullanıcı",
+          city: "Kayseri",
+          country: "Turkey",
+          address: "Kayseri, Türkiye",
+        },
+        billingAddress: {
+          contactName: "Ziyaretçi Kullanıcı",
+          city: "Kayseri",
+          country: "Turkey",
+          address: "Kayseri, Türkiye",
+        },
+        basketItems: [
+          {
+            id: "BI101",
+            name: "Pastırma",
+            category1: "Et Ürünleri",
+            itemType: "PHYSICAL",
+            price,
+          },
+        ],
+      };
+
+      try {
+        const response = await fetch("/api/create-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(paymentData),
+        });
+
+        const data = await response.json();
+
+        if (data.status === "success" && data.paymentPageUrl) {
+          showMessage("Ödeme sayfasına yönlendiriliyorsunuz...", "success");
+          setTimeout(() => {
+            window.location.href = data.paymentPageUrl;
+          }, 1500);
+        } else {
+          showMessage(data.errorMessage || "Ödeme başlatılamadı.", "error");
+        }
+      } catch (error) {
+        console.error("Hata:", error);
+        showMessage("Sunucu hatası. Lütfen daha sonra tekrar deneyin.", "error");
+      }
+    });
+
+    function showMessage(message, type) {
+      resultMessage.textContent = message;
+      resultMessage.className = `result-message ${type}`;
     }
   });
-
-  document.addEventListener('DOMContentLoaded', loadCart);
 </script>
