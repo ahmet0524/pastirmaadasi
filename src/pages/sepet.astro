@@ -30,6 +30,40 @@ import Footer from '../components/Footer.astro';
           <div class="summary-card">
             <h2>Sipariş Özeti</h2>
 
+            <!-- Müşteri Bilgileri Formu Eklendi -->
+            <div class="customer-info-section">
+              <h3>İletişim Bilgileri</h3>
+              <div class="form-group">
+                <label for="buyer-email">E-posta *</label>
+                <input
+                  type="email"
+                  id="buyer-email"
+                  placeholder="ornek@mail.com"
+                  required
+                />
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="buyer-name">Ad *</label>
+                  <input
+                    type="text"
+                    id="buyer-name"
+                    placeholder="Adınız"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="buyer-surname">Soyad *</label>
+                  <input
+                    type="text"
+                    id="buyer-surname"
+                    placeholder="Soyadınız"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
             <div class="coupon-section">
               <label for="coupon-input">İndirim Kuponu</label>
               <div class="coupon-input-group">
@@ -64,7 +98,7 @@ import Footer from '../components/Footer.astro';
             </div>
 
             <button id="checkout-btn" class="btn btn-primary btn-full btn-large" disabled>
-              Ödemeye Geç
+              <span id="checkout-btn-text">Ödemeye Geç</span>
             </button>
 
             <a href="/online-alisveris" class="continue-shopping">
@@ -302,6 +336,52 @@ import Footer from '../components/Footer.astro';
     color: #1f2937;
   }
 
+  .summary-card h3 {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+    color: #1f2937;
+  }
+
+  /* Müşteri Bilgileri Form Stilleri */
+  .customer-info-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    color: #374151;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus {
+    outline: none;
+    border-color: #dc2626;
+    box-shadow: 0 0 0 1px #dc2626;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
   .coupon-section {
     margin-bottom: 1.5rem;
   }
@@ -432,6 +512,10 @@ import Footer from '../components/Footer.astro';
       flex-direction: row;
       justify-content: space-between;
       width: 100%;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
     }
   }
 </style>
@@ -579,9 +663,6 @@ import Footer from '../components/Footer.astro';
       message.textContent = `Kupon uygulandı! %${discountPercent} indirim`;
       message.classList.add('success');
       input.disabled = true;
-
-      // İndirim oranını kaydet
-      localStorage.setItem('discountPercent', discountPercent.toString());
       updateSummary();
     } else {
       message.textContent = 'Geçersiz kupon kodu';
@@ -590,15 +671,99 @@ import Footer from '../components/Footer.astro';
     message.classList.remove('hidden');
   });
 
-  // Ödemeye Geç butonu - Ödeme sayfasına yönlendir
-  document.getElementById('checkout-btn')?.addEventListener('click', () => {
+  // ✅ YENİ: Ödemeye Geç butonu - Direkt İyzico'ya yönlendir
+  document.getElementById('checkout-btn')?.addEventListener('click', async () => {
     if (cart.length === 0) return;
 
-    // İndirim oranını localStorage'a kaydet
-    localStorage.setItem('discountPercent', discountPercent.toString());
+    // Form validasyonu
+    const emailInput = document.getElementById('buyer-email') as HTMLInputElement;
+    const nameInput = document.getElementById('buyer-name') as HTMLInputElement;
+    const surnameInput = document.getElementById('buyer-surname') as HTMLInputElement;
 
-    // Ödeme sayfasına yönlendir
-    window.location.href = '/odeme';
+    if (!emailInput.value || !nameInput.value || !surnameInput.value) {
+      alert('Lütfen tüm bilgileri doldurun!');
+      return;
+    }
+
+    const checkoutBtn = document.getElementById('checkout-btn') as HTMLButtonElement;
+    const btnText = document.getElementById('checkout-btn-text');
+
+    // Loading durumu
+    checkoutBtn.disabled = true;
+    if (btnText) btnText.textContent = 'Ödeme hazırlanıyor...';
+
+    try {
+      // Toplam hesapla
+      const subtotal = calculateSubtotal();
+      const shipping = subtotal >= 1000 ? 0 : 50;
+      const discount = (subtotal * discountPercent) / 100;
+      const total = subtotal + shipping - discount;
+
+      // Sepet itemlarını İyzico formatına çevir
+      const basketItems = cart.map((item, index) => ({
+        id: `BI${index + 1}`,
+        name: item.name,
+        category1: 'Et Ürünleri',
+        itemType: 'PHYSICAL',
+        price: (item.price * item.quantity).toFixed(2),
+      }));
+
+      // İyzico ödeme verisi
+      const paymentData = {
+        price: total.toFixed(2),
+        paidPrice: total.toFixed(2),
+        buyer: {
+          id: 'BY' + Date.now(),
+          name: nameInput.value,
+          surname: surnameInput.value,
+          email: emailInput.value,
+          identityNumber: '11111111111',
+          registrationAddress: 'Kayseri, Türkiye',
+          ip: '85.34.78.112',
+          city: 'Kayseri',
+          country: 'Turkey',
+        },
+        shippingAddress: {
+          contactName: `${nameInput.value} ${surnameInput.value}`,
+          city: 'Kayseri',
+          country: 'Turkey',
+          address: 'Kayseri, Türkiye',
+        },
+        billingAddress: {
+          contactName: `${nameInput.value} ${surnameInput.value}`,
+          city: 'Kayseri',
+          country: 'Turkey',
+          address: 'Kayseri, Türkiye',
+        },
+        basketItems: basketItems,
+      };
+
+      console.log('📤 Ödeme verisi gönderiliyor:', paymentData);
+
+      // API'ye istek gönder
+      const response = await fetch('/api/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(paymentData),
+      });
+
+      const data = await response.json();
+      console.log('📥 API yanıtı:', data);
+
+      if (data.status === 'success' && data.paymentPageUrl) {
+        // İyzico ödeme sayfasına yönlendir
+        window.location.href = data.paymentPageUrl;
+      } else {
+        alert(data.errorMessage || 'Ödeme başlatılamadı!');
+        checkoutBtn.disabled = false;
+        if (btnText) btnText.textContent = 'Ödemeye Geç';
+      }
+    } catch (error) {
+      console.error('❌ Ödeme hatası:', error);
+      alert('Sunucu hatası. Lütfen daha sonra tekrar deneyin.');
+      checkoutBtn.disabled = false;
+      if (btnText) btnText.textContent = 'Ödemeye Geç';
+    }
   });
 
   document.addEventListener('DOMContentLoaded', loadCart);
