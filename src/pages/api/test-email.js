@@ -50,8 +50,8 @@ export async function GET() {
     return new Response(
       JSON.stringify({
         success: true,
-        messageId: result.id,
-        result: result
+        messageId: result.data?.id || result.id || 'unknown',
+        data: result.data || result
       }),
       {
         status: 200,

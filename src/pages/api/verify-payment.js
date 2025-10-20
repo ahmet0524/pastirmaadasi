@@ -104,7 +104,7 @@ export async function POST({ request }) {
           `;
 
           const customerMailResult = await resend.emails.send({
-            from: 'Pastırma Adası <siparis@successodysseyhub.com>',
+            from: 'Pastırma Adası <onboarding@resend.dev>', // Test için
             to: customerEmail,
             subject: `✅ Ödeme Onayı - ${result.paymentId}`,
             html: customerHTML,
@@ -112,7 +112,8 @@ export async function POST({ request }) {
 
           console.log('✅ Müşteriye mail gönderildi:', {
             customerEmail,
-            messageId: customerMailResult.id
+            messageId: customerMailResult.data?.id || customerMailResult.id,
+            response: customerMailResult
           });
 
           // Admin'e bildirim maili
