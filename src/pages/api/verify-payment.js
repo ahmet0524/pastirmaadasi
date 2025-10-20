@@ -85,7 +85,7 @@ export async function POST({ request }) {
           `;
 
           await resend.emails.send({
-            from: import.meta.env.RESEND_FROM_EMAIL || 'Pastırma Adası <noreply@pastirmaadasi.com>',
+            from: import.meta.env.RESEND_FROM_EMAIL || 'Pastırma Adası <siparis@successodysseyhub.com>',
             to: customerEmail,
             subject: `✅ Ödeme Onayı - ${result.paymentId}`,
             html: customerHTML,

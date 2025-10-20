@@ -39,7 +39,7 @@ export async function POST({ request }) {
 
     // Alıcıya mail
     const customerMail = await resend.emails.send({
-      from: 'Pastırma Adası <noreply@pastirmaadasi.com>',
+      from: 'Pastırma Adası <siparis@successodysseyhub.com>',
       to: buyerEmail,
       subject: `Sipariş Onayı #${orderId}`,
       html: orderHTML,
@@ -47,7 +47,7 @@ export async function POST({ request }) {
 
     // Satıcıya bilgi maili
     const adminMail = await resend.emails.send({
-      from: 'Pastırma Adası <noreply@pastirmaadasi.com>',
+      from: 'Pastırma Adası <siparis@successodysseyhub.com>',
       to: 'ayavuz0524@gmail.com',
       subject: `Yeni Sipariş Alındı #${orderId}`,
       html: `
