@@ -1,5 +1,9 @@
 // api/payment-callback.js
 export default async function handler(req, res) {
+  console.log('Method:', req.method);
+  console.log('Body:', req.body);
+  console.log('Query:', req.query);
+  console.log('Headers:', req.headers);
   if (req.method === 'POST') {
     // iyzico POST callback'i - token'Ä± al ve GET'e redirect et
     const { token } = req.body;
