@@ -131,11 +131,17 @@ export async function POST({ request }) {
       const adminEmail = import.meta.env.ADMIN_EMAIL || 'successodysseyhub@gmail.com';
       console.log('Admin maili gönderiliyor:', adminEmail);
 
+      // Admin email validasyonu
+      if (!emailRegex.test(adminEmail)) {
+        throw new Error(`Geçersiz admin email: ${adminEmail}`);
+      }
+
       const { data: adminData, error: adminErr } = await resend.emails.send({
         from: 'Pastırma Adası <siparis@successodysseyhub.com>',
         to: adminEmail,
-        subject: `🔔 Yeni Ödeme - ${result.paymentId}`,
+        subject: `Yeni Odeme - ${result.paymentId}`, // Türkçe karakter kaldırıldı
         html: adminHTML,
+        reply_to: customerEmail, // Müşteriye direkt cevap verilebilsin
       });
 
       if (adminErr) {
@@ -159,8 +165,12 @@ export async function POST({ request }) {
       paymentId: result.paymentId,
       paidPrice: result.paidPrice,
       paymentStatus: result.paymentStatus,
-      emailSent,
-      emailError,
+      emailSent: emailSent,
+      emailError: emailError || null,
+      buyer: {
+        name: result.buyer?.name,
+        email: result.buyer?.email
+      }
     };
 
     console.log('📤 Gönderilen response:', responseData);
