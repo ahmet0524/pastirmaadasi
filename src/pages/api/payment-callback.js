@@ -1,86 +1,47 @@
 // src/pages/api/payment-callback.js
 
-// Body parser'ı devre dışı bırak, manuel parse edeceğiz
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+export const prerender = false; // SSR aktif kalsın
 
-async function getRawBody(req) {
-  return new Promise((resolve, reject) => {
-    let data = '';
-    req.on('data', chunk => {
-      data += chunk;
-    });
-    req.on('end', () => {
-      resolve(data);
-    });
-    req.on('error', reject);
-  });
-}
-
-export default async function handler(req, res) {
-  console.log('=== PAYMENT CALLBACK START ===');
-  console.log('Method:', req.method);
-  console.log('Content-Type:', req.headers['content-type']);
-  console.log('URL:', req.url);
-
+export async function POST({ request, redirect }) {
   try {
+    const contentType = request.headers.get('content-type') || '';
     let token = null;
 
-    if (req.method === 'POST') {
-      // Raw body'yi al
-      const rawBody = await getRawBody(req);
-      console.log('Raw body:', rawBody);
-
-      // Content-type'a göre parse et
-      const contentType = req.headers['content-type'] || '';
-
-      if (contentType.includes('application/json')) {
-        const body = JSON.parse(rawBody);
-        console.log('Parsed JSON:', body);
-        token = body.token;
-      } else if (contentType.includes('application/x-www-form-urlencoded')) {
-        const params = new URLSearchParams(rawBody);
-        console.log('Parsed form data:', Object.fromEntries(params));
+    if (contentType.includes('application/json')) {
+      const body = await request.json();
+      token = body.token;
+    } else if (contentType.includes('application/x-www-form-urlencoded')) {
+      const formData = await request.text();
+      const params = new URLSearchParams(formData);
+      token = params.get('token');
+    } else {
+      // fallback
+      const text = await request.text();
+      try {
+        token = JSON.parse(text).token;
+      } catch {
+        const params = new URLSearchParams(text);
         token = params.get('token');
-      } else {
-        // Bilinmeyen format, her iki yöntemi de dene
-        try {
-          const body = JSON.parse(rawBody);
-          token = body.token;
-        } catch {
-          const params = new URLSearchParams(rawBody);
-          token = params.get('token');
-        }
       }
-
-      console.log('Extracted token:', token);
-    } else if (req.method === 'GET') {
-      // URL'den token'ı al
-      const url = new URL(req.url, `http://${req.headers.host}`);
-      token = url.searchParams.get('token');
-      console.log('GET token:', token);
-    } else {
-      console.log('Method not allowed');
-      res.status(405).json({ error: 'Method not allowed' });
-      return;
     }
 
-    // Redirect
+    console.log('Extracted token:', token);
+
     if (token) {
-      console.log('SUCCESS: Redirecting with token');
-      res.writeHead(302, { Location: `/odeme-sonuc?token=${token}` });
-      res.end();
+      return redirect(`/odeme-sonuc?token=${token}`, 302);
     } else {
-      console.log('ERROR: No token found');
-      res.writeHead(302, { Location: '/odeme-sonuc?error=no-token' });
-      res.end();
+      return redirect('/odeme-sonuc?error=no-token', 302);
     }
-  } catch (error) {
-    console.error('FATAL ERROR:', error);
-    res.writeHead(302, { Location: '/odeme-sonuc?error=callback-failed' });
-    res.end();
+  } catch (err) {
+    console.error('Callback failed:', err);
+    return redirect('/odeme-sonuc?error=callback-failed', 302);
   }
+}
+
+export async function GET({ url, redirect }) {
+  const token = url.searchParams.get('token');
+  if (token) {
+    return redirect(`/odeme-sonuc?token=${token}`, 302);
+  }
+  return redirect('/odeme-sonuc?error=no-token', 302);
 }
