@@ -1,11 +1,12 @@
 // src/pages/api/test-email-multiple.js
-import { Resend } from 'resend';
 
-export const prerender = false;
+import { Resend } from 'resend';
 
 export async function POST({ request }) {
   try {
     const { email } = await request.json();
+
+    console.log('📧 Test mail isteği alındı:', email);
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return new Response(
@@ -27,7 +28,7 @@ export async function POST({ request }) {
     console.log(`📧 ${email} adresine test maili gönderiliyor...`);
 
     const result = await resend.emails.send({
-      from: 'Pastirma Adasi Test <siparis@successodysseyhub.com>',
+      from: 'Pastirma Adasi <siparis@successodysseyhub.com>',
       to: email,
       subject: 'Test Mail - ' + new Date().toLocaleTimeString('tr-TR'),
       html: `
@@ -56,6 +57,8 @@ export async function POST({ request }) {
       );
     }
 
+    console.log('✅ Mail başarıyla gönderildi:', result.data?.id);
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -66,7 +69,7 @@ export async function POST({ request }) {
     );
 
   } catch (error) {
-    console.error('❌ Mail gönderim hatası:', error);
+    console.error('💥 Sunucu hatası:', error);
     return new Response(
       JSON.stringify({
         success: false,
