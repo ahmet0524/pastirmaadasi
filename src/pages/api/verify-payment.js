@@ -96,11 +96,11 @@ export async function POST({ request }) {
       }
 
       const { data: custData, error: custErr } = await resend.emails.send({
-        from: 'Pastırma Adası <siparis@successodysseyhub.com>',
+        from: 'Pastirma Adasi <siparis@successodysseyhub.com>', // Türkçe karakter yok
         to: customerEmail,
-        subject: `Odeme Onayi - ${result.paymentId}`, // Türkçe karakter kaldırıldı
+        subject: `Odeme Onayi - ${result.paymentId}`,
         html: customerHTML,
-        reply_to: 'successodysseyhub@gmail.com', // Reply-to eklendi
+        reply_to: 'successodysseyhub@gmail.com',
       });
 
       if (custErr) {
@@ -137,11 +137,11 @@ export async function POST({ request }) {
       }
 
       const { data: adminData, error: adminErr } = await resend.emails.send({
-        from: 'Pastırma Adası <siparis@successodysseyhub.com>',
+        from: 'Pastirma Adasi <siparis@successodysseyhub.com>', // Türkçe karakter yok
         to: adminEmail,
-        subject: `Yeni Odeme - ${result.paymentId}`, // Türkçe karakter kaldırıldı
+        subject: `Yeni Odeme - ${result.paymentId}`,
         html: adminHTML,
-        reply_to: customerEmail, // Müşteriye direkt cevap verilebilsin
+        reply_to: customerEmail,
       });
 
       if (adminErr) {
