@@ -1,20 +1,26 @@
 import Iyzipay from 'iyzipay';
-import { Resend } from 'resend';
 
 export async function POST({ request }) {
-  console.log('🚀 VERIFY-PAYMENT V2.1 - EMAIL RESPONSE INCLUDED');
-
   try {
-    const { token } = await request.json();
+    const body = await request.json();
 
-    if (!token) {
+    console.log('💳 Ödeme oluşturma isteği alındı');
+    console.log('📧 Gelen buyer verisi:', {
+      name: body.buyer?.name,
+      surname: body.buyer?.surname,
+      email: body.buyer?.email,  // EMAIL KONTROLÜ
+    });
+
+    // Environment variable kontrolü
+    if (!import.meta.env.IYZICO_API_KEY || !import.meta.env.IYZICO_SECRET_KEY) {
       return new Response(
-        JSON.stringify({ status: 'error', errorMessage: 'Token eksik' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
+        JSON.stringify({
+          status: 'error',
+          errorMessage: 'Sunucu yapılandırma hatası',
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
-
-    console.log('🔍 Ödeme doğrulama başlatıldı, token:', token);
 
     const iyzipay = new Iyzipay({
       apiKey: import.meta.env.IYZICO_API_KEY,
@@ -22,107 +28,124 @@ export async function POST({ request }) {
       uri: 'https://sandbox-api.iyzipay.com',
     });
 
-    const result = await new Promise((resolve, reject) => {
-      iyzipay.checkoutForm.retrieve(
-        { locale: Iyzipay.LOCALE.TR, conversationId: Date.now().toString(), token },
-        (err, result) => (err ? reject(err) : resolve(result))
-      );
-    });
+    const baseUrl = import.meta.env.SITE_URL || 'https://pastirmaadasi.vercel.app';
+    const callbackUrl = `${baseUrl}/api/payment-callback`;
 
-    console.log('📊 Ödeme durumu:', {
-      status: result.status,
-      paymentStatus: result.paymentStatus,
-      paymentId: result.paymentId,
-      buyerEmail: result.buyer?.email
-    });
+    console.log('🔗 Callback URL:', callbackUrl);
 
-    if (result.status !== 'success' || result.paymentStatus !== 'SUCCESS') {
+    // ⚠️ ÖNEMLİ: Buyer email kontrolü
+    if (!body.buyer?.email) {
+      console.error('❌ BUYER EMAIL EKSİK!');
       return new Response(
-        JSON.stringify({ status: 'error', errorMessage: result.errorMessage || 'Ödeme başarısız' }),
+        JSON.stringify({
+          status: 'error',
+          errorMessage: 'Email adresi gereklidir',
+        }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    // Mail gönderimi
-    let emailSent = false;
-    let emailError = null;
-
-    try {
-      if (!import.meta.env.RESEND_API_KEY) throw new Error('RESEND_API_KEY tanımlı değil');
-
-      const customerEmail = result.buyer?.email;
-      if (!customerEmail) throw new Error('Müşteri email adresi bulunamadı');
-
-      const resend = new Resend(import.meta.env.RESEND_API_KEY);
-
-      const customerHTML = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
-          <h2 style="color: #dc2626;">🎉 Ödemeniz Başarıyla Alındı!</h2>
-          <p>Sayın ${result.buyer?.name || ''} ${result.buyer?.surname || ''},</p>
-          <p>Pastırma Adası'nı tercih ettiğiniz için teşekkür ederiz.</p>
-          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #1f2937;">Sipariş Detayları</h3>
-            <p><strong>Ödeme ID:</strong> ${result.paymentId}</p>
-            <p><strong>Tutar:</strong> ${result.paidPrice} ₺</p>
-            <p><strong>Tarih:</strong> ${new Date().toLocaleString('tr-TR')}</p>
-          </div>
-          <p style="color: #6b7280; font-size: 14px;">Siparişiniz en kısa sürede hazırlanacaktır.</p>
-          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-          <p style="color: #9ca3af; font-size: 12px;">Pastırma Adası Ekibi</p>
-        </div>
-      `;
-
-      await resend.emails.send({
-        from: 'Pastirma Adasi <siparis@successodysseyhub.com>',
-        to: customerEmail,
-        subject: `Odeme Onayi - ${result.paymentId}`,
-        html: customerHTML,
-      });
-      console.log('✅ Müşteri maili gönderildi');
-
-      const adminEmail = import.meta.env.ADMIN_EMAIL || 'successodysseyhub@gmail.com';
-      await resend.emails.send({
-        from: 'Pastirma Adasi <siparis@successodysseyhub.com>',
-        to: adminEmail,
-        subject: `Yeni Odeme - ${result.paymentId}`,
-        html: `
-          <h2>💰 Yeni Ödeme Alındı</h2>
-          <p><strong>Müşteri:</strong> ${result.buyer?.name} ${result.buyer?.surname}</p>
-          <p><strong>Email:</strong> ${customerEmail}</p>
-          <p><strong>Ödeme ID:</strong> ${result.paymentId}</p>
-          <p><strong>Tutar:</strong> ${result.paidPrice} ₺</p>
-        `,
-      });
-      console.log('✅ Admin maili gönderildi');
-
-      emailSent = true;
-    } catch (error) {
-      console.error('❌ Mail hatası:', error);
-      emailError = error.message;
-    }
-
-    // ⚠️ ÖNEMLİ: emailSent ve emailError mutlaka response'da olmalı
-    const responseData = {
-      status: 'success',
-      paymentId: result.paymentId,
-      paidPrice: result.paidPrice,
-      paymentStatus: result.paymentStatus,
-      emailSent: emailSent,        // ZORUNLU
-      emailError: emailError,      // ZORUNLU
+    const paymentRequest = {
+      locale: Iyzipay.LOCALE.TR,
+      conversationId: Date.now().toString(),
+      price: body.price,
+      paidPrice: body.paidPrice,
+      currency: Iyzipay.CURRENCY.TRY,
+      basketId: body.basketId || 'B' + Date.now(),
+      paymentGroup: Iyzipay.PAYMENT_GROUP.PRODUCT,
+      callbackUrl,
+      enabledInstallments: [1, 2, 3, 6, 9],
+      buyer: {
+        id: body.buyer.id || 'BY' + Date.now(),
+        name: body.buyer.name,
+        surname: body.buyer.surname,
+        gsmNumber: body.buyer.gsmNumber || '+905555555555',
+        email: body.buyer.email,  // ⚠️ EMAIL MUTLAKA GÖNDERİLMELİ
+        identityNumber: body.buyer.identityNumber || '11111111111',
+        registrationAddress: body.buyer.registrationAddress || body.shippingAddress?.address,
+        ip: body.buyer.ip || '85.34.78.112',
+        city: body.buyer.city || body.shippingAddress?.city,
+        country: body.buyer.country || 'Turkey',
+      },
+      shippingAddress: {
+        contactName: body.shippingAddress.contactName,
+        city: body.shippingAddress.city,
+        country: body.shippingAddress.country || 'Turkey',
+        address: body.shippingAddress.address,
+      },
+      billingAddress: {
+        contactName: body.billingAddress.contactName,
+        city: body.billingAddress.city,
+        country: body.billingAddress.country || 'Turkey',
+        address: body.billingAddress.address,
+      },
+      basketItems: body.basketItems.map((item, index) => ({
+        id: item.id || `item_${index}`,
+        name: item.name,
+        category1: item.category1 || 'Gıda',
+        itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL,
+        price: item.price,
+      })),
     };
 
-    console.log('📤 Response:', responseData);
+    console.log('📦 İyzico\'ya gönderilen buyer:', paymentRequest.buyer);
 
-    return new Response(
-      JSON.stringify(responseData),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
-
+    return new Promise((resolve) => {
+      iyzipay.checkoutFormInitialize.create(paymentRequest, (err, result) => {
+        if (err) {
+          console.error('❌ İyzico hatası:', err);
+          resolve(
+            new Response(
+              JSON.stringify({
+                status: 'error',
+                errorMessage: err.errorMessage || err.message || 'Ödeme başlatılamadı',
+                errorCode: err.errorCode || 'UNKNOWN',
+              }),
+              { status: 400, headers: { 'Content-Type': 'application/json' } }
+            )
+          );
+        } else if (result.status === 'success' && result.paymentPageUrl) {
+          console.log('✅ Ödeme sayfası oluşturuldu:', result.paymentPageUrl);
+          resolve(
+            new Response(
+              JSON.stringify({
+                status: 'success',
+                paymentPageUrl: result.paymentPageUrl,
+                token: result.token,
+              }),
+              { status: 200, headers: { 'Content-Type': 'application/json' } }
+            )
+          );
+        } else {
+          console.error('❌ İyzico başarısız:', result);
+          resolve(
+            new Response(
+              JSON.stringify({
+                status: 'error',
+                errorMessage: result.errorMessage || 'Ödeme sayfası oluşturulamadı',
+                iyzicoStatus: result.status,
+              }),
+              { status: 400, headers: { 'Content-Type': 'application/json' } }
+            )
+          );
+        }
+      });
+    });
   } catch (error) {
-    console.error('💥 Hata:', error);
+    console.error('💥 Sunucu hatası:', error);
     return new Response(
-      JSON.stringify({ status: 'error', errorMessage: error.message }),
+      JSON.stringify({
+        status: 'error',
+        errorMessage: 'Sunucu hatası: ' + (error.message || 'Bilinmeyen hata'),
+      }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
+}
+
+export async function GET() {
+  return new Response(
+    JSON.stringify({ status: 'ok', message: 'Create Payment API aktif' }),
+    { headers: { 'Content-Type': 'application/json' } }
+  );
 }
