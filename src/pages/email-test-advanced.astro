@@ -1,9 +1,13 @@
+---
+// src/pages/email-test-advanced.astro
+---
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Email Test (Gelişmiş)</title>
+  <title>Email Test</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -199,7 +203,6 @@
       }
     }
 
-    // Enter tuşuyla gönder
     document.getElementById('emailInput').addEventListener('keypress', (e) => {
       if (e.key === 'Enter') sendTestEmail();
     });
