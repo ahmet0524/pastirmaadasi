@@ -4,9 +4,11 @@ import { Resend } from "resend";
 
 export const prerender = false;
 
-function generateIyzicoSignature(apiKey, secretKey, randomString, requestData) {
-  const dataToHash = `${apiKey}${randomString}${secretKey}${requestData}`;
-  return crypto.createHmac('sha256', secretKey).update(dataToHash).digest('base64');
+// İyzico imza oluşturma fonksiyonu - DOĞRU FORMAT
+function generateIyzicoSignature(secretKey, randomString, requestBody) {
+  const dataToHash = randomString + requestBody;
+  const hash = crypto.createHmac('sha1', secretKey).update(dataToHash, 'utf8').digest('base64');
+  return hash;
 }
 
 function isValidEmail(email) {
