@@ -10,7 +10,7 @@ import Footer from '../components/Footer.astro';
 
   <section class="cart-page">
     <div class="container">
-      <h1>Sepetim</h1>
+      <h1>🛒 Sepetim</h1>
 
       <div class="cart-layout">
         <div class="cart-items-section">
@@ -28,11 +28,11 @@ import Footer from '../components/Footer.astro';
 
         <div class="cart-summary">
           <div class="summary-card">
-            <h2>Sipariş Özeti</h2>
+            <h2>📋 Sipariş Özeti</h2>
 
-            <!-- Müşteri Bilgileri Formu Eklendi -->
+            <!-- Müşteri Bilgileri Formu -->
             <div class="customer-info-section">
-              <h3>İletişim Bilgileri</h3>
+              <h3>📧 İletişim Bilgileri</h3>
               <div class="form-group">
                 <label for="buyer-email">E-posta *</label>
                 <input
@@ -64,8 +64,9 @@ import Footer from '../components/Footer.astro';
               </div>
             </div>
 
+            <!-- Kupon Bölümü -->
             <div class="coupon-section">
-              <label for="coupon-input">İndirim Kuponu</label>
+              <label for="coupon-input">🎟️ İndirim Kuponu</label>
               <div class="coupon-input-group">
                 <input
                   type="text"
@@ -77,6 +78,7 @@ import Footer from '../components/Footer.astro';
               <p id="coupon-message" class="coupon-message hidden"></p>
             </div>
 
+            <!-- Fiyat Özeti -->
             <div class="summary-details">
               <div class="summary-row">
                 <span>Ara Toplam</span>
@@ -98,7 +100,7 @@ import Footer from '../components/Footer.astro';
             </div>
 
             <button id="checkout-btn" class="btn btn-primary btn-full btn-large" disabled>
-              <span id="checkout-btn-text">Ödemeye Geç</span>
+              <span id="checkout-btn-text">💳 Ödemeye Geç</span>
             </button>
 
             <a href="/online-alisveris" class="continue-shopping">
@@ -132,7 +134,7 @@ import Footer from '../components/Footer.astro';
   .cart-page {
     min-height: 100vh;
     padding: 3rem 1rem;
-    background: #f9fafb;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   }
 
   .container {
@@ -144,6 +146,7 @@ import Footer from '../components/Footer.astro';
     font-size: 2.5rem;
     margin-bottom: 2rem;
     color: #1f2937;
+    text-align: center;
   }
 
   .cart-layout {
@@ -155,25 +158,32 @@ import Footer from '../components/Footer.astro';
   .cart-items {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
   }
 
   .cart-item {
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 2rem;
     display: grid;
-    grid-template-columns: 120px 1fr auto;
-    gap: 1.5rem;
+    grid-template-columns: 140px 1fr auto;
+    gap: 2rem;
     align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .cart-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
   }
 
   .cart-item-image {
-    width: 120px;
-    height: 120px;
-    border-radius: 8px;
+    width: 140px;
+    height: 140px;
+    border-radius: 12px;
     overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
   .cart-item-image img {
@@ -183,79 +193,100 @@ import Footer from '../components/Footer.astro';
   }
 
   .cart-item-info h3 {
-    font-size: 1.125rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.375rem;
+    margin-bottom: 0.75rem;
     color: #1f2937;
+    font-weight: 700;
   }
 
   .cart-item-price {
     color: #dc2626;
     font-weight: bold;
-    margin-bottom: 1rem;
+    font-size: 1.125rem;
+    margin-bottom: 1.25rem;
   }
 
+  /* 🎯 YENİ: Daha Büyük Quantity Controls */
   .quantity-controls {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
+    background: #f3f4f6;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    width: fit-content;
   }
 
   .qty-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    background: #f3f4f6;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: white;
     color: #1f2937;
     font-weight: bold;
+    font-size: 1.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: none;
+    border: 2px solid #e5e7eb;
     cursor: pointer;
     transition: all 0.2s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
   .qty-btn:hover {
-    background: #e5e7eb;
+    background: #dc2626;
+    color: white;
+    border-color: #dc2626;
+    transform: scale(1.1);
+  }
+
+  .qty-btn:active {
+    transform: scale(0.95);
   }
 
   .qty-amount {
     font-weight: bold;
-    min-width: 40px;
+    font-size: 1.375rem;
+    min-width: 50px;
     text-align: center;
+    color: #1f2937;
   }
 
   .cart-item-actions {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 1rem;
+    gap: 1.5rem;
   }
 
   .remove-btn {
-    background: none;
+    background: #fee2e2;
     border: none;
     color: #ef4444;
-    padding: 0.5rem;
+    padding: 0.75rem;
+    border-radius: 8px;
     cursor: pointer;
-    transition: color 0.2s;
+    transition: all 0.2s;
   }
 
   .remove-btn:hover {
-    color: #dc2626;
+    background: #ef4444;
+    color: white;
+    transform: scale(1.1);
   }
 
   .cart-item-total {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-weight: bold;
     color: #dc2626;
   }
 
   .empty-cart {
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    padding: 4rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 5rem 2rem;
     text-align: center;
   }
 
@@ -265,39 +296,44 @@ import Footer from '../components/Footer.astro';
   }
 
   .empty-cart h3 {
-    font-size: 1.75rem;
+    font-size: 2rem;
     color: #6b7280;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
   }
 
   .empty-cart p {
     color: #9ca3af;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    font-size: 1.125rem;
   }
 
   .btn {
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
+    padding: 0.875rem 1.75rem;
+    border-radius: 10px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
     border: none;
     text-decoration: none;
     display: inline-block;
+    font-size: 1rem;
   }
 
   .btn-primary {
-    background: #dc2626;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
     color: white;
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
   }
 
   .btn-primary:hover:not(:disabled) {
-    background: #b91c1c;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
   }
 
   .btn-primary:disabled {
     background: #d1d5db;
     cursor: not-allowed;
+    box-shadow: none;
   }
 
   .btn-secondary {
@@ -314,7 +350,7 @@ import Footer from '../components/Footer.astro';
   }
 
   .btn-large {
-    padding: 1rem 2rem;
+    padding: 1.125rem 2rem;
     font-size: 1.125rem;
   }
 
@@ -325,28 +361,29 @@ import Footer from '../components/Footer.astro';
 
   .summary-card {
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 2rem;
   }
 
   .summary-card h2 {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     margin-bottom: 1.5rem;
     color: #1f2937;
+    font-weight: 700;
   }
 
   .summary-card h3 {
     font-size: 1.125rem;
     margin-bottom: 1rem;
     color: #1f2937;
+    font-weight: 600;
   }
 
-  /* Müşteri Bilgileri Form Stilleri */
   .customer-info-section {
     margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 2px solid #f3f4f6;
   }
 
   .form-group {
@@ -363,35 +400,37 @@ import Footer from '../components/Footer.astro';
 
   .form-group input {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    transition: border-color 0.2s;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.2s;
   }
 
   .form-group input:focus {
     outline: none;
     border-color: #dc2626;
-    box-shadow: 0 0 0 1px #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
   }
 
   .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
+    gap: 1rem;
   }
 
   .coupon-section {
     margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #f3f4f6;
   }
 
   .coupon-section label {
     display: block;
-    font-weight: bold;
+    font-weight: 600;
     font-size: 0.875rem;
     margin-bottom: 0.5rem;
-    color: #6b7280;
+    color: #374151;
   }
 
   .coupon-input-group {
@@ -401,20 +440,23 @@ import Footer from '../components/Footer.astro';
 
   .coupon-input-group input {
     flex: 1;
-    padding: 0.75rem;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 0.875rem;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.2s;
   }
 
   .coupon-input-group input:focus {
     outline: none;
     border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
   }
 
   .coupon-message {
-    margin-top: 0.5rem;
+    margin-top: 0.75rem;
     font-size: 0.875rem;
+    font-weight: 500;
   }
 
   .coupon-message.success {
@@ -427,28 +469,33 @@ import Footer from '../components/Footer.astro';
 
   .summary-details {
     padding: 1.5rem 0;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 2px solid #f3f4f6;
     margin-bottom: 1.5rem;
   }
 
   .summary-row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.875rem;
     color: #6b7280;
+    font-size: 1rem;
   }
 
   .discount-row {
     color: #10b981;
+    font-weight: 600;
   }
 
   .summary-total {
     display: flex;
     justify-content: space-between;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-weight: bold;
     color: #dc2626;
     margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #fef2f2;
+    border-radius: 10px;
   }
 
   .continue-shopping {
@@ -457,23 +504,25 @@ import Footer from '../components/Footer.astro';
     color: #dc2626;
     margin-top: 1rem;
     text-decoration: none;
+    font-weight: 600;
   }
 
   .continue-shopping:hover {
     color: #b91c1c;
+    text-decoration: underline;
   }
 
   .summary-info {
     margin-top: 1.5rem;
     padding-top: 1.5rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 2px solid #f3f4f6;
   }
 
   .summary-info p {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
     font-size: 0.875rem;
     color: #6b7280;
   }
@@ -501,6 +550,7 @@ import Footer from '../components/Footer.astro';
     .cart-item {
       grid-template-columns: 1fr;
       text-align: center;
+      padding: 1.5rem;
     }
 
     .cart-item-image {
@@ -516,6 +566,10 @@ import Footer from '../components/Footer.astro';
 
     .form-row {
       grid-template-columns: 1fr;
+    }
+
+    .quantity-controls {
+      margin: 0 auto;
     }
   }
 </style>
@@ -571,13 +625,13 @@ import Footer from '../components/Footer.astro';
           <h3>${item.name}</h3>
           <p class="cart-item-price">${item.price}₺ / ${item.unit}</p>
           <div class="quantity-controls">
-            <button class="qty-btn decrease-qty" data-index="${index}">-</button>
+            <button class="qty-btn decrease-qty" data-index="${index}">−</button>
             <span class="qty-amount">${item.quantity}</span>
             <button class="qty-btn increase-qty" data-index="${index}">+</button>
           </div>
         </div>
         <div class="cart-item-actions">
-          <button class="remove-btn" data-index="${index}">
+          <button class="remove-btn" data-index="${index}" title="Sepetten Çıkar">
             <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
@@ -660,22 +714,21 @@ import Footer from '../components/Footer.astro';
 
     if (coupons[code]) {
       discountPercent = coupons[code];
-      message.textContent = `Kupon uygulandı! %${discountPercent} indirim`;
+      message.textContent = `✅ Kupon uygulandı! %${discountPercent} indirim`;
       message.classList.add('success');
       input.disabled = true;
       updateSummary();
     } else {
-      message.textContent = 'Geçersiz kupon kodu';
+      message.textContent = '❌ Geçersiz kupon kodu';
       message.classList.add('error');
     }
     message.classList.remove('hidden');
   });
 
-  // ✅ YENİ: Ödemeye Geç butonu - Direkt İyzico'ya yönlendir
+  // ✅ ÖNEMLİ: localStorage'a email kaydet ve ödemeye geç
   document.getElementById('checkout-btn')?.addEventListener('click', async () => {
     if (cart.length === 0) return;
 
-    // Form validasyonu
     const emailInput = document.getElementById('buyer-email') as HTMLInputElement;
     const nameInput = document.getElementById('buyer-name') as HTMLInputElement;
     const surnameInput = document.getElementById('buyer-surname') as HTMLInputElement;
@@ -685,21 +738,25 @@ import Footer from '../components/Footer.astro';
       return;
     }
 
+    // ⚠️ ÖNEMLİ: Email'i localStorage'a kaydet
+    localStorage.setItem('lastOrderEmail', emailInput.value);
+    localStorage.setItem('lastOrderName', nameInput.value);
+    localStorage.setItem('lastOrderSurname', surnameInput.value);
+
+    console.log('💾 Email localStorage\'a kaydedildi:', emailInput.value);
+
     const checkoutBtn = document.getElementById('checkout-btn') as HTMLButtonElement;
     const btnText = document.getElementById('checkout-btn-text');
 
-    // Loading durumu
     checkoutBtn.disabled = true;
-    if (btnText) btnText.textContent = 'Ödeme hazırlanıyor...';
+    if (btnText) btnText.textContent = '⏳ Ödeme hazırlanıyor...';
 
     try {
-      // Toplam hesapla
       const subtotal = calculateSubtotal();
       const shipping = subtotal >= 1000 ? 0 : 50;
       const discount = (subtotal * discountPercent) / 100;
       const total = subtotal + shipping - discount;
 
-      // Sepet itemlarını İyzico formatına çevir
       const basketItems = cart.map((item, index) => ({
         id: `BI${index + 1}`,
         name: item.name,
@@ -708,7 +765,6 @@ import Footer from '../components/Footer.astro';
         price: (item.price * item.quantity).toFixed(2),
       }));
 
-      // İyzico ödeme verisi
       const paymentData = {
         price: total.toFixed(2),
         paidPrice: total.toFixed(2),
@@ -740,7 +796,6 @@ import Footer from '../components/Footer.astro';
 
       console.log('📤 Ödeme verisi gönderiliyor:', paymentData);
 
-      // API'ye istek gönder
       const response = await fetch('/api/create-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -751,18 +806,17 @@ import Footer from '../components/Footer.astro';
       console.log('📥 API yanıtı:', data);
 
       if (data.status === 'success' && data.paymentPageUrl) {
-        // İyzico ödeme sayfasına yönlendir
         window.location.href = data.paymentPageUrl;
       } else {
         alert(data.errorMessage || 'Ödeme başlatılamadı!');
         checkoutBtn.disabled = false;
-        if (btnText) btnText.textContent = 'Ödemeye Geç';
+        if (btnText) btnText.textContent = '💳 Ödemeye Geç';
       }
     } catch (error) {
       console.error('❌ Ödeme hatası:', error);
       alert('Sunucu hatası. Lütfen daha sonra tekrar deneyin.');
       checkoutBtn.disabled = false;
-      if (btnText) btnText.textContent = 'Ödemeye Geç';
+      if (btnText) btnText.textContent = '💳 Ödemeye Geç';
     }
   });
 
