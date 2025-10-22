@@ -12,7 +12,6 @@ import Footer from "../components/Footer.astro";
       <h1>🛒 Sepetim</h1>
 
       <div class="cart-grid">
-        <!-- Sol: Ürünler -->
         <div class="cart-items-area">
           <div id="cart-items"></div>
           <div id="empty-cart" class="empty hidden">
@@ -23,7 +22,6 @@ import Footer from "../components/Footer.astro";
           </div>
         </div>
 
-        <!-- Sağ: Özet ve Bilgiler -->
         <div class="cart-summary">
           <div class="card">
             <h2>📋 Sipariş Özeti</h2>
@@ -38,7 +36,6 @@ import Footer from "../components/Footer.astro";
                     id="buyer-email"
                     placeholder="ornek@mail.com"
                     required
-                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$"
                   />
                 </div>
                 <div class="form-row">
@@ -57,9 +54,6 @@ import Footer from "../components/Footer.astro";
             <div class="summary-details">
               <div class="summary-row"><span>Ara Toplam</span><span id="subtotal">0₺</span></div>
               <div class="summary-row"><span>Kargo</span><span id="shipping">0₺</span></div>
-              <div id="discount-row" class="summary-row hidden">
-                <span>İndirim</span><span id="discount">0₺</span>
-              </div>
               <div class="summary-row total"><strong>Toplam</strong><strong id="total">0₺</strong></div>
             </div>
 
@@ -75,97 +69,28 @@ import Footer from "../components/Footer.astro";
 </BaseLayout>
 
 <style>
-.cart-section {
-  background: #fafafa;
-  padding: 3rem 1rem;
-}
-.cart-container {
-  max-width: 1100px;
-  margin: 0 auto;
-}
-h1 {
-  text-align: center;
-  color: #b91c1c;
-  margin-bottom: 2rem;
-}
-.cart-grid {
-  display: grid;
-  grid-template-columns: 1fr 360px;
-  gap: 2rem;
-}
-.card {
-  background: white;
-  border-radius: 14px;
-  padding: 2rem;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-}
-.form-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1rem;
-}
-.form-group label {
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: #333;
-}
-.form-group input {
-  padding: 0.8rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
-}
-.form-row {
-  display: flex;
-  gap: 1rem;
-}
-.btn-primary {
-  background: linear-gradient(135deg, #dc2626, #b91c1c);
-  color: #fff;
-  border: none;
-  padding: 1rem 1.5rem;
-  border-radius: 10px;
-  font-weight: 600;
-  width: 100%;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(220, 38, 38, 0.3);
-}
-.back-link {
-  display: block;
-  margin-top: 1rem;
-  text-align: center;
-  color: #6b7280;
-  text-decoration: none;
-}
-.summary-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.4rem 0;
-  border-bottom: 1px solid #eee;
-}
-.summary-row.total {
-  font-size: 1.2rem;
-  color: #111;
-  border-top: 2px solid #b91c1c;
-  margin-top: 1rem;
-  padding-top: 1rem;
-}
-.empty {
-  text-align: center;
-  padding: 2rem;
-}
-.hidden {
-  display: none !important;
-}
-@media (max-width: 768px) {
-  .cart-grid {
-    grid-template-columns: 1fr;
-  }
-}
+.cart-section { background: #fafafa; padding: 3rem 1rem; }
+.cart-container { max-width: 1100px; margin: 0 auto; }
+h1 { text-align: center; color: #b91c1c; margin-bottom: 2rem; }
+.cart-grid { display: grid; grid-template-columns: 1fr 360px; gap: 2rem; }
+.card { background: white; border-radius: 14px; padding: 2rem; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+.form-group { display: flex; flex-direction: column; margin-bottom: 1rem; }
+.form-group label { font-weight: 600; margin-bottom: 0.5rem; color: #333; }
+.form-group input { padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+.form-row { display: flex; gap: 1rem; }
+.btn-primary { background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; border: none; padding: 1rem 1.5rem; border-radius: 10px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.2s ease; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(220,38,38,0.3); }
+.back-link { display: block; margin-top: 1rem; text-align: center; color: #6b7280; text-decoration: none; }
+.summary-row { display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid #eee; }
+.summary-row.total { font-size: 1.2rem; color: #111; border-top: 2px solid #b91c1c; margin-top: 1rem; padding-top: 1rem; }
+.empty { text-align: center; padding: 2rem; }
+.hidden { display: none !important; }
+.cart-item { display: flex; align-items: center; justify-content: space-between; padding: 1rem; border-bottom: 1px solid #eee; }
+.item-img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
+.item-info { flex: 1; margin-left: 1rem; }
+.qty-controls button { border: none; background: #f3f4f6; padding: 0.3rem 0.8rem; border-radius: 6px; cursor: pointer; }
+.qty-controls button:hover { background: #e5e7eb; }
+@media (max-width: 768px) { .cart-grid { grid-template-columns: 1fr; } }
 </style>
 
 <script>
@@ -179,7 +104,6 @@ h1 {
   }
 
   let cart: CartItem[] = [];
-  let discountPercent = 0;
 
   function loadCart() {
     cart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -224,10 +148,11 @@ h1 {
       .join("");
   }
 
-  function changeQty(i: number, delta: number) {
+  // 🔧 Fonksiyon global hale getirildi
+  window.changeQty = function (i, delta) {
     cart[i].quantity = Math.max(1, cart[i].quantity + delta);
     saveCart();
-  }
+  };
 
   function saveCart() {
     localStorage.setItem("cart", JSON.stringify(cart));
@@ -243,7 +168,6 @@ h1 {
     const subtotal = calculateSubtotal();
     const shipping = subtotal >= 1000 ? 0 : 50;
     const total = subtotal + shipping;
-
     document.getElementById("subtotal").textContent = subtotal.toFixed(2) + "₺";
     document.getElementById("shipping").textContent = shipping === 0 ? "Ücretsiz" : shipping + "₺";
     document.getElementById("total").textContent = total.toFixed(2) + "₺";
@@ -263,10 +187,6 @@ h1 {
     localStorage.setItem("lastOrderName", name);
     localStorage.setItem("lastOrderSurname", surname);
 
-    const subtotal = calculateSubtotal();
-    const shipping = subtotal >= 1000 ? 0 : 50;
-    const total = subtotal + shipping;
-
     const basketItems = cart.map((x, i) => ({
       id: `BI${i + 1}`,
       name: x.name,
@@ -277,6 +197,7 @@ h1 {
 
     const payload = {
       basketItems,
+      items: basketItems, // backend uyumluluğu
       buyer: { name, surname, email },
       shippingAddress: { city: "Kayseri", address: "Kayseri, Türkiye" },
       billingAddress: { city: "Kayseri", address: "Kayseri, Türkiye" },

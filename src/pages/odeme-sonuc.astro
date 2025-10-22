@@ -1,11 +1,11 @@
 ---
-// src/pages/odeme-sonuc.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
 export const prerender = false;
 ---
+
 <BaseLayout title="Ödeme Sonucu" description="Ödeme işleminizin sonucu">
   <Header slot="header" />
 
@@ -22,113 +22,147 @@ export const prerender = false;
 </BaseLayout>
 
 <style>
-/* (stil aynı) */
+.payment-result-page {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.result-box {
+  text-align: center;
+  background: white;
+  padding: 2rem;
+  border-radius: 14px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  max-width: 450px;
+  margin: auto;
+}
+.spinner {
+  border: 4px solid #eee;
+  border-top: 4px solid #dc2626;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin: 1rem auto;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+.success-icon, .error-icon {
+  margin-bottom: 1rem;
+}
+.action-buttons {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.btn {
+  padding: 0.8rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+}
+.btn-primary {
+  background: #dc2626;
+  color: white;
+}
+.btn-secondary {
+  background: #f3f4f6;
+  color: #333;
+}
 </style>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get("token");
-    const resultContent = document.getElementById("result-content");
+document.addEventListener("DOMContentLoaded", () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get("token");
+  const resultContent = document.getElementById("result-content");
 
-    if (!resultContent) return;
+  if (!resultContent) return;
 
-    if (token) {
-      const storedEmail = localStorage.getItem('lastOrderEmail') || '';
-      const storedName = localStorage.getItem('lastOrderName') || '';
-      const storedSurname = localStorage.getItem('lastOrderSurname') || '';
+  if (token) {
+    const storedEmail = localStorage.getItem('lastOrderEmail') || '';
+    const storedName = localStorage.getItem('lastOrderName') || '';
+    const storedSurname = localStorage.getItem('lastOrderSurname') || '';
 
-      const requestBody = {
-        token,
-        customerEmail: storedEmail,
-        customerName: storedName,
-        customerSurname: storedSurname
-      };
+    const requestBody = {
+      token,
+      customerEmail: storedEmail,
+      customerName: storedName,
+      customerSurname: storedSurname
+    };
 
-      fetch("/api/verify-payment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      })
-        .then((res) => {
-          if (!res.ok) throw new Error("HTTP Error " + res.status);
-          return res.json();
-        })
-        .then((data) => {
-          if (data.status === "success") {
-            let emailStatusHTML = '';
-            if (data.emailSent === true) {
-              emailStatusHTML = '<p style="color:#10b981; font-size:14px; margin-top:10px;">✅ E-posta gönderildi</p>';
-            } else if (data.emailError) {
-              emailStatusHTML = `<p style="color:#f59e0b; font-size:14px; margin-top:10px;">⚠️ E-posta gönderim hatası: ${data.emailError}</p>`;
-            }
+    fetch("/api/verify-payment", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(requestBody),
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("HTTP Error " + res.status);
+      return res.json();
+    })
+    .then(data => {
+      if (data.status === "success") {
+        // ✅ Sepeti ve müşteri verilerini temizle
+        localStorage.removeItem('cart');
+        localStorage.removeItem('lastOrderEmail');
+        localStorage.removeItem('lastOrderName');
+        localStorage.removeItem('lastOrderSurname');
 
-            resultContent.className = "result-box success";
-            resultContent.innerHTML = `
-              <div class="success-icon">
-                <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h2>✅ Ödeme Başarılı!</h2>
-              <p>Siparişiniz başarıyla alındı.</p>
-              <p>Kısa süre içinde e-posta ile sipariş detaylarınız gönderilecektir.</p>
-              ${emailStatusHTML}
-              <div class="order-details">
-                <h3>Sipariş Detayları</h3>
-                <div class="detail-row"><span>Ödeme ID:</span><span>${data.paymentId || "N/A"}</span></div>
-                <div class="detail-row"><span>Tutar:</span><span>${data.paidPrice} ₺</span></div>
-                <div class="detail-row"><span>Durum:</span><span style="color:#10b981;">Başarılı</span></div>
-              </div>
-              <div class="action-buttons">
-                <a href="/" class="btn btn-primary">Ana Sayfaya Dön</a>
-                <a href="/online-alisveris" class="btn btn-secondary">Alışverişe Devam Et</a>
-              </div>
-            `;
+        let emailStatusHTML = '';
+        if (data.emailSent === true) {
+          emailStatusHTML = '<p style="color:#10b981; font-size:14px; margin-top:10px;">✅ E-posta gönderildi</p>';
+        } else if (data.emailError) {
+          emailStatusHTML = `<p style="color:#f59e0b; font-size:14px; margin-top:10px;">⚠️ E-posta gönderim hatası: ${data.emailError}</p>`;
+        }
 
-            // Temizle
-            localStorage.removeItem('lastOrderEmail');
-            localStorage.removeItem('lastOrderName');
-            localStorage.removeItem('lastOrderSurname');
-            localStorage.removeItem('cart');
-          } else {
-            resultContent.className = "result-box error";
-            resultContent.innerHTML = `
-              <div class="error-icon">
-                <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </div>
-              <h2>❌ Ödeme Başarısız</h2>
-              <p>${data.errorMessage || "Ödeme işlemi tamamlanamadı."}</p>
-              <div class="action-buttons">
-                <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
-                <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
-              </div>
-            `;
-          }
-        })
-        .catch((error) => {
-          console.error('❌ Fetch error:', error);
-          resultContent.className = "result-box error";
-          resultContent.innerHTML = `
-            <div class="error-icon">
-              <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <h2>⚠️ Bir Hata Oluştu</h2>
-            <p>Ödeme doğrulama sırasında bir hata meydana geldi.</p>
-            <div class="action-buttons">
-              <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
-              <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
-            </div>
-          `;
-        });
-    } else {
+        resultContent.className = "result-box success";
+        resultContent.innerHTML = `
+          <div class="success-icon">
+            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2>✅ Ödeme Başarılı!</h2>
+          <p>Siparişiniz başarıyla alındı.</p>
+          <p>Kısa süre içinde e-posta ile sipariş detaylarınız gönderilecektir.</p>
+          ${emailStatusHTML}
+          <div class="order-details">
+            <h3>Sipariş Detayları</h3>
+            <div class="detail-row"><span>Ödeme ID:</span><span>${data.paymentId || "N/A"}</span></div>
+            <div class="detail-row"><span>Tutar:</span><span>${data.paidPrice} ₺</span></div>
+            <div class="detail-row"><span>Durum:</span><span style="color:#10b981;">Başarılı</span></div>
+          </div>
+          <div class="action-buttons">
+            <a href="/" class="btn btn-primary">Ana Sayfaya Dön</a>
+            <a href="/online-alisveris" class="btn btn-secondary">Alışverişe Devam Et</a>
+          </div>
+        `;
+      } else {
+        resultContent.className = "result-box error";
+        resultContent.innerHTML = `
+          <div class="error-icon">
+            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <h2>❌ Ödeme Başarısız</h2>
+          <p>${data.errorMessage || "Ödeme işlemi tamamlanamadı."}</p>
+          <div class="action-buttons">
+            <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
+            <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
+          </div>
+        `;
+      }
+    })
+    .catch(error => {
+      console.error('❌ Fetch error:', error);
       resultContent.className = "result-box error";
       resultContent.innerHTML = `
         <div class="error-icon">
@@ -136,13 +170,29 @@ export const prerender = false;
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
         </div>
-        <h2>⚠️ Geçersiz İstek</h2>
-        <p>Ödeme doğrulama bilgisi bulunamadı.</p>
+        <h2>⚠️ Bir Hata Oluştu</h2>
+        <p>Ödeme doğrulama sırasında bir hata meydana geldi.</p>
         <div class="action-buttons">
           <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
           <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
         </div>
       `;
-    }
-  });
+    });
+  } else {
+    resultContent.className = "result-box error";
+    resultContent.innerHTML = `
+      <div class="error-icon">
+        <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </div>
+      <h2>⚠️ Geçersiz İstek</h2>
+      <p>Ödeme doğrulama bilgisi bulunamadı.</p>
+      <div class="action-buttons">
+        <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
+        <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
+      </div>
+    `;
+  }
+});
 </script>
