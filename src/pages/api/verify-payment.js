@@ -2,10 +2,15 @@ import Iyzipay from 'iyzipay';
 import { Resend } from 'resend';
 
 export async function POST({ request }) {
-  console.log('🚀 VERIFY-PAYMENT V5.0 - DETAILED ERROR TRACKING');
+  console.log('🚀 VERIFY-PAYMENT V6.0 - FINAL FIX');
 
   try {
+    // ✅ ÖNCE body'yi al
     const body = await request.json();
+
+    // ✅ SONRA log'la
+    console.log('🚨 ACİL DEBUG - Gelen Body:', JSON.stringify(body, null, 2));
+
     const { token, customerEmail: frontendEmail, customerName, customerSurname } = body;
 
     console.log('📥 Gelen veriler:', {
@@ -239,8 +244,8 @@ export async function POST({ request }) {
       paymentId: result.paymentId,
       paidPrice: result.paidPrice,
       paymentStatus: result.paymentStatus,
-      emailSent: emailSent,          // ⚠️ ZORUNLU
-      emailError: emailError,        // ⚠️ ZORUNLU
+      emailSent: emailSent,
+      emailError: emailError,
     };
 
     console.log('📤 RESPONSE GÖNDERİLİYOR:', responseData);
