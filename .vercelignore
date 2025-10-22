@@ -1,0 +1,7 @@
+
+api_old/
+netlify/
+netlify_old/
+.netlify/
+node_modules/
+.git/
