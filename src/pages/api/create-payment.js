@@ -26,9 +26,15 @@ export async function POST({ request }) {
     );
 
     console.log('📊 Hesaplanan toplam:', totalPrice);
+    console.log('📋 Items detayları:', items);
 
-    if (totalPrice <= 0) {
-      return new Response(JSON.stringify({ success: false, error: 'Geçersiz sepet tutarı.' }), {
+    if (!totalPrice || totalPrice <= 0 || isNaN(totalPrice)) {
+      console.error('❌ Geçersiz toplam tutar:', totalPrice);
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Geçersiz sepet tutarı: ' + totalPrice,
+        debug: { totalPrice, items }
+      }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });

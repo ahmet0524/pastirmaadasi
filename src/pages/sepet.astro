@@ -163,17 +163,24 @@ function updateSummary() {
   document.getElementById("total").textContent = total.toFixed(2) + "₺";
 }
 
-// ✅ ödeme tıklama
+// ✅ Ödeme tıklama - TAM DÜZELTİLMİŞ VERSİYON
 document.getElementById("checkout-btn")?.addEventListener("click", async () => {
   const email = document.getElementById("buyer-email").value.trim();
   const name = document.getElementById("buyer-name").value.trim();
   const surname = document.getElementById("buyer-surname").value.trim();
 
+  // Form validasyonu
   if (!email || !email.includes("@")) {
     alert("Lütfen geçerli bir e-posta adresi girin.");
     return;
   }
 
+  if (!name || !surname) {
+    alert("Lütfen ad ve soyad bilgilerinizi girin.");
+    return;
+  }
+
+  // Müşteri bilgilerini sakla
   localStorage.setItem("lastOrderEmail", email);
   localStorage.setItem("lastOrderName", name);
   localStorage.setItem("lastOrderSurname", surname);
@@ -184,22 +191,47 @@ document.getElementById("checkout-btn")?.addEventListener("click", async () => {
     return;
   }
 
-  const items = cartData.map((x, i) => ({
-    id: `BI${i + 1}`,
-    name: x.name,
-    category1: "Et Ürünleri",
-    itemType: "PHYSICAL",
-    price: (x.price * x.quantity).toFixed(2),
-  }));
+  // ✅ Items array'ini doğru formatta hazırla
+  const items = cartData.map((item, index) => {
+    const totalPrice = (item.price * item.quantity).toFixed(2);
+    return {
+      id: `BI${index + 1}`,
+      name: item.name,
+      category1: "Et Ürünleri",
+      itemType: "PHYSICAL",
+      price: totalPrice  // String olarak toplam fiyat
+    };
+  });
 
+  // ✅ Payload'u tam bilgilerle hazırla
   const payload = {
     items,
-    buyer: { name, surname, email },
-    shippingAddress: { city: "Kayseri", address: "Kayseri, Türkiye" },
-    billingAddress: { city: "Kayseri", address: "Kayseri, Türkiye" },
+    buyer: {
+      name,
+      surname,
+      email,
+      gsmNumber: "+905555555555",
+      identityNumber: "11111111111",
+      ip: "85.34.78.112",
+      city: "Kayseri",
+      country: "Turkey"
+    },
+    shippingAddress: {
+      contactName: `${name} ${surname}`,
+      city: "Kayseri",
+      country: "Turkey",
+      address: "Kayseri, Türkiye"
+    },
+    billingAddress: {
+      contactName: `${name} ${surname}`,
+      city: "Kayseri",
+      country: "Turkey",
+      address: "Kayseri, Türkiye"
+    },
   };
 
-  console.log("📦 Backend’e giden payload:", payload);
+  console.log("📦 Backend'e giden payload:", payload);
+  console.log("💰 Toplam tutar:", items.reduce((sum, item) => sum + parseFloat(item.price), 0).toFixed(2));
 
   try {
     const res = await fetch("/api/create-payment", {
@@ -209,10 +241,13 @@ document.getElementById("checkout-btn")?.addEventListener("click", async () => {
     });
 
     const data = await res.json();
+    console.log("📥 Backend yanıtı:", data);
 
-    if (res.ok && data.paymentPageUrl) {
+    if (res.ok && data.success && data.paymentPageUrl) {
+      console.log("✅ Ödeme sayfasına yönlendiriliyor:", data.paymentPageUrl);
       window.location.href = data.paymentPageUrl;
     } else {
+      console.error("❌ Ödeme başlatılamadı:", data);
       alert("Ödeme başlatılamadı: " + (data.error || "Bilinmeyen hata"));
     }
   } catch (err) {
@@ -221,6 +256,6 @@ document.getElementById("checkout-btn")?.addEventListener("click", async () => {
   }
 });
 
-// ✅ sayfa yüklendiğinde sepeti yükle
+// ✅ Sayfa yüklendiğinde sepeti yükle
 document.addEventListener("DOMContentLoaded", loadCart);
 </script>
