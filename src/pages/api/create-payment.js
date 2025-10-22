@@ -8,20 +8,20 @@ export async function POST({ request }) {
     const { basketItems, buyer, shippingAddress, billingAddress } = body;
 
     if (!Array.isArray(basketItems) || basketItems.length === 0) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Sepet boş veya ürünler eksik.' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: false, error: 'Sepet boş veya ürünler eksik.' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     const name = buyer?.name || 'Müşteri';
     const surname = buyer?.surname || '';
     const email = buyer?.email || '';
     if (!email.includes('@')) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Geçersiz e-posta adresi.' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: false, error: 'Geçersiz e-posta adresi.' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     // 🔧 Iyzico ayarları
@@ -31,32 +31,31 @@ export async function POST({ request }) {
       uri: 'https://sandbox-api.iyzipay.com',
     });
 
-    // 🔹 Toplam tutar
+    // 🔹 Tutar hesaplaması
     const totalPrice = basketItems
-      .reduce((sum, item) => sum + Number.parseFloat(item.price || 0), 0)
+      .reduce((sum, item) => sum + Number(item.price || 0), 0)
       .toFixed(2);
 
     // 🔹 Callback URL
     const baseUrl =
       import.meta.env.PUBLIC_SITE_URL ||
       (import.meta.env.PROD ? 'https://pastirmaadasi.vercel.app' : 'http://localhost:4321');
-
     const callbackUrl = `${baseUrl}/api/payment-callback`;
-    console.log('🔗 Callback URL:', callbackUrl);
 
     // 🔹 Iyzico veri yapısı
     const requestData = {
       locale: Iyzipay.LOCALE.TR,
       conversationId: Date.now().toString(),
-      price: totalPrice,
-      paidPrice: totalPrice,
+      price: totalPrice, // ana fiyat
+      paidPrice: totalPrice, // toplam ödenen fiyat
       currency: Iyzipay.CURRENCY.TRY,
-      basketId: 'B' + Date.now(),
+      basketId: 'BASKET_' + Date.now(),
       paymentGroup: Iyzipay.PAYMENT_GROUP.PRODUCT,
       callbackUrl,
       enabledInstallments: [1, 2, 3, 6, 9, 12],
+
       buyer: {
-        id: 'BY' + Date.now(),
+        id: 'BY_' + Date.now(),
         name,
         surname,
         email,
@@ -67,24 +66,27 @@ export async function POST({ request }) {
         city: buyer?.city || shippingAddress?.city || 'Kayseri',
         country: buyer?.country || 'Turkey',
       },
+
       shippingAddress: {
         contactName: `${name} ${surname}`,
         city: shippingAddress?.city || 'Kayseri',
         country: shippingAddress?.country || 'Turkey',
         address: shippingAddress?.address || 'Kayseri, Türkiye',
       },
+
       billingAddress: {
         contactName: `${name} ${surname}`,
         city: billingAddress?.city || 'Kayseri',
         country: billingAddress?.country || 'Turkey',
         address: billingAddress?.address || 'Kayseri, Türkiye',
       },
+
       basketItems: basketItems.map((item, i) => ({
-        id: item.id || `item_${i + 1}`,
-        name: item.name,
-        category1: item.category1 || 'Gıda Ürünü',
+        id: item.id || `ITEM_${i + 1}`,
+        name: item.name || 'Ürün',
+        category1: item.category1 || 'Et Ürünü',
         itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL,
-        price: String(item.price),
+        price: Number(item.price || 0).toFixed(2), // 🔧 düzeltme: string ama 2 haneli
       })),
     };
 
@@ -97,7 +99,7 @@ export async function POST({ request }) {
     const result = await new Promise((resolve, reject) => {
       iyzipay.checkoutFormInitialize.create(requestData, (err, result) => {
         if (err) {
-          console.error('❌ İyzico hatası:', err);
+          console.error('❌ İyzico hata:', err);
           reject(err);
         } else {
           resolve(result);
@@ -106,7 +108,7 @@ export async function POST({ request }) {
     });
 
     if (result.status === 'success') {
-      console.log('✅ Checkout form oluşturuldu:', result.paymentPageUrl);
+      console.log('✅ Iyzico ödeme sayfası oluşturuldu:', result.paymentPageUrl);
       return new Response(
         JSON.stringify({
           status: 'success',
