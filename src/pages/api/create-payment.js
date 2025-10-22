@@ -20,10 +20,19 @@ export async function POST({ request }) {
       uri: 'https://sandbox-api.iyzipay.com',
     });
 
-    // 🔹 Toplam tutar
+    // 🔹 Toplam tutarı hesapla - items array'indeki her price zaten quantity ile çarpılmış
     const totalPrice = Number(
-  items.reduce((sum, item) => sum + parseFloat(item.price), 0).toFixed(2)
-);
+      items.reduce((sum, item) => sum + parseFloat(item.price || 0), 0).toFixed(2)
+    );
+
+    console.log('📊 Hesaplanan toplam:', totalPrice);
+
+    if (totalPrice <= 0) {
+      return new Response(JSON.stringify({ success: false, error: 'Geçersiz sepet tutarı.' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
     const baseUrl =
       import.meta.env.PUBLIC_SITE_URL ||
@@ -32,13 +41,16 @@ export async function POST({ request }) {
     const callbackUrl = `${baseUrl}/api/payment-callback`;
     console.log('🔗 Callback URL:', callbackUrl);
 
+    const conversationId = Date.now().toString();
+    const basketId = `BASKET_${conversationId}`;
+
     const request_data = {
       locale: Iyzipay.LOCALE.TR,
-      conversationId: Date.now().toString(),
-      price: totalPrice,
-      paidPrice: totalPrice,
+      conversationId,
+      price: totalPrice.toFixed(2),
+      paidPrice: totalPrice.toFixed(2),
       currency: Iyzipay.CURRENCY.TRY,
-      basketId: Date.now().toString(),
+      basketId,
       paymentGroup: Iyzipay.PAYMENT_GROUP.PRODUCT,
       callbackUrl,
       enabledInstallments: [1, 2, 3, 6, 9, 12],
@@ -71,14 +83,17 @@ export async function POST({ request }) {
         name: item.name || 'Ürün',
         category1: item.category1 || 'Gıda',
         itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL,
-        price: Number(item.price || 0).toFixed(2),
+        price: String(parseFloat(item.price || 0).toFixed(2)),
       })),
     };
 
     console.log('📦 Gönderilen veri:', {
       buyerEmail: request_data.buyer.email,
-      totalPrice,
+      totalPrice: request_data.price,
+      paidPrice: request_data.paidPrice,
+      basketId: request_data.basketId,
       itemCount: items.length,
+      items: request_data.basketItems
     });
 
     const result = await new Promise((resolve, reject) => {
