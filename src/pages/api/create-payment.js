@@ -4,11 +4,23 @@ import crypto from 'crypto';
 export const prerender = false;
 
 // İyzico imza oluşturma fonksiyonu - DOĞRU FORMAT
-function generateIyzicoSignature(secretKey, randomString, requestBody) {
-  // İyzico'nun beklediği format: randomString + requestBody
-  const dataToHash = randomString + requestBody;
-  const hash = crypto.createHmac('sha1', secretKey).update(dataToHash, 'utf8').digest('base64');
-  return hash;
+function generateIyzicoSignature(apiKey, secretKey, randomString, requestBody) {
+  // 1. Request body'yi string'e çevir
+  const requestString = typeof requestBody === 'string' ? requestBody : JSON.stringify(requestBody);
+
+  // 2. PWD hesapla: [randomKey] + [requestBody]
+  const dataToHash = `${randomString}${requestString}`;
+
+  // 3. HMAC-SHA1 ile hash oluştur
+  const hash = crypto.createHmac('sha1', secretKey)
+    .update(dataToHash, 'utf8')
+    .digest('base64');
+
+  // 4. Authorization string: apiKey:randomKey:signature
+  const authString = `${apiKey}:${randomString}:${hash}`;
+
+  // 5. Base64 encode
+  return Buffer.from(authString, 'utf8').toString('base64');
 }
 
 export async function POST({ request }) {
