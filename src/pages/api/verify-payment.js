@@ -2,11 +2,18 @@ import Iyzipay from 'iyzipay';
 import { Resend } from 'resend';
 
 export async function POST({ request }) {
-  console.log('🚀 VERIFY-PAYMENT V3.0 - FINAL VERSION');
+  console.log('🚀 VERIFY-PAYMENT V4.0 - EMAIL FIX');
 
   try {
     const body = await request.json();
     const { token, customerEmail: frontendEmail, customerName, customerSurname } = body;
+
+    console.log('📥 Gelen veriler:', {
+      token,
+      frontendEmail,
+      customerName,
+      customerSurname
+    });
 
     if (!token) {
       return new Response(
@@ -14,9 +21,6 @@ export async function POST({ request }) {
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
-
-    console.log('🔍 Ödeme doğrulama başlatıldı, token:', token);
-    console.log('📧 Frontend\'den gelen email:', frontendEmail);
 
     // İyzico yapılandırması
     const iyzipay = new Iyzipay({
@@ -37,11 +41,13 @@ export async function POST({ request }) {
       );
     });
 
-    console.log('📊 Ödeme durumu:', {
+    console.log('📊 İyzico Response:', {
       status: result.status,
       paymentStatus: result.paymentStatus,
       paymentId: result.paymentId,
-      iyzicoEmail: result.buyer?.email
+      iyzicoEmail: result.buyer?.email,
+      iyzicoName: result.buyer?.name,
+      iyzicoSurname: result.buyer?.surname
     });
 
     // Ödeme başarısız kontrolü
@@ -63,38 +69,48 @@ export async function POST({ request }) {
     let emailError = null;
 
     try {
+      // 🔥 EMAIL ADRESI BELİRLEME - ÖNCELİK SIRASI
+      let customerEmail = null;
+
+      // 1. İyzico'dan gelen email
+      if (result.buyer?.email && result.buyer.email.trim() !== '') {
+        customerEmail = result.buyer.email.trim();
+        console.log('📧 Email İyzico\'dan alındı:', customerEmail);
+      }
+      // 2. Frontend'den gelen email
+      else if (frontendEmail && frontendEmail.trim() !== '') {
+        customerEmail = frontendEmail.trim();
+        console.log('📧 Email frontend\'den alındı:', customerEmail);
+      }
+
+      // Email yoksa hata fırlat
+      if (!customerEmail) {
+        throw new Error('Müşteri email adresi bulunamadı! İyzico ve frontend\'den de email gelmedi.');
+      }
+
+      console.log('✅ Kullanılacak email:', customerEmail);
+
       // Resend API key kontrolü
       if (!import.meta.env.RESEND_API_KEY) {
         throw new Error('RESEND_API_KEY tanımlı değil');
       }
 
-      // Email'i İyzico'dan al, yoksa frontend'den al
-      let customerEmail = result.buyer?.email;
-
-      if (!customerEmail || customerEmail.trim() === '') {
-        console.warn('⚠️ İyzico\'dan email gelmiyor, frontend\'den alınıyor...');
-        customerEmail = frontendEmail;
-      }
-
-      if (!customerEmail || customerEmail.trim() === '') {
-        throw new Error('Müşteri email adresi bulunamadı');
-      }
-
-      console.log('📧 Mail gönderilecek adres:', customerEmail);
-
       const resend = new Resend(import.meta.env.RESEND_API_KEY);
 
-      // Müşteri ismi
-      const buyerName = result.buyer?.name || customerName || '';
+      // Müşteri ismi - öncelik sırası
+      const buyerName = result.buyer?.name || customerName || 'Değerli Müşterimiz';
       const buyerSurname = result.buyer?.surname || customerSurname || '';
+      const fullName = `${buyerName} ${buyerSurname}`.trim();
 
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      console.log('👤 Müşteri bilgileri:', { buyerName, buyerSurname, fullName });
+
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       // 1️⃣ MÜŞTERİYE MAİL GÖNDER
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       const customerHTML = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
           <h2 style="color: #dc2626;">🎉 Ödemeniz Başarıyla Alındı!</h2>
-          <p style="color: #374151;">Sayın ${buyerName} ${buyerSurname},</p>
+          <p style="color: #374151;">Sayın ${fullName},</p>
           <p style="color: #374151;">Pastırma Adası'nı tercih ettiğiniz için teşekkür ederiz.</p>
 
           <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -111,27 +127,27 @@ export async function POST({ request }) {
         </div>
       `;
 
-      console.log('📤 Müşteriye mail gönderiliyor...', customerEmail);
+      console.log('📤 Müşteriye mail gönderiliyor:', customerEmail);
 
       const customerMailResult = await resend.emails.send({
         from: 'Pastirma Adasi <siparis@successodysseyhub.com>',
         to: customerEmail,
-        subject: `Odeme Onayi - ${result.paymentId}`,
+        subject: `Sipariş Onayı - ${result.paymentId}`,
         html: customerHTML,
         reply_to: 'successodysseyhub@gmail.com',
       });
 
       console.log('✅ Müşteri maili gönderildi:', customerMailResult.id);
 
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       // 2️⃣ ADMİN'E MAİL GÖNDER
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       const adminHTML = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #2563eb;">💰 Yeni Ödeme Alındı</h2>
 
           <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>Müşteri:</strong> ${buyerName} ${buyerSurname}</p>
+            <p><strong>Müşteri:</strong> ${fullName}</p>
             <p><strong>Email:</strong> ${customerEmail}</p>
             <p><strong>Telefon:</strong> ${result.buyer?.gsmNumber || '-'}</p>
             <p><strong>Ödeme ID:</strong> ${result.paymentId}</p>
@@ -141,7 +157,7 @@ export async function POST({ request }) {
 
           <h3>Sipariş İçeriği:</h3>
           <div style="background: #f9fafb; padding: 10px; border-radius: 4px; overflow-x: auto;">
-            <pre style="margin: 0;">${JSON.stringify(result.basketItems, null, 2)}</pre>
+            <pre style="margin: 0; font-size: 12px;">${JSON.stringify(result.basketItems, null, 2)}</pre>
           </div>
 
           <hr style="border: 1px solid #e5e7eb; margin: 20px 0;">
@@ -155,7 +171,7 @@ export async function POST({ request }) {
       const adminMailResult = await resend.emails.send({
         from: 'Pastirma Adasi <siparis@successodysseyhub.com>',
         to: adminEmail,
-        subject: `Yeni Odeme - ${result.paymentId}`,
+        subject: `Yeni Sipariş - ${result.paymentId}`,
         html: adminHTML,
         reply_to: customerEmail,
       });
@@ -170,21 +186,22 @@ export async function POST({ request }) {
       console.error('Hata detayı:', {
         message: error.message,
         name: error.name,
+        statusCode: error.statusCode,
       });
       emailError = error.message;
       emailSent = false;
     }
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // RESPONSE HAZIRLA
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     const responseData = {
       status: 'success',
       paymentId: result.paymentId,
       paidPrice: result.paidPrice,
       paymentStatus: result.paymentStatus,
-      emailSent: emailSent,        // ⚠️ ZORUNLU
-      emailError: emailError,      // ⚠️ ZORUNLU
+      emailSent: emailSent,
+      emailError: emailError,
     };
 
     console.log('📤 Response gönderiliyor:', responseData);
