@@ -94,16 +94,7 @@ h1 { text-align: center; color: #b91c1c; margin-bottom: 2rem; }
 </style>
 
 <script>
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  unit: string;
-  quantity: number;
-}
-
-let cart: CartItem[] = [];
+let cart = [];
 
 function loadCart() {
   cart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -114,7 +105,7 @@ function loadCart() {
 function renderCart() {
   const cartEl = document.getElementById("cart-items");
   const emptyEl = document.getElementById("empty-cart");
-  const btn = document.getElementById("checkout-btn") as HTMLButtonElement;
+  const btn = document.getElementById("checkout-btn");
 
   if (!cartEl || !emptyEl) return;
 
@@ -148,7 +139,6 @@ function renderCart() {
     .join("");
 }
 
-// global hale getirilmiş fonksiyon
 window.changeQty = function (i, delta) {
   cart[i].quantity = Math.max(1, cart[i].quantity + delta);
   saveCart();
@@ -173,23 +163,28 @@ function updateSummary() {
   document.getElementById("total").textContent = total.toFixed(2) + "₺";
 }
 
+// ✅ ödeme tıklama
 document.getElementById("checkout-btn")?.addEventListener("click", async () => {
-  const email = (document.getElementById("buyer-email") as HTMLInputElement).value.trim();
-  const name = (document.getElementById("buyer-name") as HTMLInputElement).value.trim();
-  const surname = (document.getElementById("buyer-surname") as HTMLInputElement).value.trim();
+  const email = document.getElementById("buyer-email").value.trim();
+  const name = document.getElementById("buyer-name").value.trim();
+  const surname = document.getElementById("buyer-surname").value.trim();
 
   if (!email || !email.includes("@")) {
     alert("Lütfen geçerli bir e-posta adresi girin.");
     return;
   }
 
-  // 💾 Müşteri bilgilerini localStorage'a kaydet
   localStorage.setItem("lastOrderEmail", email);
   localStorage.setItem("lastOrderName", name);
   localStorage.setItem("lastOrderSurname", surname);
 
-  // 🧩 Ürünleri backend’in beklediği formata dönüştür
-  const items = cart.map((x, i) => ({
+  const cartData = JSON.parse(localStorage.getItem("cart") || "[]");
+  if (cartData.length === 0) {
+    alert("Sepetiniz boş, ödeme başlatılamaz.");
+    return;
+  }
+
+  const items = cartData.map((x, i) => ({
     id: `BI${i + 1}`,
     name: x.name,
     category1: "Et Ürünleri",
@@ -197,30 +192,35 @@ document.getElementById("checkout-btn")?.addEventListener("click", async () => {
     price: (x.price * x.quantity).toFixed(2),
   }));
 
-  // 🚀 API'ye gönderilecek payload
   const payload = {
-    items, // ✅ backend ile birebir uyumlu
+    items,
     buyer: { name, surname, email },
     shippingAddress: { city: "Kayseri", address: "Kayseri, Türkiye" },
     billingAddress: { city: "Kayseri", address: "Kayseri, Türkiye" },
   };
 
-  // 📨 Ödeme isteği gönder
-  const res = await fetch("/api/create-payment", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  console.log("📦 Backend’e giden payload:", payload);
 
-  const data = await res.json();
+  try {
+    const res = await fetch("/api/create-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-  if (data.paymentPageUrl) {
-    window.location.href = data.paymentPageUrl;
-  } else {
-    alert("Ödeme başlatılamadı: " + (data.error || "Bilinmeyen hata"));
+    const data = await res.json();
+
+    if (res.ok && data.paymentPageUrl) {
+      window.location.href = data.paymentPageUrl;
+    } else {
+      alert("Ödeme başlatılamadı: " + (data.error || "Bilinmeyen hata"));
+    }
+  } catch (err) {
+    console.error("🚨 Fetch hatası:", err);
+    alert("Bağlantı kurulamadı. Lütfen tekrar deneyin.");
   }
 });
 
-
+// ✅ sayfa yüklendiğinde sepeti yükle
 document.addEventListener("DOMContentLoaded", loadCart);
 </script>
