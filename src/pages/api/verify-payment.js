@@ -2,7 +2,7 @@ import Iyzipay from 'iyzipay';
 import { Resend } from 'resend';
 
 export async function POST({ request }) {
-  console.log('🚀 VERIFY-PAYMENT V4.0 - EMAIL FIX');
+  console.log('🚀 VERIFY-PAYMENT V5.0 - DETAILED ERROR TRACKING');
 
   try {
     const body = await request.json();
@@ -69,70 +69,96 @@ export async function POST({ request }) {
     let emailError = null;
 
     try {
-      // 🔥 EMAIL ADRESI BELİRLEME - ÖNCELİK SIRASI
+      // 🔥 EMAIL ADRESI BELİRLEME
       let customerEmail = null;
 
-      // 1. İyzico'dan gelen email
       if (result.buyer?.email && result.buyer.email.trim() !== '') {
         customerEmail = result.buyer.email.trim();
         console.log('📧 Email İyzico\'dan alındı:', customerEmail);
-      }
-      // 2. Frontend'den gelen email
-      else if (frontendEmail && frontendEmail.trim() !== '') {
+      } else if (frontendEmail && frontendEmail.trim() !== '') {
         customerEmail = frontendEmail.trim();
         console.log('📧 Email frontend\'den alındı:', customerEmail);
       }
 
-      // Email yoksa hata fırlat
       if (!customerEmail) {
-        throw new Error('Müşteri email adresi bulunamadı! İyzico ve frontend\'den de email gelmedi.');
+        throw new Error('❌ KRITIK: Müşteri email adresi bulunamadı!');
       }
 
       console.log('✅ Kullanılacak email:', customerEmail);
 
       // Resend API key kontrolü
       if (!import.meta.env.RESEND_API_KEY) {
-        throw new Error('RESEND_API_KEY tanımlı değil');
+        throw new Error('❌ RESEND_API_KEY tanımlı değil');
       }
 
       const resend = new Resend(import.meta.env.RESEND_API_KEY);
 
-      // Müşteri ismi - öncelik sırası
-      const buyerName = result.buyer?.name || customerName || 'Değerli Müşterimiz';
-      const buyerSurname = result.buyer?.surname || customerSurname || '';
+      // Müşteri ismi
+      const buyerName = result.buyer?.name || customerName || 'Değerli';
+      const buyerSurname = result.buyer?.surname || customerSurname || 'Müşterimiz';
       const fullName = `${buyerName} ${buyerSurname}`.trim();
 
-      console.log('👤 Müşteri bilgileri:', { buyerName, buyerSurname, fullName });
+      console.log('👤 Müşteri bilgileri:', { buyerName, buyerSurname, fullName, email: customerEmail });
 
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       // 1️⃣ MÜŞTERİYE MAİL GÖNDER
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       const customerHTML = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
-          <h2 style="color: #dc2626;">🎉 Ödemeniz Başarıyla Alındı!</h2>
-          <p style="color: #374151;">Sayın ${fullName},</p>
-          <p style="color: #374151;">Pastırma Adası'nı tercih ettiğiniz için teşekkür ederiz.</p>
-
-          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #1f2937;">Sipariş Detayları</h3>
-            <p><strong>Ödeme ID:</strong> ${result.paymentId}</p>
-            <p><strong>Tutar:</strong> ${result.paidPrice} ₺</p>
-            <p><strong>Durum:</strong> <span style="color: #10b981;">Başarılı</span></p>
-            <p><strong>Tarih:</strong> ${new Date().toLocaleString('tr-TR')}</p>
+          <div style="text-align: center; margin-bottom: 20px;">
+            <h1 style="color: #dc2626; margin: 0;">🎉 Siparişiniz Alındı!</h1>
           </div>
 
-          <p style="color: #6b7280; font-size: 14px;">Siparişiniz en kısa sürede hazırlanacaktır.</p>
-          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-          <p style="color: #9ca3af; font-size: 12px;">Pastırma Adası Ekibi</p>
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p style="color: #374151; font-size: 16px;">Merhaba <strong>${fullName}</strong>,</p>
+            <p style="color: #374151;">Pastırma Adası'nı tercih ettiğiniz için teşekkür ederiz.</p>
+            <p style="color: #6b7280;">Ödemeniz başarıyla alındı ve siparişiniz hazırlanmaya başladı.</p>
+          </div>
+
+          <div style="background: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
+            <h3 style="color: #1f2937; margin-top: 0;">📋 Sipariş Detayları</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 8px 0; color: #6b7280;"><strong>Ödeme ID:</strong></td>
+                <td style="padding: 8px 0; color: #1f2937; text-align: right;">${result.paymentId}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #6b7280;"><strong>Toplam Tutar:</strong></td>
+                <td style="padding: 8px 0; color: #dc2626; text-align: right; font-size: 18px; font-weight: bold;">${result.paidPrice} ₺</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #6b7280;"><strong>Tarih:</strong></td>
+                <td style="padding: 8px 0; color: #1f2937; text-align: right;">${new Date().toLocaleString('tr-TR')}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #6b7280;"><strong>Durum:</strong></td>
+                <td style="padding: 8px 0; text-align: right;"><span style="background: #d1fae5; color: #10b981; padding: 4px 12px; border-radius: 12px; font-weight: 600;">✅ Başarılı</span></td>
+              </tr>
+            </table>
+          </div>
+
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p style="color: #6b7280; font-size: 14px; margin: 0;">
+              🚚 Siparişiniz en kısa sürede kargoya verilecektir.<br>
+              📞 Herhangi bir sorunuz olması durumunda bize ulaşabilirsiniz.
+            </p>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+          <div style="text-align: center;">
+            <p style="color: #9ca3af; font-size: 12px; margin: 5px 0;">Pastırma Adası</p>
+            <p style="color: #9ca3af; font-size: 12px; margin: 5px 0;">İletişim: successodysseyhub@gmail.com</p>
+          </div>
         </div>
       `;
 
-      console.log('📤 Müşteriye mail gönderiliyor:', customerEmail);
+      console.log('📤 MÜŞTERİYE mail gönderiliyor:', customerEmail);
 
       const customerMailResult = await resend.emails.send({
         from: 'Pastirma Adasi <siparis@successodysseyhub.com>',
         to: customerEmail,
-        subject: `Sipariş Onayı - ${result.paymentId}`,
+        subject: `✅ Siparişiniz Alındı - #${result.paymentId}`,
         html: customerHTML,
         reply_to: 'successodysseyhub@gmail.com',
       });
@@ -143,35 +169,45 @@ export async function POST({ request }) {
       // 2️⃣ ADMİN'E MAİL GÖNDER
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       const adminHTML = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #2563eb;">💰 Yeni Ödeme Alındı</h2>
+        <div style="font-family: monospace; max-width: 700px; margin: 0 auto; padding: 20px; background: #1f2937; color: #f9fafb; border-radius: 10px;">
+          <h2 style="color: #10b981; margin-top: 0;">💰 YENİ SİPARİŞ ALINDI</h2>
 
-          <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>Müşteri:</strong> ${fullName}</p>
-            <p><strong>Email:</strong> ${customerEmail}</p>
-            <p><strong>Telefon:</strong> ${result.buyer?.gsmNumber || '-'}</p>
-            <p><strong>Ödeme ID:</strong> ${result.paymentId}</p>
-            <p><strong>Tutar:</strong> ${result.paidPrice} ₺</p>
-            <p><strong>Tarih:</strong> ${new Date().toLocaleString('tr-TR')}</p>
+          <div style="background: #374151; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
+            <h3 style="color: #fbbf24; margin-top: 0;">👤 MÜŞTERİ BİLGİLERİ</h3>
+            <table style="width: 100%; color: #f9fafb;">
+              <tr><td style="padding: 5px 0;"><strong>İsim:</strong></td><td>${fullName}</td></tr>
+              <tr><td style="padding: 5px 0;"><strong>Email:</strong></td><td>${customerEmail}</td></tr>
+              <tr><td style="padding: 5px 0;"><strong>Telefon:</strong></td><td>${result.buyer?.gsmNumber || '-'}</td></tr>
+            </table>
           </div>
 
-          <h3>Sipariş İçeriği:</h3>
-          <div style="background: #f9fafb; padding: 10px; border-radius: 4px; overflow-x: auto;">
-            <pre style="margin: 0; font-size: 12px;">${JSON.stringify(result.basketItems, null, 2)}</pre>
+          <div style="background: #374151; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+            <h3 style="color: #60a5fa; margin-top: 0;">💳 ÖDEME BİLGİLERİ</h3>
+            <table style="width: 100%; color: #f9fafb;">
+              <tr><td style="padding: 5px 0;"><strong>Ödeme ID:</strong></td><td style="color: #10b981;">${result.paymentId}</td></tr>
+              <tr><td style="padding: 5px 0;"><strong>Tutar:</strong></td><td style="color: #10b981; font-size: 18px; font-weight: bold;">${result.paidPrice} ₺</td></tr>
+              <tr><td style="padding: 5px 0;"><strong>Tarih:</strong></td><td>${new Date().toLocaleString('tr-TR')}</td></tr>
+              <tr><td style="padding: 5px 0;"><strong>Durum:</strong></td><td style="color: #10b981;">✅ BAŞARILI</td></tr>
+            </table>
           </div>
 
-          <hr style="border: 1px solid #e5e7eb; margin: 20px 0;">
-          <p style="color: #6b7280; font-size: 12px;">Pastırma Adası - Otomatik Bildirim</p>
+          <div style="background: #374151; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #f59e0b; margin-top: 0;">🛒 SİPARİŞ İÇERİĞİ</h3>
+            <pre style="background: #111827; padding: 15px; border-radius: 6px; overflow-x: auto; color: #10b981; font-size: 12px; margin: 0;">${JSON.stringify(result.basketItems, null, 2)}</pre>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid #4b5563; margin: 20px 0;">
+          <p style="color: #9ca3af; font-size: 12px; text-align: center;">Pastırma Adası - Otomatik Admin Bildirimi</p>
         </div>
       `;
 
       const adminEmail = import.meta.env.ADMIN_EMAIL || 'successodysseyhub@gmail.com';
-      console.log('📤 Admin\'e mail gönderiliyor:', adminEmail);
+      console.log('📤 ADMİN\'E mail gönderiliyor:', adminEmail);
 
       const adminMailResult = await resend.emails.send({
         from: 'Pastirma Adasi <siparis@successodysseyhub.com>',
         to: adminEmail,
-        subject: `Yeni Sipariş - ${result.paymentId}`,
+        subject: `💰 Yeni Sipariş - ${fullName} - ${result.paidPrice}₺`,
         html: adminHTML,
         reply_to: customerEmail,
       });
@@ -179,16 +215,19 @@ export async function POST({ request }) {
       console.log('✅ Admin maili gönderildi:', adminMailResult.id);
 
       emailSent = true;
-      console.log('🎉 Tüm mailler başarıyla gönderildi!');
+      console.log('🎉 TÜM MAİLLER BAŞARIYLA GÖNDERİLDİ!');
 
     } catch (error) {
-      console.error('❌ Mail gönderim hatası:', error);
-      console.error('Hata detayı:', {
-        message: error.message,
-        name: error.name,
-        statusCode: error.statusCode,
-      });
-      emailError = error.message;
+      console.error('❌❌❌ MAİL GÖNDERİM HATASI:', error);
+      console.error('Hata Türü:', error.name);
+      console.error('Hata Mesajı:', error.message);
+      console.error('Stack:', error.stack);
+
+      if (error.statusCode) {
+        console.error('HTTP Status:', error.statusCode);
+      }
+
+      emailError = error.message || 'Bilinmeyen mail hatası';
       emailSent = false;
     }
 
@@ -200,11 +239,15 @@ export async function POST({ request }) {
       paymentId: result.paymentId,
       paidPrice: result.paidPrice,
       paymentStatus: result.paymentStatus,
-      emailSent: emailSent,
-      emailError: emailError,
+      emailSent: emailSent,          // ⚠️ ZORUNLU
+      emailError: emailError,        // ⚠️ ZORUNLU
     };
 
-    console.log('📤 Response gönderiliyor:', responseData);
+    console.log('📤 RESPONSE GÖNDERİLİYOR:', responseData);
+    console.log('Email Durumu:', emailSent ? '✅ BAŞARILI' : '❌ BAŞARISIZ');
+    if (emailError) {
+      console.log('Email Hatası:', emailError);
+    }
 
     return new Response(
       JSON.stringify(responseData),
@@ -212,7 +255,10 @@ export async function POST({ request }) {
     );
 
   } catch (error) {
-    console.error('💥 Genel hata:', error);
+    console.error('💥💥💥 GENEL HATA:', error);
+    console.error('Hata Detayı:', error.message);
+    console.error('Stack:', error.stack);
+
     return new Response(
       JSON.stringify({
         status: 'error',
