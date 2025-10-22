@@ -1,5 +1,4 @@
 // src/pages/api/payment-callback.js
-
 export const prerender = false; // SSR aktif kalsın
 
 export async function POST({ request, redirect }) {
@@ -15,7 +14,6 @@ export async function POST({ request, redirect }) {
       const params = new URLSearchParams(formData);
       token = params.get('token');
     } else {
-      // fallback
       const text = await request.text();
       try {
         token = JSON.parse(text).token;
