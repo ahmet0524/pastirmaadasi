@@ -1,7 +1,13 @@
 // src/pages/api/create-payment.js
-import Iyzipay from 'iyzipay';
+import crypto from 'crypto';
 
 export const prerender = false;
+
+// İyzico imza oluşturma fonksiyonu
+function generateIyzicoSignature(apiKey, secretKey, randomString, requestData) {
+  const dataToHash = `${apiKey}${randomString}${secretKey}${requestData}`;
+  return crypto.createHmac('sha256', secretKey).update(dataToHash).digest('base64');
+}
 
 export async function POST({ request }) {
   console.log('🚀 ========== ÖDEME İSTEĞİ BAŞLADI ==========');
@@ -35,13 +41,20 @@ export async function POST({ request }) {
       });
     }
 
-    // İyzico başlat
-    console.log('🔧 İyzico başlatılıyor...');
-    const iyzipay = new Iyzipay({
-      apiKey: import.meta.env.IYZICO_API_KEY,
-      secretKey: import.meta.env.IYZICO_SECRET_KEY,
-      uri: 'https://sandbox-api.iyzipay.com',
-    });
+    // API keys
+    const apiKey = import.meta.env.IYZICO_API_KEY;
+    const secretKey = import.meta.env.IYZICO_SECRET_KEY;
+
+    if (!apiKey || !secretKey) {
+      console.error('❌ İyzico API keys eksik');
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'API yapılandırması eksik'
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
     // Toplam hesapla
     const totalPrice = items.reduce((sum, item) => {
@@ -76,14 +89,14 @@ export async function POST({ request }) {
     const conversationId = Date.now().toString();
     const basketId = `BASKET_${conversationId}`;
 
-    const request_data = {
-      locale: Iyzipay.LOCALE.TR,
+    const requestBody = {
+      locale: 'tr',
       conversationId,
       price: totalPrice.toFixed(2),
       paidPrice: totalPrice.toFixed(2),
-      currency: Iyzipay.CURRENCY.TRY,
+      currency: 'TRY',
       basketId,
-      paymentGroup: Iyzipay.PAYMENT_GROUP.PRODUCT,
+      paymentGroup: 'PRODUCT',
       callbackUrl,
       enabledInstallments: [1, 2, 3, 6, 9, 12],
       buyer: {
@@ -114,33 +127,33 @@ export async function POST({ request }) {
         id: item.id || `ITEM_${index + 1}`,
         name: item.name || 'Ürün',
         category1: item.category1 || 'Gıda',
-        itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL,
+        itemType: 'PHYSICAL',
         price: parseFloat(item.price || 0).toFixed(2),
       })),
     };
 
-    console.log('📤 İyzico\'ya gönderiliyor:', {
-      email: request_data.buyer.email,
-      price: request_data.price,
-      basketId: request_data.basketId,
-      itemCount: request_data.basketItems.length
-    });
+    const requestBodyString = JSON.stringify(requestBody);
+    const randomString = crypto.randomBytes(16).toString('hex');
+    const authorization = generateIyzicoSignature(apiKey, secretKey, randomString, requestBodyString);
+
+    console.log('📤 İyzico\'ya gönderiliyor...');
 
     // İyzico API çağrısı
-    const result = await new Promise((resolve, reject) => {
-      iyzipay.checkoutFormInitialize.create(request_data, (err, result) => {
-        if (err) {
-          console.error('❌ İyzico hatası:', err);
-          reject(err);
-        } else {
-          console.log('📥 İyzico yanıtı:', {
-            status: result.status,
-            token: result.token,
-            hasPaymentPageUrl: !!result.paymentPageUrl
-          });
-          resolve(result);
-        }
-      });
+    const response = await fetch('https://sandbox-api.iyzipay.com/payment/iyzipos/checkoutform/initialize/auth/ecom', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `IYZWS ${apiKey}:${authorization}`,
+        'x-iyzi-rnd': randomString,
+      },
+      body: requestBodyString,
+    });
+
+    const result = await response.json();
+    console.log('📥 İyzico yanıtı:', {
+      status: result.status,
+      token: result.token,
+      hasPaymentPageUrl: !!result.paymentPageUrl
     });
 
     if (result.status === 'success' && result.paymentPageUrl) {

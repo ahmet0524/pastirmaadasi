@@ -1,12 +1,20 @@
-import Iyzipay from "iyzipay";
+// src/pages/api/verify-payment.js
+import crypto from 'crypto';
 import { Resend } from "resend";
+
+export const prerender = false;
+
+function generateIyzicoSignature(apiKey, secretKey, randomString, requestData) {
+  const dataToHash = `${apiKey}${randomString}${secretKey}${requestData}`;
+  return crypto.createHmac('sha256', secretKey).update(dataToHash).digest('base64');
+}
 
 function isValidEmail(email) {
   return !!email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
 
 export async function POST({ request }) {
-  console.log("🚀 VERIFY-PAYMENT FIXED: Email & Content Separation");
+  console.log("🚀 VERIFY-PAYMENT: Email & Content Separation");
 
   try {
     const body = await request.json();
@@ -24,19 +32,32 @@ export async function POST({ request }) {
       );
     }
 
-    // İyzico yapılandırması
-    const iyzipay = new Iyzipay({
-      apiKey: import.meta.env.IYZICO_API_KEY,
-      secretKey: import.meta.env.IYZICO_SECRET_KEY,
-      uri: "https://sandbox-api.iyzipay.com",
+    // İyzico API keys
+    const apiKey = import.meta.env.IYZICO_API_KEY;
+    const secretKey = import.meta.env.IYZICO_SECRET_KEY;
+
+    const requestBody = {
+      locale: 'tr',
+      conversationId: Date.now().toString(),
+      token
+    };
+
+    const requestBodyString = JSON.stringify(requestBody);
+    const randomString = crypto.randomBytes(16).toString('hex');
+    const authorization = generateIyzicoSignature(apiKey, secretKey, randomString, requestBodyString);
+
+    // İyzico'dan ödeme bilgilerini al
+    const response = await fetch('https://sandbox-api.iyzipay.com/payment/iyzipos/checkoutform/auth/ecom/detail', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `IYZWS ${apiKey}:${authorization}`,
+        'x-iyzi-rnd': randomString,
+      },
+      body: requestBodyString,
     });
 
-    const result = await new Promise((resolve, reject) => {
-      iyzipay.checkoutForm.retrieve(
-        { locale: Iyzipay.LOCALE.TR, conversationId: Date.now().toString(), token },
-        (err, data) => (err ? reject(err) : resolve(data))
-      );
-    });
+    const result = await response.json();
 
     if (result.status !== "success" || result.paymentStatus !== "SUCCESS") {
       return new Response(
@@ -57,7 +78,6 @@ export async function POST({ request }) {
     const adminEmail = import.meta.env.ADMIN_EMAIL || "successodysseyhub@gmail.com";
     const resend = new Resend(import.meta.env.RESEND_API_KEY);
 
-    // fallback: boş ise admin'e gönder, reply_to kapalı
     const isCustomerMailValid = isValidEmail(customerEmail);
     if (!isCustomerMailValid) {
       console.warn("⚠️ Müşteri e-postası geçersiz. Admin fallback uygulanıyor.");
