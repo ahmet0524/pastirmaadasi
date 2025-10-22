@@ -21,7 +21,9 @@ export async function POST({ request }) {
     });
 
     // 🔹 Toplam tutar
-    const totalPrice = items.reduce((sum, item) => sum + parseFloat(item.price || 0), 0).toFixed(2);
+    const totalPrice = Number(
+  items.reduce((sum, item) => sum + parseFloat(item.price), 0).toFixed(2)
+);
 
     const baseUrl =
       import.meta.env.PUBLIC_SITE_URL ||
