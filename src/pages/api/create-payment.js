@@ -1,61 +1,78 @@
 // src/pages/api/create-payment.js
 import Iyzipay from 'iyzipay';
 
+export const prerender = false;
+
 export async function POST({ request }) {
+  console.log('🚀 ========== ÖDEME İSTEĞİ BAŞLADI ==========');
+
   try {
-    console.log('💳 Ödeme oluşturma isteği alındı');
+    const body = await request.json();
+    console.log('📨 Gelen body:', JSON.stringify(body, null, 2));
 
-    const { items, buyer, shippingAddress, billingAddress } = await request.json();
+    const { items, buyer, shippingAddress, billingAddress } = body;
 
-    console.log('📨 Gelen veri:', {
-      itemsCount: items?.length,
-      buyer: buyer?.email,
-      hasShipping: !!shippingAddress,
-      hasBilling: !!billingAddress
-    });
-
-    if (!items || items.length === 0) {
-      return new Response(JSON.stringify({ success: false, error: 'Sepet boş.' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    const iyzipay = new Iyzipay({
-      apiKey: import.meta.env.IYZICO_API_KEY,
-      secretKey: import.meta.env.IYZICO_SECRET_KEY,
-      uri: 'https://sandbox-api.iyzipay.com',
-    });
-
-    // 🔹 Toplam tutarı hesapla - items array'indeki her price zaten quantity ile çarpılmış
-    const totalPrice = Number(
-      items.reduce((sum, item) => {
-        const itemPrice = parseFloat(item.price || 0);
-        console.log(`Item: ${item.name}, Price: ${itemPrice}`);
-        return sum + itemPrice;
-      }, 0).toFixed(2)
-    );
-
-    console.log('📊 Hesaplanan toplam:', totalPrice);
-
-    if (!totalPrice || totalPrice <= 0 || isNaN(totalPrice)) {
-      console.error('❌ Geçersiz toplam tutar:', totalPrice);
+    // Validasyon
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      console.error('❌ Items array geçersiz:', items);
       return new Response(JSON.stringify({
         success: false,
-        error: 'Geçersiz sepet tutarı: ' + totalPrice
+        error: 'Sepet boş veya geçersiz'
       }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    const baseUrl =
-      import.meta.env.PUBLIC_SITE_URL ||
-      (import.meta.env.PROD ? 'https://pastirmaadasi.vercel.app' : 'http://localhost:4321');
+    if (!buyer || !buyer.email || !buyer.name) {
+      console.error('❌ Buyer bilgileri eksik:', buyer);
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Müşteri bilgileri eksik'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // İyzico başlat
+    console.log('🔧 İyzico başlatılıyor...');
+    const iyzipay = new Iyzipay({
+      apiKey: import.meta.env.IYZICO_API_KEY,
+      secretKey: import.meta.env.IYZICO_SECRET_KEY,
+      uri: 'https://sandbox-api.iyzipay.com',
+    });
+
+    // Toplam hesapla
+    const totalPrice = items.reduce((sum, item) => {
+      const price = parseFloat(item.price || 0);
+      console.log(`  📊 Item: ${item.name} = ${price}₺`);
+      return sum + price;
+    }, 0);
+
+    console.log('💰 Toplam tutar:', totalPrice.toFixed(2));
+
+    if (totalPrice <= 0 || isNaN(totalPrice)) {
+      console.error('❌ Geçersiz toplam:', totalPrice);
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Geçersiz sepet tutarı'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // URL'leri hazırla
+    const baseUrl = import.meta.env.PUBLIC_SITE_URL ||
+                    (import.meta.env.PROD
+                      ? 'https://pastirmaadasi.vercel.app'
+                      : 'http://localhost:4321');
 
     const callbackUrl = `${baseUrl}/api/payment-callback`;
     console.log('🔗 Callback URL:', callbackUrl);
 
+    // Request data hazırla
     const conversationId = Date.now().toString();
     const basketId = `BASKET_${conversationId}`;
 
@@ -70,87 +87,104 @@ export async function POST({ request }) {
       callbackUrl,
       enabledInstallments: [1, 2, 3, 6, 9, 12],
       buyer: {
-        id: buyer?.id || 'BY' + Date.now(),
-        name: buyer?.name || 'Müşteri',
-        surname: buyer?.surname || '',
-        gsmNumber: buyer?.gsmNumber || '+905555555555',
-        email: buyer?.email || 'test@example.com',
-        identityNumber: buyer?.identityNumber || '11111111111',
-        registrationAddress: buyer?.registrationAddress || shippingAddress?.address || 'Kayseri, Türkiye',
-        ip: buyer?.ip || '85.34.78.112',
-        city: buyer?.city || shippingAddress?.city || 'Kayseri',
-        country: buyer?.country || 'Turkey',
+        id: 'BY' + Date.now(),
+        name: buyer.name || 'Müşteri',
+        surname: buyer.surname || '',
+        gsmNumber: buyer.gsmNumber || '+905555555555',
+        email: buyer.email,
+        identityNumber: buyer.identityNumber || '11111111111',
+        registrationAddress: shippingAddress?.address || 'Kayseri, Türkiye',
+        ip: buyer.ip || '85.34.78.112',
+        city: buyer.city || shippingAddress?.city || 'Kayseri',
+        country: buyer.country || 'Turkey',
       },
       shippingAddress: {
-        contactName: shippingAddress?.contactName || `${buyer?.name} ${buyer?.surname}`,
+        contactName: shippingAddress?.contactName || `${buyer.name} ${buyer.surname}`,
         city: shippingAddress?.city || 'Kayseri',
         country: shippingAddress?.country || 'Turkey',
         address: shippingAddress?.address || 'Kayseri, Türkiye',
       },
       billingAddress: {
-        contactName: billingAddress?.contactName || `${buyer?.name} ${buyer?.surname}`,
+        contactName: billingAddress?.contactName || `${buyer.name} ${buyer.surname}`,
         city: billingAddress?.city || 'Kayseri',
         country: billingAddress?.country || 'Turkey',
         address: billingAddress?.address || 'Kayseri, Türkiye',
       },
       basketItems: items.map((item, index) => ({
-        id: item.id || `item_${index + 1}`,
+        id: item.id || `ITEM_${index + 1}`,
         name: item.name || 'Ürün',
         category1: item.category1 || 'Gıda',
         itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL,
-        price: String(parseFloat(item.price || 0).toFixed(2)),
+        price: parseFloat(item.price || 0).toFixed(2),
       })),
     };
 
-    console.log('📦 İyzico\'ya gönderilecek veri:', {
-      buyerEmail: request_data.buyer.email,
-      totalPrice: request_data.price,
-      paidPrice: request_data.paidPrice,
+    console.log('📤 İyzico\'ya gönderiliyor:', {
+      email: request_data.buyer.email,
+      price: request_data.price,
       basketId: request_data.basketId,
-      itemCount: items.length,
-      firstItem: request_data.basketItems[0]
+      itemCount: request_data.basketItems.length
     });
 
+    // İyzico API çağrısı
     const result = await new Promise((resolve, reject) => {
       iyzipay.checkoutFormInitialize.create(request_data, (err, result) => {
         if (err) {
           console.error('❌ İyzico hatası:', err);
           reject(err);
         } else {
+          console.log('📥 İyzico yanıtı:', {
+            status: result.status,
+            token: result.token,
+            hasPaymentPageUrl: !!result.paymentPageUrl
+          });
           resolve(result);
         }
       });
     });
 
-    if (result.status === 'success') {
-      console.log('✅ Başarılı istek, token:', result.token);
-      console.log('🔗 Payment URL:', result.paymentPageUrl);
+    if (result.status === 'success' && result.paymentPageUrl) {
+      console.log('✅ Ödeme sayfası oluşturuldu:', result.paymentPageUrl);
       return new Response(
         JSON.stringify({
           success: true,
           paymentPageUrl: result.paymentPageUrl,
           token: result.token,
         }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        }
       );
     } else {
-      console.error('❌ İyzico başarısız:', result.errorMessage);
+      console.error('❌ İyzico başarısız:', result.errorMessage || result.errorCode);
       return new Response(
         JSON.stringify({
           success: false,
           error: result.errorMessage || 'Ödeme oluşturulamadı',
+          errorCode: result.errorCode,
         }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        }
       );
     }
+
   } catch (error) {
-    console.error('💥 Sunucu hatası:', error);
+    console.error('💥 FATAL ERROR:', error);
+    console.error('Stack:', error.stack);
+
     return new Response(
       JSON.stringify({
         success: false,
         error: error.message || 'Sunucu hatası',
+        details: error.toString()
       }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
     );
   }
 }
