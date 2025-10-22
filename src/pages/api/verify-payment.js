@@ -173,36 +173,130 @@ export async function POST({ request }) {
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       // 2️⃣ ADMİN'E MAİL GÖNDER
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+      // Sipariş ürünlerini formatla
+      const orderItemsHTML = result.basketItems.map((item, index) => `
+        <tr style="border-bottom: 1px solid #4b5563;">
+          <td style="padding: 10px; color: #d1d5db;">${index + 1}</td>
+          <td style="padding: 10px; color: #f9fafb;"><strong>${item.name}</strong></td>
+          <td style="padding: 10px; color: #10b981; text-align: right;">${parseFloat(item.price).toFixed(2)} ₺</td>
+        </tr>
+      `).join('');
+
       const adminHTML = `
-        <div style="font-family: monospace; max-width: 700px; margin: 0 auto; padding: 20px; background: #1f2937; color: #f9fafb; border-radius: 10px;">
-          <h2 style="color: #10b981; margin-top: 0;">💰 YENİ SİPARİŞ ALINDI</h2>
+        <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #0f172a; color: #f1f5f9; border-radius: 12px;">
 
-          <div style="background: #374151; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
-            <h3 style="color: #fbbf24; margin-top: 0;">👤 MÜŞTERİ BİLGİLERİ</h3>
-            <table style="width: 100%; color: #f9fafb;">
-              <tr><td style="padding: 5px 0;"><strong>İsim:</strong></td><td>${fullName}</td></tr>
-              <tr><td style="padding: 5px 0;"><strong>Email:</strong></td><td>${customerEmail}</td></tr>
-              <tr><td style="padding: 5px 0;"><strong>Telefon:</strong></td><td>${result.buyer?.gsmNumber || '-'}</td></tr>
+          <!-- Başlık -->
+          <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 25px; border-radius: 10px; text-align: center; margin-bottom: 25px;">
+            <h1 style="color: white; margin: 0; font-size: 28px;">💰 YENİ SİPARİŞ ALINDI!</h1>
+            <p style="color: #d1fae5; margin: 10px 0 0 0; font-size: 14px;">Sipariş #${result.paymentId}</p>
+          </div>
+
+          <!-- Müşteri Bilgileri -->
+          <div style="background: #1e293b; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #10b981;">
+            <h2 style="color: #fbbf24; margin-top: 0; font-size: 20px;">👤 MÜŞTERİ BİLGİLERİ</h2>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 8px 0; color: #94a3b8; width: 140px;"><strong>Ad Soyad:</strong></td>
+                <td style="padding: 8px 0; color: #f1f5f9; font-size: 16px;"><strong>${fullName}</strong></td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #94a3b8;"><strong>E-posta:</strong></td>
+                <td style="padding: 8px 0; color: #60a5fa;"><a href="mailto:${customerEmail}" style="color: #60a5fa; text-decoration: none;">${customerEmail}</a></td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #94a3b8;"><strong>Telefon:</strong></td>
+                <td style="padding: 8px 0; color: #f1f5f9;">${result.buyer?.gsmNumber || '❌ Belirtilmemiş'}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #94a3b8;"><strong>Şehir:</strong></td>
+                <td style="padding: 8px 0; color: #f1f5f9;">${result.shippingAddress?.city || result.buyer?.city || '-'}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #94a3b8; vertical-align: top;"><strong>Adres:</strong></td>
+                <td style="padding: 8px 0; color: #f1f5f9;">${result.shippingAddress?.address || '❌ Adres bilgisi eksik'}</td>
+              </tr>
             </table>
           </div>
 
-          <div style="background: #374151; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6;">
-            <h3 style="color: #60a5fa; margin-top: 0;">💳 ÖDEME BİLGİLERİ</h3>
-            <table style="width: 100%; color: #f9fafb;">
-              <tr><td style="padding: 5px 0;"><strong>Ödeme ID:</strong></td><td style="color: #10b981;">${result.paymentId}</td></tr>
-              <tr><td style="padding: 5px 0;"><strong>Tutar:</strong></td><td style="color: #10b981; font-size: 18px; font-weight: bold;">${result.paidPrice} ₺</td></tr>
-              <tr><td style="padding: 5px 0;"><strong>Tarih:</strong></td><td>${new Date().toLocaleString('tr-TR')}</td></tr>
-              <tr><td style="padding: 5px 0;"><strong>Durum:</strong></td><td style="color: #10b981;">✅ BAŞARILI</td></tr>
+          <!-- Ödeme Bilgileri -->
+          <div style="background: #1e293b; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
+            <h2 style="color: #60a5fa; margin-top: 0; font-size: 20px;">💳 ÖDEME BİLGİLERİ</h2>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 8px 0; color: #94a3b8; width: 140px;"><strong>Ödeme ID:</strong></td>
+                <td style="padding: 8px 0; color: #10b981; font-family: monospace;">${result.paymentId}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #94a3b8;"><strong>Toplam Tutar:</strong></td>
+                <td style="padding: 8px 0; color: #10b981; font-size: 24px; font-weight: bold;">${result.paidPrice} ₺</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #94a3b8;"><strong>Ödeme Türü:</strong></td>
+                <td style="padding: 8px 0; color: #f1f5f9;">Kredi Kartı (İyzico)</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #94a3b8;"><strong>Tarih:</strong></td>
+                <td style="padding: 8px 0; color: #f1f5f9;">${new Date().toLocaleString('tr-TR', { dateStyle: 'full', timeStyle: 'short' })}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #94a3b8;"><strong>Durum:</strong></td>
+                <td style="padding: 8px 0;"><span style="background: #10b981; color: white; padding: 4px 12px; border-radius: 6px; font-weight: bold;">✅ ÖDEME BAŞARILI</span></td>
+              </tr>
             </table>
           </div>
 
-          <div style="background: #374151; padding: 15px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #f59e0b; margin-top: 0;">🛒 SİPARİŞ İÇERİĞİ</h3>
-            <pre style="background: #111827; padding: 15px; border-radius: 6px; overflow-x: auto; color: #10b981; font-size: 12px; margin: 0;">${JSON.stringify(result.basketItems, null, 2)}</pre>
+          <!-- Sipariş İçeriği -->
+          <div style="background: #1e293b; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
+            <h2 style="color: #f59e0b; margin-top: 0; font-size: 20px;">🛒 SİPARİŞ İÇERİĞİ</h2>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+              <thead>
+                <tr style="background: #0f172a; border-bottom: 2px solid #4b5563;">
+                  <th style="padding: 12px; text-align: left; color: #94a3b8; width: 50px;">#</th>
+                  <th style="padding: 12px; text-align: left; color: #94a3b8;">Ürün Adı</th>
+                  <th style="padding: 12px; text-align: right; color: #94a3b8;">Fiyat</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${orderItemsHTML}
+              </tbody>
+              <tfoot>
+                <tr style="background: #0f172a;">
+                  <td colspan="2" style="padding: 15px; text-align: right; color: #94a3b8; font-weight: bold; font-size: 16px;">TOPLAM:</td>
+                  <td style="padding: 15px; text-align: right; color: #10b981; font-weight: bold; font-size: 20px;">${result.paidPrice} ₺</td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
 
-          <hr style="border: none; border-top: 1px solid #4b5563; margin: 20px 0;">
-          <p style="color: #9ca3af; font-size: 12px; text-align: center;">Pastırma Adası - Otomatik Admin Bildirimi</p>
+          <!-- Hızlı Aksiyonlar -->
+          <div style="background: #1e293b; padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+            <h3 style="color: #f1f5f9; margin-top: 0;">⚡ HIZLI AKSİYONLAR</h3>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+              <a href="mailto:${customerEmail}" style="background: #3b82f6; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">📧 Müşteriye Mail At</a>
+              <a href="tel:${result.buyer?.gsmNumber || ''}" style="background: #10b981; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">📞 Müşteriyi Ara</a>
+            </div>
+          </div>
+
+          <!-- Raw JSON (Debug) -->
+          <details style="background: #0f172a; padding: 15px; border-radius: 8px; margin-top: 20px;">
+            <summary style="color: #94a3b8; cursor: pointer; font-weight: bold;">🔍 JSON Detayları (Teknik Bilgi)</summary>
+            <pre style="background: #020617; padding: 15px; border-radius: 6px; overflow-x: auto; color: #10b981; font-size: 11px; margin-top: 10px; border: 1px solid #1e293b;">${JSON.stringify({
+              paymentId: result.paymentId,
+              paidPrice: result.paidPrice,
+              buyer: result.buyer,
+              shippingAddress: result.shippingAddress,
+              billingAddress: result.billingAddress,
+              basketItems: result.basketItems
+            }, null, 2)}</pre>
+          </details>
+
+          <!-- Footer -->
+          <hr style="border: none; border-top: 1px solid #334155; margin: 30px 0;">
+          <div style="text-align: center;">
+            <p style="color: #64748b; font-size: 12px; margin: 5px 0;">🤖 Bu bir otomatik bildirimdir - Pastırma Adası Sipariş Sistemi</p>
+            <p style="color: #64748b; font-size: 11px; margin: 5px 0;">Gönderen: Vercel Serverless Function via Resend</p>
+          </div>
         </div>
       `;
 
