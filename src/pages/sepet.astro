@@ -1,126 +1,70 @@
 ---
-// src/pages/sepet.astro
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
 ---
 
-<BaseLayout title="Sepetim" description="Alışveriş sepetinizi görüntüleyin ve sipariş verin">
+<BaseLayout title="Sepetim" description="Alışveriş sepetinizi görüntüleyin ve siparişinizi tamamlayın.">
   <Header slot="header" />
 
-  <section class="cart-page">
-    <div class="container">
+  <section class="cart-section">
+    <div class="cart-container">
       <h1>🛒 Sepetim</h1>
 
-      <div class="cart-layout">
-        <div class="cart-items-section">
-          <div id="cart-items" class="cart-items"></div>
-
-          <div id="empty-cart" class="empty-cart hidden">
-            <svg width="96" height="96" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-            <h3>Sepetiniz Boş</h3>
-            <p>Alışverişe başlamak için ürünlerimize göz atın</p>
-            <a href="/online-alisveris" class="btn btn-primary btn-large">Alışverişe Başla</a>
+      <div class="cart-grid">
+        <!-- Sol: Ürünler -->
+        <div class="cart-items-area">
+          <div id="cart-items"></div>
+          <div id="empty-cart" class="empty hidden">
+            <img src="/images/empty-cart.svg" alt="Boş sepet" width="140" />
+            <h3>Sepetiniz boş</h3>
+            <p>Henüz ürün eklemediniz. Alışverişe başlayın!</p>
+            <a href="/online-alisveris" class="btn-primary">Ürünlere Göz At</a>
           </div>
         </div>
 
+        <!-- Sağ: Özet ve Bilgiler -->
         <div class="cart-summary">
-          <div class="summary-card">
+          <div class="card">
             <h2>📋 Sipariş Özeti</h2>
 
-            <!-- Müşteri Bilgileri Formu -->
-            <div class="customer-info-section">
-              <h3>📧 İletişim Bilgileri</h3>
-              <div class="form-group">
-                <label for="buyer-email">E-posta *</label>
-                <input
-                  type="email"
-                  id="buyer-email"
-                  placeholder="ornek@mail.com"
-                  required
-                />
-              </div>
-              <div class="form-row">
+            <div class="form-section">
+              <h3>👤 Müşteri Bilgileri</h3>
+              <form id="checkout-form">
                 <div class="form-group">
-                  <label for="buyer-name">Ad *</label>
+                  <label for="buyer-email">E-posta *</label>
                   <input
-                    type="text"
-                    id="buyer-name"
-                    placeholder="Adınız"
+                    type="email"
+                    id="buyer-email"
+                    placeholder="ornek@mail.com"
                     required
+                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$"
                   />
                 </div>
-                <div class="form-group">
-                  <label for="buyer-surname">Soyad *</label>
-                  <input
-                    type="text"
-                    id="buyer-surname"
-                    placeholder="Soyadınız"
-                    required
-                  />
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="buyer-name">Ad *</label>
+                    <input type="text" id="buyer-name" placeholder="Adınız" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="buyer-surname">Soyad *</label>
+                    <input type="text" id="buyer-surname" placeholder="Soyadınız" required />
+                  </div>
                 </div>
-              </div>
+              </form>
             </div>
 
-            <!-- Kupon Bölümü -->
-            <div class="coupon-section">
-              <label for="coupon-input">🎟️ İndirim Kuponu</label>
-              <div class="coupon-input-group">
-                <input
-                  type="text"
-                  id="coupon-input"
-                  placeholder="Kupon kodunuz"
-                />
-                <button id="apply-coupon" class="btn btn-secondary">Uygula</button>
-              </div>
-              <p id="coupon-message" class="coupon-message hidden"></p>
-            </div>
-
-            <!-- Fiyat Özeti -->
             <div class="summary-details">
-              <div class="summary-row">
-                <span>Ara Toplam</span>
-                <span id="subtotal">0₺</span>
+              <div class="summary-row"><span>Ara Toplam</span><span id="subtotal">0₺</span></div>
+              <div class="summary-row"><span>Kargo</span><span id="shipping">0₺</span></div>
+              <div id="discount-row" class="summary-row hidden">
+                <span>İndirim</span><span id="discount">0₺</span>
               </div>
-              <div class="summary-row">
-                <span>Kargo</span>
-                <span id="shipping">0₺</span>
-              </div>
-              <div id="discount-row" class="summary-row discount-row hidden">
-                <span>İndirim</span>
-                <span id="discount">0₺</span>
-              </div>
+              <div class="summary-row total"><strong>Toplam</strong><strong id="total">0₺</strong></div>
             </div>
 
-            <div class="summary-total">
-              <span>Toplam</span>
-              <span id="total">0₺</span>
-            </div>
-
-            <button id="checkout-btn" class="btn btn-primary btn-full btn-large" disabled>
-              <span id="checkout-btn-text">💳 Ödemeye Geç</span>
-            </button>
-
-            <a href="/online-alisveris" class="continue-shopping">
-              ← Alışverişe Devam Et
-            </a>
-
-            <div class="summary-info">
-              <p>
-                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                </svg>
-                1000₺ üzeri ücretsiz kargo
-              </p>
-              <p>
-                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                </svg>
-                Güvenli ödeme garantisi
-              </p>
-            </div>
+            <button id="checkout-btn" class="btn-primary btn-full">💳 Ödemeye Geç</button>
+            <a href="/online-alisveris" class="back-link">← Alışverişe Devam Et</a>
           </div>
         </div>
       </div>
@@ -131,7 +75,97 @@ import Footer from '../components/Footer.astro';
 </BaseLayout>
 
 <style>
-/* (stil aynı) */
+.cart-section {
+  background: #fafafa;
+  padding: 3rem 1rem;
+}
+.cart-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+h1 {
+  text-align: center;
+  color: #b91c1c;
+  margin-bottom: 2rem;
+}
+.cart-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 2rem;
+}
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 2rem;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+.form-group input {
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: #fff;
+  border: none;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  width: 100%;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(220, 38, 38, 0.3);
+}
+.back-link {
+  display: block;
+  margin-top: 1rem;
+  text-align: center;
+  color: #6b7280;
+  text-decoration: none;
+}
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #eee;
+}
+.summary-row.total {
+  font-size: 1.2rem;
+  color: #111;
+  border-top: 2px solid #b91c1c;
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+.empty {
+  text-align: center;
+  padding: 2rem;
+}
+.hidden {
+  display: none !important;
+}
+@media (max-width: 768px) {
+  .cart-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
 
 <script>
@@ -147,236 +181,120 @@ import Footer from '../components/Footer.astro';
   let cart: CartItem[] = [];
   let discountPercent = 0;
 
-  const coupons: Record<string, number> = {
-    'HOSGELDIN10': 10,
-    'YENI15': 15,
-    'KAYSER20': 20
-  };
-
   function loadCart() {
-    cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    cart = JSON.parse(localStorage.getItem("cart") || "[]");
     renderCart();
     updateSummary();
   }
 
   function renderCart() {
-    const cartContainer = document.getElementById('cart-items');
-    const emptyCart = document.getElementById('empty-cart');
-    const checkoutBtn = document.getElementById('checkout-btn') as HTMLButtonElement;
+    const cartEl = document.getElementById("cart-items");
+    const emptyEl = document.getElementById("empty-cart");
+    const btn = document.getElementById("checkout-btn") as HTMLButtonElement;
 
-    if (!cartContainer || !emptyCart) return;
+    if (!cartEl || !emptyEl) return;
 
     if (cart.length === 0) {
-      cartContainer.innerHTML = '';
-      emptyCart.classList.remove('hidden');
-      if (checkoutBtn) checkoutBtn.disabled = true;
+      cartEl.innerHTML = "";
+      emptyEl.classList.remove("hidden");
+      btn.disabled = true;
       return;
     }
 
-    emptyCart.classList.add('hidden');
-    if (checkoutBtn) checkoutBtn.disabled = false;
+    emptyEl.classList.add("hidden");
+    btn.disabled = false;
 
-    cartContainer.innerHTML = cart.map((item, index) => `
-      <div class="cart-item">
-        <div class="cart-item-image">
-          <img src="${item.image}" alt="${item.name}">
-        </div>
-        <div class="cart-item-info">
-          <h3>${item.name}</h3>
-          <p class="cart-item-price">${item.price}₺ / ${item.unit}</p>
-          <div class="quantity-controls">
-            <button class="qty-btn decrease-qty" data-index="${index}">−</button>
-            <span class="qty-amount">${item.quantity}</span>
-            <button class="qty-btn increase-qty" data-index="${index}">+</button>
+    cartEl.innerHTML = cart
+      .map(
+        (item, i) => `
+        <div class="cart-item">
+          <img src="${item.image}" alt="${item.name}" class="item-img" />
+          <div class="item-info">
+            <h4>${item.name}</h4>
+            <p>${item.price}₺ / ${item.unit}</p>
+            <div class="qty-controls">
+              <button onclick="changeQty(${i}, -1)">−</button>
+              <span>${item.quantity}</span>
+              <button onclick="changeQty(${i}, 1)">+</button>
+            </div>
           </div>
-        </div>
-        <div class="cart-item-actions">
-          <button class="remove-btn" data-index="${index}" title="Sepetten Çıkar">
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </button>
-          <p class="cart-item-total">${(item.price * item.quantity).toFixed(2)}₺</p>
-        </div>
-      </div>
-    `).join('');
-
-    attachCartEventListeners();
+          <div class="item-total">${(item.price * item.quantity).toFixed(2)}₺</div>
+        </div>`
+      )
+      .join("");
   }
 
-  function attachCartEventListeners() {
-    document.querySelectorAll('.increase-qty').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const index = parseInt((e.currentTarget as HTMLElement).dataset.index || '0');
-        cart[index].quantity++;
-        saveCart();
-      });
-    });
-
-    document.querySelectorAll('.decrease-qty').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const index = parseInt((e.currentTarget as HTMLElement).dataset.index || '0');
-        if (cart[index].quantity > 1) {
-          cart[index].quantity--;
-          saveCart();
-        }
-      });
-    });
-
-    document.querySelectorAll('.remove-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const index = parseInt((e.currentTarget as HTMLElement).dataset.index || '0');
-        cart.splice(index, 1);
-        saveCart();
-      });
-    });
+  function changeQty(i: number, delta: number) {
+    cart[i].quantity = Math.max(1, cart[i].quantity + delta);
+    saveCart();
   }
 
   function saveCart() {
-    localStorage.setItem('cart', JSON.stringify(cart));
+    localStorage.setItem("cart", JSON.stringify(cart));
     renderCart();
     updateSummary();
-    window.dispatchEvent(new Event('cartUpdated'));
+  }
+
+  function calculateSubtotal() {
+    return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   }
 
   function updateSummary() {
     const subtotal = calculateSubtotal();
     const shipping = subtotal >= 1000 ? 0 : 50;
-    const discount = (subtotal * discountPercent) / 100;
-    const total = subtotal + shipping - discount;
+    const total = subtotal + shipping;
 
-    const subtotalEl = document.getElementById('subtotal');
-    const shippingEl = document.getElementById('shipping');
-    const discountEl = document.getElementById('discount');
-    const discountRow = document.getElementById('discount-row');
-    const totalEl = document.getElementById('total');
-
-    if (subtotalEl) subtotalEl.textContent = `${subtotal.toFixed(2)}₺`;
-    if (shippingEl) shippingEl.textContent = shipping === 0 ? 'Ücretsiz' : `${shipping}₺`;
-    if (discountEl) discountEl.textContent = `-${discount.toFixed(2)}₺`;
-    if (discountRow) discountRow.classList.toggle('hidden', discount === 0);
-    if (totalEl) totalEl.textContent = `${total.toFixed(2)}₺`;
+    document.getElementById("subtotal").textContent = subtotal.toFixed(2) + "₺";
+    document.getElementById("shipping").textContent = shipping === 0 ? "Ücretsiz" : shipping + "₺";
+    document.getElementById("total").textContent = total.toFixed(2) + "₺";
   }
 
-  function calculateSubtotal(): number {
-    return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  }
+  document.getElementById("checkout-btn")?.addEventListener("click", async () => {
+    const email = (document.getElementById("buyer-email") as HTMLInputElement).value.trim();
+    const name = (document.getElementById("buyer-name") as HTMLInputElement).value.trim();
+    const surname = (document.getElementById("buyer-surname") as HTMLInputElement).value.trim();
 
-  // Kupon uygulama
-  document.getElementById('apply-coupon')?.addEventListener('click', () => {
-    const input = document.getElementById('coupon-input') as HTMLInputElement;
-    const message = document.getElementById('coupon-message');
-    const code = input.value.trim().toUpperCase();
-
-    if (!message) return;
-
-    message.classList.remove('hidden', 'success', 'error');
-
-    if (coupons[code]) {
-      discountPercent = coupons[code];
-      message.textContent = `✅ Kupon uygulandı! %${discountPercent} indirim`;
-      message.classList.add('success');
-      input.disabled = true;
-      updateSummary();
-    } else {
-      message.textContent = '❌ Geçersiz kupon kodu';
-      message.classList.add('error');
-    }
-    message.classList.remove('hidden');
-  });
-
-  // Ödeme başlat
-  document.getElementById('checkout-btn')?.addEventListener('click', async () => {
-    if (cart.length === 0) return;
-
-    const emailInput = document.getElementById('buyer-email') as HTMLInputElement;
-    const nameInput = document.getElementById('buyer-name') as HTMLInputElement;
-    const surnameInput = document.getElementById('buyer-surname') as HTMLInputElement;
-
-    if (!emailInput.value || !nameInput.value || !surnameInput.value) {
-      alert('Lütfen tüm bilgileri doldurun!');
+    if (!email || !email.includes("@")) {
+      alert("Lütfen geçerli bir e-posta adresi girin.");
       return;
     }
 
-    // Email & isimleri kaydet
-    localStorage.setItem('lastOrderEmail', emailInput.value);
-    localStorage.setItem('lastOrderName', nameInput.value);
-    localStorage.setItem('lastOrderSurname', surnameInput.value);
+    localStorage.setItem("lastOrderEmail", email);
+    localStorage.setItem("lastOrderName", name);
+    localStorage.setItem("lastOrderSurname", surname);
 
-    const checkoutBtn = document.getElementById('checkout-btn') as HTMLButtonElement;
-    const btnText = document.getElementById('checkout-btn-text');
+    const subtotal = calculateSubtotal();
+    const shipping = subtotal >= 1000 ? 0 : 50;
+    const total = subtotal + shipping;
 
-    checkoutBtn.disabled = true;
-    if (btnText) btnText.textContent = '⏳ Ödeme hazırlanıyor...';
+    const basketItems = cart.map((x, i) => ({
+      id: `BI${i + 1}`,
+      name: x.name,
+      category1: "Et Ürünleri",
+      itemType: "PHYSICAL",
+      price: (x.price * x.quantity).toFixed(2),
+    }));
 
-    try {
-      const subtotal = calculateSubtotal();
-      const shipping = subtotal >= 1000 ? 0 : 50;
-      const discount = (subtotal * discountPercent) / 100;
-      const total = subtotal + shipping - discount;
+    const payload = {
+      basketItems,
+      buyer: { name, surname, email },
+      shippingAddress: { city: "Kayseri", address: "Kayseri, Türkiye" },
+      billingAddress: { city: "Kayseri", address: "Kayseri, Türkiye" },
+    };
 
-      const basketItems = cart.map((item, index) => ({
-        id: `BI${index + 1}`,
-        name: item.name,
-        category1: 'Et Ürünleri',
-        itemType: 'PHYSICAL',
-        price: (item.price * item.quantity).toFixed(2),
-      }));
+    const res = await fetch("/api/create-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-      const paymentData = {
-        // Not: toplamları backend tekrar hesaplıyor; burada şeffaflık adına gönderiyoruz.
-        price: total.toFixed(2),
-        paidPrice: total.toFixed(2),
-        buyer: {
-          id: 'BY' + Date.now(),
-          name: nameInput.value,
-          surname: surnameInput.value,
-          email: emailInput.value,
-          identityNumber: '11111111111',
-          registrationAddress: 'Kayseri, Türkiye',
-          ip: '85.34.78.112',
-          city: 'Kayseri',
-          country: 'Turkey',
-        },
-        shippingAddress: {
-          contactName: `${nameInput.value} ${surnameInput.value}`,
-          city: 'Kayseri',
-          country: 'Turkey',
-          address: 'Kayseri, Türkiye',
-        },
-        billingAddress: {
-          contactName: `${nameInput.value} ${surnameInput.value}`,
-          city: 'Kayseri',
-          country: 'Turkey',
-          address: 'Kayseri, Türkiye',
-        },
-        // 🔑 Backend ile uyumlu alan
-        basketItems
-      };
-
-      const response = await fetch('/api/create-payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(paymentData),
-      });
-
-      // Savunmacı: hem "status" hem "success" kabul
-      const data = await response.json();
-
-      if ((data.status === 'success' || data.success === true) && data.paymentPageUrl) {
-        window.location.href = data.paymentPageUrl;
-      } else {
-        alert(data.errorMessage || data.error || 'Ödeme başlatılamadı!');
-        checkoutBtn.disabled = false;
-        if (btnText) btnText.textContent = '💳 Ödemeye Geç';
-      }
-    } catch (error) {
-      console.error('❌ Ödeme hatası:', error);
-      alert('Sunucu hatası. Lütfen daha sonra tekrar deneyin.');
-      checkoutBtn.disabled = false;
-      if (btnText) btnText.textContent = '💳 Ödemeye Geç';
+    const data = await res.json();
+    if (data.paymentPageUrl) {
+      window.location.href = data.paymentPageUrl;
+    } else {
+      alert("Ödeme başlatılamadı: " + (data.error || "Bilinmeyen hata"));
     }
   });
 
-  document.addEventListener('DOMContentLoaded', loadCart);
+  document.addEventListener("DOMContentLoaded", loadCart);
 </script>
