@@ -1,42 +1,42 @@
-// src/pages/api/create-payment.js
 import Iyzipay from 'iyzipay';
 
 export async function POST({ request }) {
   try {
-    // Frontend sepet verisi basketItems adıyla geliyor; items adıyla kullanacağız
-    const {
-      basketItems: incomingBasketItems,
-      buyer,
-      shippingAddress,
-      billingAddress,
-      // price/paidPrice gelebilir ama totalPrice'ı sunucuda hesaplayacağız
-      price: _ignoredPrice,
-      paidPrice: _ignoredPaidPrice,
-    } = await request.json();
+    console.log('💳 Ödeme isteği alındı');
 
-    console.log('💳 Ödeme oluşturma isteği alındı');
+    const body = await request.json();
+    const { basketItems, buyer, shippingAddress, billingAddress } = body;
 
-    const items = Array.isArray(incomingBasketItems) ? incomingBasketItems : [];
-    if (!items.length) {
+    if (!Array.isArray(basketItems) || basketItems.length === 0) {
       return new Response(
         JSON.stringify({ success: false, error: 'Sepet boş veya ürünler eksik.' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    // Iyzico yapılandırması
+    const name = buyer?.name || 'Müşteri';
+    const surname = buyer?.surname || '';
+    const email = buyer?.email || '';
+    if (!email.includes('@')) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Geçersiz e-posta adresi.' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // 🔧 Iyzico ayarları
     const iyzipay = new Iyzipay({
       apiKey: import.meta.env.IYZICO_API_KEY,
       secretKey: import.meta.env.IYZICO_SECRET_KEY,
       uri: 'https://sandbox-api.iyzipay.com',
     });
 
-    // Toplam tutarı güvenli hesapla
-    const totalPrice = items
+    // 🔹 Toplam tutar
+    const totalPrice = basketItems
       .reduce((sum, item) => sum + Number.parseFloat(item.price || 0), 0)
       .toFixed(2);
 
-    // ÖNEMLİ: Callback URL
+    // 🔹 Callback URL
     const baseUrl =
       import.meta.env.PUBLIC_SITE_URL ||
       (import.meta.env.PROD ? 'https://pastirmaadasi.vercel.app' : 'http://localhost:4321');
@@ -44,72 +44,69 @@ export async function POST({ request }) {
     const callbackUrl = `${baseUrl}/api/payment-callback`;
     console.log('🔗 Callback URL:', callbackUrl);
 
-    const request_data = {
+    // 🔹 Iyzico veri yapısı
+    const requestData = {
       locale: Iyzipay.LOCALE.TR,
       conversationId: Date.now().toString(),
       price: totalPrice,
       paidPrice: totalPrice,
       currency: Iyzipay.CURRENCY.TRY,
-      basketId: Date.now().toString(),
+      basketId: 'B' + Date.now(),
       paymentGroup: Iyzipay.PAYMENT_GROUP.PRODUCT,
       callbackUrl,
       enabledInstallments: [1, 2, 3, 6, 9, 12],
       buyer: {
-        id: buyer?.id || 'BY' + Date.now(),
-        name: buyer?.name,
-        surname: buyer?.surname,
-        gsmNumber: buyer?.gsmNumber,
-        email: buyer?.email,
-        identityNumber: buyer?.identityNumber || '11111111111',
-        registrationAddress: buyer?.registrationAddress || shippingAddress?.address,
+        id: 'BY' + Date.now(),
+        name,
+        surname,
+        email,
+        identityNumber: '11111111111',
+        registrationAddress:
+          buyer?.address || shippingAddress?.address || 'Kayseri, Türkiye',
         ip: buyer?.ip || '85.34.78.112',
-        city: buyer?.city || shippingAddress?.city,
+        city: buyer?.city || shippingAddress?.city || 'Kayseri',
         country: buyer?.country || 'Turkey',
       },
       shippingAddress: {
-        contactName: shippingAddress?.contactName,
-        city: shippingAddress?.city,
+        contactName: `${name} ${surname}`,
+        city: shippingAddress?.city || 'Kayseri',
         country: shippingAddress?.country || 'Turkey',
-        address: shippingAddress?.address,
+        address: shippingAddress?.address || 'Kayseri, Türkiye',
       },
       billingAddress: {
-        contactName: billingAddress?.contactName,
-        city: billingAddress?.city,
+        contactName: `${name} ${surname}`,
+        city: billingAddress?.city || 'Kayseri',
         country: billingAddress?.country || 'Turkey',
-        address: billingAddress?.address,
+        address: billingAddress?.address || 'Kayseri, Türkiye',
       },
-      basketItems: items.map((item, index) => ({
-        id: item.id || `item_${index}`,
+      basketItems: basketItems.map((item, i) => ({
+        id: item.id || `item_${i + 1}`,
         name: item.name,
-        category1: item.category1 || 'Gıda',
+        category1: item.category1 || 'Gıda Ürünü',
         itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL,
         price: String(item.price),
       })),
     };
 
-    console.log('📦 İyzico request data:', {
-      ...request_data,
-      callbackUrl,
-      itemCount: items.length,
+    console.log('📦 Gönderilen veri:', {
+      buyerEmail: email,
+      totalPrice,
+      itemCount: basketItems.length,
     });
 
     const result = await new Promise((resolve, reject) => {
-      iyzipay.checkoutFormInitialize.create(request_data, (err, result) => {
+      iyzipay.checkoutFormInitialize.create(requestData, (err, result) => {
         if (err) {
           console.error('❌ İyzico hatası:', err);
           reject(err);
         } else {
-          console.log('✅ Checkout form oluşturuldu:', {
-            status: result.status,
-            token: result.token,
-            paymentPageUrl: result.paymentPageUrl,
-          });
           resolve(result);
         }
       });
     });
 
     if (result.status === 'success') {
+      console.log('✅ Checkout form oluşturuldu:', result.paymentPageUrl);
       return new Response(
         JSON.stringify({
           status: 'success',
@@ -120,7 +117,7 @@ export async function POST({ request }) {
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     } else {
-      console.error('❌ İyzico başarısız:', result);
+      console.error('❌ İyzico başarısız:', result.errorMessage);
       return new Response(
         JSON.stringify({
           status: 'error',
