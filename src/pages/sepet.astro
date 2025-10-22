@@ -94,128 +94,127 @@ h1 { text-align: center; color: #b91c1c; margin-bottom: 2rem; }
 </style>
 
 <script>
-  interface CartItem {
-    id: number;
-    name: string;
-    price: number;
-    image: string;
-    unit: string;
-    quantity: number;
+interface CartItem {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  unit: string;
+  quantity: number;
+}
+
+let cart: CartItem[] = [];
+
+function loadCart() {
+  cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  renderCart();
+  updateSummary();
+}
+
+function renderCart() {
+  const cartEl = document.getElementById("cart-items");
+  const emptyEl = document.getElementById("empty-cart");
+  const btn = document.getElementById("checkout-btn") as HTMLButtonElement;
+
+  if (!cartEl || !emptyEl) return;
+
+  if (cart.length === 0) {
+    cartEl.innerHTML = "";
+    emptyEl.classList.remove("hidden");
+    btn.disabled = true;
+    return;
   }
 
-  let cart: CartItem[] = [];
+  emptyEl.classList.add("hidden");
+  btn.disabled = false;
 
-  function loadCart() {
-    cart = JSON.parse(localStorage.getItem("cart") || "[]");
-    renderCart();
-    updateSummary();
-  }
-
-  function renderCart() {
-    const cartEl = document.getElementById("cart-items");
-    const emptyEl = document.getElementById("empty-cart");
-    const btn = document.getElementById("checkout-btn") as HTMLButtonElement;
-
-    if (!cartEl || !emptyEl) return;
-
-    if (cart.length === 0) {
-      cartEl.innerHTML = "";
-      emptyEl.classList.remove("hidden");
-      btn.disabled = true;
-      return;
-    }
-
-    emptyEl.classList.add("hidden");
-    btn.disabled = false;
-
-    cartEl.innerHTML = cart
-      .map(
-        (item, i) => `
-        <div class="cart-item">
-          <img src="${item.image}" alt="${item.name}" class="item-img" />
-          <div class="item-info">
-            <h4>${item.name}</h4>
-            <p>${item.price}₺ / ${item.unit}</p>
-            <div class="qty-controls">
-              <button onclick="changeQty(${i}, -1)">−</button>
-              <span>${item.quantity}</span>
-              <button onclick="changeQty(${i}, 1)">+</button>
-            </div>
+  cartEl.innerHTML = cart
+    .map(
+      (item, i) => `
+      <div class="cart-item">
+        <img src="${item.image}" alt="${item.name}" class="item-img" />
+        <div class="item-info">
+          <h4>${item.name}</h4>
+          <p>${item.price}₺ / ${item.unit}</p>
+          <div class="qty-controls">
+            <button onclick="changeQty(${i}, -1)">−</button>
+            <span>${item.quantity}</span>
+            <button onclick="changeQty(${i}, 1)">+</button>
           </div>
-          <div class="item-total">${(item.price * item.quantity).toFixed(2)}₺</div>
-        </div>`
-      )
-      .join("");
+        </div>
+        <div class="item-total">${(item.price * item.quantity).toFixed(2)}₺</div>
+      </div>`
+    )
+    .join("");
+}
+
+// global hale getirilmiş fonksiyon
+window.changeQty = function (i, delta) {
+  cart[i].quantity = Math.max(1, cart[i].quantity + delta);
+  saveCart();
+};
+
+function saveCart() {
+  localStorage.setItem("cart", JSON.stringify(cart));
+  renderCart();
+  updateSummary();
+}
+
+function calculateSubtotal() {
+  return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+}
+
+function updateSummary() {
+  const subtotal = calculateSubtotal();
+  const shipping = subtotal >= 1000 ? 0 : 50;
+  const total = subtotal + shipping;
+  document.getElementById("subtotal").textContent = subtotal.toFixed(2) + "₺";
+  document.getElementById("shipping").textContent = shipping === 0 ? "Ücretsiz" : shipping + "₺";
+  document.getElementById("total").textContent = total.toFixed(2) + "₺";
+}
+
+document.getElementById("checkout-btn")?.addEventListener("click", async () => {
+  const email = (document.getElementById("buyer-email") as HTMLInputElement).value.trim();
+  const name = (document.getElementById("buyer-name") as HTMLInputElement).value.trim();
+  const surname = (document.getElementById("buyer-surname") as HTMLInputElement).value.trim();
+
+  if (!email || !email.includes("@")) {
+    alert("Lütfen geçerli bir e-posta adresi girin.");
+    return;
   }
 
-  // 🔧 Fonksiyon global hale getirildi
-  window.changeQty = function (i, delta) {
-    cart[i].quantity = Math.max(1, cart[i].quantity + delta);
-    saveCart();
+  localStorage.setItem("lastOrderEmail", email);
+  localStorage.setItem("lastOrderName", name);
+  localStorage.setItem("lastOrderSurname", surname);
+
+  const items = cart.map((x, i) => ({
+    id: `BI${i + 1}`,
+    name: x.name,
+    category1: "Et Ürünleri",
+    itemType: "PHYSICAL",
+    price: (x.price * x.quantity).toFixed(2),
+  }));
+
+  const payload = {
+    items,
+    buyer: { name, surname, email },
+    shippingAddress: { city: "Kayseri", address: "Kayseri, Türkiye" },
+    billingAddress: { city: "Kayseri", address: "Kayseri, Türkiye" },
   };
 
-  function saveCart() {
-    localStorage.setItem("cart", JSON.stringify(cart));
-    renderCart();
-    updateSummary();
-  }
-
-  function calculateSubtotal() {
-    return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  }
-
-  function updateSummary() {
-    const subtotal = calculateSubtotal();
-    const shipping = subtotal >= 1000 ? 0 : 50;
-    const total = subtotal + shipping;
-    document.getElementById("subtotal").textContent = subtotal.toFixed(2) + "₺";
-    document.getElementById("shipping").textContent = shipping === 0 ? "Ücretsiz" : shipping + "₺";
-    document.getElementById("total").textContent = total.toFixed(2) + "₺";
-  }
-
-  document.getElementById("checkout-btn")?.addEventListener("click", async () => {
-    const email = (document.getElementById("buyer-email") as HTMLInputElement).value.trim();
-    const name = (document.getElementById("buyer-name") as HTMLInputElement).value.trim();
-    const surname = (document.getElementById("buyer-surname") as HTMLInputElement).value.trim();
-
-    if (!email || !email.includes("@")) {
-      alert("Lütfen geçerli bir e-posta adresi girin.");
-      return;
-    }
-
-    localStorage.setItem("lastOrderEmail", email);
-    localStorage.setItem("lastOrderName", name);
-    localStorage.setItem("lastOrderSurname", surname);
-
-    const basketItems = cart.map((x, i) => ({
-      id: `BI${i + 1}`,
-      name: x.name,
-      category1: "Et Ürünleri",
-      itemType: "PHYSICAL",
-      price: (x.price * x.quantity).toFixed(2),
-    }));
-
-    const payload = {
-      basketItems,
-      items: basketItems, // backend uyumluluğu
-      buyer: { name, surname, email },
-      shippingAddress: { city: "Kayseri", address: "Kayseri, Türkiye" },
-      billingAddress: { city: "Kayseri", address: "Kayseri, Türkiye" },
-    };
-
-    const res = await fetch("/api/create-payment", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-    if (data.paymentPageUrl) {
-      window.location.href = data.paymentPageUrl;
-    } else {
-      alert("Ödeme başlatılamadı: " + (data.error || "Bilinmeyen hata"));
-    }
+  const res = await fetch("/api/create-payment", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
   });
 
-  document.addEventListener("DOMContentLoaded", loadCart);
+  const data = await res.json();
+  if (data.paymentPageUrl) {
+    window.location.href = data.paymentPageUrl;
+  } else {
+    alert("Ödeme başlatılamadı: " + (data.error || "Bilinmeyen hata"));
+  }
+});
+
+document.addEventListener("DOMContentLoaded", loadCart);
 </script>
