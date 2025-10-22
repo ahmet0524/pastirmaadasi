@@ -7,6 +7,13 @@ export async function POST({ request }) {
 
     const { items, buyer, shippingAddress, billingAddress } = await request.json();
 
+    console.log('📨 Gelen veri:', {
+      itemsCount: items?.length,
+      buyer: buyer?.email,
+      hasShipping: !!shippingAddress,
+      hasBilling: !!billingAddress
+    });
+
     if (!items || items.length === 0) {
       return new Response(JSON.stringify({ success: false, error: 'Sepet boş.' }), {
         status: 400,
@@ -22,18 +29,20 @@ export async function POST({ request }) {
 
     // 🔹 Toplam tutarı hesapla - items array'indeki her price zaten quantity ile çarpılmış
     const totalPrice = Number(
-      items.reduce((sum, item) => sum + parseFloat(item.price || 0), 0).toFixed(2)
+      items.reduce((sum, item) => {
+        const itemPrice = parseFloat(item.price || 0);
+        console.log(`Item: ${item.name}, Price: ${itemPrice}`);
+        return sum + itemPrice;
+      }, 0).toFixed(2)
     );
 
     console.log('📊 Hesaplanan toplam:', totalPrice);
-    console.log('📋 Items detayları:', items);
 
     if (!totalPrice || totalPrice <= 0 || isNaN(totalPrice)) {
       console.error('❌ Geçersiz toplam tutar:', totalPrice);
       return new Response(JSON.stringify({
         success: false,
-        error: 'Geçersiz sepet tutarı: ' + totalPrice,
-        debug: { totalPrice, items }
+        error: 'Geçersiz sepet tutarı: ' + totalPrice
       }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
@@ -93,13 +102,13 @@ export async function POST({ request }) {
       })),
     };
 
-    console.log('📦 Gönderilen veri:', {
+    console.log('📦 İyzico\'ya gönderilecek veri:', {
       buyerEmail: request_data.buyer.email,
       totalPrice: request_data.price,
       paidPrice: request_data.paidPrice,
       basketId: request_data.basketId,
       itemCount: items.length,
-      items: request_data.basketItems
+      firstItem: request_data.basketItems[0]
     });
 
     const result = await new Promise((resolve, reject) => {
@@ -114,7 +123,8 @@ export async function POST({ request }) {
     });
 
     if (result.status === 'success') {
-      console.log('✅ Başarılı istek:', result.paymentPageUrl);
+      console.log('✅ Başarılı istek, token:', result.token);
+      console.log('🔗 Payment URL:', result.paymentPageUrl);
       return new Response(
         JSON.stringify({
           success: true,
