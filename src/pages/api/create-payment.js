@@ -3,24 +3,22 @@ import crypto from 'crypto';
 
 export const prerender = false;
 
-// İyzico imza oluşturma fonksiyonu - DOĞRU FORMAT
+// ✅ DÜZELTME: İyzico imza oluşturma fonksiyonu
 function generateIyzicoSignature(apiKey, secretKey, randomString, requestBody) {
   // 1. Request body'yi string'e çevir
   const requestString = typeof requestBody === 'string' ? requestBody : JSON.stringify(requestBody);
 
-  // 2. PWD hesapla: [randomKey] + [requestBody]
+  // 2. PWD hesapla: [randomString] + [requestString]
   const dataToHash = `${randomString}${requestString}`;
 
-  // 3. HMAC-SHA1 ile hash oluştur
-  const hash = crypto.createHmac('sha1', secretKey)
+  // 3. HMAC-SHA256 ile hash oluştur (SHA1 değil!)
+  const hash = crypto
+    .createHmac('sha256', secretKey)
     .update(dataToHash, 'utf8')
     .digest('base64');
 
-  // 4. Authorization string: apiKey:randomKey:signature
-  const authString = `${apiKey}:${randomString}:${hash}`;
-
-  // 5. Base64 encode
-  return Buffer.from(authString, 'utf8').toString('base64');
+  // 4. Authorization header formatı: IYZWS apiKey:hash
+  return hash;
 }
 
 export async function POST({ request }) {
@@ -149,12 +147,15 @@ export async function POST({ request }) {
     const requestBodyString = JSON.stringify(requestBody);
     const randomString = crypto.randomBytes(16).toString('hex');
 
-    // İyzico authorization header formatı
-    const authString = `apiKey:${apiKey}&randomKey:${randomString}&signature:${generateIyzicoSignature(secretKey, randomString, requestBodyString)}`;
-    const authorization = `IYZWSv2 ${Buffer.from(authString).toString('base64')}`;
+    // ✅ Doğru imza oluşturma
+    const signature = generateIyzicoSignature(apiKey, secretKey, randomString, requestBodyString);
+
+    // ✅ Doğru authorization header formatı
+    const authorization = `IYZWS ${apiKey}:${signature}`;
 
     console.log('📤 İyzico\'ya gönderiliyor...');
     console.log('🔑 Random String:', randomString);
+    console.log('🔐 Authorization preview:', authorization.substring(0, 50) + '...');
 
     // İyzico API çağrısı
     const response = await fetch('https://sandbox-api.iyzipay.com/payment/iyzipos/checkoutform/initialize/auth/ecom', {
@@ -164,7 +165,6 @@ export async function POST({ request }) {
         'Content-Type': 'application/json',
         'Authorization': authorization,
         'x-iyzi-rnd': randomString,
-        'x-iyzi-client-version': 'iyzipay-node-2.0.0'
       },
       body: requestBodyString,
     });
@@ -173,7 +173,9 @@ export async function POST({ request }) {
     console.log('📥 İyzico yanıtı:', {
       status: result.status,
       token: result.token,
-      hasPaymentPageUrl: !!result.paymentPageUrl
+      hasPaymentPageUrl: !!result.paymentPageUrl,
+      errorMessage: result.errorMessage,
+      errorCode: result.errorCode
     });
 
     if (result.status === 'success' && result.paymentPageUrl) {
