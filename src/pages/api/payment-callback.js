@@ -1,79 +1,59 @@
 // src/pages/api/payment-callback.js
 
-export const POST = async ({ request, redirect }) => {
+export const prerender = false;
+
+export async function POST({ request, redirect }) {
   try {
     console.log("🔔 Payment callback alındı");
 
-    // İyzipay'i yükle
-    const Iyzipay = (await import("iyzipay")).default;
+    const contentType = request.headers.get('content-type') || '';
+    let token = null;
 
-    const iyzipay = new Iyzipay({
-      apiKey: "sandbox-iMWOs8liBFXBEw49vXevtfru7ZnPkIDs",
-      secretKey: "sandbox-cUbewaUJPvAzNUUMsXaGzbUzK2gsYudG",
-      uri: "https://sandbox-api.iyzipay.com",
-    });
-
-    // Form data'yı al (İyzico form-urlencoded gönderir)
-    const formData = await request.formData();
-    const token = formData.get('token');
-
-    console.log("🎟️ Token:", token);
-
-    if (!token) {
-      console.error("❌ Token bulunamadı");
-      return redirect('/sepet?error=token-missing');
-    }
-
-    // Ödeme sonucunu kontrol et
-    const result = await new Promise((resolve, reject) => {
-      iyzipay.checkoutForm.retrieve({
-        locale: Iyzipay.LOCALE.TR,
-        conversationId: Date.now().toString(),
-        token: token
-      }, (err, result) => {
-        if (err) {
-          console.error("❌ İyzico retrieve hatası:", err);
-          reject(err);
-        } else {
-          console.log("📥 İyzico retrieve sonucu:", JSON.stringify(result, null, 2));
-          resolve(result);
-        }
-      });
-    });
-
-    if (result.status === "success" && result.paymentStatus === "SUCCESS") {
-      console.log("✅ Ödeme başarılı!");
-
-      // TODO: Burada sipariş kaydı yapılabilir
-      // - Veritabanına kaydet
-      // - E-posta gönder
-      // - Stok güncelle vb.
-
-      // Başarılı sayfasına yönlendir
-      return redirect('/odeme-basarili?orderId=' + result.basketId);
+    // Content-Type'a göre token'ı çıkar
+    if (contentType.includes('application/json')) {
+      const body = await request.json();
+      token = body.token;
+      console.log("📦 JSON'dan token:", token);
+    } else if (contentType.includes('application/x-www-form-urlencoded')) {
+      const formData = await request.text();
+      const params = new URLSearchParams(formData);
+      token = params.get('token');
+      console.log("📦 Form'dan token:", token);
     } else {
-      console.error("❌ Ödeme başarısız:", result.errorMessage);
-      return redirect('/sepet?error=payment-failed&message=' + encodeURIComponent(result.errorMessage || 'Ödeme başarısız'));
+      // Fallback: Her iki formatı da dene
+      const text = await request.text();
+      console.log("📄 Raw body:", text);
+
+      try {
+        token = JSON.parse(text).token;
+        console.log("📦 JSON parse'dan token:", token);
+      } catch {
+        const params = new URLSearchParams(text);
+        token = params.get('token');
+        console.log("📦 URLSearchParams'tan token:", token);
+      }
     }
-  } catch (error) {
-    console.error("💥 Callback hatası:", error);
-    return redirect('/sepet?error=callback-error&message=' + encodeURIComponent(error.message));
+
+    console.log("🎟️ Extracted token:", token);
+
+    if (token) {
+      return redirect(`/odeme-sonuc?token=${token}`, 302);
+    } else {
+      console.error("❌ Token bulunamadı");
+      return redirect('/odeme-sonuc?error=no-token', 302);
+    }
+  } catch (err) {
+    console.error("💥 Callback failed:", err);
+    return redirect('/odeme-sonuc?error=callback-failed', 302);
   }
-};
+}
 
-// GET endpoint (kullanıcı direkt bu URL'yi ziyaret ederse)
-export const GET = ({ redirect }) => {
-  return redirect('/sepet');
-};
+export async function GET({ url, redirect }) {
+  const token = url.searchParams.get('token');
+  console.log("🔍 GET request - token:", token);
 
-// OPTIONS for CORS
-export const OPTIONS = () => {
-  return new Response(null, {
-    status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, X-Requested-With",
-    },
-  });
-};
+  if (token) {
+    return redirect(`/odeme-sonuc?token=${token}`, 302);
+  }
+  return redirect('/odeme-sonuc?error=no-token', 302);
+}

@@ -3,17 +3,118 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
-export const prerender = false;
+const token = Astro.url.searchParams.get('token');
+const error = Astro.url.searchParams.get('error');
+
+let paymentResult = null;
+let errorMessage = '';
+
+if (error) {
+  errorMessage = error === 'no-token' ? 'Token bulunamadı' : 'Ödeme işlemi başarısız';
+} else if (token) {
+  try {
+    // İyzico'dan ödeme sonucunu al
+    const Iyzipay = (await import("iyzipay")).default;
+
+    const iyzipay = new Iyzipay({
+      apiKey: import.meta.env.IYZICO_API_KEY || "sandbox-iMWOs8liBFXBEw49vXevtfru7ZnPkIDs",
+      secretKey: import.meta.env.IYZICO_SECRET_KEY || "sandbox-cUbewaUJPvAzNUUMsXaGzbUzK2gsYudG",
+      uri: "https://sandbox-api.iyzipay.com",
+    });
+
+    paymentResult = await new Promise((resolve, reject) => {
+      iyzipay.checkoutForm.retrieve({
+        locale: Iyzipay.LOCALE.TR,
+        conversationId: Date.now().toString(),
+        token: token
+      }, (err, result) => {
+        if (err) {
+          console.error("❌ İyzico retrieve hatası:", err);
+          reject(err);
+        } else {
+          console.log("✅ İyzico sonucu:", result);
+          resolve(result);
+        }
+      });
+    });
+  } catch (err) {
+    console.error("💥 Ödeme sonucu alınamadı:", err);
+    errorMessage = err.message || 'Ödeme sonucu alınamadı';
+  }
+}
+
+const isSuccess = paymentResult?.status === "success" && paymentResult?.paymentStatus === "SUCCESS";
+const orderId = paymentResult?.basketId || 'N/A';
+const paidPrice = paymentResult?.paidPrice || '0';
 ---
 
-<BaseLayout title="Ödeme Sonucu" description="Ödeme işleminizin sonucu">
+<BaseLayout title={isSuccess ? "Ödeme Başarılı" : "Ödeme Hatası"} description="Ödeme sonucu">
   <Header slot="header" />
 
-  <section class="payment-result-page">
+  <section class="result-page">
     <div class="container">
-      <div id="result-content" class="result-box loading">
-        <div class="spinner"></div>
-        <p>Ödeme durumu kontrol ediliyor...</p>
+      <div class="result-card">
+        {isSuccess ? (
+          <!-- Başarılı Ödeme -->
+          <>
+            <div class="success-icon">
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+
+            <h1>🎉 Siparişiniz Alındı!</h1>
+            <p class="success-message">Ödemeniz başarıyla tamamlandı. Siparişiniz en kısa sürede hazırlanacaktır.</p>
+
+            <div class="order-info">
+              <div class="info-item">
+                <span class="label">Sipariş No:</span>
+                <span class="value">{orderId}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Ödenen Tutar:</span>
+                <span class="value">{paidPrice} ₺</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Durum:</span>
+                <span class="value status-success">✅ Ödeme Alındı</span>
+              </div>
+            </div>
+
+            <div class="success-actions">
+              <a href="/" class="btn btn-primary">Ana Sayfaya Dön</a>
+              <a href="/online-alisveris" class="btn btn-secondary">Alışverişe Devam Et</a>
+            </div>
+
+            <div class="next-steps">
+              <h3>📦 Sonraki Adımlar</h3>
+              <ul>
+                <li>Sipariş onay e-postası gönderilecektir</li>
+                <li>Siparişiniz hazırlandığında bilgilendirileceksiniz</li>
+                <li>Kargo takip numaranız tarafınıza iletilecektir</li>
+              </ul>
+            </div>
+          </>
+        ) : (
+          <!-- Başarısız Ödeme -->
+          <>
+            <div class="error-icon">
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+
+            <h1>❌ Ödeme Başarısız</h1>
+            <p class="error-message">
+              {errorMessage || paymentResult?.errorMessage || 'Ödeme işlemi tamamlanamadı. Lütfen tekrar deneyin.'}
+            </p>
+
+            <div class="error-actions">
+              <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
+              <a href="/iletisim" class="btn btn-secondary">Yardım Al</a>
+            </div>
+          </>
+        )}
       </div>
     </div>
   </section>
@@ -22,177 +123,190 @@ export const prerender = false;
 </BaseLayout>
 
 <style>
-.payment-result-page {
-  min-height: 80vh;
+.result-page {
+  padding: 4rem 0;
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+}
+
+.result-card {
+  background: white;
+  border-radius: 20px;
+  padding: 3rem;
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+}
+
+.success-icon, .error-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 2rem;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: scaleIn 0.5s ease-out;
 }
-.result-box {
-  text-align: center;
-  background: white;
-  padding: 2rem;
-  border-radius: 14px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-  max-width: 450px;
-  margin: auto;
+
+.success-icon {
+  background: #10b981;
 }
-.spinner {
-  border: 4px solid #eee;
-  border-top: 4px solid #dc2626;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  margin: 1rem auto;
-  animation: spin 0.8s linear infinite;
+
+.error-icon {
+  background: #ef4444;
 }
-@keyframes spin {
-  100% { transform: rotate(360deg); }
-}
-.success-icon, .error-icon {
-  margin-bottom: 1rem;
-}
-.action-buttons {
-  margin-top: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-.btn {
-  padding: 0.8rem;
-  border-radius: 8px;
-  font-weight: 600;
-  text-decoration: none;
-  text-align: center;
-}
-.btn-primary {
-  background: #dc2626;
+
+.success-icon svg, .error-icon svg {
   color: white;
 }
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.result-card h1 {
+  color: #1f2937;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+}
+
+.success-message, .error-message {
+  color: #6b7280;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.order-info {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.value {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.status-success {
+  color: #10b981;
+}
+
+.success-actions, .error-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.btn {
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background: #667eea;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #5568d3;
+  transform: translateY(-2px);
+}
+
 .btn-secondary {
-  background: #f3f4f6;
-  color: #333;
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+}
+
+.btn-secondary:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.next-steps {
+  text-align: left;
+  background: #fffbeb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 2px solid #fbbf24;
+}
+
+.next-steps h3 {
+  margin-top: 0;
+  color: #92400e;
+  font-size: 1.1rem;
+}
+
+.next-steps ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #78350f;
+}
+
+.next-steps li {
+  margin: 0.5rem 0;
+}
+
+@media (max-width: 768px) {
+  .result-card {
+    padding: 2rem;
+  }
+
+  .success-actions, .error-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
 }
 </style>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+// Sepeti temizle (ödeme başarılıysa)
+document.addEventListener('DOMContentLoaded', () => {
   const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get("token");
-  const resultContent = document.getElementById("result-content");
+  const hasToken = urlParams.has('token');
+  const hasError = urlParams.has('error');
 
-  if (!resultContent) return;
-
-  if (token) {
-    const storedEmail = localStorage.getItem('lastOrderEmail') || '';
-    const storedName = localStorage.getItem('lastOrderName') || '';
-    const storedSurname = localStorage.getItem('lastOrderSurname') || '';
-
-    const requestBody = {
-      token,
-      customerEmail: storedEmail,
-      customerName: storedName,
-      customerSurname: storedSurname
-    };
-
-    fetch("/api/verify-payment", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(requestBody),
-    })
-    .then(res => {
-      if (!res.ok) throw new Error("HTTP Error " + res.status);
-      return res.json();
-    })
-    .then(data => {
-      if (data.status === "success") {
-        // ✅ Sepeti ve müşteri verilerini temizle
-        localStorage.removeItem('cart');
-        localStorage.removeItem('lastOrderEmail');
-        localStorage.removeItem('lastOrderName');
-        localStorage.removeItem('lastOrderSurname');
-
-        let emailStatusHTML = '';
-        if (data.emailSent === true) {
-          emailStatusHTML = '<p style="color:#10b981; font-size:14px; margin-top:10px;">✅ E-posta gönderildi</p>';
-        } else if (data.emailError) {
-          emailStatusHTML = `<p style="color:#f59e0b; font-size:14px; margin-top:10px;">⚠️ E-posta gönderim hatası: ${data.emailError}</p>`;
-        }
-
-        resultContent.className = "result-box success";
-        resultContent.innerHTML = `
-          <div class="success-icon">
-            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h2>✅ Ödeme Başarılı!</h2>
-          <p>Siparişiniz başarıyla alındı.</p>
-          <p>Kısa süre içinde e-posta ile sipariş detaylarınız gönderilecektir.</p>
-          ${emailStatusHTML}
-          <div class="order-details">
-            <h3>Sipariş Detayları</h3>
-            <div class="detail-row"><span>Ödeme ID:</span><span>${data.paymentId || "N/A"}</span></div>
-            <div class="detail-row"><span>Tutar:</span><span>${data.paidPrice} ₺</span></div>
-            <div class="detail-row"><span>Durum:</span><span style="color:#10b981;">Başarılı</span></div>
-          </div>
-          <div class="action-buttons">
-            <a href="/" class="btn btn-primary">Ana Sayfaya Dön</a>
-            <a href="/online-alisveris" class="btn btn-secondary">Alışverişe Devam Et</a>
-          </div>
-        `;
-      } else {
-        resultContent.className = "result-box error";
-        resultContent.innerHTML = `
-          <div class="error-icon">
-            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </div>
-          <h2>❌ Ödeme Başarısız</h2>
-          <p>${data.errorMessage || "Ödeme işlemi tamamlanamadı."}</p>
-          <div class="action-buttons">
-            <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
-            <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
-          </div>
-        `;
-      }
-    })
-    .catch(error => {
-      console.error('❌ Fetch error:', error);
-      resultContent.className = "result-box error";
-      resultContent.innerHTML = `
-        <div class="error-icon">
-          <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-        </div>
-        <h2>⚠️ Bir Hata Oluştu</h2>
-        <p>Ödeme doğrulama sırasında bir hata meydana geldi.</p>
-        <div class="action-buttons">
-          <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
-          <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
-        </div>
-      `;
-    });
-  } else {
-    resultContent.className = "result-box error";
-    resultContent.innerHTML = `
-      <div class="error-icon">
-        <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-      </div>
-      <h2>⚠️ Geçersiz İstek</h2>
-      <p>Ödeme doğrulama bilgisi bulunamadı.</p>
-      <div class="action-buttons">
-        <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
-        <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
-      </div>
-    `;
+  // Sadece başarılı ödemede sepeti temizle
+  if (hasToken && !hasError) {
+    const successIcon = document.querySelector('.success-icon');
+    if (successIcon) {
+      localStorage.removeItem('cart');
+      window.dispatchEvent(new Event('cartUpdated'));
+      console.log('🗑️ Sepet temizlendi');
+    }
   }
 });
 </script>
