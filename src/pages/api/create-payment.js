@@ -1,6 +1,8 @@
 // src/pages/api/create-payment.js
 
-export async function POST({ request }) {
+export const POST = async ({ request }) => {
+  // ...
+};
   try {
     console.log("💳 Ödeme oluşturma isteği alındı");
 
