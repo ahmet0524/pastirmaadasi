@@ -3,22 +3,15 @@ import crypto from 'crypto';
 
 export const prerender = false;
 
-// ✅ DÜZELTME: İyzico imza oluşturma fonksiyonu
+// ✅ ÇALIŞAN KODDAN ALINAN İMZA FONKSİYONU
 function generateIyzicoSignature(apiKey, secretKey, randomString, requestBody) {
-  // 1. Request body'yi string'e çevir
   const requestString = typeof requestBody === 'string' ? requestBody : JSON.stringify(requestBody);
-
-  // 2. PWD hesapla: [randomString] + [requestString]
   const dataToHash = `${randomString}${requestString}`;
-
-  // 3. HMAC-SHA256 ile hash oluştur (SHA1 değil!)
-  const hash = crypto
-    .createHmac('sha256', secretKey)
+  const hash = crypto.createHmac('sha1', secretKey)
     .update(dataToHash, 'utf8')
     .digest('base64');
-
-  // 4. Authorization header formatı: IYZWS apiKey:hash
-  return hash;
+  const authString = `${apiKey}:${randomString}:${hash}`;
+  return Buffer.from(authString, 'utf8').toString('base64');
 }
 
 export async function POST({ request }) {
@@ -88,7 +81,7 @@ export async function POST({ request }) {
       });
     }
 
-    // URL'leri hazırla
+    // URL'leri hazırla - ✅ Çift slash düzeltildi
     const baseUrl = import.meta.env.PUBLIC_SITE_URL ||
                     (import.meta.env.PROD
                       ? 'https://pastirmaadasi.vercel.app'
@@ -147,23 +140,19 @@ export async function POST({ request }) {
     const requestBodyString = JSON.stringify(requestBody);
     const randomString = crypto.randomBytes(16).toString('hex');
 
-    // ✅ Doğru imza oluşturma
-    const signature = generateIyzicoSignature(apiKey, secretKey, randomString, requestBodyString);
-
-    // ✅ Doğru authorization header formatı
-    const authorization = `IYZWS ${apiKey}:${signature}`;
+    // ✅ ÇALIŞAN KODDAN ALINAN İMZA OLUŞTURMA
+    const authorization = generateIyzicoSignature(apiKey, secretKey, randomString, requestBodyString);
 
     console.log('📤 İyzico\'ya gönderiliyor...');
     console.log('🔑 Random String:', randomString);
     console.log('🔐 Authorization preview:', authorization.substring(0, 50) + '...');
 
-    // İyzico API çağrısı
+    // İyzico API çağrısı - ✅ ÇALIŞAN KODDAN ALINAN FORMAT
     const response = await fetch('https://sandbox-api.iyzipay.com/payment/iyzipos/checkoutform/initialize/auth/ecom', {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': authorization,
+        'Authorization': `IYZWS ${apiKey}:${authorization}`,
         'x-iyzi-rnd': randomString,
       },
       body: requestBodyString,
