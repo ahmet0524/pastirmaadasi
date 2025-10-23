@@ -1,4 +1,3 @@
----
 // src/pages/sepet.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
@@ -206,6 +205,7 @@ import Footer from '../components/Footer.astro';
     margin-bottom: 1.25rem;
   }
 
+  /* 🎯 YENİ: Daha Büyük Quantity Controls */
   .quantity-controls {
     display: flex;
     align-items: center;
@@ -724,7 +724,7 @@ import Footer from '../components/Footer.astro';
     message.classList.remove('hidden');
   });
 
-  // ✅ Ödemeye geç
+  // ✅ ÖNEMLİ: localStorage'a email kaydet ve ödemeye geç
   document.getElementById('checkout-btn')?.addEventListener('click', async () => {
     if (cart.length === 0) return;
 
@@ -737,14 +737,7 @@ import Footer from '../components/Footer.astro';
       return;
     }
 
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(emailInput.value)) {
-      alert('Lütfen geçerli bir e-posta adresi girin!');
-      return;
-    }
-
-    // Email'i localStorage'a kaydet
+    // ⚠️ ÖNEMLİ: Email'i localStorage'a kaydet
     localStorage.setItem('lastOrderEmail', emailInput.value);
     localStorage.setItem('lastOrderName', nameInput.value);
     localStorage.setItem('lastOrderSurname', surnameInput.value);
@@ -771,16 +764,14 @@ import Footer from '../components/Footer.astro';
         price: (item.price * item.quantity).toFixed(2),
       }));
 
-      const gsmNumber = '+905555555555';
-
       const paymentData = {
-        items: basketItems,
+        price: total.toFixed(2),
+        paidPrice: total.toFixed(2),
         buyer: {
           id: 'BY' + Date.now(),
           name: nameInput.value,
           surname: surnameInput.value,
           email: emailInput.value,
-          gsmNumber: gsmNumber,
           identityNumber: '11111111111',
           registrationAddress: 'Kayseri, Türkiye',
           ip: '85.34.78.112',
@@ -799,6 +790,7 @@ import Footer from '../components/Footer.astro';
           country: 'Turkey',
           address: 'Kayseri, Türkiye',
         },
+        basketItems: basketItems,
       };
 
       console.log('📤 Ödeme verisi gönderiliyor:', paymentData);
@@ -810,14 +802,12 @@ import Footer from '../components/Footer.astro';
       });
 
       const data = await response.json();
-      console.log('📥 Backend yanıtı:', data);
+      console.log('📥 API yanıtı:', data);
 
-      if (data.success && data.paymentPageUrl) {
-        console.log('✅ Ödeme sayfasına yönlendiriliyor...');
+      if (data.status === 'success' && data.paymentPageUrl) {
         window.location.href = data.paymentPageUrl;
       } else {
-        console.error('❌ Ödeme başlatılamadı:', data);
-        alert(`Ödeme başlatılamadı: ${data.error || 'Bilinmeyen hata'}`);
+        alert(data.errorMessage || 'Ödeme başlatılamadı!');
         checkoutBtn.disabled = false;
         if (btnText) btnText.textContent = '💳 Ödemeye Geç';
       }
