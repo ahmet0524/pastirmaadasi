@@ -1,8 +1,6 @@
 // src/pages/api/create-payment.js
 
 export const POST = async ({ request }) => {
-  // ...
-};
   try {
     console.log("💳 Ödeme oluşturma isteği alındı");
 
@@ -19,17 +17,21 @@ export const POST = async ({ request }) => {
           success: false,
           error: "Ödeme modülü yüklenemedi: " + importError.message
         }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" }
+        }
       );
     }
 
     // İyzipay instance oluştur
     const iyzipay = new Iyzipay({
-      apiKey: import.meta.env.IYZICO_API_KEY || "sandbox-iMWOs8liBFXBEw49vXevtfru7ZnPkIDs",
-      secretKey: import.meta.env.IYZICO_SECRET_KEY || "sandbox-cUbewaUJPvAzNUUMsXaGzbUzK2gsYudG",
+      apiKey: "sandbox-iMWOs8liBFXBEw49vXevtfru7ZnPkIDs",
+      secretKey: "sandbox-cUbewaUJPvAzNUUMsXaGzbUzK2gsYudG",
       uri: "https://sandbox-api.iyzipay.com",
     });
 
+    // Request body'yi parse et
     let body;
     try {
       body = await request.json();
@@ -73,7 +75,7 @@ export const POST = async ({ request }) => {
 
     console.log("💰 Toplam fiyat:", totalPrice);
 
-    const baseUrl = import.meta.env.PUBLIC_SITE_URL || "https://pastirmaadasi.vercel.app";
+    const baseUrl = "https://pastirmaadasi.vercel.app";
     const callbackUrl = `${baseUrl}/api/payment-callback`;
 
     console.log("🔗 Callback URL:", callbackUrl);
@@ -99,7 +101,7 @@ export const POST = async ({ request }) => {
         lastLoginDate: "2024-01-01 00:00:00",
         registrationDate: "2024-01-01 00:00:00",
         registrationAddress: buyer.registrationAddress || shippingAddress?.address || "Kayseri, Türkiye",
-        ip: request.headers.get('x-forwarded-for')?.split(',')[0] || buyer.ip || "85.34.78.112",
+        ip: "85.34.78.112",
         city: buyer.city || shippingAddress?.city || "Kayseri",
         country: buyer.country || "Turkey",
         zipCode: buyer.zipCode || "38000",
@@ -131,20 +133,15 @@ export const POST = async ({ request }) => {
 
     // Promise wrapper for callback-based API
     const result = await new Promise((resolve, reject) => {
-      try {
-        iyzipay.checkoutFormInitialize.create(requestData, (err, result) => {
-          if (err) {
-            console.error("❌ İyzico callback hatası:", err);
-            reject(err);
-          } else {
-            console.log("📥 İyzico callback sonucu:", JSON.stringify(result, null, 2));
-            resolve(result);
-          }
-        });
-      } catch (createError) {
-        console.error("❌ İyzico create hatası:", createError);
-        reject(createError);
-      }
+      iyzipay.checkoutFormInitialize.create(requestData, (err, result) => {
+        if (err) {
+          console.error("❌ İyzico callback hatası:", err);
+          reject(err);
+        } else {
+          console.log("📥 İyzico callback sonucu:", JSON.stringify(result, null, 2));
+          resolve(result);
+        }
+      });
     });
 
     if (result.status === "success") {
@@ -176,7 +173,6 @@ export const POST = async ({ request }) => {
     }
   } catch (error) {
     console.error("💥 Sunucu hatası:", error);
-    console.error("Hata tipi:", error.constructor.name);
     console.error("Hata mesajı:", error.message);
     console.error("Stack trace:", error.stack);
 
@@ -184,7 +180,6 @@ export const POST = async ({ request }) => {
       JSON.stringify({
         success: false,
         error: error.message || "Sunucu hatası",
-        errorType: error.constructor.name,
         details: error.stack,
       }),
       {
@@ -193,10 +188,9 @@ export const POST = async ({ request }) => {
       }
     );
   }
-}
+};
 
-// OPTIONS endpoint for CORS
-export async function OPTIONS() {
+export const OPTIONS = () => {
   return new Response(null, {
     status: 200,
     headers: {
@@ -205,4 +199,4 @@ export async function OPTIONS() {
       "Access-Control-Allow-Headers": "Content-Type",
     },
   });
-}
+};
