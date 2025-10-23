@@ -1,12 +1,21 @@
 // src/pages/api/create-payment.js
-import Iyzipay from "iyzipay";
+import crypto from 'crypto';
 
-// API key'lerinizi .env dosyasından çekmeniz daha güvenlidir
-const iyzipay = new Iyzipay({
-  apiKey: import.meta.env.IYZICO_API_KEY || "sandbox-iMWOs8liBFXBEw49vXevtfru7ZnPkIDs",
-  secretKey: import.meta.env.IYZICO_SECRET_KEY || "sandbox-cUbewaUJPvAzNUUMsXaGzbUzK2gsYudG",
-  uri: "https://sandbox-api.iyzipay.com",
-});
+// İyzipay için imza oluşturma fonksiyonu
+function generateSignature(apiKey, secretKey, randomString, request) {
+  const dataString = [
+    randomString,
+    apiKey,
+    ...Object.keys(request)
+      .sort()
+      .map(key => `${key}=${request[key]}`)
+  ].join('');
+
+  return crypto
+    .createHmac('sha256', secretKey)
+    .update(dataString)
+    .digest('base64');
+}
 
 export async function POST({ request }) {
   try {
@@ -24,46 +33,41 @@ export async function POST({ request }) {
       .reduce((sum, item) => sum + parseFloat(item.price || 0), 0)
       .toFixed(2);
 
-    // Sitenizin canlı URL'sini buraya ekleyin (veya .env dosyasından çekin)
-    const baseUrl = import.meta.env.PUBLIC_SITE_URL || "https://pastirmaadasi.vercel.app/";
-    const callbackUrl = `${baseUrl}api/payment-callback`;
-    console.log("🔗 Callback URL:", callbackUrl);
+    const apiKey = import.meta.env.IYZICO_API_KEY || "sandbox-iMWOs8liBFXBEw49vXevtfru7ZnPkIDs";
+    const secretKey = import.meta.env.IYZICO_SECRET_KEY || "sandbox-cUbewaUJPvAzNUUMsXaGzbUzK2gsYudG";
+    const baseUrl = import.meta.env.PUBLIC_SITE_URL || "https://pastirmaadasi.vercel.app";
+    const callbackUrl = `${baseUrl}/api/payment-callback`;
 
-    const request_data = {
-      locale: Iyzipay.LOCALE.TR,
+    const requestData = {
+      locale: 'tr',
       conversationId: Date.now().toString(),
       price: totalPrice,
       paidPrice: totalPrice,
-      currency: Iyzipay.CURRENCY.TRY,
+      currency: 'TRY',
       basketId: Date.now().toString(),
-      paymentGroup: Iyzipay.PAYMENT_GROUP.PRODUCT,
+      paymentGroup: 'PRODUCT',
       callbackUrl,
       enabledInstallments: [1, 2, 3, 6, 9, 12],
       buyer: {
         id: buyer?.id || "BY" + Date.now(),
         name: buyer?.name || "Müşteri",
-        surname: buyer?.surname || "",
+        surname: buyer?.surname || "Test",
         gsmNumber: buyer?.gsmNumber || "+905555555555",
         email: buyer?.email || "test@example.com",
         identityNumber: buyer?.identityNumber || "11111111111",
-        registrationAddress:
-          buyer?.registrationAddress ||
-          shippingAddress?.address ||
-          "Kayseri, Türkiye",
-        ip: buyer?.ip || "85.34.78.112", // IP'yi request'ten almak daha doğrudur
+        registrationAddress: buyer?.registrationAddress || shippingAddress?.address || "Kayseri, Türkiye",
+        ip: request.headers.get('x-forwarded-for') || "85.34.78.112",
         city: buyer?.city || shippingAddress?.city || "Kayseri",
         country: buyer?.country || "Turkey",
       },
       shippingAddress: {
-        contactName:
-          shippingAddress?.contactName || `${buyer?.name} ${buyer?.surname}`,
+        contactName: shippingAddress?.contactName || `${buyer?.name || 'Müşteri'} ${buyer?.surname || 'Test'}`,
         city: shippingAddress?.city || "Kayseri",
         country: shippingAddress?.country || "Turkey",
         address: shippingAddress?.address || "Kayseri, Türkiye",
       },
       billingAddress: {
-        contactName:
-          billingAddress?.contactName || `${buyer?.name} ${buyer?.surname}`,
+        contactName: billingAddress?.contactName || `${buyer?.name || 'Müşteri'} ${buyer?.surname || 'Test'}`,
         city: billingAddress?.city || "Kayseri",
         country: billingAddress?.country || "Turkey",
         address: billingAddress?.address || "Kayseri, Türkiye",
@@ -72,31 +76,30 @@ export async function POST({ request }) {
         id: item.id || `item_${index + 1}`,
         name: item.name || "Ürün",
         category1: item.category1 || "Gıda",
-        itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL,
+        itemType: 'PHYSICAL',
         price: Number(item.price || 0).toFixed(2),
       })),
     };
 
-    console.log("📦 İyzico'ya gönderilen veri:", {
-      buyerEmail: request_data.buyer.email,
-      totalPrice,
-      itemCount: items.length,
+    const randomString = crypto.randomBytes(16).toString('hex');
+    const signature = generateSignature(apiKey, secretKey, randomString, requestData);
+
+    console.log("📦 İyzico'ya istek gönderiliyor...");
+
+    const response = await fetch('https://sandbox-api.iyzipay.com/payment/iyzipos/checkoutform/initialize/auth/ecom', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `IYZWSv2 ${apiKey}:${signature}:${randomString}`,
+        'x-iyzi-rnd': randomString,
+      },
+      body: JSON.stringify(requestData),
     });
 
-    // Kütüphaneyi kullanarak ödemeyi başlat
-    const result = await new Promise((resolve, reject) => {
-      iyzipay.checkoutFormInitialize.create(request_data, (err, result2) => {
-        if (err) {
-          console.error("❌ İyzico hatası:", err);
-          reject(err);
-        } else {
-          resolve(result2);
-        }
-      });
-    });
+    const result = await response.json();
+    console.log("📥 İyzico yanıtı:", result);
 
     if (result.status === "success") {
-      console.log("✅ Başarılı istek:", result.paymentPageUrl);
       return new Response(
         JSON.stringify({
           success: true,
@@ -106,7 +109,6 @@ export async function POST({ request }) {
         { status: 200, headers: { "Content-Type": "application/json" } }
       );
     } else {
-      console.error("❌ İyzico başarısız:", result.errorMessage);
       return new Response(
         JSON.stringify({
           success: false,

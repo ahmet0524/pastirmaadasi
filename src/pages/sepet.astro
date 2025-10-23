@@ -93,6 +93,285 @@ import Footer from '../components/Footer.astro';
   <Footer slot="footer" />
 </BaseLayout>
 
+<style>
+.cart-page {
+  padding: 4rem 0;
+  min-height: 60vh;
+}
+
+.cart-layout {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.cart-items-section {
+  min-height: 300px;
+}
+
+.empty-cart {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.empty-cart svg {
+  color: #ccc;
+  margin-bottom: 1rem;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.cart-item {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.cart-item-image img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.cart-item-info {
+  flex: 1;
+}
+
+.cart-item-info h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.cart-item-price {
+  color: #666;
+  margin: 0.25rem 0;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.qty-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.qty-btn:hover {
+  background: #f8f9fa;
+  border-color: #999;
+}
+
+.qty-amount {
+  min-width: 30px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.cart-item-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.remove-btn:hover {
+  opacity: 1;
+}
+
+.cart-item-total {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--primary-color, #c41e3a);
+  margin: 0;
+}
+
+.summary-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 100px;
+}
+
+.summary-card h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.customer-info-section,
+.coupon-section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.customer-info-section h3,
+.coupon-section label {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary-color, #c41e3a);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.coupon-input-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.coupon-input-group input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.coupon-message {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.coupon-message.success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.coupon-message.error {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.summary-details {
+  margin-top: 1rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+}
+
+.discount-row {
+  color: green;
+  font-weight: 600;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border-top: 2px solid #000;
+  margin-top: 1rem;
+}
+
+.btn-full {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.btn-large {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+}
+
+.continue-shopping {
+  display: block;
+  text-align: center;
+  margin-top: 1rem;
+  color: #666;
+  text-decoration: none;
+}
+
+.continue-shopping:hover {
+  color: var(--primary-color, #c41e3a);
+}
+
+@media (max-width: 768px) {
+  .cart-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-card {
+    position: static;
+  }
+}
+</style>
+
 <script>
 interface CartItem {
   id: number;
@@ -108,10 +387,10 @@ let discountPercent = 0;
 const coupons: Record<string, number> = { HOSGELDIN10: 10, YENI15: 15, KAYSER20: 20 };
 
 // ✅ renderCart fonksiyonu global hale getirildi
-window.renderCart = function renderCart() {
+(window as any).renderCart = function renderCart() {
   const cartContainer = document.getElementById('cart-items');
   const emptyCart = document.getElementById('empty-cart');
-  const checkoutBtn = document.getElementById('checkout-btn');
+  const checkoutBtn = document.getElementById('checkout-btn') as HTMLButtonElement | null;
 
   if (!cartContainer || !emptyCart) return;
 
@@ -175,14 +454,14 @@ window.renderCart = function renderCart() {
 
 function saveCart() {
   localStorage.setItem('cart', JSON.stringify(cart));
-  window.renderCart();
+  (window as any).renderCart();
   updateSummary();
   window.dispatchEvent(new Event('cartUpdated'));
 }
 
 function loadCart() {
   cart = JSON.parse(localStorage.getItem('cart') || '[]');
-  window.renderCart();
+  (window as any).renderCart();
   updateSummary();
 }
 
@@ -196,23 +475,43 @@ function updateSummary() {
   const discount = (subtotal * discountPercent) / 100;
   const total = subtotal + shipping - discount;
 
-  document.getElementById('subtotal').textContent = `${subtotal.toFixed(2)}₺`;
-  document.getElementById('shipping').textContent = shipping === 0 ? 'Ücretsiz' : `${shipping}₺`;
-  document.getElementById('discount').textContent = `-${discount.toFixed(2)}₺`;
-  document.getElementById('discount-row').classList.toggle('hidden', discount === 0);
-  document.getElementById('total').textContent = `${total.toFixed(2)}₺`;
+  const subtotalEl = document.getElementById('subtotal');
+  const shippingEl = document.getElementById('shipping');
+  const discountEl = document.getElementById('discount');
+  const discountRowEl = document.getElementById('discount-row');
+  const totalEl = document.getElementById('total');
+
+  if (subtotalEl) subtotalEl.textContent = `${subtotal.toFixed(2)}₺`;
+  if (shippingEl) shippingEl.textContent = shipping === 0 ? 'Ücretsiz' : `${shipping}₺`;
+  if (discountEl) discountEl.textContent = `-${discount.toFixed(2)}₺`;
+  if (discountRowEl) discountRowEl.classList.toggle('hidden', discount === 0);
+  if (totalEl) totalEl.textContent = `${total.toFixed(2)}₺`;
 }
 
-// ✅ Checkout işlemi
+// ✅ Checkout işlemi - DÜZELTME: response kontrolü ve hata yakalama
 async function handleCheckout() {
-  if (cart.length === 0) return;
+  if (cart.length === 0) {
+    alert('Sepetiniz boş!');
+    return;
+  }
 
-  const email = (document.getElementById('buyer-email') as HTMLInputElement).value;
-  const name = (document.getElementById('buyer-name') as HTMLInputElement).value;
-  const surname = (document.getElementById('buyer-surname') as HTMLInputElement).value;
+  const emailInput = document.getElementById('buyer-email') as HTMLInputElement;
+  const nameInput = document.getElementById('buyer-name') as HTMLInputElement;
+  const surnameInput = document.getElementById('buyer-surname') as HTMLInputElement;
+
+  const email = emailInput?.value.trim();
+  const name = nameInput?.value.trim();
+  const surname = surnameInput?.value.trim();
 
   if (!email || !name || !surname) {
     alert('Lütfen tüm bilgileri doldurun!');
+    return;
+  }
+
+  // Email validasyonu
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    alert('Lütfen geçerli bir e-posta adresi girin!');
     return;
   }
 
@@ -222,13 +521,15 @@ async function handleCheckout() {
 
   const btn = document.getElementById('checkout-btn') as HTMLButtonElement;
   const btnText = document.getElementById('checkout-btn-text');
+
+  if (!btn || !btnText) return;
+
   btn.disabled = true;
   btnText.textContent = '⏳ Ödeme hazırlanıyor...';
 
   const subtotal = calculateSubtotal();
   const shipping = subtotal >= 1000 ? 0 : 50;
   const discount = (subtotal * discountPercent) / 100;
-  const total = subtotal + shipping - discount;
 
   const items = cart.map((item, i) => ({
     id: `ITEM_${i + 1}`,
@@ -248,36 +549,108 @@ async function handleCheckout() {
     country: 'Turkey',
   };
 
+  const shippingAddress = {
+    contactName: `${name} ${surname}`,
+    city: 'Kayseri',
+    country: 'Turkey',
+    address: 'Kayseri, Türkiye'
+  };
+
+  const billingAddress = {
+    contactName: `${name} ${surname}`,
+    city: 'Kayseri',
+    country: 'Turkey',
+    address: 'Kayseri, Türkiye'
+  };
+
   try {
+    console.log('📤 Ödeme isteği gönderiliyor...');
+
     const response = await fetch('/api/create-payment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         items,
         buyer,
-        shippingAddress: { contactName: `${name} ${surname}`, city: 'Kayseri', country: 'Turkey', address: 'Kayseri, Türkiye' },
-        billingAddress: { contactName: `${name} ${surname}`, city: 'Kayseri', country: 'Turkey', address: 'Kayseri, Türkiye' },
+        shippingAddress,
+        billingAddress,
       }),
     });
 
+    console.log('📥 Response status:', response.status);
+    console.log('📥 Response headers:', Object.fromEntries(response.headers.entries()));
+
+    // ✅ DÜZELTME: Önce response'un başarılı olup olmadığını kontrol et
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ API Hatası (Status:', response.status, '):', errorText);
+
+      // HTML hatası varsa kullanıcıya anlamlı mesaj göster
+      if (errorText.includes('<!DOCTYPE') || errorText.includes('<html')) {
+        throw new Error('Sunucu hatası oluştu. Lütfen daha sonra tekrar deneyin.');
+      }
+
+      // JSON hatası dene
+      try {
+        const errorData = JSON.parse(errorText);
+        throw new Error(errorData.error || `Sunucu hatası: ${response.status}`);
+      } catch {
+        throw new Error(`Sunucu hatası: ${response.status} - ${errorText.substring(0, 100)}`);
+      }
+    }
+
+    // ✅ Başarılı response'u JSON'a çevir
     const data = await response.json();
-    console.log('📥 API yanıtı:', data);
+    console.log('🔥 API yanıtı:', data);
 
     if (data.success && data.paymentPageUrl) {
+      console.log('✅ Ödeme sayfasına yönlendiriliyor:', data.paymentPageUrl);
       window.location.href = data.paymentPageUrl;
     } else {
-      alert(data.error || 'Ödeme başlatılamadı!');
-      btn.disabled = false;
-      btnText.textContent = '💳 Ödemeye Geç';
+      throw new Error(data.error || 'Ödeme başlatılamadı!');
     }
   } catch (err) {
     console.error('❌ Ödeme hatası:', err);
-    alert('Sunucu hatası. Lütfen tekrar deneyin.');
+
+    const errorMessage = err instanceof Error ? err.message : 'Bilinmeyen bir hata oluştu';
+    alert('Ödeme Hatası: ' + errorMessage + '\n\nLütfen bilgilerinizi kontrol edip tekrar deneyin.');
+
     btn.disabled = false;
     btnText.textContent = '💳 Ödemeye Geç';
   }
 }
 
-document.getElementById('checkout-btn')?.addEventListener('click', handleCheckout);
-document.addEventListener('DOMContentLoaded', loadCart);
+// Event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  loadCart();
+
+  const checkoutBtn = document.getElementById('checkout-btn');
+  if (checkoutBtn) {
+    checkoutBtn.addEventListener('click', handleCheckout);
+  }
+
+  // Kupon uygulama
+  const applyCouponBtn = document.getElementById('apply-coupon');
+  if (applyCouponBtn) {
+    applyCouponBtn.addEventListener('click', () => {
+      const couponInput = document.getElementById('coupon-input') as HTMLInputElement;
+      const couponMessage = document.getElementById('coupon-message');
+      const coupon = couponInput?.value.toUpperCase().trim();
+
+      if (!coupon || !couponMessage) return;
+
+      if (coupons[coupon]) {
+        discountPercent = coupons[coupon];
+        couponMessage.textContent = `✅ %${discountPercent} indirim uygulandı!`;
+        couponMessage.className = 'coupon-message success';
+        couponMessage.classList.remove('hidden');
+        updateSummary();
+      } else {
+        couponMessage.textContent = '❌ Geçersiz kupon kodu!';
+        couponMessage.className = 'coupon-message error';
+        couponMessage.classList.remove('hidden');
+      }
+    });
+  }
+});
 </script>
