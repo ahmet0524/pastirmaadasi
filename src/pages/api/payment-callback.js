@@ -1,45 +1,79 @@
 // src/pages/api/payment-callback.js
-export const prerender = false; // SSR aktif kalsın
 
-export async function POST({ request, redirect }) {
+export const POST = async ({ request, redirect }) => {
   try {
-    const contentType = request.headers.get('content-type') || '';
-    let token = null;
+    console.log("🔔 Payment callback alındı");
 
-    if (contentType.includes('application/json')) {
-      const body = await request.json();
-      token = body.token;
-    } else if (contentType.includes('application/x-www-form-urlencoded')) {
-      const formData = await request.text();
-      const params = new URLSearchParams(formData);
-      token = params.get('token');
-    } else {
-      const text = await request.text();
-      try {
-        token = JSON.parse(text).token;
-      } catch {
-        const params = new URLSearchParams(text);
-        token = params.get('token');
-      }
+    // İyzipay'i yükle
+    const Iyzipay = (await import("iyzipay")).default;
+
+    const iyzipay = new Iyzipay({
+      apiKey: "sandbox-iMWOs8liBFXBEw49vXevtfru7ZnPkIDs",
+      secretKey: "sandbox-cUbewaUJPvAzNUUMsXaGzbUzK2gsYudG",
+      uri: "https://sandbox-api.iyzipay.com",
+    });
+
+    // Form data'yı al (İyzico form-urlencoded gönderir)
+    const formData = await request.formData();
+    const token = formData.get('token');
+
+    console.log("🎟️ Token:", token);
+
+    if (!token) {
+      console.error("❌ Token bulunamadı");
+      return redirect('/sepet?error=token-missing');
     }
 
-    console.log('Extracted token:', token);
+    // Ödeme sonucunu kontrol et
+    const result = await new Promise((resolve, reject) => {
+      iyzipay.checkoutForm.retrieve({
+        locale: Iyzipay.LOCALE.TR,
+        conversationId: Date.now().toString(),
+        token: token
+      }, (err, result) => {
+        if (err) {
+          console.error("❌ İyzico retrieve hatası:", err);
+          reject(err);
+        } else {
+          console.log("📥 İyzico retrieve sonucu:", JSON.stringify(result, null, 2));
+          resolve(result);
+        }
+      });
+    });
 
-    if (token) {
-      return redirect(`/odeme-sonuc?token=${token}`, 302);
+    if (result.status === "success" && result.paymentStatus === "SUCCESS") {
+      console.log("✅ Ödeme başarılı!");
+
+      // TODO: Burada sipariş kaydı yapılabilir
+      // - Veritabanına kaydet
+      // - E-posta gönder
+      // - Stok güncelle vb.
+
+      // Başarılı sayfasına yönlendir
+      return redirect('/odeme-basarili?orderId=' + result.basketId);
     } else {
-      return redirect('/odeme-sonuc?error=no-token', 302);
+      console.error("❌ Ödeme başarısız:", result.errorMessage);
+      return redirect('/sepet?error=payment-failed&message=' + encodeURIComponent(result.errorMessage || 'Ödeme başarısız'));
     }
-  } catch (err) {
-    console.error('Callback failed:', err);
-    return redirect('/odeme-sonuc?error=callback-failed', 302);
+  } catch (error) {
+    console.error("💥 Callback hatası:", error);
+    return redirect('/sepet?error=callback-error&message=' + encodeURIComponent(error.message));
   }
-}
+};
 
-export async function GET({ url, redirect }) {
-  const token = url.searchParams.get('token');
-  if (token) {
-    return redirect(`/odeme-sonuc?token=${token}`, 302);
-  }
-  return redirect('/odeme-sonuc?error=no-token', 302);
-}
+// GET endpoint (kullanıcı direkt bu URL'yi ziyaret ederse)
+export const GET = ({ redirect }) => {
+  return redirect('/sepet');
+};
+
+// OPTIONS for CORS
+export const OPTIONS = () => {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, X-Requested-With",
+    },
+  });
+};
