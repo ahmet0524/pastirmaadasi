@@ -1,15 +1,32 @@
 // src/pages/api/create-payment.js
-import Iyzipay from "iyzipay";
-
-const iyzipay = new Iyzipay({
-  apiKey: import.meta.env.IYZICO_API_KEY || "sandbox-iMWOs8liBFXBEw49vXevtfru7ZnPkIDs",
-  secretKey: import.meta.env.IYZICO_SECRET_KEY || "sandbox-cUbewaUJPvAzNUUMsXaGzbUzK2gsYudG",
-  uri: "https://sandbox-api.iyzipay.com",
-});
 
 export async function POST({ request }) {
   try {
     console.log("💳 Ödeme oluşturma isteği alındı");
+
+    // İyzipay'i dinamik import ile yükle
+    let Iyzipay;
+    try {
+      const iyzipayModule = await import("iyzipay");
+      Iyzipay = iyzipayModule.default;
+      console.log("✅ İyzipay kütüphanesi yüklendi");
+    } catch (importError) {
+      console.error("❌ İyzipay import hatası:", importError);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Ödeme modülü yüklenemedi: " + importError.message
+        }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // İyzipay instance oluştur
+    const iyzipay = new Iyzipay({
+      apiKey: import.meta.env.IYZICO_API_KEY || "sandbox-iMWOs8liBFXBEw49vXevtfru7ZnPkIDs",
+      secretKey: import.meta.env.IYZICO_SECRET_KEY || "sandbox-cUbewaUJPvAzNUUMsXaGzbUzK2gsYudG",
+      uri: "https://sandbox-api.iyzipay.com",
+    });
 
     let body;
     try {
@@ -59,7 +76,7 @@ export async function POST({ request }) {
 
     console.log("🔗 Callback URL:", callbackUrl);
 
-    // İyzico request data (Kütüphanenin beklediği format)
+    // İyzico request data
     const requestData = {
       locale: Iyzipay.LOCALE.TR,
       conversationId: Date.now().toString(),
@@ -112,15 +129,20 @@ export async function POST({ request }) {
 
     // Promise wrapper for callback-based API
     const result = await new Promise((resolve, reject) => {
-      iyzipay.checkoutFormInitialize.create(requestData, (err, result) => {
-        if (err) {
-          console.error("❌ İyzico callback hatası:", err);
-          reject(err);
-        } else {
-          console.log("📥 İyzico callback sonucu:", JSON.stringify(result, null, 2));
-          resolve(result);
-        }
-      });
+      try {
+        iyzipay.checkoutFormInitialize.create(requestData, (err, result) => {
+          if (err) {
+            console.error("❌ İyzico callback hatası:", err);
+            reject(err);
+          } else {
+            console.log("📥 İyzico callback sonucu:", JSON.stringify(result, null, 2));
+            resolve(result);
+          }
+        });
+      } catch (createError) {
+        console.error("❌ İyzico create hatası:", createError);
+        reject(createError);
+      }
     });
 
     if (result.status === "success") {
@@ -152,13 +174,16 @@ export async function POST({ request }) {
     }
   } catch (error) {
     console.error("💥 Sunucu hatası:", error);
+    console.error("Hata tipi:", error.constructor.name);
+    console.error("Hata mesajı:", error.message);
     console.error("Stack trace:", error.stack);
 
     return new Response(
       JSON.stringify({
         success: false,
         error: error.message || "Sunucu hatası",
-        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        errorType: error.constructor.name,
+        details: error.stack,
       }),
       {
         status: 500,

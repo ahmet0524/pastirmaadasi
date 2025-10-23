@@ -1,7 +1,5 @@
 import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel/serverless';
-import { fileURLToPath } from 'url';
-import path from 'path';
 
 // https://astro.build/config
 export default defineConfig({
@@ -13,17 +11,10 @@ export default defineConfig({
   }),
   vite: {
     ssr: {
-      noExternal: ['resend', 'iyzipay']
-    },
-    define: {
-      '__dirname': JSON.stringify(path.dirname(fileURLToPath(import.meta.url)))
-    },
-    resolve: {
-      alias: {
-        'path': 'path-browserify',
-        'crypto': 'crypto-browserify',
-        'stream': 'stream-browserify'
-      }
+      // İyzipay'i external olarak işaretle (node_modules'den yüklensin)
+      external: ['iyzipay'],
+      // Resend'i noExternal olarak tut
+      noExternal: ['resend']
     }
   }
 });
