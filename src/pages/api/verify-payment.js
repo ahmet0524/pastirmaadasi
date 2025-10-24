@@ -20,7 +20,7 @@ function isValidEmail(email) {
 }
 
 // Müşteri Email Template - TAM BİLGİLERLE
-function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDate, shippingAddress, customerPhone }) {
+function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDate, shippingAddress, customerPhone, paymentId }) {
   return `
 <!DOCTYPE html>
 <html>
@@ -44,6 +44,7 @@ function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDa
     .total { font-size: 24px; font-weight: bold; color: #c41e3a; margin-top: 20px; padding-top: 20px; border-top: 2px solid #c41e3a; text-align: right; }
     .info-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px; }
     .footer { text-align: center; padding: 20px; color: #666; font-size: 13px; }
+    .payment-id { font-size: 11px; color: #999; margin-top: 5px; }
   </style>
 </head>
 <body>
@@ -93,6 +94,7 @@ function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDa
         <div class="total">
           Toplam: ${total}₺
         </div>
+        ${paymentId ? `<div class="payment-id">Ödeme Ref: ${paymentId}</div>` : ''}
       </div>
 
       <div class="info-box">
@@ -452,15 +454,16 @@ export async function POST({ request }) {
         await resend.emails.send({
           from: "Pastırma Adası <siparis@successodysseyhub.com>",
           to: customerEmail,
-          subject: `✅ Siparişiniz Alındı! 🎉 (${paymentId})`,
+          subject: `✅ Siparişiniz Alındı! 🎉 (#${orderNumber})`,
           html: getCustomerEmailHTML({
             customerName: fullName,
-            orderNumber: paymentId,
+            orderNumber: orderNumber, // ✅ Kendi sipariş numaramız
             items: items,
             total: paidPrice,
             orderDate: orderDate,
             shippingAddress: shippingAddress,
-            customerPhone: customerPhone
+            customerPhone: customerPhone,
+            paymentId: paymentId // ✅ İyzico ID'si ekstra bilgi olarak
           })
         });
         console.log("✅ Müşteriye email gönderildi:", customerEmail);
@@ -474,13 +477,14 @@ export async function POST({ request }) {
       await resend.emails.send({
         from: "Pastırma Adası <siparis@successodysseyhub.com>",
         to: adminEmail,
-        subject: `🔔 YENİ SİPARİŞ - ${fullName} (${paidPrice}₺)`,
+        subject: `🔔 YENİ SİPARİŞ - ${fullName} (${paidPrice}₺) - #${orderNumber}`,
         html: getAdminEmailHTML({
           customerName: fullName,
           customerEmail: customerEmail,
           customerPhone: customerPhone,
           customerIdentity: customerIdentity,
-          orderNumber: paymentId,
+          orderNumber: orderNumber, // ✅ Kendi sipariş numaramız
+          paymentId: paymentId, // ✅ İyzico ID'si ayrı gösterilecek
           items: items,
           total: paidPrice,
           orderDate: orderDate,
