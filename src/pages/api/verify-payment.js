@@ -19,8 +19,8 @@ function isValidEmail(email) {
   return !!email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
 
-// Müşteri Email Template
-function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDate }) {
+// Müşteri Email Template - TAM BİLGİLERLE
+function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDate, shippingAddress, customerPhone }) {
   return `
 <!DOCTYPE html>
 <html>
@@ -34,6 +34,9 @@ function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDa
     .content { background: #f9f9f9; padding: 30px 20px; }
     .order-details { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
     .order-details h3 { color: #c41e3a; margin-top: 0; }
+    .info-row { padding: 10px 0; border-bottom: 1px solid #eee; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { font-weight: 600; color: #666; display: inline-block; width: 120px; }
     .item { padding: 12px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
     .item:last-child { border-bottom: none; }
     .item-name { font-weight: 600; }
@@ -54,10 +57,26 @@ function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDa
 
       <div class="order-details">
         <h3>📋 Sipariş Detayları</h3>
-        <p><strong>Sipariş No:</strong> ${orderNumber}</p>
-        <p><strong>Tarih:</strong> ${orderDate}</p>
+        <div class="info-row">
+          <span class="info-label">Sipariş No:</span>
+          <span>${orderNumber}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Tarih:</span>
+          <span>${orderDate}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Telefon:</span>
+          <span>${customerPhone}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Teslimat Adresi:</span>
+          <span>${shippingAddress}</span>
+        </div>
+      </div>
 
-        <h4 style="margin-top: 20px; margin-bottom: 10px;">Satın Aldığınız Ürünler:</h4>
+      <div class="order-details">
+        <h4 style="margin-top: 0; margin-bottom: 10px;">Satın Aldığınız Ürünler:</h4>
         ${items.map(item => `
           <div class="item">
             <div>
@@ -90,11 +109,12 @@ function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDa
 `;
 }
 
-// Admin Email Template
+// Admin Email Template - TAM BİLGİLERLE
 function getAdminEmailHTML({
   customerName,
   customerEmail,
   customerPhone,
+  customerIdentity,
   orderNumber,
   items,
   total,
@@ -116,6 +136,9 @@ function getAdminEmailHTML({
     .content { padding: 20px; }
     .info-box { background: #f5f5f5; padding: 15px; margin: 15px 0; border-left: 4px solid #1976D2; border-radius: 4px; }
     .info-box h3 { margin-top: 0; color: #1976D2; }
+    .info-row { padding: 8px 0; border-bottom: 1px solid #ddd; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { font-weight: 600; color: #555; display: inline-block; min-width: 150px; }
     .item { padding: 12px; background: #fafafa; margin: 8px 0; border-radius: 4px; }
     .total { font-size: 24px; font-weight: bold; color: #1976D2; margin-top: 20px; padding: 20px; background: #e3f2fd; border-radius: 8px; text-align: center; }
   </style>
@@ -133,21 +156,45 @@ function getAdminEmailHTML({
     <div class="content">
       <div class="info-box">
         <h3>📅 Sipariş Bilgileri</h3>
-        <p><strong>Sipariş No:</strong> ${orderNumber}</p>
-        <p><strong>Ödeme ID:</strong> ${orderNumber}</p>
-        <p><strong>Tarih/Saat:</strong> ${orderDate}</p>
+        <div class="info-row">
+          <span class="info-label">Sipariş No:</span>
+          <span>${orderNumber}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Ödeme ID:</span>
+          <span>${orderNumber}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Tarih/Saat:</span>
+          <span>${orderDate}</span>
+        </div>
       </div>
 
       <div class="info-box">
         <h3>👤 Müşteri Bilgileri</h3>
-        <p><strong>Ad Soyad:</strong> ${customerName}</p>
-        <p><strong>Email:</strong> <a href="mailto:${customerEmail}">${customerEmail}</a></p>
-        <p><strong>Telefon:</strong> ${customerPhone || 'Belirtilmemiş'}</p>
+        <div class="info-row">
+          <span class="info-label">Ad Soyad:</span>
+          <span>${customerName}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Email:</span>
+          <span><a href="mailto:${customerEmail}">${customerEmail}</a></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Telefon:</span>
+          <span>${customerPhone || 'Belirtilmemiş'}</span>
+        </div>
+        ${customerIdentity ? `
+        <div class="info-row">
+          <span class="info-label">TC Kimlik No:</span>
+          <span>${customerIdentity}</span>
+        </div>
+        ` : ''}
       </div>
 
       <div class="info-box">
         <h3>📦 Teslimat Adresi</h3>
-        <p>${shippingAddress}</p>
+        <p style="margin: 0; padding: 10px; background: white; border-radius: 4px;">${shippingAddress}</p>
       </div>
 
       <div class="info-box">
@@ -155,7 +202,8 @@ function getAdminEmailHTML({
         ${items.map(item => `
           <div class="item">
             <strong>${item.name}</strong><br>
-            <strong>Tutar: ${parseFloat(item.price).toFixed(2)}₺</strong>
+            <span style="color: #666;">Birim Fiyat: ${parseFloat(item.price).toFixed(2)}₺</span><br>
+            <strong style="color: #1976D2;">Tutar: ${parseFloat(item.price).toFixed(2)}₺</strong>
           </div>
         `).join('')}
       </div>
@@ -266,7 +314,10 @@ export async function POST({ request }) {
       : 'Adres bilgisi alınamadı';
 
     // Telefon bilgisi
-    const customerPhone = result.buyer?.gsmNumber || result.shippingAddress?.contactName || '';
+    const customerPhone = result.buyer?.gsmNumber || '';
+
+    // TC Kimlik No
+    const customerIdentity = result.buyer?.identityNumber || '';
 
     // Ürün listesi
     const items = Array.isArray(result.basketItems)
@@ -276,7 +327,7 @@ export async function POST({ request }) {
         }))
       : [];
 
-    // ✅ 1. SUPABASE'E SİPARİŞİ KAYDET (KOMPLEKS TABLO İÇİN)
+    // ✅ 1. SUPABASE'E SİPARİŞİ KAYDET
     try {
       const orderNumber = `ORD-${Date.now()}`;
 
@@ -289,7 +340,7 @@ export async function POST({ request }) {
           customer_email: customerEmail,
           customer_phone: customerPhone || '',
           customer_address: shippingAddress,
-          shipping_address: shippingAddress, // Eğer ayrı bir sütun varsa
+          shipping_address: shippingAddress,
           items: items,
           subtotal: paidPrice,
           shipping_cost: 0,
@@ -300,7 +351,7 @@ export async function POST({ request }) {
           coupon_code: null,
           status: 'pending',
           payment_status: 'completed',
-          notes: null,
+          notes: customerIdentity ? `TC: ${customerIdentity}` : null,
           created_at: new Date().toISOString()
         })
         .select()
@@ -327,7 +378,9 @@ export async function POST({ request }) {
             orderNumber: paymentId,
             items: items,
             total: paidPrice,
-            orderDate: orderDate
+            orderDate: orderDate,
+            shippingAddress: shippingAddress,
+            customerPhone: customerPhone
           })
         });
         console.log("✅ Müşteriye email gönderildi:", customerEmail);
@@ -346,6 +399,7 @@ export async function POST({ request }) {
           customerName: fullName,
           customerEmail: customerEmail,
           customerPhone: customerPhone,
+          customerIdentity: customerIdentity,
           orderNumber: paymentId,
           items: items,
           total: paidPrice,

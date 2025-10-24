@@ -2,6 +2,20 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+
+// Türkiye'nin tüm şehirleri
+const cities = [
+  "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya",
+  "Ardahan", "Artvin", "Aydın", "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik",
+  "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum",
+  "Denizli", "Diyarbakır", "Düzce", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir",
+  "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Iğdır", "Isparta", "İstanbul",
+  "İzmir", "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kilis",
+  "Kırıkkale", "Kırklareli", "Kırşehir", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa",
+  "Mardin", "Mersin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Osmaniye",
+  "Rize", "Sakarya", "Samsun", "Şanlıurfa", "Siirt", "Sinop", "Sivas", "Şırnak",
+  "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak"
+];
 ---
 
 <BaseLayout title="Sepetim" description="Alışveriş sepetinizi görüntüleyin ve sipariş verin">
@@ -89,7 +103,12 @@ import Footer from '../components/Footer.astro';
               <div class="form-row">
                 <div class="form-group">
                   <label for="buyer-city">Şehir *</label>
-                  <input type="text" id="buyer-city" value="Kayseri" required />
+                  <select id="buyer-city" required>
+                    <option value="">Şehir Seçin</option>
+                    {cities.map(city => (
+                      <option value={city} selected={city === 'Kayseri'}>{city}</option>
+                    ))}
+                  </select>
                 </div>
                 <div class="form-group">
                   <label for="buyer-zipcode">Posta Kodu</label>
@@ -311,7 +330,8 @@ import Footer from '../components/Footer.astro';
 }
 
 .form-group input,
-.form-group textarea {
+.form-group textarea,
+.form-group select {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ddd;
@@ -320,13 +340,19 @@ import Footer from '../components/Footer.astro';
   font-family: inherit;
 }
 
+.form-group select {
+  cursor: pointer;
+  background-color: white;
+}
+
 .form-group textarea {
   resize: vertical;
   min-height: 80px;
 }
 
 .form-group input:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.form-group select:focus {
   outline: none;
   border-color: var(--primary-color, #c41e3a);
 }
@@ -549,7 +575,6 @@ function updateSummary() {
   if (totalEl) totalEl.textContent = `${total.toFixed(2)}₺`;
 }
 
-// ✅ Telefon formatla (0 olmadan 10 haneli)
 function formatPhone(phone: string): string {
   const cleaned = phone.replace(/\D/g, '');
   if (cleaned.startsWith('0')) {
@@ -558,7 +583,6 @@ function formatPhone(phone: string): string {
   return cleaned;
 }
 
-// ✅ Checkout işlemi
 async function handleCheckout() {
   if (cart.length === 0) {
     alert('Sepetiniz boş!');
@@ -571,7 +595,7 @@ async function handleCheckout() {
   const phoneInput = document.getElementById('buyer-phone') as HTMLInputElement;
   const identityInput = document.getElementById('buyer-identity') as HTMLInputElement;
   const addressInput = document.getElementById('buyer-address') as HTMLTextAreaElement;
-  const cityInput = document.getElementById('buyer-city') as HTMLInputElement;
+  const citySelect = document.getElementById('buyer-city') as HTMLSelectElement;
   const zipcodeInput = document.getElementById('buyer-zipcode') as HTMLInputElement;
 
   const email = emailInput?.value.trim();
@@ -580,7 +604,7 @@ async function handleCheckout() {
   const phone = phoneInput?.value.trim();
   const identity = identityInput?.value.trim();
   const address = addressInput?.value.trim();
-  const city = cityInput?.value.trim();
+  const city = citySelect?.value.trim();
   const zipcode = zipcodeInput?.value.trim() || '38000';
 
   // Validasyonlar
