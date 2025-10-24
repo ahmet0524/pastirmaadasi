@@ -81,9 +81,12 @@ function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDa
           <div class="item">
             <div>
               <div class="item-name">${index + 1}. ${item.name}</div>
-              <div class="item-detail">Tutar: ${parseFloat(item.price).toFixed(2)}₺</div>
+              <div class="item-detail">
+                ${item.quantity}x ${parseFloat(item.price).toFixed(2)}₺
+                ${item.unit ? `(${item.unit})` : ''}
+              </div>
             </div>
-            <div style="font-weight: 600;">${parseFloat(item.price).toFixed(2)}₺</div>
+            <div style="font-weight: 600;">${(parseFloat(item.price) * item.quantity).toFixed(2)}₺</div>
           </div>
         `).join('') : '<p style="color: #999; text-align: center; padding: 20px;">Ürün detayları yüklenemedi</p>'}
 
@@ -201,8 +204,10 @@ function getAdminEmailHTML({
         <h3>🛒 Sipariş İçeriği</h3>
         ${items.length > 0 ? items.map((item, index) => `
           <div class="item">
-            <strong>${index + 1}. ${item.name}</strong><br>
-            <strong style="color: #1976D2;">Tutar: ${parseFloat(item.price).toFixed(2)}₺</strong>
+            <strong>${index + 1}. ${item.name}</strong>
+            ${item.unit ? `<span style="color: #666;"> (${item.unit})</span>` : ''}<br>
+            <span style="color: #666;">Miktar: ${item.quantity} adet</span><br>
+            <strong style="color: #1976D2;">Tutar: ${(parseFloat(item.price) * item.quantity).toFixed(2)}₺</strong>
           </div>
         `).join('') : '<p style="color: #999; text-align: center; padding: 20px;">Ürün detayları yüklenemedi</p>'}
       </div>
@@ -255,7 +260,7 @@ export async function POST({ request }) {
       cartItemsCount: frontendCartItems?.length || 0
     });
 
-    console.log("🛒 Frontend'den gelen sepet:", frontendCartItems);
+    console.log("🛒 Frontend'den gelen sepet RAW:", frontendCartItems);
 
     if (!token) {
       return new Response(
@@ -346,32 +351,53 @@ export async function POST({ request }) {
       minute: '2-digit'
     });
 
-    // Ürün listesi - İyzico'dan gelen veriyi kontrol et
+    // Ürün listesi - ÖNCELİK SIRASI:
+    // 1. Frontend'den gelen sepet (en güncel)
+    // 2. İyzico'dan gelen basketItems
+
     console.log("📦 İyzico basketItems RAW:", result.basketItems);
     console.log("📦 İyzico basketItems TYPE:", typeof result.basketItems);
     console.log("📦 İyzico basketItems IS ARRAY:", Array.isArray(result.basketItems));
 
     let items = [];
 
-    if (result.basketItems && Array.isArray(result.basketItems)) {
+    // Önce frontend'den gelen sepeti kontrol et
+    if (frontendCartItems && Array.isArray(frontendCartItems) && frontendCartItems.length > 0) {
+      console.log("✅ Frontend sepet bilgisi kullanılıyor");
+      items = frontendCartItems.map((item, index) => {
+        console.log(`  🛒 Frontend Item ${index}:`, item);
+        return {
+          name: item.name || `Ürün ${index + 1}`,
+          price: parseFloat(item.price || 0),
+          quantity: item.quantity || 1,
+          unit: item.unit || '500g'
+        };
+      });
+    }
+    // Frontend'de veri yoksa İyzico'dan al
+    else if (result.basketItems && Array.isArray(result.basketItems)) {
+      console.log("✅ İyzico basket bilgisi kullanılıyor");
       items = result.basketItems.map((item, index) => {
-        console.log(`  📦 Item ${index}:`, JSON.stringify(item));
+        console.log(`  📦 Iyzico Item ${index}:`, JSON.stringify(item));
         return {
           name: item.name || item.itemName || `Ürün ${index + 1}`,
           price: parseFloat(item.price || 0),
-          quantity: 1
+          quantity: 1,
+          unit: '500g'
         };
       });
     } else {
-      console.warn("⚠️ basketItems array değil veya yok:", result.basketItems);
+      console.error("❌ Ne frontend ne de İyzico'dan ürün bilgisi alınamadı!");
     }
 
-    console.log("📦 İşlenmiş items:", JSON.stringify(items, null, 2));
+    console.log("📦 İşlenmiş items (email için):", JSON.stringify(items, null, 2));
 
     // Eğer items boşsa uyarı ver
     if (items.length === 0) {
-      console.error("❌ UYARI: Ürün listesi boş!");
+      console.error("❌ UYARI: Ürün listesi tamamen boş!");
       console.log("🔍 Tüm result objesi:", JSON.stringify(result, null, 2));
+    } else {
+      console.log(`✅ ${items.length} adet ürün işlendi`);
     }
 
     console.log("📧 Email için hazırlanan bilgiler:", {
@@ -395,7 +421,6 @@ export async function POST({ request }) {
           customer_email: customerEmail,
           customer_phone: customerPhone || '',
           customer_address: shippingAddress,
-          shipping_address: shippingAddress,
           items: items,
           subtotal: paidPrice,
           shipping_cost: 0,
