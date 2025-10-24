@@ -199,12 +199,12 @@ function getAdminEmailHTML({
 
       <div class="info-box">
         <h3>🛒 Sipariş İçeriği</h3>
-        ${items.map((item, index) => `
+        ${items.length > 0 ? items.map((item, index) => `
           <div class="item">
             <strong>${index + 1}. ${item.name}</strong><br>
             <strong style="color: #1976D2;">Tutar: ${parseFloat(item.price).toFixed(2)}₺</strong>
           </div>
-        `).join('')}
+        `).join('') : '<p style="color: #999; text-align: center; padding: 20px;">Ürün detayları yüklenemedi</p>'}
       </div>
 
       <div class="total">
@@ -296,6 +296,7 @@ export async function POST({ request }) {
     }
 
     console.log("✅ Ödeme Iyzico'da doğrulandı - VERİTABANINA KAYDEDİLİYOR");
+    console.log("📋 İyzico FULL result:", JSON.stringify(result, null, 2));
 
     // --- Veri Hazırlığı - FRONTEND VERİSİNİ ÖNCELİKLENDİR ---
     const adminEmail = import.meta.env.ADMIN_EMAIL || "successodysseyhub@gmail.com";
@@ -342,21 +343,31 @@ export async function POST({ request }) {
     });
 
     // Ürün listesi - İyzico'dan gelen veriyi kontrol et
-    console.log("📦 İyzico basketItems:", JSON.stringify(result.basketItems, null, 2));
+    console.log("📦 İyzico basketItems RAW:", result.basketItems);
+    console.log("📦 İyzico basketItems TYPE:", typeof result.basketItems);
+    console.log("📦 İyzico basketItems IS ARRAY:", Array.isArray(result.basketItems));
 
-    const items = Array.isArray(result.basketItems)
-      ? result.basketItems.map(item => ({
-          name: item.name || 'Ürün',
+    let items = [];
+
+    if (result.basketItems && Array.isArray(result.basketItems)) {
+      items = result.basketItems.map((item, index) => {
+        console.log(`  📦 Item ${index}:`, JSON.stringify(item));
+        return {
+          name: item.name || item.itemName || `Ürün ${index + 1}`,
           price: parseFloat(item.price || 0),
-          quantity: 1 // İyzico quantity vermiyor, varsayılan 1
-        }))
-      : [];
+          quantity: 1
+        };
+      });
+    } else {
+      console.warn("⚠️ basketItems array değil veya yok:", result.basketItems);
+    }
 
     console.log("📦 İşlenmiş items:", JSON.stringify(items, null, 2));
 
     // Eğer items boşsa uyarı ver
     if (items.length === 0) {
-      console.warn("⚠️ UYARI: Ürün listesi boş! basketItems:", result.basketItems);
+      console.error("❌ UYARI: Ürün listesi boş!");
+      console.log("🔍 Tüm result objesi:", JSON.stringify(result, null, 2));
     }
 
     console.log("📧 Email için hazırlanan bilgiler:", {
