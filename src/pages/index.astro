@@ -3,6 +3,15 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import ProductCard from '../components/ProductCard.astro';
+import { supabase } from '../lib/supabase';
+
+// Öne çıkan ürünleri çek (featured veya is_featured flag'i varsa)
+const { data: featuredProducts } = await supabase
+  .from('products')
+  .select('*')
+  .eq('is_active', true)
+  .limit(4);
 ---
 
 <BaseLayout title="Pastırma Adası" description="Kayseri'nin eşsiz lezzetleri">
@@ -124,6 +133,42 @@ import Footer from '../components/Footer.astro';
       </div>
     </div>
   </section>
+
+  <!-- Featured Products Section -->
+  {featuredProducts && featuredProducts.length > 0 && (
+    <section class="featured-products-section">
+      <div class="container">
+        <div class="section-header-featured">
+          <h2 class="section-title">Öne Çıkan Ürünler</h2>
+          <p class="section-subtitle">En çok tercih edilen geleneksel lezzetlerimiz</p>
+        </div>
+
+        <div class="products-grid-featured">
+          {featuredProducts.map(product => (
+            <ProductCard
+              id={product.id}
+              slug={product.slug}
+              name={product.name}
+              price={product.price}
+              images={product.images}
+              unit={product.unit}
+              description={product.description}
+              variants={product.variants}
+            />
+          ))}
+        </div>
+
+        <div class="view-all-container">
+          <a href="/online-alisveris" class="btn-view-all">
+            Tüm Ürünleri Görüntüle
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
 
   <!-- Info Section -->
   <section class="info-section">
@@ -312,7 +357,6 @@ import Footer from '../components/Footer.astro';
     transform: translateX(5px);
   }
 
-  /* Perde Animasyonu */
   .curtain-overlay {
     position: fixed;
     top: 0;
@@ -340,7 +384,7 @@ import Footer from '../components/Footer.astro';
     transition: transform 1s cubic-bezier(0.77, 0, 0.175, 1);
   }
 
- .curtain-left {
+  .curtain-left {
     left: 0;
     transform: translateX(0);
   }
@@ -458,6 +502,56 @@ import Footer from '../components/Footer.astro';
     font-size: 1.0625rem;
   }
 
+  /* Featured Products Section */
+  .featured-products-section {
+    padding: 6rem 1rem;
+    background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+  }
+
+  .section-header-featured {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .section-subtitle {
+    font-size: 1.125rem;
+    color: var(--text-gray);
+    margin-top: 1rem;
+  }
+
+  .products-grid-featured {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto 3rem;
+  }
+
+  .view-all-container {
+    text-align: center;
+  }
+
+  .btn-view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.125rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+  }
+
+  .btn-view-all:hover {
+    background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(8, 145, 178, 0.4);
+  }
+
   .info-section {
     padding: 6rem 1rem;
     background: var(--bg-light);
@@ -559,6 +653,10 @@ import Footer from '../components/Footer.astro';
       grid-template-columns: 1fr;
       gap: 3rem;
     }
+
+    .products-grid-featured {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 
   @media (max-width: 768px) {
@@ -581,6 +679,10 @@ import Footer from '../components/Footer.astro';
 
     .features-grid {
       gap: 2rem;
+    }
+
+    .products-grid-featured {
+      grid-template-columns: 1fr;
     }
 
     .info-text h2 {
@@ -612,10 +714,8 @@ import Footer from '../components/Footer.astro';
         const curtain = document.getElementById('curtain-overlay');
 
         if (curtain && link) {
-          // Perdeyi aç
           curtain.classList.add('active');
 
-          // 1.2 saniye sonra sayfaya git
           setTimeout(() => {
             window.location.href = link;
           }, 1200);
