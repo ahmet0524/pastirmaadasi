@@ -1,335 +1,1232 @@
 ---
 // src/pages/sucuk.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ProductCard from '../components/ProductCard.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { supabase } from '../lib/supabase';
 
-const products = [
-  {
-    id: 'dana-parmak-sucuk',
-    name: 'Dana Parmak Sucuk',
-    image: '/assets/image/products/parmak-sucuk.jpg',
-    price: 380,
-    weight: '1 kg',
-    description: 'İnce ve uzun yapısı ile kolayca dilimlenebilen, yoğun aromalı dana sucuğu.',
-    category: 'Sucuk'
-  },
-  {
-    id: 'dana-kangal-sucuk',
-    name: 'Dana Kangal Sucuk',
-    image: '/assets/image/products/kangal-sucuk.jpg',
-    price: 380,
-    weight: '1 kg',
-    description: 'Geleneksel kangal şeklinde, özel baharatlarla hazırlanmış dana sucuğu.',
-    category: 'Sucuk'
-  },
-  {
-    id: 'varyanta-sucuk',
-    name: 'Varyanta/Osmanlı Sucuk',
-    image: '/assets/image/products/varyanta-sucuk.jpg',
-    price: 420,
-    weight: '1 kg',
-    description: 'Osmanlı usulü özel baharatlarla, eski lezzetleri günümüze taşıyan premium sucuk.',
-    category: 'Sucuk',
-    discount: 15
-  },
-  {
-    id: 'cubuk-sucuk',
-    name: 'Çubuk Sucuk',
-    image: '/assets/image/products/cubuk-sucuk.jpg',
-    price: 35,
-    weight: 'Adet',
-    description: 'Pratik kullanım için çubuk şeklinde hazırlanmış, lezzetli sucuk.',
-    category: 'Sucuk'
-  },
-  {
-    id: 'sarma-sucuk',
-    name: 'Sarma Sucuk',
-    image: '/assets/image/products/sarma-sucuk.jpg',
-    price: 40,
-    weight: 'Adet',
-    description: 'Özel sarma tekniği ile üretilen, geleneksel lezzet.',
-    category: 'Sucuk'
-  }
-];
+// 🎯 Supabase'den sucuk ürünlerini çek
+const { data: products, error } = await supabase
+  .from('products')
+  .select('*')
+  .eq('category', 'Sucuk')
+  .eq('is_active', true);
+
+if (error) {
+  console.error('Supabase hatası:', error);
+}
+
+// İlk ürünü al (veya istediğin ürünü seç)
+const product = products?.[0];
+
+// Eğer ürün yoksa 404 göster
+if (!product) {
+  return Astro.redirect('/404');
+}
 ---
 
-<BaseLayout
-  title="Kayseri Sucuğu"
-  description="Geleneksel yöntemlerle üretilen, farklı şekil ve boyutlarda Kayseri sucuğu çeşitlerimiz."
->
-  <div class="category-page">
-    <section class="category-hero sucuk-hero">
-      <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <h1 class="hero-title">Kayseri Sucuğu</h1>
-        <p class="hero-description">
-          Özenle seçilmiş dana etinden, özel baharat karışımıyla hazırlanan geleneksel Kayseri sucuklarımız
-        </p>
-        <div class="hero-features">
-          <div class="feature">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-            </svg>
-            100% Dana Eti
+<BaseLayout title={`${product.name} - Pastırma Adası`} description={product.description}>
+  <Header slot="header" />
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1 class="hero-title">{product.name}</h1>
+      <p class="hero-subtitle">Geleneksel yöntemlerle üretilen, yoğun aromalı</p>
+      <div class="hero-features">
+        <div class="hero-feature">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{product.unit}</span>
+        </div>
+        <div class="hero-feature">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Özel Baharat</span>
+        </div>
+        <div class="hero-feature">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>100% Dana Eti</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Product Detail Section -->
+  <section class="product-detail-section">
+    <div class="container">
+      <div class="product-detail-grid">
+        <div class="product-image-container">
+          <div class="product-main-image">
+            <!-- Image Slider -->
+            <div class="image-slider" id="image-slider">
+              <div class="slider-track" id="slider-track">
+                {product.images?.map((image: string, index: number) => (
+                  <div class="slider-item">
+                    <img src={image} alt={`${product.name} - ${index + 1}`} />
+                  </div>
+                ))}
+              </div>
+
+              <!-- Navigation Arrows -->
+              {product.images && product.images.length > 1 && (
+                <>
+                  <button class="slider-arrow slider-arrow-prev" id="slider-prev">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button class="slider-arrow slider-arrow-next" id="slider-next">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </>
+              )}
+            </div>
+
+            <!-- Dots Indicator -->
+            {product.images && product.images.length > 1 && (
+              <div class="slider-dots" id="slider-dots">
+                {product.images.map((_: any, index: number) => (
+                  <button
+                    class={`slider-dot ${index === 0 ? 'active' : ''}`}
+                    data-index={index}
+                  ></button>
+                ))}
+              </div>
+            )}
+
+            <div class="product-badge">Taze Üretim</div>
+
+            {product.stock <= 10 && product.stock > 0 && (
+              <div class="stock-warning">Son {product.stock} adet!</div>
+            )}
+            {product.stock === 0 && (
+              <div class="out-of-stock">Stokta Yok</div>
+            )}
           </div>
-          <div class="feature">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-            </svg>
-            Özel Baharat
+        </div>
+
+        <div class="product-info">
+          <h2 class="product-name">{product.name}</h2>
+          <p class="product-weight">{product.unit}</p>
+          <p class="product-description">{product.description}</p>
+
+          <div class="product-features">
+            <h3>Ürün Özellikleri</h3>
+            <ul>
+              {product.features?.map((feature: string) => (
+                <li>
+                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-          <div class="feature">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-            </svg>
-            Doğal Kurutma
+
+          <div class="product-purchase">
+            <div class="product-price-box">
+              <span class="price-label">Birim Fiyat</span>
+              <div class="price-wrapper">
+                <span class="product-price" id="unit-price">{product.price.toLocaleString('tr-TR')}₺</span>
+                <span class="price-unit">/ {product.unit}</span>
+              </div>
+            </div>
+
+            {product.stock > 0 ? (
+              <>
+                <div class="quantity-selector">
+                  <button class="quantity-btn" id="decrease-qty" type="button">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                    </svg>
+                  </button>
+                  <input
+                    type="text"
+                    id="quantity"
+                    value="1"
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                  />
+                  <button class="quantity-btn" id="increase-qty" type="button">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div class="total-price-box">
+                  <span class="total-label">Toplam Fiyat</span>
+                  <span class="total-price" id="total-price">{product.price.toLocaleString('tr-TR')}₺</span>
+                </div>
+
+                <button class="btn btn-primary btn-large add-to-cart" id="add-to-cart-btn">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  Sepete Ekle
+                </button>
+
+                <!-- Sepete Eklendi Butonları (başlangıçta gizli) -->
+                <div class="cart-success-buttons" id="cart-success-buttons" style="display: none;">
+                  <a href="/sepet" class="btn btn-success btn-large">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Sepete Git
+                  </a>
+                  <a href="/online-alisveris" class="btn btn-outline-success btn-large">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Alışverişe Devam Et
+                  </a>
+                </div>
+              </>
+            ) : (
+              <div class="out-of-stock-message">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Bu ürün şu anda stokta yok
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="products-section">
-      <div class="container">
-        <div class="section-header">
-          <h2>Sucuk Çeşitlerimiz</h2>
-          <p>Farklı form ve boyutlarda, her damak tadına uygun sucuklar</p>
+  <!-- Info Section -->
+  <section class="info-section">
+    <div class="container">
+      <div class="info-grid">
+        <div class="info-text">
+          <h2>Geleneksel Kayseri Sucuğu</h2>
+          <p>Kayseri sucuğumuz, özenle seçilmiş taze dana etlerinin geleneksel yöntemlerle işlenmesiyle üretilir. Özel baharat karışımımız ve doğal kurutma yöntemi ile benzersiz bir lezzet sunar.</p>
+          <p>Hiçbir katkı maddesi kullanmadan, sadece dana eti ve doğal baharatlarla hazırlanan sucuklarımız, kahvaltı sofralarınızın vazgeçilmezi olacak.</p>
+          <div class="info-stats">
+            <div class="stat-item">
+              <div class="stat-number">100%</div>
+              <div class="stat-label">Dana Eti</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">0</div>
+              <div class="stat-label">Katkı Maddesi</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">{product.unit}</div>
+              <div class="stat-label">Gramaj</div>
+            </div>
+          </div>
         </div>
-
-        <div class="products-grid">
-          {products.map(product => (
-            <ProductCard {...product} />
-          ))}
-        </div>
-      </div>
-    </section>
-
-    <section class="info-section">
-      <div class="container">
-        <div class="info-grid">
-          <div class="info-card">
-            <div class="info-icon sucuk-icon">
-              <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </div>
-            <h3>Helal Sertifikalı</h3>
-            <p>Tüm ürünlerimiz helal kesim ve hijyenik üretim standartlarına uygundur.</p>
-          </div>
-          <div class="info-card">
-            <div class="info-icon sucuk-icon">
-              <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-              </svg>
-            </div>
-            <h3>Vakumlu Paket</h3>
-            <p>Ürünlerimiz vakumlu ambalajda, tazeliğini koruyarak gönderilir.</p>
-          </div>
-          <div class="info-card">
-            <div class="info-icon sucuk-icon">
-              <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </div>
-            <h3>Uzun Raf Ömrü</h3>
-            <p>Doğru saklama koşullarında uzun süre taze kalır.</p>
-          </div>
+        <div class="info-image">
+          <img src="/assets/image/sucuk-production.jpg" alt="Sucuk Üretimi" loading="lazy" />
         </div>
       </div>
-    </section>
-  </div>
+    </div>
+  </section>
 
-  <style>
-    .sucuk-hero {
-      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  <!-- Storage Info Section -->
+  <section class="storage-section">
+    <div class="container">
+      <h2>Saklama ve Kullanım Bilgileri</h2>
+      <div class="storage-grid">
+        <div class="storage-card">
+          <div class="storage-icon">
+            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+            </svg>
+          </div>
+          <h3>Saklama</h3>
+          <p>Serin ve kuru yerde muhafaza edin. Açıldıktan sonra buzdolabında saklayın.</p>
+        </div>
+
+        <div class="storage-card">
+          <div class="storage-icon">
+            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3>Raf Ömrü</h3>
+          <p>Vakum ambalajında 3 ay, açıldıktan sonra buzdolabında 1 hafta dayanır.</p>
+        </div>
+
+        <div class="storage-card">
+          <div class="storage-icon">
+            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+            </svg>
+          </div>
+          <h3>Pişirme</h3>
+          <p>Düşük-orta ateşte yağsız tavada pişirin. Kendi yağını salacaktır.</p>
+        </div>
+
+        <div class="storage-card">
+          <div class="storage-icon">
+            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3>Kullanım</h3>
+          <p>Kahvaltıda, sandviçlerde, pizzalarda ve yumurtalı yemeklerde kullanabilirsiniz.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Hemen Sipariş Verin</h2>
+      <p>Taze ve lezzetli Kayseri sucuğumuz için hemen sipariş verin</p>
+      <div class="cta-buttons">
+        <a href="tel:+905077623838" class="btn btn-light btn-large">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+          </svg>
+          0507 762 38 38
+        </a>
+        <a href="/sepet" class="btn btn-outline-light btn-large">Sepete Git</a>
+      </div>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  .hero-section {
+    position: relative;
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 50%, #fef2f2 100%);
+    padding: 4rem 1rem;
+    overflow: hidden;
+  }
+
+  .hero-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 80%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(220, 38, 38, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: url('/assets/image/pattern.svg') repeat;
+    opacity: 0.03;
+  }
+
+  .hero-content {
+    position: relative;
+    text-align: center;
+    max-width: 900px;
+    z-index: 1;
+  }
+
+  .hero-title {
+    font-size: 4rem;
+    color: #dc2626;
+    margin-bottom: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    animation: fadeInUp 0.8s ease;
+  }
+
+  .hero-subtitle {
+    font-size: 1.5rem;
+    color: var(--text-gray);
+    margin-bottom: 3rem;
+    animation: fadeInUp 0.8s ease 0.2s both;
+  }
+
+  .hero-features {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+    animation: fadeInUp 0.8s ease 0.4s both;
+  }
+
+  .hero-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #dc2626;
+    font-weight: 600;
+    font-size: 1.125rem;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .product-detail-section {
+    padding: 6rem 1rem;
+    background: white;
+  }
+
+  .product-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: start;
+  }
+
+  .product-image-container {
+    position: sticky;
+    top: 100px;
+  }
+
+  .product-main-image {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Image Slider */
+  .image-slider {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .slider-track {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .slider-item {
+    min-width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-gray);
+  }
+
+  .slider-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+
+  /* Slider Arrows */
+  .slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 2;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .slider-arrow:hover {
+    background: white;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .slider-arrow svg {
+    color: #dc2626;
+  }
+
+  .slider-arrow-prev {
+    left: 1rem;
+  }
+
+  .slider-arrow-next {
+    right: 1rem;
+  }
+
+  /* Slider Dots */
+  .slider-dots {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 2;
+  }
+
+  .slider-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    border: 2px solid white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+  }
+
+  .slider-dot:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: scale(1.2);
+  }
+
+  .slider-dot.active {
+    background: #dc2626;
+    border-color: #dc2626;
+    width: 32px;
+    border-radius: 6px;
+  }
+
+  .product-badge {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 30px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  }
+
+  .stock-warning {
+    position: absolute;
+    top: 4.5rem;
+    left: 1.5rem;
+    background: #f59e0b;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+
+  .out-of-stock {
+    position: absolute;
+    top: 4.5rem;
+    left: 1.5rem;
+    background: #ef4444;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+
+  .product-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .product-name {
+    font-size: 3rem;
+    color: var(--text-dark);
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .product-weight {
+    font-size: 1.5rem;
+    color: #dc2626;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .product-description {
+    font-size: 1.125rem;
+    color: var(--text-gray);
+    line-height: 1.8;
+    margin: 0;
+  }
+
+  .product-features {
+    background: var(--bg-light);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .product-features h3 {
+    font-size: 1.375rem;
+    color: var(--text-dark);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+  }
+
+  .product-features ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .product-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text-dark);
+    font-size: 1.0625rem;
+  }
+
+  .product-features li svg {
+    color: #dc2626;
+    flex-shrink: 0;
+  }
+
+  .product-purchase {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 2rem;
+    background: var(--bg-light);
+    border-radius: var(--radius-lg);
+  }
+
+  .product-price-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .price-label {
+    font-size: 0.875rem;
+    color: var(--text-gray);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .price-wrapper {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .product-price {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #dc2626;
+    line-height: 1;
+  }
+
+  .price-unit {
+    font-size: 1.125rem;
+    color: var(--text-gray);
+  }
+
+  .quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: var(--radius-md);
+    width: fit-content;
+  }
+
+  .quantity-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: var(--bg-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-dark);
+  }
+
+  .quantity-btn:hover {
+    background: #dc2626;
+    color: white;
+  }
+
+  #quantity {
+    width: 80px;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    border: 2px solid var(--border-color);
+    background: white;
+    color: var(--text-dark);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem;
+    cursor: text;
+  }
+
+  #quantity:focus {
+    outline: none;
+    border-color: #dc2626;
+  }
+
+  #quantity::-webkit-outer-spin-button,
+  #quantity::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  #quantity[type=number] {
+    -moz-appearance: textfield;
+  }
+
+  .total-price-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
+    border-radius: var(--radius-md);
+    border: 2px solid #dc2626;
+  }
+
+  .total-label {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+
+  .total-price {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #dc2626;
+    line-height: 1;
+  }
+
+  .add-to-cart {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .cart-success-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .cart-success-buttons .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .btn-success {
+    background: #16a34a;
+    color: white;
+  }
+
+  .btn-success:hover {
+    background: #15803d;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(22, 163, 74, 0.3);
+  }
+
+  .btn-outline-success {
+    background: transparent;
+    color: #16a34a;
+    border: 2px solid #16a34a;
+  }
+
+  .btn-outline-success:hover {
+    background: #16a34a;
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  .out-of-stock-message {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    background: #fee;
+    border: 2px solid #ef4444;
+    border-radius: var(--radius-md);
+    color: #ef4444;
+    font-weight: 600;
+    justify-content: center;
+  }
+
+  .info-section {
+    padding: 6rem 1rem;
+    background: var(--bg-light);
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .info-text h2 {
+    font-size: 2.5rem;
+    color: var(--text-dark);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+  }
+
+  .info-text p {
+    color: var(--text-gray);
+    line-height: 1.8;
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .info-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+
+  .stat-item {
+    text-align: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: var(--radius-md);
+  }
+
+  .stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #dc2626;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: var(--text-gray);
+    font-weight: 600;
+  }
+
+  .info-image {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  }
+
+  .info-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .storage-section {
+    padding: 6rem 1rem;
+    background: white;
+  }
+
+  .storage-section h2 {
+    font-size: 2.75rem;
+    text-align: center;
+    color: var(--text-dark);
+    margin-bottom: 4rem;
+    font-weight: 700;
+  }
+
+  .storage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .storage-card {
+    text-align: center;
+    padding: 2.5rem 2rem;
+    background: var(--bg-light);
+    border-radius: var(--radius-lg);
+    transition: all 0.3s ease;
+  }
+
+  .storage-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .storage-icon {
+    color: #dc2626;
+    margin-bottom: 1.5rem;
+  }
+
+  .storage-card h3 {
+    font-size: 1.375rem;
+    color: var(--text-dark);
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+  }
+
+  .storage-card p {
+    color: var(--text-gray);
+    line-height: 1.6;
+    font-size: 1rem;
+  }
+
+  .cta-section {
+    padding: 6rem 1rem;
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    color: white;
+    text-align: center;
+  }
+
+  .cta-section h2 {
+    font-size: 2.75rem;
+    color: white;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+
+  .cta-section p {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 2.5rem;
+  }
+
+  .cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.75rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+  }
+
+  .btn-large {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+  }
+
+  .btn-primary {
+    background: #dc2626;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #991b1b;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.3);
+  }
+
+  .btn-light {
+    background: white;
+    color: #dc2626;
+  }
+
+  .btn-light:hover {
+    background: var(--bg-light);
+    transform: translateY(-2px);
+  }
+
+  .btn-outline-light {
+    background: transparent;
+    color: white;
+    border: 2px solid white;
+  }
+
+  .btn-outline-light:hover {
+    background: white;
+    color: #dc2626;
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 1024px) {
+    .product-detail-grid {
+      grid-template-columns: 1fr;
+      gap: 3rem;
     }
 
-    .sucuk-icon {
-      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-    }
-
-    .category-page {
-      min-height: 100vh;
-    }
-
-    .category-hero {
+    .product-image-container {
       position: relative;
-      height: 400px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-
-    .hero-overlay {
-      position: absolute;
       top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.3) 100%);
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-      color: white;
-      max-width: 800px;
-      padding: 0 20px;
-    }
-
-    .hero-title {
-      font-size: 48px;
-      font-weight: 800;
-      margin: 0 0 16px 0;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    }
-
-    .hero-description {
-      font-size: 18px;
-      line-height: 1.6;
-      margin: 0 0 32px 0;
-      opacity: 0.95;
-    }
-
-    .hero-features {
-      display: flex;
-      justify-content: center;
-      gap: 32px;
-      flex-wrap: wrap;
-    }
-
-    .feature {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 16px;
-      font-weight: 600;
-    }
-
-    .products-section {
-      padding: 80px 0;
-      background: #faf9f7;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    .section-header {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-
-    .section-header h2 {
-      font-size: 36px;
-      font-weight: 700;
-      color: #1f2937;
-      margin: 0 0 12px 0;
-    }
-
-    .section-header p {
-      font-size: 18px;
-      color: #6b7280;
-      margin: 0;
-    }
-
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 32px;
-    }
-
-    .info-section {
-      padding: 80px 0;
-      background: white;
     }
 
     .info-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 32px;
+      grid-template-columns: 1fr;
+      gap: 3rem;
     }
 
-    .info-card {
-      text-align: center;
-      padding: 32px;
-      background: #faf9f7;
-      border-radius: 16px;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    .info-image {
+      order: -1;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2.5rem;
     }
 
-    .info-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 12px 32px rgba(220, 38, 38, 0.1);
+    .hero-subtitle {
+      font-size: 1.125rem;
     }
 
-    .info-icon {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 20px;
-      border-radius: 16px;
-      display: flex;
+    .hero-features {
+      gap: 1.5rem;
+    }
+
+    .hero-feature {
+      font-size: 1rem;
+    }
+
+    .product-name {
+      font-size: 2rem;
+    }
+
+    .product-weight {
+      font-size: 1.25rem;
+    }
+
+    .product-price {
+      font-size: 2.5rem;
+    }
+
+    .info-text h2 {
+      font-size: 2rem;
+    }
+
+    .info-stats {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .storage-section h2 {
+      font-size: 2rem;
+    }
+
+    .storage-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .cta-section h2 {
+      font-size: 2rem;
+    }
+
+    .cta-buttons {
+      flex-direction: column;
       align-items: center;
+    }
+
+    .cta-buttons .btn {
+      width: 100%;
+      max-width: 300px;
       justify-content: center;
-      color: white;
+    }
+  }
+</style>
+
+<script>
+  // Product verisini global'e al
+  const productData = JSON.parse(document.getElementById('product-data')?.textContent || '{}');
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Image Slider İşlemleri
+    const sliderTrack = document.getElementById('slider-track');
+    const prevBtn = document.getElementById('slider-prev');
+    const nextBtn = document.getElementById('slider-next');
+    const dots = document.querySelectorAll('.slider-dot');
+
+    let currentSlide = 0;
+    const totalSlides = dots.length;
+
+    function updateSlider() {
+      if (sliderTrack) {
+        sliderTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
+      }
+
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === currentSlide);
+      });
     }
 
-    .info-card h3 {
-      font-size: 22px;
-      font-weight: 700;
-      color: #1f2937;
-      margin: 0 0 12px 0;
+    prevBtn?.addEventListener('click', () => {
+      currentSlide = currentSlide > 0 ? currentSlide - 1 : totalSlides - 1;
+      updateSlider();
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      currentSlide = currentSlide < totalSlides - 1 ? currentSlide + 1 : 0;
+      updateSlider();
+    });
+
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        currentSlide = index;
+        updateSlider();
+      });
+    });
+
+    // Otomatik geçiş (opsiyonel - 5 saniyede bir)
+    let autoSlide = setInterval(() => {
+      currentSlide = currentSlide < totalSlides - 1 ? currentSlide + 1 : 0;
+      updateSlider();
+    }, 5000);
+
+    // Mouse üzerine gelince otomatik geçişi durdur
+    const imageSlider = document.getElementById('image-slider');
+    imageSlider?.addEventListener('mouseenter', () => {
+      clearInterval(autoSlide);
+    });
+
+    imageSlider?.addEventListener('mouseleave', () => {
+      autoSlide = setInterval(() => {
+        currentSlide = currentSlide < totalSlides - 1 ? currentSlide + 1 : 0;
+        updateSlider();
+      }, 5000);
+    });
+
+    // Quantity ve Cart İşlemleri
+    const decreaseBtn = document.getElementById('decrease-qty');
+    const increaseBtn = document.getElementById('increase-qty');
+    const quantityInput = document.getElementById('quantity');
+    const totalPriceElement = document.getElementById('total-price');
+    const addToCartBtn = document.querySelector('.add-to-cart');
+
+    const unitPrice = productData.price || 380;
+    const maxStock = productData.stock || 99;
+
+    // Toplam fiyatı güncelle
+    function updateTotalPrice() {
+      const quantity = parseInt(quantityInput.value) || 1;
+      const total = unitPrice * quantity;
+      if (totalPriceElement) {
+        totalPriceElement.textContent = total.toLocaleString('tr-TR') + '₺';
+      }
     }
 
-    .info-card p {
-      font-size: 16px;
-      color: #6b7280;
-      line-height: 1.6;
-      margin: 0;
-    }
+    // Miktar azalt
+    decreaseBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const currentValue = parseInt(quantityInput.value) || 1;
+      if (currentValue > 1) {
+        quantityInput.value = (currentValue - 1).toString();
+        updateTotalPrice();
+      }
+    });
 
-    @media (max-width: 768px) {
-      .category-hero {
-        height: 300px;
+    // Miktar artır
+    increaseBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const currentValue = parseInt(quantityInput.value) || 1;
+      if (currentValue < maxStock) {
+        quantityInput.value = (currentValue + 1).toString();
+        updateTotalPrice();
+      }
+    });
+
+    // Manuel input değişikliği
+    quantityInput?.addEventListener('keyup', (e) => {
+      let value = parseInt(quantityInput.value);
+
+      if (isNaN(value) || value < 1) {
+        return;
       }
 
-      .hero-title {
-        font-size: 32px;
+      if (value > maxStock) {
+        quantityInput.value = maxStock.toString();
       }
 
-      .hero-description {
-        font-size: 16px;
+      updateTotalPrice();
+    });
+
+    // Input'tan çıkınca kontrol et
+    quantityInput?.addEventListener('blur', () => {
+      let value = parseInt(quantityInput.value);
+
+      if (isNaN(value) || value < 1) {
+        quantityInput.value = '1';
+      } else if (value > maxStock) {
+        quantityInput.value = maxStock.toString();
       }
 
-      .hero-features {
-        flex-direction: column;
-        gap: 16px;
+      updateTotalPrice();
+    });
+
+    // Sepete ekle
+    addToCartBtn?.addEventListener('click', () => {
+      const quantity = parseInt(quantityInput.value) || 1;
+
+      let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+      const existingItem = cart.find(item => item.id === productData.id);
+
+      if (existingItem) {
+        existingItem.quantity += quantity;
+      } else {
+        cart.push({
+          id: productData.id,
+          slug: productData.slug,
+          name: productData.name,
+          price: productData.price,
+          quantity: quantity,
+          unit: productData.unit,
+          image: productData.images?.[0] || '/assets/image/placeholder.jpg',
+          category: 'sucuk'
+        });
       }
 
-      .products-section {
-        padding: 60px 0;
-      }
+      localStorage.setItem('cart', JSON.stringify(cart));
+      window.dispatchEvent(new Event('cartUpdated'));
 
-      .section-header h2 {
-        font-size: 28px;
-      }
+      // Butonları değiştir
+      const addToCartBtn = document.getElementById('add-to-cart-btn');
+      const successButtons = document.getElementById('cart-success-buttons');
 
-      .products-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
+      if (addToCartBtn && successButtons) {
+        addToCartBtn.style.display = 'none';
+        successButtons.style.display = 'flex';
       }
+    });
+  });
+</script>
 
-      .info-section {
-        padding: 60px 0;
-      }
-
-      .info-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
-      }
-    }
-  </style>
-</BaseLayout>
+<!-- Product data for script -->
+<script id="product-data" type="application/json" set:html={JSON.stringify(product)} />
