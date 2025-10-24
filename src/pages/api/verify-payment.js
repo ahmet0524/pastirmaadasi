@@ -461,45 +461,4 @@ export async function POST({ request }) {
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
-}✅ 3. ADMİN'E EMAİL GÖNDER
-    try {
-      await resend.emails.send({
-        from: "Pastırma Adası <siparis@successodysseyhub.com>",
-        to: adminEmail,
-        subject: `🔔 YENİ SİPARİŞ - ${fullName} (${paidPrice}₺)`,
-        html: getAdminEmailHTML({
-          customerName: fullName,
-          customerEmail: customerEmail,
-          customerPhone: customerPhone,
-          customerIdentity: customerIdentity,
-          orderNumber: paymentId,
-          items: items,
-          total: paidPrice,
-          orderDate: orderDate,
-          shippingAddress: shippingAddress
-        }),
-        replyTo: isCustomerMailValid ? customerEmail : undefined
-      });
-      console.log("✅ Admin emaili gönderildi:", adminEmail);
-    } catch (adminEmailError) {
-      console.error("❌ Admin emaili gönderilemedi:", adminEmailError);
-    }
-
-    return new Response(
-      JSON.stringify({
-        status: "success",
-        emailSent: true,
-        paymentId,
-        paidPrice,
-      }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
-
-  } catch (error) {
-    console.error("💥 VERIFY-PAYMENT Genel Hata:", error);
-    return new Response(
-      JSON.stringify({ status: "error", errorMessage: error.message }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
-  }
 }
