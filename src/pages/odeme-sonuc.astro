@@ -290,7 +290,6 @@ const paidPrice = paymentResult?.paidPrice || '0';
 </style>
 
 <script>
-// ✅ Ödeme başarılı olduğunda verify-payment API'sini çağır - TAM BİLGİLERLE
 document.addEventListener('DOMContentLoaded', async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get('token');
@@ -303,7 +302,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       try {
         console.log('📧 Email gönderimi için verify-payment API çağrılıyor...');
 
-        // LocalStorage'dan TÜM müşteri bilgilerini al
+        // Müşteri bilgileri
         const customerData = {
           email: localStorage.getItem('lastOrderEmail'),
           name: localStorage.getItem('lastOrderName'),
@@ -315,9 +314,24 @@ document.addEventListener('DOMContentLoaded', async () => {
           zipcode: localStorage.getItem('lastOrderZipcode')
         };
 
-        console.log('📦 Müşteri bilgileri:', customerData);
+        // 🛒 SEPET BİLGİLERİ
+        const cartData = localStorage.getItem('lastOrderCart');
+        let cartItems = [];
 
-        // verify-payment API'sine TAM BİLGİLERLE istek gönder
+        if (cartData) {
+          try {
+            cartItems = JSON.parse(cartData);
+            console.log('🛒 Sepet localStorage\'dan alındı:', cartItems);
+          } catch (e) {
+            console.error('❌ Sepet parse hatası:', e);
+          }
+        } else {
+          console.warn('⚠️ lastOrderCart bulunamadı!');
+        }
+
+        console.log('📦 API\'ye gönderilecek müşteri bilgileri:', customerData);
+        console.log('🛍️ API\'ye gönderilecek sepet:', cartItems);
+
         const response = await fetch('/api/verify-payment', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -330,17 +344,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             customerIdentity: customerData.identity,
             customerAddress: customerData.address,
             customerCity: customerData.city,
-            customerZipcode: customerData.zipcode
+            customerZipcode: customerData.zipcode,
+            cartItems: cartItems // 🛒 ÖNEMLİ!
           })
         });
 
         const data = await response.json();
 
         if (data.status === 'success') {
-          console.log('✅ Email gönderimi başarılı:', data);
+          console.log('✅ Email başarılı:', data);
 
-          // Sepeti ve tüm bilgileri temizle
+          // Temizlik
           localStorage.removeItem('cart');
+          localStorage.removeItem('lastOrderCart');
           localStorage.removeItem('lastOrderEmail');
           localStorage.removeItem('lastOrderName');
           localStorage.removeItem('lastOrderSurname');
@@ -351,12 +367,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           localStorage.removeItem('lastOrderZipcode');
 
           window.dispatchEvent(new Event('cartUpdated'));
-          console.log('🗑️ Sepet ve bilgiler temizlendi');
+          console.log('🗑️ Temizlendi');
         } else {
-          console.warn('⚠️ Email gönderimi başarısız:', data.errorMessage);
+          console.warn('⚠️ Email hatası:', data.errorMessage);
         }
       } catch (error) {
-        console.error('❌ Email gönderme hatası:', error);
+        console.error('❌ Hata:', error);
       }
     }
   }

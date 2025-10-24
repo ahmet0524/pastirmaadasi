@@ -642,6 +642,9 @@ async function handleCheckout() {
   localStorage.setItem('lastOrderAddress', address);
   localStorage.setItem('lastOrderCity', city);
   localStorage.setItem('lastOrderZipcode', zipcode);
+  // 🛒 SEPET BİLGİLERİNİ DE KAYDET
+localStorage.setItem('lastOrderCart', JSON.stringify(cart));
+console.log('🛒 Sepet localStorage\'a kaydedildi:', cart);
 
   const btn = document.getElementById('checkout-btn') as HTMLButtonElement;
   const btnText = document.getElementById('checkout-btn-text');
