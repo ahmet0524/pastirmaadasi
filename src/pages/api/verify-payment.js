@@ -240,7 +240,8 @@ export async function POST({ request }) {
       customerIdentity: frontendIdentity,
       customerAddress: frontendAddress,
       customerCity: frontendCity,
-      customerZipcode: frontendZipcode
+      customerZipcode: frontendZipcode,
+      cartItems: frontendCartItems // 🛒 YENİ: Frontend'den gelen sepet
     } = body;
 
     console.log("📦 Frontend'den gelen bilgiler:", {
@@ -250,8 +251,11 @@ export async function POST({ request }) {
       phone: frontendPhone,
       identity: frontendIdentity,
       address: frontendAddress,
-      city: frontendCity
+      city: frontendCity,
+      cartItemsCount: frontendCartItems?.length || 0
     });
+
+    console.log("🛒 Frontend'den gelen sepet:", frontendCartItems);
 
     if (!token) {
       return new Response(
