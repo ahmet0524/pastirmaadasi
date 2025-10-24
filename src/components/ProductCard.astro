@@ -12,7 +12,28 @@ interface Props {
 }
 
 const { id, slug, name, price, images, unit, description, variants } = Astro.props;
-const mainImage = Array.isArray(images) ? images[0] : images;
+
+// Görsel kontrolü - farklı formatlara destek
+let mainImage = '/assets/image/placeholder.jpg';
+
+if (images) {
+  if (Array.isArray(images) && images.length > 0) {
+    mainImage = images[0];
+  } else if (typeof images === 'string') {
+    // Eğer string ise ve JSON formatındaysa parse et
+    try {
+      const parsed = JSON.parse(images);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        mainImage = parsed[0];
+      }
+    } catch {
+      // JSON değilse direkt kullan
+      mainImage = images;
+    }
+  }
+}
+
+console.log(`ProductCard ${name}: images=`, images, 'mainImage=', mainImage);
 ---
 
 <div class="product-card" data-product-id={id}>

@@ -16,7 +16,13 @@ if (error) {
   console.error('Supabase hatası:', error);
 }
 
-console.log('Sucuk products:', products); // Debug için
+// Debug için - veriyi konsola yazdır
+if (products) {
+  console.log('Sucuk products:', products);
+  products.forEach(p => {
+    console.log(`Product: ${p.name}, Images:`, p.images, 'Type:', typeof p.images);
+  });
+}
 ---
 
 <BaseLayout
