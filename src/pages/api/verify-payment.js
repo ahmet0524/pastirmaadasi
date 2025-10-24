@@ -235,9 +235,24 @@ export async function POST({ request }) {
     const {
       token,
       customerEmail: frontendEmail,
-      customerName,
-      customerSurname,
+      customerName: frontendName,
+      customerSurname: frontendSurname,
+      customerPhone: frontendPhone,
+      customerIdentity: frontendIdentity,
+      customerAddress: frontendAddress,
+      customerCity: frontendCity,
+      customerZipcode: frontendZipcode
     } = body;
+
+    console.log("📦 Frontend'den gelen bilgiler:", {
+      email: frontendEmail,
+      name: frontendName,
+      surname: frontendSurname,
+      phone: frontendPhone,
+      identity: frontendIdentity,
+      address: frontendAddress,
+      city: frontendCity
+    });
 
     if (!token) {
       return new Response(
@@ -283,23 +298,42 @@ export async function POST({ request }) {
 
     console.log("✅ Ödeme Iyzico'da doğrulandı - VERİTABANINA KAYDEDİLİYOR");
 
-    // --- Veri Hazırlığı ---
+    // --- Veri Hazırlığı - FRONTEND VERİSİNİ ÖNCELİKLENDİR ---
     const adminEmail = import.meta.env.ADMIN_EMAIL || "successodysseyhub@gmail.com";
-    let customerEmail = result.buyer?.email?.trim() || frontendEmail?.trim() || "";
 
+    // Email - Frontend'i önceliklendir
+    let customerEmail = frontendEmail?.trim() || result.buyer?.email?.trim() || "";
     const isCustomerMailValid = isValidEmail(customerEmail);
     if (!isCustomerMailValid) {
       console.warn("⚠️ Müşteri e-postası geçersiz:", customerEmail);
       customerEmail = adminEmail;
     }
 
-    const fullName = `${result.buyer?.name || customerName || "Değerli"} ${
-      result.buyer?.surname || customerSurname || "Müşterimiz"
-    }`.trim();
+    // Ad Soyad - Frontend'i önceliklendir
+    const name = frontendName?.trim() || result.buyer?.name || "Değerli";
+    const surname = frontendSurname?.trim() || result.buyer?.surname || "Müşterimiz";
+    const fullName = `${name} ${surname}`.trim();
+
+    // Telefon - Frontend'i önceliklendir
+    const customerPhone = frontendPhone
+      ? `+90${frontendPhone}`
+      : result.buyer?.gsmNumber || '';
+
+    // TC Kimlik - Frontend'i önceliklendir
+    const customerIdentity = frontendIdentity || result.buyer?.identityNumber || '';
+
+    // Adres - Frontend'i önceliklendir
+    let shippingAddress = '';
+    if (frontendAddress && frontendCity) {
+      shippingAddress = `${frontendAddress}, ${frontendCity}, Turkey`;
+    } else if (result.shippingAddress) {
+      shippingAddress = `${result.shippingAddress.address}, ${result.shippingAddress.city}, ${result.shippingAddress.country}`;
+    } else {
+      shippingAddress = 'Adres bilgisi alınamadı';
+    }
 
     const paidPrice = parseFloat(result.paidPrice);
     const paymentId = result.paymentId;
-    const basketId = result.basketId;
     const orderDate = new Date().toLocaleString('tr-TR', {
       day: '2-digit',
       month: '2-digit',
@@ -308,17 +342,6 @@ export async function POST({ request }) {
       minute: '2-digit'
     });
 
-    // Adres bilgisi
-    const shippingAddress = result.shippingAddress
-      ? `${result.shippingAddress.address}, ${result.shippingAddress.city}, ${result.shippingAddress.country}`
-      : 'Adres bilgisi alınamadı';
-
-    // Telefon bilgisi
-    const customerPhone = result.buyer?.gsmNumber || '';
-
-    // TC Kimlik No
-    const customerIdentity = result.buyer?.identityNumber || '';
-
     // Ürün listesi
     const items = Array.isArray(result.basketItems)
       ? result.basketItems.map(item => ({
@@ -326,6 +349,14 @@ export async function POST({ request }) {
           price: parseFloat(item.price)
         }))
       : [];
+
+    console.log("📧 Email için hazırlanan bilgiler:", {
+      fullName,
+      customerEmail,
+      customerPhone,
+      customerIdentity,
+      shippingAddress
+    });
 
     // ✅ 1. SUPABASE'E SİPARİŞİ KAYDET
     try {
@@ -390,6 +421,47 @@ export async function POST({ request }) {
     }
 
     // ✅ 3. ADMİN'E EMAİL GÖNDER
+    try {
+      await resend.emails.send({
+        from: "Pastırma Adası <siparis@successodysseyhub.com>",
+        to: adminEmail,
+        subject: `🔔 YENİ SİPARİŞ - ${fullName} (${paidPrice}₺)`,
+        html: getAdminEmailHTML({
+          customerName: fullName,
+          customerEmail: customerEmail,
+          customerPhone: customerPhone,
+          customerIdentity: customerIdentity,
+          orderNumber: paymentId,
+          items: items,
+          total: paidPrice,
+          orderDate: orderDate,
+          shippingAddress: shippingAddress
+        }),
+        replyTo: isCustomerMailValid ? customerEmail : undefined
+      });
+      console.log("✅ Admin emaili gönderildi:", adminEmail);
+    } catch (adminEmailError) {
+      console.error("❌ Admin emaili gönderilemedi:", adminEmailError);
+    }
+
+    return new Response(
+      JSON.stringify({
+        status: "success",
+        emailSent: true,
+        paymentId,
+        paidPrice,
+      }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
+
+  } catch (error) {
+    console.error("💥 VERIFY-PAYMENT Genel Hata:", error);
+    return new Response(
+      JSON.stringify({ status: "error", errorMessage: error.message }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
+}✅ 3. ADMİN'E EMAİL GÖNDER
     try {
       await resend.emails.send({
         from: "Pastırma Adası <siparis@successodysseyhub.com>",

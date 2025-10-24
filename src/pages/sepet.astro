@@ -633,10 +633,15 @@ async function handleCheckout() {
     return;
   }
 
-  // LocalStorage'a kaydet
+  // LocalStorage'a TÜM bilgileri kaydet
   localStorage.setItem('lastOrderEmail', email);
   localStorage.setItem('lastOrderName', name);
   localStorage.setItem('lastOrderSurname', surname);
+  localStorage.setItem('lastOrderPhone', cleanedPhone);
+  localStorage.setItem('lastOrderIdentity', identity);
+  localStorage.setItem('lastOrderAddress', address);
+  localStorage.setItem('lastOrderCity', city);
+  localStorage.setItem('lastOrderZipcode', zipcode);
 
   const btn = document.getElementById('checkout-btn') as HTMLButtonElement;
   const btnText = document.getElementById('checkout-btn-text');

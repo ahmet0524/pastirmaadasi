@@ -13,7 +13,6 @@ if (error) {
   errorMessage = error === 'no-token' ? 'Token bulunamadı' : 'Ödeme işlemi başarısız';
 } else if (token) {
   try {
-    // İyzico'dan ödeme sonucunu al
     const Iyzipay = (await import("iyzipay")).default;
 
     const iyzipay = new Iyzipay({
@@ -55,7 +54,6 @@ const paidPrice = paymentResult?.paidPrice || '0';
     <div class="container">
       <div class="result-card">
         {isSuccess ? (
-          <!-- Başarılı Ödeme -->
           <>
             <div class="success-icon">
               <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -96,7 +94,6 @@ const paidPrice = paymentResult?.paidPrice || '0';
             </div>
           </>
         ) : (
-          <!-- Başarısız Ödeme -->
           <>
             <div class="error-icon">
               <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -293,7 +290,7 @@ const paidPrice = paymentResult?.paidPrice || '0';
 </style>
 
 <script>
-// ✅ Ödeme başarılı olduğunda verify-payment API'sini çağır
+// ✅ Ödeme başarılı olduğunda verify-payment API'sini çağır - TAM BİLGİLERLE
 document.addEventListener('DOMContentLoaded', async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get('token');
@@ -306,20 +303,34 @@ document.addEventListener('DOMContentLoaded', async () => {
       try {
         console.log('📧 Email gönderimi için verify-payment API çağrılıyor...');
 
-        // LocalStorage'dan müşteri bilgilerini al
-        const customerEmail = localStorage.getItem('lastOrderEmail');
-        const customerName = localStorage.getItem('lastOrderName');
-        const customerSurname = localStorage.getItem('lastOrderSurname');
+        // LocalStorage'dan TÜM müşteri bilgilerini al
+        const customerData = {
+          email: localStorage.getItem('lastOrderEmail'),
+          name: localStorage.getItem('lastOrderName'),
+          surname: localStorage.getItem('lastOrderSurname'),
+          phone: localStorage.getItem('lastOrderPhone'),
+          identity: localStorage.getItem('lastOrderIdentity'),
+          address: localStorage.getItem('lastOrderAddress'),
+          city: localStorage.getItem('lastOrderCity'),
+          zipcode: localStorage.getItem('lastOrderZipcode')
+        };
 
-        // verify-payment API'sine istek gönder
+        console.log('📦 Müşteri bilgileri:', customerData);
+
+        // verify-payment API'sine TAM BİLGİLERLE istek gönder
         const response = await fetch('/api/verify-payment', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             token,
-            customerEmail,
-            customerName,
-            customerSurname
+            customerEmail: customerData.email,
+            customerName: customerData.name,
+            customerSurname: customerData.surname,
+            customerPhone: customerData.phone,
+            customerIdentity: customerData.identity,
+            customerAddress: customerData.address,
+            customerCity: customerData.city,
+            customerZipcode: customerData.zipcode
           })
         });
 
@@ -327,17 +338,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (data.status === 'success') {
           console.log('✅ Email gönderimi başarılı:', data);
+
+          // Sepeti ve tüm bilgileri temizle
+          localStorage.removeItem('cart');
+          localStorage.removeItem('lastOrderEmail');
+          localStorage.removeItem('lastOrderName');
+          localStorage.removeItem('lastOrderSurname');
+          localStorage.removeItem('lastOrderPhone');
+          localStorage.removeItem('lastOrderIdentity');
+          localStorage.removeItem('lastOrderAddress');
+          localStorage.removeItem('lastOrderCity');
+          localStorage.removeItem('lastOrderZipcode');
+
+          window.dispatchEvent(new Event('cartUpdated'));
+          console.log('🗑️ Sepet ve bilgiler temizlendi');
         } else {
           console.warn('⚠️ Email gönderimi başarısız:', data.errorMessage);
         }
       } catch (error) {
         console.error('❌ Email gönderme hatası:', error);
       }
-
-      // Sepeti temizle
-      localStorage.removeItem('cart');
-      window.dispatchEvent(new Event('cartUpdated'));
-      console.log('🗑️ Sepet temizlendi');
     }
   }
 });
