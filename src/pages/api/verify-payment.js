@@ -244,7 +244,7 @@ export async function POST({ request }) {
       customerAddress: frontendAddress,
       customerCity: frontendCity,
       customerZipcode: frontendZipcode,
-      cartItems: frontendCartItems // 🛒 YENİ: Frontend'den gelen sepet
+      cartItems: frontendCartItems
     } = body;
 
     console.log("📦 Frontend'den gelen bilgiler:", {
@@ -257,8 +257,6 @@ export async function POST({ request }) {
       city: frontendCity,
       cartItemsCount: frontendCartItems?.length || 0
     });
-
-    console.log("🛒 Frontend'den gelen sepet RAW:", frontendCartItems);
 
     if (!token) {
       return new Response(
@@ -303,7 +301,6 @@ export async function POST({ request }) {
     }
 
     console.log("✅ Ödeme Iyzico'da doğrulandı - VERİTABANINA KAYDEDİLİYOR");
-    console.log("📋 İyzico FULL result:", JSON.stringify(result, null, 2));
 
     // --- Veri Hazırlığı - FRONTEND VERİSİNİ ÖNCELİKLENDİR ---
     const adminEmail = import.meta.env.ADMIN_EMAIL || "successodysseyhub@gmail.com";
@@ -352,65 +349,45 @@ export async function POST({ request }) {
     // Ürün listesi - ÖNCELİK SIRASI:
     // 1. Frontend'den gelen sepet (en güncel)
     // 2. İyzico'dan gelen basketItems
-    
-    console.log("📦 İyzico basketItems RAW:", result.basketItems);
-    console.log("📦 İyzico basketItems TYPE:", typeof result.basketItems);
-    console.log("📦 İyzico basketItems IS ARRAY:", Array.isArray(result.basketItems));
-    
+
     let items = [];
-    
+
     // Önce frontend'den gelen sepeti kontrol et
     if (frontendCartItems && Array.isArray(frontendCartItems) && frontendCartItems.length > 0) {
       console.log("✅ Frontend sepet bilgisi kullanılıyor");
-      items = frontendCartItems.map((item, index) => {
-        console.log(`  🛒 Frontend Item ${index}:`, item);
-        return {
-          name: item.name || `Ürün ${index + 1}`,
-          price: parseFloat(item.price || 0),
-          quantity: item.quantity || 1,
-          unit: item.unit || '500g'
-        };
-      });
+      items = frontendCartItems.map((item, index) => ({
+        name: item.name || `Ürün ${index + 1}`,
+        price: parseFloat(item.price || 0),
+        quantity: item.quantity || 1,
+        unit: item.unit || '500g'
+      }));
     }
     // Frontend'de veri yoksa İyzico'dan al
     else if (result.basketItems && Array.isArray(result.basketItems)) {
-      console.log("✅ İyzico basket bilgisi kullanılıyor");
-      items = result.basketItems.map((item, index) => {
-        console.log(`  📦 Iyzico Item ${index}:`, JSON.stringify(item));
-        return {
-          name: item.name || item.itemName || `Ürün ${index + 1}`,
-          price: parseFloat(item.price || 0),
-          quantity: 1,
-          unit: '500g'
-        };
-      });
+      console.log("✅ Iyzico basket bilgisi kullanılıyor");
+      items = result.basketItems.map((item, index) => ({
+        name: item.name || item.itemName || `Ürün ${index + 1}`,
+        price: parseFloat(item.price || 0),
+        quantity: 1,
+        unit: '500g'
+      }));
     } else {
       console.error("❌ Ne frontend ne de İyzico'dan ürün bilgisi alınamadı!");
     }
-    
-    console.log("📦 İşlenmiş items (email için):", JSON.stringify(items, null, 2));
-    
-    // Eğer items boşsa uyarı ver
+
     if (items.length === 0) {
       console.error("❌ UYARI: Ürün listesi tamamen boş!");
-      console.log("🔍 Tüm result objesi:", JSON.stringify(result, null, 2));
     } else {
       console.log(`✅ ${items.length} adet ürün işlendi`);
     }
 
-    console.log("📧 Email için hazırlanan bilgiler:", {
-      fullName,
-      customerEmail,
-      customerPhone,
-      customerIdentity,
-      shippingAddress
-    });
+    // 🚀 KRİTİK: Tüm email ve DB işlemlerini PARALEL çalıştır
+    // Promise.allSettled kullanarak hiçbiri diğerini bloklamaz
+    const orderNumber = `ORD-${Date.now()}`;
 
-    // ✅ 1. SUPABASE'E SİPARİŞİ KAYDET
-    try {
-      const orderNumber = `ORD-${Date.now()}`;
-
-      const { data: orderData, error: dbError } = await supabase
+    const [dbResult, customerEmailResult, adminEmailResult] = await Promise.allSettled([
+      // 1. Veritabanına kaydet
+      supabase
         .from('orders')
         .insert({
           order_number: orderNumber,
@@ -433,43 +410,28 @@ export async function POST({ request }) {
           created_at: new Date().toISOString()
         })
         .select()
-        .single();
+        .single(),
 
-      if (dbError) {
-        console.error("❌ Supabase kayıt hatası:", dbError);
-      } else {
-        console.log("✅ Sipariş veritabanına kaydedildi:", orderData);
-      }
-    } catch (dbError) {
-      console.error("❌ Veritabanı hatası:", dbError);
-    }
-
-    // ✅ 2. MÜŞTERİYE EMAİL GÖNDER
-    if (isCustomerMailValid) {
-      try {
-        await resend.emails.send({
-          from: "Pastırma Adası <siparis@successodysseyhub.com>",
-          to: customerEmail,
-          subject: `✅ Siparişiniz Alındı! 🎉 (${paymentId})`,
-          html: getCustomerEmailHTML({
-            customerName: fullName,
-            orderNumber: paymentId,
-            items: items,
-            total: paidPrice,
-            orderDate: orderDate,
-            shippingAddress: shippingAddress,
-            customerPhone: customerPhone
+      // 2. Müşteriye email gönder (sadece geçerli email varsa)
+      isCustomerMailValid
+        ? resend.emails.send({
+            from: "Pastırma Adası <siparis@successodysseyhub.com>",
+            to: customerEmail,
+            subject: `✅ Siparişiniz Alındı! 🎉 (${paymentId})`,
+            html: getCustomerEmailHTML({
+              customerName: fullName,
+              orderNumber: paymentId,
+              items: items,
+              total: paidPrice,
+              orderDate: orderDate,
+              shippingAddress: shippingAddress,
+              customerPhone: customerPhone
+            })
           })
-        });
-        console.log("✅ Müşteriye email gönderildi:", customerEmail);
-      } catch (emailError) {
-        console.error("❌ Müşteri emaili gönderilemedi:", emailError);
-      }
-    }
+        : Promise.resolve({ skipped: true }),
 
-    // ✅ 3. ADMİN'E EMAİL GÖNDER
-    try {
-      await resend.emails.send({
+      // 3. Admin'e email gönder
+      resend.emails.send({
         from: "Pastırma Adası <siparis@successodysseyhub.com>",
         to: adminEmail,
         subject: `🔔 YENİ SİPARİŞ - ${fullName} (${paidPrice}₺)`,
@@ -485,16 +447,34 @@ export async function POST({ request }) {
           shippingAddress: shippingAddress
         }),
         replyTo: isCustomerMailValid ? customerEmail : undefined
-      });
-      console.log("✅ Admin emaili gönderildi:", adminEmail);
-    } catch (adminEmailError) {
-      console.error("❌ Admin emaili gönderilemedi:", adminEmailError);
+      })
+    ]);
+
+    // Sonuçları logla (opsiyonel)
+    if (dbResult.status === 'fulfilled') {
+      console.log("✅ Sipariş veritabanına kaydedildi");
+    } else {
+      console.error("❌ Veritabanı hatası:", dbResult.reason);
     }
 
+    if (customerEmailResult.status === 'fulfilled' && !customerEmailResult.value?.skipped) {
+      console.log("✅ Müşteriye email gönderildi:", customerEmail);
+    } else if (customerEmailResult.status === 'rejected') {
+      console.error("❌ Müşteri emaili gönderilemedi:", customerEmailResult.reason);
+    }
+
+    if (adminEmailResult.status === 'fulfilled') {
+      console.log("✅ Admin emaili gönderildi:", adminEmail);
+    } else {
+      console.error("❌ Admin emaili gönderilemedi:", adminEmailResult.reason);
+    }
+
+    // Kullanıcıya her durumda başarılı yanıt dön
+    // (Email/DB hataları arka planda loglanır, ödeme başarılı)
     return new Response(
       JSON.stringify({
         status: "success",
-        emailSent: true,
+        emailSent: customerEmailResult.status === 'fulfilled' && !customerEmailResult.value?.skipped,
         paymentId,
         paidPrice,
       }),
