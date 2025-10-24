@@ -1,344 +1,649 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
+// src/pages/admin/orders.astro
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getSession } from '../../lib/auth';
+import { createClient } from '@supabase/supabase-js';
 
-const token = Astro.url.searchParams.get('token');
-const error = Astro.url.searchParams.get('error');
+// Auth kontrolü
+const session = await getSession();
+if (!session) {
+  return Astro.redirect('/admin/login');
+}
 
-let paymentResult = null;
-let errorMessage = '';
+// Supabase client
+const supabase = createClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+// Siparişleri çek
+const { data: orders, error } = await supabase
+  .from('orders')
+  .select('*')
+  .order('created_at', { ascending: false });
 
 if (error) {
-  errorMessage = error === 'no-token' ? 'Token bulunamadı' : 'Ödeme işlemi başarısız';
-} else if (token) {
-  try {
-    const Iyzipay = (await import("iyzipay")).default;
+  console.error('❌ Orders fetch error:', error);
+}
+---
 
-    const iyzipay = new Iyzipay({
-      apiKey: import.meta.env.IYZICO_API_KEY || "sandbox-iMWOs8liBFXBEw49vXevtfru7ZnPkIDs",
-      secretKey: import.meta.env.IYZICO_SECRET_KEY || "sandbox-cUbewaUJPvAzNUUMsXaGzbUzK2gsYudG",
-      uri: "https://sandbox-api.iyzipay.com",
+<BaseLayout title="Siparişler - Admin">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <h2>Pastırma Adası</h2>
+        <p>Admin Panel</p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-item">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          Dashboard
+        </a>
+        <a href="/admin/products" class="nav-item">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          Ürünler
+        </a>
+        <a href="/admin/orders" class="nav-item active">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          Siparişler
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="btn btn-outline btn-full">Çıkış Yap</button>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>📦 Siparişler</h1>
+        <p>Tüm siparişlerinizi buradan yönetebilirsiniz</p>
+      </header>
+
+      <div class="orders-list">
+        {orders && orders.length > 0 ? (
+          orders.map((order) => (
+            <div class="order-card" data-order-id={order.id}>
+              <div class="order-header">
+                <div>
+                  <h3>Sipariş #{order.payment_id || order.id}</h3>
+                  <p class="order-date">{new Date(order.created_at).toLocaleString('tr-TR')}</p>
+                </div>
+                <div class="order-status">
+                  <span class={`status-badge status-${order.status}`}>
+                    {order.status === 'pending' ? '⏳ Bekliyor' :
+                     order.status === 'shipped' ? '📦 Kargoda' :
+                     order.status === 'delivered' ? '✅ Teslim Edildi' : '❌ İptal'}
+                  </span>
+                </div>
+              </div>
+
+              <div class="order-details">
+                <div class="detail-row">
+                  <strong>Müşteri:</strong>
+                  <span>{order.customer_name}</span>
+                </div>
+                <div class="detail-row">
+                  <strong>Email:</strong>
+                  <span>{order.customer_email}</span>
+                </div>
+                {order.customer_phone && (
+                  <div class="detail-row">
+                    <strong>Telefon:</strong>
+                    <span>{order.customer_phone}</span>
+                  </div>
+                )}
+                <div class="detail-row">
+                  <strong>Adres:</strong>
+                  <span>{order.customer_address || order.shipping_address}</span>
+                </div>
+                <div class="detail-row">
+                  <strong>Toplam:</strong>
+                  <span class="price">{order.total}₺</span>
+                </div>
+                {order.tracking_number && (
+                  <div class="detail-row">
+                    <strong>Kargo Takip:</strong>
+                    <span>{order.tracking_number}</span>
+                  </div>
+                )}
+              </div>
+
+              <div class="order-actions">
+                <button
+                  class="btn btn-sm btn-primary send-tracking-btn"
+                  data-order-id={order.id}
+                  data-payment-id={order.payment_id || order.id}
+                  data-email={order.customer_email}
+                  data-name={order.customer_name}>
+                  📧 Kargo Takip Gönder
+                </button>
+                <button
+                  class="btn btn-sm btn-secondary view-details-btn"
+                  data-items={JSON.stringify(order.items || [])}>
+                  👁️ Ürünleri Gör
+                </button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div class="empty-state">
+            <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+            </svg>
+            <h3>Henüz sipariş yok</h3>
+            <p>İlk siparişinizi bekliyoruz!</p>
+          </div>
+        )}
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div id="items-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>📦 Sipariş Ürünleri</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div id="modal-items" class="modal-body"></div>
+    </div>
+  </div>
+
+  <style>
+    .admin-layout {
+      display: flex;
+      min-height: 100vh;
+      background: #f8f9fa;
+    }
+
+    .admin-sidebar {
+      width: 260px;
+      background: white;
+      border-right: 1px solid #e9ecef;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      left: 0;
+      top: 0;
+    }
+
+    .sidebar-header {
+      padding: 2rem 1.5rem;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .sidebar-header h2 {
+      font-size: 1.25rem;
+      margin: 0;
+      color: #c92a2a;
+    }
+
+    .sidebar-header p {
+      font-size: 0.875rem;
+      color: #868e96;
+      margin: 0.25rem 0 0;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 1rem 0;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      color: #495057;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover {
+      background: #f8f9fa;
+      color: #c92a2a;
+    }
+
+    .nav-item.active {
+      background: #fff5f5;
+      color: #c92a2a;
+      border-right: 3px solid #c92a2a;
+    }
+
+    .sidebar-footer {
+      padding: 1.5rem;
+      border-top: 1px solid #e9ecef;
+    }
+
+    .admin-main {
+      margin-left: 260px;
+      flex: 1;
+      padding: 2rem;
+    }
+
+    .admin-header {
+      margin-bottom: 2rem;
+    }
+
+    .admin-header h1 {
+      font-size: 2rem;
+      margin: 0 0 0.5rem;
+      color: #212529;
+    }
+
+    .admin-header p {
+      color: #868e96;
+      margin: 0;
+    }
+
+    .orders-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .order-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .order-header h3 {
+      margin: 0 0 0.25rem;
+      font-size: 1.25rem;
+      color: #212529;
+    }
+
+    .order-date {
+      color: #868e96;
+      font-size: 0.875rem;
+      margin: 0;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.375rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-shipped {
+      background: #cfe2ff;
+      color: #084298;
+    }
+
+    .status-delivered {
+      background: #d1e7dd;
+      color: #0f5132;
+    }
+
+    .status-cancelled {
+      background: #f8d7da;
+      color: #842029;
+    }
+
+    .order-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .detail-row strong {
+      color: #495057;
+      font-size: 0.875rem;
+      min-width: 100px;
+    }
+
+    .detail-row span {
+      color: #212529;
+      flex: 1;
+      text-align: right;
+    }
+
+    .price {
+      font-weight: 600;
+      color: #c92a2a;
+      font-size: 1.125rem;
+    }
+
+    .order-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .btn-sm {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.875rem;
+    }
+
+    .btn-primary {
+      background: #c92a2a;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #a61e1e;
+    }
+
+    .btn-secondary {
+      background: #495057;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #343a40;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #dee2e6;
+      color: #495057;
+    }
+
+    .btn-outline:hover {
+      background: #f8f9fa;
+    }
+
+    .btn-full {
+      width: 100%;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: white;
+      border-radius: 12px;
+    }
+
+    .empty-state svg {
+      color: #adb5bd;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+      margin: 0 0 0.5rem;
+      color: #495057;
+    }
+
+    .empty-state p {
+      color: #868e96;
+      margin: 0;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 2rem;
+      cursor: pointer;
+      color: #868e96;
+      line-height: 1;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+    }
+
+    .modal-close:hover {
+      color: #212529;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+
+    .modal-item {
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .modal-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .modal-item-name {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-item-price {
+      color: #c92a2a;
+      font-weight: 600;
+      font-size: 1.2rem;
+    }
+
+    @media (max-width: 768px) {
+      .admin-sidebar {
+        transform: translateX(-100%);
+      }
+
+      .admin-main {
+        margin-left: 0;
+      }
+
+      .order-actions {
+        flex-direction: column;
+      }
+
+      .btn-sm {
+        width: 100%;
+      }
+
+      .detail-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .detail-row span {
+        text-align: left;
+      }
+    }
+  </style>
+
+  <script>
+    // Logout işlemi
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      const response = await fetch('/api/auth/logout', { method: 'POST' });
+      if (response.ok) {
+        window.location.href = '/admin/login';
+      }
     });
 
-    paymentResult = await new Promise((resolve, reject) => {
-      iyzipay.checkoutForm.retrieve({
-        locale: Iyzipay.LOCALE.TR,
-        conversationId: Date.now().toString(),
-        token: token
-      }, (err, result) => {
-        if (err) {
-          console.error("❌ İyzico retrieve hatası:", err);
-          reject(err);
-        } else {
-          console.log("✅ İyzico sonucu:", result);
-          resolve(result);
+    // Kargo takip gönderme
+    document.querySelectorAll('.send-tracking-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const target = e.currentTarget as HTMLButtonElement;
+        const orderId = target.dataset.orderId;
+        const paymentId = target.dataset.paymentId;
+        const email = target.dataset.email;
+        const name = target.dataset.name;
+
+        if (!orderId || !email) return;
+
+        const trackingNumber = prompt('Kargo takip numarasını girin:');
+        if (!trackingNumber) return;
+
+        const trackingUrl = prompt('Kargo takip URL (opsiyonel):') || '';
+
+        try {
+          target.disabled = true;
+          target.textContent = '⏳ Gönderiliyor...';
+
+          // Email gönder
+          const emailResponse = await fetch('/api/send-order-email', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              customerEmail: email,
+              customerName: name,
+              orderNumber: paymentId || orderId,
+              trackingNumber,
+              trackingUrl
+            })
+          });
+
+          if (!emailResponse.ok) {
+            throw new Error('Email gönderilemedi');
+          }
+
+          // Veritabanını güncelle
+          const updateResponse = await fetch('/api/orders/update-tracking', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              orderId,
+              trackingNumber,
+              trackingUrl,
+              status: 'shipped'
+            })
+          });
+
+          if (updateResponse.ok) {
+            alert('✅ Kargo takip bilgisi başarıyla gönderildi!');
+            location.reload();
+          } else {
+            alert('⚠️ Email gönderildi ama veritabanı güncellenemedi');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('❌ Bir hata oluştu: ' + error.message);
+          target.disabled = false;
+          target.textContent = '📧 Kargo Takip Gönder';
         }
       });
     });
-  } catch (err) {
-    console.error("💥 Ödeme sonucu alınamadı:", err);
-    errorMessage = err.message || 'Ödeme sonucu alınamadı';
-  }
-}
 
-const isSuccess = paymentResult?.status === "success" && paymentResult?.paymentStatus === "SUCCESS";
-const orderId = paymentResult?.basketId || 'N/A';
-const paidPrice = paymentResult?.paidPrice || '0';
----
+    // Ürünleri göster
+    const modal = document.getElementById('items-modal');
+    const modalClose = document.querySelector('.modal-close');
+    const modalItems = document.getElementById('modal-items');
 
-<BaseLayout title={isSuccess ? "Ödeme Başarılı" : "Ödeme Hatası"} description="Ödeme sonucu">
-  <Header slot="header" />
+    document.querySelectorAll('.view-details-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.currentTarget as HTMLButtonElement;
+        const itemsJson = target.dataset.items;
 
-  <section class="result-page">
-    <div class="container">
-      <div class="result-card">
-        {isSuccess ? (
-          <>
-            <div class="success-icon">
-              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
+        try {
+          const items = JSON.parse(itemsJson || '[]');
 
-            <h1>🎉 Siparişiniz Alındı!</h1>
-            <p class="success-message">Ödemeniz başarıyla tamamlandı. Siparişiniz en kısa sürede hazırlanacaktır.</p>
-
-            <div class="order-info">
-              <div class="info-item">
-                <span class="label">Sipariş No:</span>
-                <span class="value">{orderId}</span>
+          if (!items || items.length === 0) {
+            modalItems!.innerHTML = '<p>Ürün bilgisi bulunamadı</p>';
+          } else {
+            modalItems!.innerHTML = items.map((item: any) => `
+              <div class="modal-item">
+                <div class="modal-item-name">${item.name}</div>
+                <div class="modal-item-price">${parseFloat(item.price).toFixed(2)}₺</div>
               </div>
-              <div class="info-item">
-                <span class="label">Ödenen Tutar:</span>
-                <span class="value">{paidPrice} ₺</span>
-              </div>
-              <div class="info-item">
-                <span class="label">Durum:</span>
-                <span class="value status-success">✅ Ödeme Alındı</span>
-              </div>
-            </div>
+            `).join('');
+          }
 
-            <div class="success-actions">
-              <a href="/" class="btn btn-primary">Ana Sayfaya Dön</a>
-              <a href="/online-alisveris" class="btn btn-secondary">Alışverişe Devam Et</a>
-            </div>
-
-            <div class="next-steps">
-              <h3>📦 Sonraki Adımlar</h3>
-              <ul>
-                <li>Sipariş onay e-postası gönderilecektir</li>
-                <li>Siparişiniz hazırlandığında bilgilendirileceksiniz</li>
-                <li>Kargo takip numaranız tarafınıza iletilecektir</li>
-              </ul>
-            </div>
-          </>
-        ) : (
-          <>
-            <div class="error-icon">
-              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-
-            <h1>❌ Ödeme Başarısız</h1>
-            <p class="error-message">
-              {errorMessage || paymentResult?.errorMessage || 'Ödeme işlemi tamamlanamadı. Lütfen tekrar deneyin.'}
-            </p>
-
-            <div class="error-actions">
-              <a href="/sepet" class="btn btn-primary">Sepete Dön</a>
-              <a href="/iletisim" class="btn btn-secondary">Yardım Al</a>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  </section>
-
-  <Footer slot="footer" />
-</BaseLayout>
-
-<style>
-.result-page {
-  padding: 4rem 0;
-  min-height: 70vh;
-  display: flex;
-  align-items: center;
-}
-
-.result-card {
-  background: white;
-  border-radius: 20px;
-  padding: 3rem;
-  max-width: 600px;
-  margin: 0 auto;
-  text-align: center;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-}
-
-.success-icon, .error-icon {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 2rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: scaleIn 0.5s ease-out;
-}
-
-.success-icon {
-  background: #10b981;
-}
-
-.error-icon {
-  background: #ef4444;
-}
-
-.success-icon svg, .error-icon svg {
-  color: white;
-}
-
-@keyframes scaleIn {
-  from {
-    transform: scale(0);
-  }
-  to {
-    transform: scale(1);
-  }
-}
-
-.result-card h1 {
-  color: #1f2937;
-  margin-bottom: 1rem;
-  font-size: 2rem;
-}
-
-.success-message, .error-message {
-  color: #6b7280;
-  font-size: 1.1rem;
-  margin-bottom: 2rem;
-}
-
-.order-info {
-  background: #f9fafb;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.info-item:last-child {
-  border-bottom: none;
-}
-
-.label {
-  font-weight: 600;
-  color: #4b5563;
-}
-
-.value {
-  color: #1f2937;
-  font-weight: 500;
-}
-
-.status-success {
-  color: #10b981;
-}
-
-.success-actions, .error-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-bottom: 2rem;
-}
-
-.btn {
-  padding: 0.75rem 2rem;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 600;
-  transition: all 0.3s;
-}
-
-.btn-primary {
-  background: #667eea;
-  color: white;
-}
-
-.btn-primary:hover {
-  background: #5568d3;
-  transform: translateY(-2px);
-}
-
-.btn-secondary {
-  background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
-}
-
-.btn-secondary:hover {
-  background: #667eea;
-  color: white;
-  transform: translateY(-2px);
-}
-
-.next-steps {
-  text-align: left;
-  background: #fffbeb;
-  border-radius: 12px;
-  padding: 1.5rem;
-  border: 2px solid #fbbf24;
-}
-
-.next-steps h3 {
-  margin-top: 0;
-  color: #92400e;
-  font-size: 1.1rem;
-}
-
-.next-steps ul {
-  margin: 0;
-  padding-left: 1.5rem;
-  color: #78350f;
-}
-
-.next-steps li {
-  margin: 0.5rem 0;
-}
-
-@media (max-width: 768px) {
-  .result-card {
-    padding: 2rem;
-  }
-
-  .success-actions, .error-actions {
-    flex-direction: column;
-  }
-
-  .btn {
-    width: 100%;
-  }
-}
-</style>
-
-<script>
-// ✅ Ödeme başarılı olduğunda verify-payment API'sini çağır
-document.addEventListener('DOMContentLoaded', async () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get('token');
-  const hasError = urlParams.has('error');
-
-  if (token && !hasError) {
-    const successIcon = document.querySelector('.success-icon');
-
-    if (successIcon) {
-      try {
-        console.log('📧 Email gönderimi için verify-payment API çağrılıyor...');
-
-        // LocalStorage'dan müşteri bilgilerini al
-        const customerEmail = localStorage.getItem('lastOrderEmail');
-        const customerName = localStorage.getItem('lastOrderName');
-        const customerSurname = localStorage.getItem('lastOrderSurname');
-
-        // verify-payment API'sine istek gönder
-        const response = await fetch('/api/verify-payment', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            token,
-            customerEmail,
-            customerName,
-            customerSurname
-          })
-        });
-
-        const data = await response.json();
-
-        if (data.status === 'success') {
-          console.log('✅ Email gönderimi başarılı:', data);
-
-          // Sepeti temizle
-          localStorage.removeItem('cart');
-          localStorage.removeItem('lastOrderEmail');
-          localStorage.removeItem('lastOrderName');
-          localStorage.removeItem('lastOrderSurname');
-          window.dispatchEvent(new Event('cartUpdated'));
-          console.log('🗑️ Sepet temizlendi');
-        } else {
-          console.warn('⚠️ Email gönderimi başarısız:', data.errorMessage);
+          modal?.classList.add('show');
+        } catch (err) {
+          console.error('Items parse error:', err);
+          modalItems!.innerHTML = '<p>Ürün bilgisi yüklenemedi</p>';
+          modal?.classList.add('show');
         }
-      } catch (error) {
-        console.error('❌ Email gönderme hatası:', error);
+      });
+    });
+
+    modalClose?.addEventListener('click', () => {
+      modal?.classList.remove('show');
+    });
+
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('show');
       }
-    }
-  }
-});
-</script>
+    });
+  </script>
+</BaseLayout>
