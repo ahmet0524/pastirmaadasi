@@ -10,36 +10,29 @@ const { data: products, error } = await supabase
   .from('products')
   .select('*')
   .eq('category', 'Sucuk')
-  .eq('is_active', true);
+  .eq('is_active', true)
+  .order('price', { ascending: true });
 
 if (error) {
   console.error('Supabase hatası:', error);
 }
-
-// İlk ürünü al (veya istediğin ürünü seç)
-const product = products?.[0];
-
-// Eğer ürün yoksa 404 göster
-if (!product) {
-  return Astro.redirect('/404');
-}
 ---
 
-<BaseLayout title={`${product.name} - Pastırma Adası`} description={product.description}>
+<BaseLayout title="Kayseri Sucuğu - Pastırma Adası" description="Geleneksel yöntemlerle üretilen, farklı şekil ve boyutlarda Kayseri sucuğu çeşitlerimiz.">
   <Header slot="header" />
 
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-overlay"></div>
     <div class="hero-content">
-      <h1 class="hero-title">{product.name}</h1>
-      <p class="hero-subtitle">Geleneksel yöntemlerle üretilen, yoğun aromalı</p>
+      <h1 class="hero-title">Kayseri Sucuğu</h1>
+      <p class="hero-subtitle">Özenle seçilmiş dana etinden, özel baharat karışımıyla hazırlanan geleneksel Kayseri sucuklarımız</p>
       <div class="hero-features">
         <div class="hero-feature">
           <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span>{product.unit}</span>
+          <span>100% Dana Eti</span>
         </div>
         <div class="hero-feature">
           <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,156 +44,100 @@ if (!product) {
           <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span>100% Dana Eti</span>
+          <span>Doğal Kurutma</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Product Detail Section -->
-  <section class="product-detail-section">
+  <!-- Products Section -->
+  <section class="products-section">
     <div class="container">
-      <div class="product-detail-grid">
-        <div class="product-image-container">
-          <div class="product-main-image">
-            <!-- Image Slider -->
-            <div class="image-slider" id="image-slider">
-              <div class="slider-track" id="slider-track">
-                {product.images?.map((image: string, index: number) => (
-                  <div class="slider-item">
-                    <img src={image} alt={`${product.name} - ${index + 1}`} />
-                  </div>
-                ))}
-              </div>
+      <div class="section-header">
+        <h2>Sucuk Çeşitlerimiz</h2>
+        <p>Farklı form ve boyutlarda, her damak tadına uygun sucuklar</p>
+      </div>
 
-              <!-- Navigation Arrows -->
-              {product.images && product.images.length > 1 && (
-                <>
-                  <button class="slider-arrow slider-arrow-prev" id="slider-prev">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  <button class="slider-arrow slider-arrow-next" id="slider-next">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </>
+      <div class="products-grid">
+        {products?.map((product) => (
+          <div class="product-card" data-product-id={product.id}>
+            <div class="product-image-wrapper">
+              <img src={product.images?.[0] || '/assets/image/placeholder.jpg'} alt={product.name} loading="lazy" />
+              {product.stock <= 10 && product.stock > 0 && (
+                <div class="stock-badge warning">Son {product.stock} adet!</div>
+              )}
+              {product.stock === 0 && (
+                <div class="stock-badge out">Stokta Yok</div>
               )}
             </div>
 
-            <!-- Dots Indicator -->
-            {product.images && product.images.length > 1 && (
-              <div class="slider-dots" id="slider-dots">
-                {product.images.map((_: any, index: number) => (
-                  <button
-                    class={`slider-dot ${index === 0 ? 'active' : ''}`}
-                    data-index={index}
-                  ></button>
-                ))}
-              </div>
-            )}
+            <div class="product-info">
+              <h3 class="product-name">{product.name}</h3>
+              <p class="product-unit">{product.unit}</p>
+              <p class="product-description">{product.description}</p>
 
-            <div class="product-badge">Taze Üretim</div>
-
-            {product.stock <= 10 && product.stock > 0 && (
-              <div class="stock-warning">Son {product.stock} adet!</div>
-            )}
-            {product.stock === 0 && (
-              <div class="out-of-stock">Stokta Yok</div>
-            )}
-          </div>
-        </div>
-
-        <div class="product-info">
-          <h2 class="product-name">{product.name}</h2>
-          <p class="product-weight">{product.unit}</p>
-          <p class="product-description">{product.description}</p>
-
-          <div class="product-features">
-            <h3>Ürün Özellikleri</h3>
-            <ul>
-              {product.features?.map((feature: string) => (
-                <li>
-                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div class="product-purchase">
-            <div class="product-price-box">
-              <span class="price-label">Birim Fiyat</span>
-              <div class="price-wrapper">
-                <span class="product-price" id="unit-price">{product.price.toLocaleString('tr-TR')}₺</span>
+              <div class="product-price">
+                <span class="price">{product.price.toLocaleString('tr-TR')}₺</span>
                 <span class="price-unit">/ {product.unit}</span>
               </div>
-            </div>
 
-            {product.stock > 0 ? (
-              <>
-                <div class="quantity-selector">
-                  <button class="quantity-btn" id="decrease-qty" type="button">
+              {product.stock > 0 ? (
+                <div class="product-actions">
+                  <div class="quantity-selector">
+                    <button class="quantity-btn decrease-btn" type="button" data-product-id={product.id}>
+                      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                      </svg>
+                    </button>
+                    <input
+                      type="text"
+                      class="quantity-input"
+                      data-product-id={product.id}
+                      value="1"
+                      inputmode="numeric"
+                      pattern="[0-9]*"
+                    />
+                    <button class="quantity-btn increase-btn" type="button" data-product-id={product.id}>
+                      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <button class="btn btn-primary add-to-cart-btn" data-product-id={product.id}>
                     <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
+                    Sepete Ekle
                   </button>
-                  <input
-                    type="text"
-                    id="quantity"
-                    value="1"
-                    inputmode="numeric"
-                    pattern="[0-9]*"
-                  />
-                  <button class="quantity-btn" id="increase-qty" type="button">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                  </button>
-                </div>
 
-                <div class="total-price-box">
-                  <span class="total-label">Toplam Fiyat</span>
-                  <span class="total-price" id="total-price">{product.price.toLocaleString('tr-TR')}₺</span>
+                  <!-- Başarı Butonları (gizli) -->
+                  <div class="cart-success-buttons" data-product-id={product.id} style="display: none;">
+                    <a href="/sepet" class="btn btn-success">
+                      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      Sepete Git
+                    </a>
+                    <button class="btn btn-outline-success continue-shopping" data-product-id={product.id}>
+                      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      Alışverişe Devam Et
+                    </button>
+                  </div>
                 </div>
-
-                <button class="btn btn-primary btn-large add-to-cart" id="add-to-cart-btn">
-                  <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              ) : (
+                <div class="out-of-stock-message">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  Sepete Ekle
-                </button>
-
-                <!-- Sepete Eklendi Butonları (başlangıçta gizli) -->
-                <div class="cart-success-buttons" id="cart-success-buttons" style="display: none;">
-                  <a href="/sepet" class="btn btn-success btn-large">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    Sepete Git
-                  </a>
-                  <a href="/online-alisveris" class="btn btn-outline-success btn-large">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    Alışverişe Devam Et
-                  </a>
+                  Stokta Yok
                 </div>
-              </>
-            ) : (
-              <div class="out-of-stock-message">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Bu ürün şu anda stokta yok
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
+        ))}
       </div>
     </div>
   </section>
@@ -209,75 +146,32 @@ if (!product) {
   <section class="info-section">
     <div class="container">
       <div class="info-grid">
-        <div class="info-text">
-          <h2>Geleneksel Kayseri Sucuğu</h2>
-          <p>Kayseri sucuğumuz, özenle seçilmiş taze dana etlerinin geleneksel yöntemlerle işlenmesiyle üretilir. Özel baharat karışımımız ve doğal kurutma yöntemi ile benzersiz bir lezzet sunar.</p>
-          <p>Hiçbir katkı maddesi kullanmadan, sadece dana eti ve doğal baharatlarla hazırlanan sucuklarımız, kahvaltı sofralarınızın vazgeçilmezi olacak.</p>
-          <div class="info-stats">
-            <div class="stat-item">
-              <div class="stat-number">100%</div>
-              <div class="stat-label">Dana Eti</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number">0</div>
-              <div class="stat-label">Katkı Maddesi</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number">{product.unit}</div>
-              <div class="stat-label">Gramaj</div>
-            </div>
-          </div>
-        </div>
-        <div class="info-image">
-          <img src="/assets/image/sucuk-production.jpg" alt="Sucuk Üretimi" loading="lazy" />
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Storage Info Section -->
-  <section class="storage-section">
-    <div class="container">
-      <h2>Saklama ve Kullanım Bilgileri</h2>
-      <div class="storage-grid">
-        <div class="storage-card">
-          <div class="storage-icon">
-            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
           </div>
-          <h3>Saklama</h3>
-          <p>Serin ve kuru yerde muhafaza edin. Açıldıktan sonra buzdolabında saklayın.</p>
+          <h3>Helal Sertifikalı</h3>
+          <p>Tüm ürünlerimiz helal kesim ve hijyenik üretim standartlarına uygundur.</p>
         </div>
-
-        <div class="storage-card">
-          <div class="storage-icon">
-            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
             </svg>
           </div>
-          <h3>Raf Ömrü</h3>
-          <p>Vakum ambalajında 3 ay, açıldıktan sonra buzdolabında 1 hafta dayanır.</p>
+          <h3>Vakumlu Paket</h3>
+          <p>Ürünlerimiz vakumlu ambalajda, tazeliğini koruyarak gönderilir.</p>
         </div>
-
-        <div class="storage-card">
-          <div class="storage-icon">
-            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
           </div>
-          <h3>Pişirme</h3>
-          <p>Düşük-orta ateşte yağsız tavada pişirin. Kendi yağını salacaktır.</p>
-        </div>
-
-        <div class="storage-card">
-          <div class="storage-icon">
-            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h3>Kullanım</h3>
-          <p>Kahvaltıda, sandviçlerde, pizzalarda ve yumurtalı yemeklerde kullanabilirsiniz.</p>
+          <h3>Uzun Raf Ömrü</h3>
+          <p>Doğru saklama koşullarında uzun süre taze kalır.</p>
         </div>
       </div>
     </div>
@@ -287,7 +181,7 @@ if (!product) {
   <section class="cta-section">
     <div class="container">
       <h2>Hemen Sipariş Verin</h2>
-      <p>Taze ve lezzetli Kayseri sucuğumuz için hemen sipariş verin</p>
+      <p>Taze ve lezzetli Kayseri sucuklarımız için hemen sipariş verin</p>
       <div class="cta-buttons">
         <a href="tel:+905077623838" class="btn btn-light btn-large">
           <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -306,31 +200,19 @@ if (!product) {
 <style>
   .hero-section {
     position: relative;
-    min-height: 50vh;
+    min-height: 400px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 50%, #fef2f2 100%);
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
     padding: 4rem 1rem;
     overflow: hidden;
-  }
-
-  .hero-section::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 80%;
-    height: 150%;
-    background: radial-gradient(circle, rgba(220, 38, 38, 0.1) 0%, transparent 70%);
-    border-radius: 50%;
   }
 
   .hero-overlay {
     position: absolute;
     inset: 0;
-    background: url('/assets/image/pattern.svg') repeat;
-    opacity: 0.03;
+    background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.3) 100%);
   }
 
   .hero-content {
@@ -338,338 +220,199 @@ if (!product) {
     text-align: center;
     max-width: 900px;
     z-index: 1;
+    color: white;
   }
 
   .hero-title {
-    font-size: 4rem;
-    color: #dc2626;
+    font-size: 3.5rem;
     margin-bottom: 1rem;
     font-weight: 800;
-    letter-spacing: -0.02em;
-    animation: fadeInUp 0.8s ease;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   }
 
   .hero-subtitle {
-    font-size: 1.5rem;
-    color: var(--text-gray);
-    margin-bottom: 3rem;
-    animation: fadeInUp 0.8s ease 0.2s both;
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    opacity: 0.95;
+    line-height: 1.6;
   }
 
   .hero-features {
     display: flex;
     justify-content: center;
-    gap: 3rem;
+    gap: 2rem;
     flex-wrap: wrap;
-    animation: fadeInUp 0.8s ease 0.4s both;
   }
 
   .hero-feature {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: #dc2626;
     font-weight: 600;
-    font-size: 1.125rem;
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .product-detail-section {
-    padding: 6rem 1rem;
-    background: white;
-  }
-
-  .product-detail-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    align-items: start;
-  }
-
-  .product-image-container {
-    position: sticky;
-    top: 100px;
-  }
-
-  .product-main-image {
-    position: relative;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-  }
-
-  /* Image Slider */
-  .image-slider {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-  }
-
-  .slider-track {
-    display: flex;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .slider-item {
-    min-width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-gray);
-  }
-
-  .slider-item img {
-    width: 100%;
-    height: auto;
-    display: block;
-    object-fit: cover;
-  }
-
-  /* Slider Arrows */
-  .slider-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.9);
-    border: none;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 2;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-
-  .slider-arrow:hover {
-    background: white;
-    transform: translateY(-50%) scale(1.1);
-  }
-
-  .slider-arrow svg {
-    color: #dc2626;
-  }
-
-  .slider-arrow-prev {
-    left: 1rem;
-  }
-
-  .slider-arrow-next {
-    right: 1rem;
-  }
-
-  /* Slider Dots */
-  .slider-dots {
-    position: absolute;
-    bottom: 1.5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 0.5rem;
-    z-index: 2;
-  }
-
-  .slider-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.5);
-    border: 2px solid white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    padding: 0;
-  }
-
-  .slider-dot:hover {
-    background: rgba(255, 255, 255, 0.8);
-    transform: scale(1.2);
-  }
-
-  .slider-dot.active {
-    background: #dc2626;
-    border-color: #dc2626;
-    width: 32px;
-    border-radius: 6px;
-  }
-
-  .product-badge {
-    position: absolute;
-    top: 1.5rem;
-    left: 1.5rem;
-    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 30px;
-    font-size: 0.875rem;
-    font-weight: 700;
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-  }
-
-  .stock-warning {
-    position: absolute;
-    top: 4.5rem;
-    left: 1.5rem;
-    background: #f59e0b;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
-    font-weight: 700;
-  }
-
-  .out-of-stock {
-    position: absolute;
-    top: 4.5rem;
-    left: 1.5rem;
-    background: #ef4444;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
-    font-weight: 700;
-  }
-
-  .product-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-  }
-
-  .product-name {
-    font-size: 3rem;
-    color: var(--text-dark);
-    font-weight: 800;
-    line-height: 1.2;
-    margin: 0;
-  }
-
-  .product-weight {
-    font-size: 1.5rem;
-    color: #dc2626;
-    font-weight: 600;
-    margin: 0;
-  }
-
-  .product-description {
-    font-size: 1.125rem;
-    color: var(--text-gray);
-    line-height: 1.8;
-    margin: 0;
-  }
-
-  .product-features {
-    background: var(--bg-light);
-    padding: 2rem;
-    border-radius: var(--radius-lg);
-  }
-
-  .product-features h3 {
-    font-size: 1.375rem;
-    color: var(--text-dark);
-    margin-bottom: 1.5rem;
-    font-weight: 700;
-  }
-
-  .product-features ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .product-features li {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    color: var(--text-dark);
     font-size: 1.0625rem;
   }
 
-  .product-features li svg {
-    color: #dc2626;
-    flex-shrink: 0;
+  .products-section {
+    padding: 5rem 1rem;
+    background: #faf9f7;
   }
 
-  .product-purchase {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    padding: 2rem;
-    background: var(--bg-light);
-    border-radius: var(--radius-lg);
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
   }
 
-  .product-price-box {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  .section-header {
+    text-align: center;
+    margin-bottom: 3rem;
   }
 
-  .price-label {
+  .section-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 1rem 0;
+  }
+
+  .section-header p {
+    font-size: 1.125rem;
+    color: #6b7280;
+    margin: 0;
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+  }
+
+  .product-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+  }
+
+  .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(220, 38, 38, 0.15);
+  }
+
+  .product-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+
+  .product-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .product-card:hover .product-image-wrapper img {
+    transform: scale(1.05);
+  }
+
+  .stock-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
     font-size: 0.875rem;
-    color: var(--text-gray);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-weight: 700;
+    color: white;
   }
 
-  .price-wrapper {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
+  .stock-badge.warning {
+    background: #f59e0b;
+  }
+
+  .stock-badge.out {
+    background: #ef4444;
+  }
+
+  .product-info {
+    padding: 1.5rem;
+  }
+
+  .product-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .product-unit {
+    font-size: 1rem;
+    color: #dc2626;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+  }
+
+  .product-description {
+    font-size: 0.9375rem;
+    color: #6b7280;
+    line-height: 1.6;
+    margin: 0 0 1.5rem 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .product-price {
-    font-size: 3rem;
-    font-weight: 800;
-    color: #dc2626;
-    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
   }
 
-  .price-unit {
-    font-size: 1.125rem;
-    color: var(--text-gray);
+  .product-price .price {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #dc2626;
+  }
+
+  .product-price .price-unit {
+    font-size: 1rem;
+    color: #6b7280;
+  }
+
+  .product-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
   }
 
   .quantity-selector {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    background: white;
-    border-radius: var(--radius-md);
+    gap: 0.75rem;
+    padding: 0.5rem;
+    background: #f9fafb;
+    border-radius: 8px;
     width: fit-content;
   }
 
   .quantity-btn {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border: none;
-    background: var(--bg-light);
+    background: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    color: var(--text-dark);
+    color: #1f2937;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   .quantity-btn:hover {
@@ -677,72 +420,48 @@ if (!product) {
     color: white;
   }
 
-  #quantity {
-    width: 80px;
+  .quantity-input {
+    width: 60px;
     text-align: center;
-    font-size: 1.25rem;
+    font-size: 1.125rem;
     font-weight: 700;
-    border: 2px solid var(--border-color);
+    border: 2px solid #e5e7eb;
     background: white;
-    color: var(--text-dark);
-    border-radius: var(--radius-sm);
+    color: #1f2937;
+    border-radius: 6px;
     padding: 0.5rem;
-    cursor: text;
   }
 
-  #quantity:focus {
+  .quantity-input:focus {
     outline: none;
     border-color: #dc2626;
   }
 
-  #quantity::-webkit-outer-spin-button,
-  #quantity::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  #quantity[type=number] {
-    -moz-appearance: textfield;
-  }
-
-  .total-price-box {
-    display: flex;
-    justify-content: space-between;
+  .btn {
+    display: inline-flex;
     align-items: center;
-    padding: 1.5rem;
-    background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
-    border-radius: var(--radius-md);
-    border: 2px solid #dc2626;
-  }
-
-  .total-label {
-    font-size: 1.125rem;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    border-radius: 8px;
     font-weight: 600;
-    color: var(--text-dark);
-  }
-
-  .total-price {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: #dc2626;
-    line-height: 1;
-  }
-
-  .add-to-cart {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .cart-success-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
     width: 100%;
   }
 
-  .cart-success-buttons .btn {
-    width: 100%;
-    justify-content: center;
+  .btn-primary {
+    background: #dc2626;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #991b1b;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(220, 38, 38, 0.3);
   }
 
   .btn-success {
@@ -753,7 +472,7 @@ if (!product) {
   .btn-success:hover {
     background: #15803d;
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(22, 163, 74, 0.3);
+    box-shadow: 0 8px 16px rgba(22, 163, 74, 0.3);
   }
 
   .btn-outline-success {
@@ -768,193 +487,106 @@ if (!product) {
     transform: translateY(-2px);
   }
 
+  .cart-success-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
   .out-of-stock-message {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 1.5rem;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
     background: #fee;
     border: 2px solid #ef4444;
-    border-radius: var(--radius-md);
+    border-radius: 8px;
     color: #ef4444;
     font-weight: 600;
-    justify-content: center;
   }
 
   .info-section {
-    padding: 6rem 1rem;
-    background: var(--bg-light);
+    padding: 5rem 1rem;
+    background: white;
   }
 
   .info-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .info-text h2 {
-    font-size: 2.5rem;
-    color: var(--text-dark);
-    margin-bottom: 1.5rem;
-    font-weight: 700;
-  }
-
-  .info-text p {
-    color: var(--text-gray);
-    line-height: 1.8;
-    font-size: 1.125rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .info-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
-    margin-top: 3rem;
-  }
-
-  .stat-item {
-    text-align: center;
-    padding: 1.5rem;
-    background: white;
-    border-radius: var(--radius-md);
-  }
-
-  .stat-number {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: #dc2626;
-    margin-bottom: 0.5rem;
-  }
-
-  .stat-label {
-    font-size: 0.875rem;
-    color: var(--text-gray);
-    font-weight: 600;
-  }
-
-  .info-image {
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-  }
-
-  .info-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .storage-section {
-    padding: 6rem 1rem;
-    background: white;
-  }
-
-  .storage-section h2 {
-    font-size: 2.75rem;
-    text-align: center;
-    color: var(--text-dark);
-    margin-bottom: 4rem;
-    font-weight: 700;
-  }
-
-  .storage-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 2rem;
     max-width: 1200px;
     margin: 0 auto;
   }
 
-  .storage-card {
+  .info-card {
     text-align: center;
-    padding: 2.5rem 2rem;
-    background: var(--bg-light);
-    border-radius: var(--radius-lg);
+    padding: 2rem;
+    background: #faf9f7;
+    border-radius: 16px;
     transition: all 0.3s ease;
   }
 
-  .storage-card:hover {
+  .info-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.1);
   }
 
-  .storage-icon {
-    color: #dc2626;
-    margin-bottom: 1.5rem;
+  .info-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1.5rem;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    color: white;
   }
 
-  .storage-card h3 {
+  .info-card h3 {
     font-size: 1.375rem;
-    color: var(--text-dark);
-    margin-bottom: 0.75rem;
     font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.75rem 0;
   }
 
-  .storage-card p {
-    color: var(--text-gray);
-    line-height: 1.6;
+  .info-card p {
     font-size: 1rem;
+    color: #6b7280;
+    line-height: 1.6;
+    margin: 0;
   }
 
   .cta-section {
-    padding: 6rem 1rem;
+    padding: 5rem 1rem;
     background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
     color: white;
     text-align: center;
   }
 
   .cta-section h2 {
-    font-size: 2.75rem;
-    color: white;
+    font-size: 2.5rem;
     margin-bottom: 1rem;
     font-weight: 700;
   }
 
   .cta-section p {
     font-size: 1.25rem;
-    color: rgba(255, 255, 255, 0.95);
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
+    opacity: 0.95;
   }
 
   .cta-buttons {
     display: flex;
     justify-content: center;
-    gap: 1.5rem;
+    gap: 1rem;
     flex-wrap: wrap;
-  }
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.875rem 1.75rem;
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    border: none;
-    text-decoration: none;
   }
 
   .btn-large {
     padding: 1rem 2rem;
     font-size: 1.125rem;
-  }
-
-  .btn-primary {
-    background: #dc2626;
-    color: white;
-  }
-
-  .btn-primary:hover {
-    background: #991b1b;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.3);
   }
 
   .btn-light {
@@ -963,7 +595,7 @@ if (!product) {
   }
 
   .btn-light:hover {
-    background: var(--bg-light);
+    background: #f9fafb;
     transform: translateY(-2px);
   }
 
@@ -979,70 +611,29 @@ if (!product) {
     transform: translateY(-2px);
   }
 
-  @media (max-width: 1024px) {
-    .product-detail-grid {
-      grid-template-columns: 1fr;
-      gap: 3rem;
-    }
-
-    .product-image-container {
-      position: relative;
-      top: 0;
-    }
-
-    .info-grid {
-      grid-template-columns: 1fr;
-      gap: 3rem;
-    }
-
-    .info-image {
-      order: -1;
-    }
-  }
-
   @media (max-width: 768px) {
     .hero-title {
       font-size: 2.5rem;
     }
 
     .hero-subtitle {
-      font-size: 1.125rem;
-    }
-
-    .hero-features {
-      gap: 1.5rem;
-    }
-
-    .hero-feature {
       font-size: 1rem;
     }
 
-    .product-name {
-      font-size: 2rem;
-    }
-
-    .product-weight {
-      font-size: 1.25rem;
-    }
-
-    .product-price {
-      font-size: 2.5rem;
-    }
-
-    .info-text h2 {
-      font-size: 2rem;
-    }
-
-    .info-stats {
-      grid-template-columns: 1fr;
+    .hero-features {
       gap: 1rem;
+      flex-direction: column;
     }
 
-    .storage-section h2 {
+    .products-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .section-header h2 {
       font-size: 2rem;
     }
 
-    .storage-grid {
+    .info-grid {
       grid-template-columns: 1fr;
     }
 
@@ -1058,175 +649,104 @@ if (!product) {
     .cta-buttons .btn {
       width: 100%;
       max-width: 300px;
-      justify-content: center;
     }
   }
 </style>
 
 <script>
-  // Product verisini global'e al
-  const productData = JSON.parse(document.getElementById('product-data')?.textContent || '{}');
+  // Product data'yı global olarak sakla
+  const productsData = JSON.parse(document.getElementById('products-data')?.textContent || '[]');
 
   document.addEventListener('DOMContentLoaded', () => {
-    // Image Slider İşlemleri
-    const sliderTrack = document.getElementById('slider-track');
-    const prevBtn = document.getElementById('slider-prev');
-    const nextBtn = document.getElementById('slider-next');
-    const dots = document.querySelectorAll('.slider-dot');
-
-    let currentSlide = 0;
-    const totalSlides = dots.length;
-
-    function updateSlider() {
-      if (sliderTrack) {
-        sliderTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
-      }
-
-      dots.forEach((dot, index) => {
-        dot.classList.toggle('active', index === currentSlide);
-      });
-    }
-
-    prevBtn?.addEventListener('click', () => {
-      currentSlide = currentSlide > 0 ? currentSlide - 1 : totalSlides - 1;
-      updateSlider();
-    });
-
-    nextBtn?.addEventListener('click', () => {
-      currentSlide = currentSlide < totalSlides - 1 ? currentSlide + 1 : 0;
-      updateSlider();
-    });
-
-    dots.forEach((dot, index) => {
-      dot.addEventListener('click', () => {
-        currentSlide = index;
-        updateSlider();
+    // Tüm azalt butonları
+    document.querySelectorAll('.decrease-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const productId = btn.dataset.productId;
+        const input = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
+        const currentValue = parseInt(input.value) || 1;
+        if (currentValue > 1) {
+          input.value = (currentValue - 1).toString();
+        }
       });
     });
 
-    // Otomatik geçiş (opsiyonel - 5 saniyede bir)
-    let autoSlide = setInterval(() => {
-      currentSlide = currentSlide < totalSlides - 1 ? currentSlide + 1 : 0;
-      updateSlider();
-    }, 5000);
-
-    // Mouse üzerine gelince otomatik geçişi durdur
-    const imageSlider = document.getElementById('image-slider');
-    imageSlider?.addEventListener('mouseenter', () => {
-      clearInterval(autoSlide);
+    // Tüm artır butonları
+    document.querySelectorAll('.increase-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const productId = btn.dataset.productId;
+        const input = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
+        const product = productsData.find(p => p.id === productId);
+        const maxStock = product?.stock || 99;
+        const currentValue = parseInt(input.value) || 1;
+        if (currentValue < maxStock) {
+          input.value = (currentValue + 1).toString();
+        }
+      });
     });
 
-    imageSlider?.addEventListener('mouseleave', () => {
-      autoSlide = setInterval(() => {
-        currentSlide = currentSlide < totalSlides - 1 ? currentSlide + 1 : 0;
-        updateSlider();
-      }, 5000);
+    // Tüm sepete ekle butonları
+    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const productId = btn.dataset.productId;
+        const input = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
+        const quantity = parseInt(input.value) || 1;
+        const product = productsData.find(p => p.id === productId);
+
+        if (!product) return;
+
+        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const existingItem = cart.find(item => item.id === product.id);
+
+        if (existingItem) {
+          existingItem.quantity += quantity;
+        } else {
+          cart.push({
+            id: product.id,
+            slug: product.slug,
+            name: product.name,
+            price: product.price,
+            quantity: quantity,
+            unit: product.unit,
+            image: product.images?.[0] || '/assets/image/placeholder.jpg',
+            category: 'sucuk'
+          });
+        }
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+        window.dispatchEvent(new Event('cartUpdated'));
+
+        // Butonları değiştir
+        btn.style.display = 'none';
+        const successButtons = document.querySelector(`.cart-success-buttons[data-product-id="${productId}"]`);
+        if (successButtons) {
+          successButtons.style.display = 'flex';
+        }
+      });
     });
 
-    // Quantity ve Cart İşlemleri
-    const decreaseBtn = document.getElementById('decrease-qty');
-    const increaseBtn = document.getElementById('increase-qty');
-    const quantityInput = document.getElementById('quantity');
-    const totalPriceElement = document.getElementById('total-price');
-    const addToCartBtn = document.querySelector('.add-to-cart');
+    // Alışverişe devam et butonları
+    document.querySelectorAll('.continue-shopping').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const productId = btn.dataset.productId;
+        const addBtn = document.querySelector(`.add-to-cart-btn[data-product-id="${productId}"]`);
+        const successButtons = document.querySelector(`.cart-success-buttons[data-product-id="${productId}"]`);
 
-    const unitPrice = productData.price || 380;
-    const maxStock = productData.stock || 99;
+        if (addBtn && successButtons) {
+          successButtons.style.display = 'none';
+          addBtn.style.display = 'flex';
+        }
 
-    // Toplam fiyatı güncelle
-    function updateTotalPrice() {
-      const quantity = parseInt(quantityInput.value) || 1;
-      const total = unitPrice * quantity;
-      if (totalPriceElement) {
-        totalPriceElement.textContent = total.toLocaleString('tr-TR') + '₺';
-      }
-    }
-
-    // Miktar azalt
-    decreaseBtn?.addEventListener('click', (e) => {
-      e.preventDefault();
-      const currentValue = parseInt(quantityInput.value) || 1;
-      if (currentValue > 1) {
-        quantityInput.value = (currentValue - 1).toString();
-        updateTotalPrice();
-      }
-    });
-
-    // Miktar artır
-    increaseBtn?.addEventListener('click', (e) => {
-      e.preventDefault();
-      const currentValue = parseInt(quantityInput.value) || 1;
-      if (currentValue < maxStock) {
-        quantityInput.value = (currentValue + 1).toString();
-        updateTotalPrice();
-      }
-    });
-
-    // Manuel input değişikliği
-    quantityInput?.addEventListener('keyup', (e) => {
-      let value = parseInt(quantityInput.value);
-
-      if (isNaN(value) || value < 1) {
-        return;
-      }
-
-      if (value > maxStock) {
-        quantityInput.value = maxStock.toString();
-      }
-
-      updateTotalPrice();
-    });
-
-    // Input'tan çıkınca kontrol et
-    quantityInput?.addEventListener('blur', () => {
-      let value = parseInt(quantityInput.value);
-
-      if (isNaN(value) || value < 1) {
-        quantityInput.value = '1';
-      } else if (value > maxStock) {
-        quantityInput.value = maxStock.toString();
-      }
-
-      updateTotalPrice();
-    });
-
-    // Sepete ekle
-    addToCartBtn?.addEventListener('click', () => {
-      const quantity = parseInt(quantityInput.value) || 1;
-
-      let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-
-      const existingItem = cart.find(item => item.id === productData.id);
-
-      if (existingItem) {
-        existingItem.quantity += quantity;
-      } else {
-        cart.push({
-          id: productData.id,
-          slug: productData.slug,
-          name: productData.name,
-          price: productData.price,
-          quantity: quantity,
-          unit: productData.unit,
-          image: productData.images?.[0] || '/assets/image/placeholder.jpg',
-          category: 'sucuk'
-        });
-      }
-
-      localStorage.setItem('cart', JSON.stringify(cart));
-      window.dispatchEvent(new Event('cartUpdated'));
-
-      // Butonları değiştir
-      const addToCartBtn = document.getElementById('add-to-cart-btn');
-      const successButtons = document.getElementById('cart-success-buttons');
-
-      if (addToCartBtn && successButtons) {
-        addToCartBtn.style.display = 'none';
-        successButtons.style.display = 'flex';
-      }
+        // Miktarı 1'e sıfırla
+        const input = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
+        if (input) {
+          input.value = '1';
+        }
+      });
     });
   });
 </script>
 
-<!-- Product data for script -->
-<script id="product-data" type="application/json" set:html={JSON.stringify(product)} />
+<!-- Products data for script -->
+<script id="products-data" type="application/json" set:html={JSON.stringify(products || [])} />
