@@ -2,10 +2,17 @@
 import crypto from 'crypto';
 import { Resend } from "resend";
 import Iyzipay from "iyzipay";
+import { createClient } from '@supabase/supabase-js';
 
 export const prerender = false;
 
 const resend = new Resend(import.meta.env.RESEND_API_KEY);
+
+// Supabase client
+const supabase = createClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 // Email validasyonu
 function isValidEmail(email) {
@@ -226,9 +233,9 @@ export async function POST({ request }) {
       );
     }
 
-    console.log("✅ Ödeme Iyzico'da doğrulandı - EMAIL GÖNDERİLİYOR");
+    console.log("✅ Ödeme Iyzico'da doğrulandı - VERİTABANINA KAYDEDİLİYOR");
 
-    // --- Email Gönderimi (Sadece ödeme başarılıysa) ---
+    // --- Veri Hazırlığı ---
     const adminEmail = import.meta.env.ADMIN_EMAIL || "successodysseyhub@gmail.com";
     let customerEmail = result.buyer?.email?.trim() || frontendEmail?.trim() || "";
 
@@ -242,7 +249,7 @@ export async function POST({ request }) {
       result.buyer?.surname || customerSurname || "Müşterimiz"
     }`.trim();
 
-    const paidPrice = result.paidPrice;
+    const paidPrice = parseFloat(result.paidPrice);
     const paymentId = result.paymentId;
     const orderDate = new Date().toLocaleString('tr-TR', {
       day: '2-digit',
@@ -264,11 +271,39 @@ export async function POST({ request }) {
     const items = Array.isArray(result.basketItems)
       ? result.basketItems.map(item => ({
           name: item.name,
-          price: item.price
+          price: parseFloat(item.price)
         }))
       : [];
 
-    // ✅ 1. MÜŞTERİYE EMAİL GÖNDER (sadece geçerli email varsa)
+    // ✅ 1. SUPABASE'E SİPARİŞİ KAYDET
+    try {
+      const { data: orderData, error: dbError } = await supabase
+        .from('orders')
+        .insert({
+          payment_id: paymentId,
+          customer_name: fullName,
+          customer_email: customerEmail,
+          customer_phone: customerPhone,
+          shipping_address: shippingAddress,
+          items: items,
+          total: paidPrice,
+          status: 'pending',
+          created_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (dbError) {
+        console.error("❌ Supabase kayıt hatası:", dbError);
+        // Hata olsa bile devam et (email gönderilebilir)
+      } else {
+        console.log("✅ Sipariş veritabanına kaydedildi:", orderData);
+      }
+    } catch (dbError) {
+      console.error("❌ Veritabanı hatası:", dbError);
+    }
+
+    // ✅ 2. MÜŞTERİYE EMAİL GÖNDER (sadece geçerli email varsa)
     if (isCustomerMailValid) {
       try {
         await resend.emails.send({
@@ -289,7 +324,7 @@ export async function POST({ request }) {
       }
     }
 
-    // ✅ 2. ADMİN'E EMAİL GÖNDER (her zaman)
+    // ✅ 3. ADMİN'E EMAİL GÖNDER (her zaman)
     try {
       await resend.emails.send({
         from: "Pastırma Adası <siparis@successodysseyhub.com>",

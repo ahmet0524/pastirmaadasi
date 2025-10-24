@@ -13,7 +13,6 @@ if (error) {
   errorMessage = error === 'no-token' ? 'Token bulunamadı' : 'Ödeme işlemi başarısız';
 } else if (token) {
   try {
-    // İyzico'dan ödeme sonucunu al
     const Iyzipay = (await import("iyzipay")).default;
 
     const iyzipay = new Iyzipay({
@@ -55,7 +54,6 @@ const paidPrice = paymentResult?.paidPrice || '0';
     <div class="container">
       <div class="result-card">
         {isSuccess ? (
-          <!-- Başarılı Ödeme -->
           <>
             <div class="success-icon">
               <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -96,7 +94,6 @@ const paidPrice = paymentResult?.paidPrice || '0';
             </div>
           </>
         ) : (
-          <!-- Başarısız Ödeme -->
           <>
             <div class="error-icon">
               <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -327,17 +324,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (data.status === 'success') {
           console.log('✅ Email gönderimi başarılı:', data);
+
+          // Sepeti temizle
+          localStorage.removeItem('cart');
+          localStorage.removeItem('lastOrderEmail');
+          localStorage.removeItem('lastOrderName');
+          localStorage.removeItem('lastOrderSurname');
+          window.dispatchEvent(new Event('cartUpdated'));
+          console.log('🗑️ Sepet temizlendi');
         } else {
           console.warn('⚠️ Email gönderimi başarısız:', data.errorMessage);
         }
       } catch (error) {
         console.error('❌ Email gönderme hatası:', error);
       }
-
-      // Sepeti temizle
-      localStorage.removeItem('cart');
-      window.dispatchEvent(new Event('cartUpdated'));
-      console.log('🗑️ Sepet temizlendi');
     }
   }
 });
