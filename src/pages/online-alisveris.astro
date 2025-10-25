@@ -54,31 +54,35 @@ function getImageUrl(imgs: any): string {
 
   if (!imgs) return placeholder;
 
-  // String ise parse et
-  if (typeof imgs === 'string') {
-    try {
-      // Önce escape edilmiş çift tırnakları düzelt
-      let cleaned = imgs.replace(/""/g, '"');
-
-      // JSON parse dene
-      const parsed = JSON.parse(cleaned);
-
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed[0];
-      }
-
-      // Parse başarılı ama array değil
-      return cleaned.startsWith('[') ? placeholder : cleaned;
-
-    } catch (e) {
-      // Parse başarısız, string olarak kullan
-      return imgs.startsWith('/') ? imgs : placeholder;
-    }
+  // 1. Array ise
+  if (Array.isArray(imgs)) {
+    if (imgs.length === 0) return placeholder;
+    const firstImage = String(imgs[0]).replace(/^"|"$/g, '').replace(/""/g, '').trim();
+    return firstImage || placeholder;
   }
 
-  // Array ise direkt kullan
-  if (Array.isArray(imgs) && imgs.length > 0) {
-    return imgs[0];
+  // 2. String ise
+  if (typeof imgs === 'string') {
+    // PostgreSQL array: {path1,path2}
+    if (imgs.startsWith('{') && imgs.endsWith('}')) {
+      const paths = imgs.slice(1, -1).split(',').map(p => p.trim().replace(/^"|"$/g, ''));
+      if (paths.length > 0 && paths[0]) return paths[0];
+    }
+
+    // JSON array: ["path1"]
+    if (imgs.startsWith('[')) {
+      try {
+        const cleaned = imgs.replace(/""/g, '"').replace(/\\"/g, '"');
+        const parsed = JSON.parse(cleaned);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return String(parsed[0]).replace(/^"|"$/g, '').trim() || placeholder;
+        }
+      } catch (e) {}
+    }
+
+    // Direkt URL
+    const cleaned = imgs.replace(/^"|"$/g, '').trim();
+    if (cleaned.startsWith('/') || cleaned.startsWith('http')) return cleaned;
   }
 
   return placeholder;
