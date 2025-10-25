@@ -16,12 +16,26 @@ if (error) {
   console.error('Supabase hatası:', error);
 }
 
-// Debug için - veriyi konsola yazdır
+// DEBUG: Ürünleri ve resim formatlarını konsola yazdır
 if (products) {
-  console.log('Sucuk products:', products);
+  console.log('=== SUCUK PRODUCTS DEBUG ===');
   products.forEach(p => {
-    console.log(`Product: ${p.name}, Images:`, p.images, 'Type:', typeof p.images);
+    console.log(`\nProduct: ${p.name}`);
+    console.log('  Images Type:', typeof p.images);
+    console.log('  Images Value:', p.images);
+    console.log('  Is Array?:', Array.isArray(p.images));
+    
+    if (typeof p.images === 'string') {
+      console.log('  Attempting to parse...');
+      try {
+        const parsed = JSON.parse(p.images);
+        console.log('  Parsed:', parsed);
+      } catch (e) {
+        console.log('  Parse failed:', e.message);
+      }
+    }
   });
+  console.log('=== END DEBUG ===\n');
 }
 ---
 
@@ -36,7 +50,7 @@ if (products) {
     <div class="hero-content">
       <h1 class="hero-title">Kayseri Sucuğu</h1>
       <p class="hero-subtitle">
-        Özenle seçilmiş dana etinden, özel baharat karışımıyla hazırlanan geleneksel Kayseri sucuklarımız
+        Özenle seçilmiş dana etinden, özel baharat karışımımızla hazırlanan geleneksel Kayseri sucuklarımız
       </p>
       <div class="hero-features">
         <div class="feature">
@@ -67,6 +81,23 @@ if (products) {
         <h2>Sucuk Çeşitlerimiz</h2>
         <p>Farklı form ve boyutlarda, her damak tadına uygun sucuklar</p>
       </div>
+
+      <!-- DEBUG INFO -->
+      {products && (
+        <div style="background: #f0f0f0; padding: 1rem; margin-bottom: 2rem; border-radius: 8px; font-family: monospace; font-size: 12px;">
+          <strong>Debug Info:</strong>
+          <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+            <li>Toplam Ürün: {products.length}</li>
+            {products.map(p => (
+              <li>
+                {p.name}: 
+                <span style="color: blue;">{typeof p.images}</span> - 
+                <span style="color: green;">{Array.isArray(p.images) ? 'Array' : 'Not Array'}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {products && products.length > 0 ? (
         <div class="products-grid">

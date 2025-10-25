@@ -3,146 +3,29 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { supabase } from '../lib/supabase';
 
-// Ürün verileri
-const pastirmaProducts = [
-  {
-    id: 1,
-    name: 'Antrikot/Tütünlük Pastırma',
-    image: '/assets/products/antrikot-pastirma.jpg',
-    price: 850,
-    slug: 'pastirma/antrikot-pastirma',
-    variants: [
-      { name: '250 gr', price: 850 },
-      { name: '500 gr', price: 1650 },
-      { name: '1 kg', price: 3200 }
-    ]
-  },
-  {
-    id: 2,
-    name: 'Sırt Pastırma',
-    image: '/assets/products/sirt-pastirma.jpg',
-    price: 780,
-    slug: 'pastirma/sirt-pastirma',
-    variants: [
-      { name: '250 gr', price: 780 },
-      { name: '500 gr', price: 1520 },
-      { name: '1 kg', price: 2950 }
-    ]
-  },
-  {
-    id: 3,
-    name: 'Bonfile/Kuşgömü Pastırma',
-    image: '/assets/products/bonfile-pastirma.jpg',
-    price: 920,
-    slug: 'pastirma/bonfile-pastirma',
-    variants: [
-      { name: '250 gr', price: 920 },
-      { name: '500 gr', price: 1800 },
-      { name: '1 kg', price: 3500 }
-    ]
-  },
-  {
-    id: 4,
-    name: 'Karaparça Pastırma',
-    image: '/assets/products/karaparca-pastirma.jpg',
-    price: 680,
-    slug: 'pastirma/karaparca-pastirma',
-    variants: [
-      { name: '250 gr', price: 680 },
-      { name: '500 gr', price: 1320 },
-      { name: '1 kg', price: 2550 }
-    ]
-  }
-];
+// Kategorilere göre ürünleri çek
+const { data: pastirmaProducts } = await supabase
+  .from('products')
+  .select('*')
+  .eq('category', 'Pastırma')
+  .eq('is_active', true)
+  .limit(4);
 
-const sucukProducts = [
-  {
-    id: 5,
-    name: 'Dana Parmak Sucuk',
-    image: '/assets/products/parmak-sucuk.jpg',
-    price: 450,
-    slug: 'sucuk/parmak-sucuk',
-    variants: [
-      { name: '250 gr', price: 450 },
-      { name: '500 gr', price: 880 },
-      { name: '1 kg', price: 1700 }
-    ]
-  },
-  {
-    id: 6,
-    name: 'Dana Kangal Sucuk',
-    image: '/assets/products/kangal-sucuk.jpg',
-    price: 480,
-    slug: 'sucuk/kangal-sucuk',
-    variants: [
-      { name: '500 gr', price: 480 },
-      { name: '1 kg', price: 940 },
-      { name: '2 kg', price: 1820 }
-    ]
-  },
-  {
-    id: 7,
-    name: 'Varyanta/Osmanlı Sucuk',
-    image: '/assets/products/osmanli-sucuk.jpg',
-    price: 520,
-    slug: 'sucuk/osmanli-sucuk',
-    variants: [
-      { name: '250 gr', price: 520 },
-      { name: '500 gr', price: 1020 },
-      { name: '1 kg', price: 1980 }
-    ]
-  },
-  {
-    id: 8,
-    name: 'Çubuk Sucuk',
-    image: '/assets/products/cubuk-sucuk.jpg',
-    price: 420,
-    slug: 'sucuk/cubuk-sucuk',
-    variants: [
-      { name: '250 gr', price: 420 },
-      { name: '500 gr', price: 820 },
-      { name: '1 kg', price: 1590 }
-    ]
-  },
-  {
-    id: 9,
-    name: 'Sarma Sucuk',
-    image: '/assets/products/sarma-sucuk.jpg',
-    price: 490,
-    slug: 'sucuk/sarma-sucuk',
-    variants: [
-      { name: '250 gr', price: 490 },
-      { name: '500 gr', price: 960 },
-      { name: '1 kg', price: 1860 }
-    ]
-  }
-];
+const { data: sucukProducts } = await supabase
+  .from('products')
+  .select('*')
+  .eq('category', 'Sucuk')
+  .eq('is_active', true)
+  .limit(5);
 
-const mantiProducts = [
-  {
-    id: 10,
-    name: 'Kayseri El Mantısı',
-    image: '/assets/products/el-mantisi.jpg',
-    price: 180,
-    slug: 'manti/el-mantisi',
-    variants: [
-      { name: '500 gr', price: 180 },
-      { name: '1 kg', price: 350 }
-    ]
-  },
-  {
-    id: 11,
-    name: 'Bohça Mantı',
-    image: '/assets/products/bohca-manti.jpg',
-    price: 200,
-    slug: 'manti/bohca-manti',
-    variants: [
-      { name: '500 gr', price: 200 },
-      { name: '1 kg', price: 390 }
-    ]
-  }
-];
+const { data: mantiProducts } = await supabase
+  .from('products')
+  .select('*')
+  .eq('category', 'Mantı')
+  .eq('is_active', true)
+  .limit(2);
 
 const banners = [
   {
@@ -164,6 +47,34 @@ const banners = [
     link: '/manti'
   }
 ];
+
+// Resim URL'sini al (array veya string olabilir) - Supabase parse
+function getImageUrl(imgs: any): string {
+  const placeholder = '/assets/image/placeholder.jpg';
+
+  if (!imgs) return placeholder;
+
+  // Eğer string ise, JSON parse dene
+  if (typeof imgs === 'string') {
+    try {
+      const parsed = JSON.parse(imgs);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed[0];
+      }
+      return imgs;
+    } catch (e) {
+      // JSON parse başarısız, direkt string olarak kullan
+      return imgs;
+    }
+  }
+
+  // Eğer array ise
+  if (Array.isArray(imgs) && imgs.length > 0) {
+    return imgs[0];
+  }
+
+  return placeholder;
+}
 ---
 
 <BaseLayout title="Online Alışveriş" description="Pastırma Adası ürünlerini online sipariş edin">
@@ -207,76 +118,130 @@ const banners = [
   </section>
 
   <!-- Pastırma Section -->
-  <section class="products-section">
-    <div class="container">
-      <h2 class="section-title">Kayseri Pastırması</h2>
-      <div class="products-grid">
-        {pastirmaProducts.map(product => (
-          <div class="product-card" data-product-id={product.id}>
-            <div class="product-image-wrapper">
-              <img src={product.image} alt={product.name} class="product-image" loading="lazy" />
-              <div class="product-overlay">
-                <button class="btn-view-product" data-slug={product.slug}>Ürünü İncele</button>
+  {pastirmaProducts && pastirmaProducts.length > 0 && (
+    <section class="products-section">
+      <div class="container">
+        <h2 class="section-title">Kayseri Pastırması</h2>
+        <div class="products-grid">
+          {pastirmaProducts.map(product => (
+            <div class="product-card" data-product-id={product.id}>
+              <div class="product-image-wrapper">
+                <img
+                  src={getImageUrl(product.images)}
+                  alt={product.name}
+                  class="product-image"
+                  loading="lazy"
+                />
+                <div class="product-overlay">
+                  <a href={`/urun/${product.slug}`} class="btn-view-product">Ürünü İncele</a>
+                </div>
+                <h3 class="product-name-overlay">{product.name}</h3>
               </div>
-              <h3 class="product-name-overlay">{product.name}</h3>
+              <div class="product-info">
+                <p class="product-price">
+                  {product.price}₺
+                  <span class="price-unit">/{product.unit}</span>
+                </p>
+                <button class="btn-add-cart" data-product={JSON.stringify({
+                  id: product.id,
+                  name: product.name,
+                  image: getImageUrl(product.images),
+                  variants: product.variants,
+                  slug: product.slug
+                })}>
+                  Sepete Ekle
+                </button>
+              </div>
             </div>
-            <div class="product-info">
-              <p class="product-price">{product.price}₺<span class="price-unit">/250 gr</span></p>
-              <button class="btn-add-cart" data-product={JSON.stringify(product)}>Sepete Ekle</button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  )}
 
   <!-- Sucuk Section -->
-  <section class="products-section bg-light">
-    <div class="container">
-      <h2 class="section-title">Kayseri Sucuğu</h2>
-      <div class="products-grid">
-        {sucukProducts.map(product => (
-          <div class="product-card" data-product-id={product.id}>
-            <div class="product-image-wrapper">
-              <img src={product.image} alt={product.name} class="product-image" loading="lazy" />
-              <div class="product-overlay">
-                <button class="btn-view-product" data-slug={product.slug}>Ürünü İncele</button>
+  {sucukProducts && sucukProducts.length > 0 && (
+    <section class="products-section bg-light">
+      <div class="container">
+        <h2 class="section-title">Kayseri Sucuğu</h2>
+        <div class="products-grid">
+          {sucukProducts.map(product => (
+            <div class="product-card" data-product-id={product.id}>
+              <div class="product-image-wrapper">
+                <img
+                  src={getImageUrl(product.images)}
+                  alt={product.name}
+                  class="product-image"
+                  loading="lazy"
+                />
+                <div class="product-overlay">
+                  <a href={`/urun/${product.slug}`} class="btn-view-product">Ürünü İncele</a>
+                </div>
+                <h3 class="product-name-overlay">{product.name}</h3>
               </div>
-              <h3 class="product-name-overlay">{product.name}</h3>
+              <div class="product-info">
+                <p class="product-price">
+                  {product.price}₺
+                  <span class="price-unit">/{product.unit}</span>
+                </p>
+                <button class="btn-add-cart" data-product={JSON.stringify({
+                  id: product.id,
+                  name: product.name,
+                  image: getImageUrl(product.images),
+                  variants: product.variants,
+                  slug: product.slug
+                })}>
+                  Sepete Ekle
+                </button>
+              </div>
             </div>
-            <div class="product-info">
-              <p class="product-price">{product.price}₺<span class="price-unit">/250 gr</span></p>
-              <button class="btn-add-cart" data-product={JSON.stringify(product)}>Sepete Ekle</button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  )}
 
   <!-- Mantı Section -->
-  <section class="products-section">
-    <div class="container">
-      <h2 class="section-title">Kayseri Mantısı</h2>
-      <div class="products-grid">
-        {mantiProducts.map(product => (
-          <div class="product-card" data-product-id={product.id}>
-            <div class="product-image-wrapper">
-              <img src={product.image} alt={product.name} class="product-image" loading="lazy" />
-              <div class="product-overlay">
-                <button class="btn-view-product" data-slug={product.slug}>Ürünü İncele</button>
+  {mantiProducts && mantiProducts.length > 0 && (
+    <section class="products-section">
+      <div class="container">
+        <h2 class="section-title">Kayseri Mantısı</h2>
+        <div class="products-grid">
+          {mantiProducts.map(product => (
+            <div class="product-card" data-product-id={product.id}>
+              <div class="product-image-wrapper">
+                <img
+                  src={getImageUrl(product.images)}
+                  alt={product.name}
+                  class="product-image"
+                  loading="lazy"
+                />
+                <div class="product-overlay">
+                  <a href={`/urun/${product.slug}`} class="btn-view-product">Ürünü İncele</a>
+                </div>
+                <h3 class="product-name-overlay">{product.name}</h3>
               </div>
-              <h3 class="product-name-overlay">{product.name}</h3>
+              <div class="product-info">
+                <p class="product-price">
+                  {product.price}₺
+                  <span class="price-unit">/{product.unit}</span>
+                </p>
+                <button class="btn-add-cart" data-product={JSON.stringify({
+                  id: product.id,
+                  name: product.name,
+                  image: getImageUrl(product.images),
+                  variants: product.variants,
+                  slug: product.slug
+                })}>
+                  Sepete Ekle
+                </button>
+              </div>
             </div>
-            <div class="product-info">
-              <p class="product-price">{product.price}₺<span class="price-unit">/500 gr</span></p>
-              <button class="btn-add-cart" data-product={JSON.stringify(product)}>Sepete Ekle</button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  )}
 
   <!-- Add to Cart Modal -->
   <div id="cart-modal" class="cart-modal">
@@ -574,6 +539,8 @@ const banners = [
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
   }
 
   .btn-view-product:hover {
@@ -898,7 +865,6 @@ const banners = [
     showSlide(currentSlide - 1);
   }
 
-  // Auto slide
   let slideInterval = setInterval(nextSlide, 5000);
 
   document.querySelector('.slider-next')?.addEventListener('click', () => {
@@ -921,24 +887,12 @@ const banners = [
     });
   });
 
-  // Product Actions
+  // Modal functionality
   const cartModal = document.getElementById('cart-modal');
   const successModal = document.getElementById('success-modal');
   let selectedProduct: any = null;
   let selectedVariant: any = null;
 
-  // Ürünü İncele
-  document.querySelectorAll('.btn-view-product').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const slug = btn.getAttribute('data-slug');
-      if (slug) {
-        window.location.href = `/${slug}`;
-      }
-    });
-  });
-
-  // Sepete Ekle Modal
   document.querySelectorAll('.btn-add-cart').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -961,12 +915,12 @@ const banners = [
     if (modalImage) modalImage.src = product.image;
     if (modalName) modalName.textContent = product.name;
 
-    if (variantOptions) {
+    if (variantOptions && product.variants) {
       variantOptions.innerHTML = '';
       product.variants.forEach((variant: any, index: number) => {
         const btn = document.createElement('button');
         btn.className = `variant-btn ${index === 0 ? 'active' : ''}`;
-        btn.textContent = `${variant.name} - ${variant.price}₺`;
+        btn.textContent = `${variant.label} - ${variant.price}₺`;
         btn.addEventListener('click', () => {
           document.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
@@ -1036,10 +990,10 @@ const banners = [
     if (selectedProduct && selectedVariant) {
       const cartItem = {
         id: selectedProduct.id,
-        name: selectedProduct.name,
+        name: `${selectedProduct.name} - ${selectedVariant.label}`,
         price: selectedVariant.price,
         image: selectedProduct.image,
-        unit: selectedVariant.name,
+        unit: selectedVariant.label,
         quantity: quantity
       };
 

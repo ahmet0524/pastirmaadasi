@@ -1,11 +1,11 @@
 ---
 // src/components/ProductCard.astro
-interface Props {
+export interface Props {
   id: string;
   slug: string;
   name: string;
   price: number;
-  images: string[] | string;
+  images: string[] | string | null;
   unit: string;
   description?: string;
   variants?: any[];
@@ -13,91 +13,124 @@ interface Props {
 
 const { id, slug, name, price, images, unit, description, variants } = Astro.props;
 
-// Görsel kontrolü - farklı formatlara destek
-let mainImage = '/assets/image/placeholder.jpg';
+// Resim URL'sini güvenli şekilde al - Supabase'den gelen veriyi parse et
+function getImageUrl(imgs: any): string {
+  const placeholder = '/assets/image/placeholder.jpg';
 
-if (images) {
-  if (Array.isArray(images) && images.length > 0) {
-    mainImage = images[0];
-  } else if (typeof images === 'string') {
-    // Eğer string ise ve JSON formatındaysa parse et
+  if (!imgs) {
+    console.log(`No images for product: ${name}`);
+    return placeholder;
+  }
+
+  // Eğer string ise, JSON parse dene
+  if (typeof imgs === 'string') {
     try {
-      const parsed = JSON.parse(images);
+      const parsed = JSON.parse(imgs);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        mainImage = parsed[0];
+        console.log(`Parsed image for ${name}:`, parsed[0]);
+        return parsed[0];
       }
-    } catch {
-      // JSON değilse direkt kullan
-      mainImage = images;
+      console.log(`String image for ${name}:`, imgs);
+      return imgs;
+    } catch (e) {
+      console.log(`Image parse error for ${name}:`, e);
+      // JSON parse başarısız, direkt string olarak kullan
+      return imgs;
     }
   }
+
+  // Eğer array ise
+  if (Array.isArray(imgs) && imgs.length > 0) {
+    console.log(`Array image for ${name}:`, imgs[0]);
+    return imgs[0];
+  }
+
+  console.log(`Fallback to placeholder for ${name}`);
+  return placeholder;
 }
 
-console.log(`ProductCard ${name}: images=`, images, 'mainImage=', mainImage);
+const imageUrl = getImageUrl(images);
 ---
 
 <div class="product-card" data-product-id={id}>
-  <div class="product-image-wrapper">
-    <img src={mainImage || '/assets/image/placeholder.jpg'} alt={name} loading="lazy" class="product-image" />
-    <div class="product-overlay">
-      <a href={`/urun/${slug}`} class="btn-view-product">
-        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-        </svg>
-        Ürünü İncele
-      </a>
+  <a href={`/urun/${slug}`} class="product-link">
+    <div class="product-image-wrapper">
+      <img
+        src={imageUrl}
+        alt={name}
+        class="product-image"
+        loading="lazy"
+        onerror="console.error('Image load failed:', this.src); this.src='/assets/image/placeholder.jpg'"
+      />
+      <div class="product-badge">Yeni</div>
     </div>
-  </div>
 
-  <div class="product-info">
-    <h3 class="product-name">{name}</h3>
-    {description && <p class="product-description">{description}</p>}
-    <div class="product-footer">
-      <div class="product-price-wrapper">
-        <span class="product-price">{price}₺</span>
-        <span class="product-unit">/ {unit}</span>
+    <div class="product-info">
+      <h3 class="product-name">{name}</h3>
+      {description && (
+        <p class="product-description">{description.substring(0, 80)}...</p>
+      )}
+
+      <div class="product-footer">
+        <div class="product-price">
+          <span class="price-value">{price}₺</span>
+          <span class="price-unit">/ {unit}</span>
+        </div>
+
+        <button
+          class="btn-add-to-cart"
+          data-product={JSON.stringify({
+            id,
+            slug,
+            name,
+            price,
+            image: imageUrl,
+            unit,
+            variants
+          })}
+          onclick="event.preventDefault(); event.stopPropagation();"
+        >
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          Sepete Ekle
+        </button>
       </div>
-      <button
-        class="btn-add-to-cart"
-        data-product-id={id}
-        data-product-name={name}
-        data-product-price={price}
-        data-product-image={mainImage}
-        data-product-unit={unit}
-        data-product-variants={JSON.stringify(variants || [])}
-      >
-        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
-        <span>Sepete Ekle</span>
-      </button>
     </div>
-  </div>
+  </a>
 </div>
 
 <style>
   .product-card {
     background: white;
-    border-radius: 16px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .product-link {
+    text-decoration: none;
+    color: inherit;
     display: flex;
     flex-direction: column;
     height: 100%;
   }
 
-  .product-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-  }
-
   .product-image-wrapper {
     position: relative;
+    width: 100%;
     padding-top: 100%;
     overflow: hidden;
-    background: #f0fdfa;
+    background: #f3f4f6;
   }
 
   .product-image {
@@ -107,640 +140,143 @@ console.log(`ProductCard ${name}: images=`, images, 'mainImage=', mainImage);
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s ease;
+    transition: transform 0.4s ease;
   }
 
   .product-card:hover .product-image {
     transform: scale(1.1);
   }
 
-  .product-overlay {
+  .product-badge {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(8, 145, 178, 0.95) 0%, rgba(6, 182, 212, 0.95) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .product-card:hover .product-overlay {
-    opacity: 1;
-  }
-
-  .btn-view-product {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    background: white;
-    color: #0891b2;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    transform: translateY(10px);
-  }
-
-  .product-card:hover .btn-view-product {
-    transform: translateY(0);
-  }
-
-  .btn-view-product:hover {
-    background: #0891b2;
+    top: 12px;
+    right: 12px;
+    background: linear-gradient(135deg, #0891b2, #06b6d4);
     color: white;
-    transform: translateY(-2px);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(8, 145, 178, 0.3);
   }
 
   .product-info {
-    padding: 20px;
+    padding: 1.25rem;
     display: flex;
     flex-direction: column;
     flex: 1;
   }
 
   .product-name {
-    font-size: 18px;
+    font-size: 1.125rem;
     font-weight: 700;
     color: #134e4a;
-    margin: 0 0 8px 0;
+    margin: 0 0 0.5rem 0;
     line-height: 1.4;
+    min-height: 2.8em;
   }
 
   .product-description {
-    font-size: 14px;
+    font-size: 0.875rem;
     color: #0f766e;
-    margin: 0 0 16px 0;
     line-height: 1.5;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    margin: 0 0 1rem 0;
+    flex: 1;
   }
 
   .product-footer {
-    margin-top: auto;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    gap: 12px;
-  }
-
-  .product-price-wrapper {
-    display: flex;
-    align-items: baseline;
-    gap: 4px;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: auto;
   }
 
   .product-price {
-    font-size: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .price-value {
+    font-size: 1.5rem;
     font-weight: 700;
     color: #0891b2;
   }
 
-  .product-unit {
-    font-size: 14px;
+  .price-unit {
+    font-size: 0.875rem;
     color: #0f766e;
   }
 
   .btn-add-to-cart {
-    padding: 10px 16px;
-    background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #0891b2, #06b6d4);
     color: white;
     border: none;
     border-radius: 8px;
     font-weight: 600;
+    font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
     white-space: nowrap;
   }
 
   .btn-add-to-cart:hover {
-    background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%);
+    background: linear-gradient(135deg, #06b6d4, #22d3ee);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
   }
 
+  .btn-add-to-cart svg {
+    flex-shrink: 0;
+  }
+
   @media (max-width: 768px) {
-    .product-info {
-      padding: 16px;
-    }
-
-    .product-name {
-      font-size: 16px;
-    }
-
-    .product-price {
-      font-size: 20px;
+    .product-footer {
+      flex-direction: column;
+      align-items: stretch;
     }
 
     .btn-add-to-cart {
-      padding: 8px 12px;
-      font-size: 13px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .product-name {
+      font-size: 1rem;
+      min-height: auto;
+    }
+
+    .price-value {
+      font-size: 1.25rem;
     }
   }
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // Sepete ekle butonlarını dinle
-    document.querySelectorAll('.btn-add-to-cart').forEach(button => {
-      button.addEventListener('click', (e) => {
-        e.preventDefault();
-        const btn = e.currentTarget as HTMLButtonElement;
+  // Sepete ekle butonları için event listener
+  document.querySelectorAll('.btn-add-to-cart').forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
 
-        const productData = {
-          id: btn.dataset.productId,
-          name: btn.dataset.productName,
-          price: parseFloat(btn.dataset.productPrice || '0'),
-          image: btn.dataset.productImage,
-          unit: btn.dataset.productUnit,
-          variants: JSON.parse(btn.dataset.productVariants || '[]')
-        };
+      const productData = this.getAttribute('data-product');
+      if (productData) {
+        const product = JSON.parse(productData);
 
-        // Modal'ı aç
-        openCartModal(productData);
-      });
+        // Custom event ile modal açma sinyali gönder
+        const event = new CustomEvent('openCartModal', {
+          detail: product,
+          bubbles: true
+        });
+        document.dispatchEvent(event);
+      }
     });
   });
-
-  function openCartModal(product: any) {
-    // Mevcut modal varsa kaldır
-    const existingModal = document.getElementById('cart-modal');
-    if (existingModal) {
-      existingModal.remove();
-    }
-
-    // Modal HTML'i oluştur
-    const modalHTML = `
-      <div id="cart-modal" class="modal-overlay">
-        <div class="modal-content">
-          <button class="modal-close" onclick="document.getElementById('cart-modal').remove()">
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </button>
-
-          <div class="modal-body">
-            <div class="modal-image">
-              <img src="${product.image || '/assets/image/placeholder.jpg'}" alt="${product.name}" />
-            </div>
-
-            <div class="modal-details">
-              <h2>${product.name}</h2>
-
-              ${product.variants && product.variants.length > 0 ? `
-                <div class="variant-section">
-                  <label>Miktar Seçin:</label>
-                  <div class="variant-buttons">
-                    ${product.variants.map((v: any, i: number) => `
-                      <button
-                        class="variant-btn ${i === 0 ? 'active' : ''}"
-                        data-value="${v.value}"
-                        data-label="${v.label}"
-                        data-price="${v.price}"
-                      >
-                        ${v.label}
-                        <span class="variant-price">${v.price}₺</span>
-                      </button>
-                    `).join('')}
-                  </div>
-                </div>
-              ` : ''}
-
-              <div class="quantity-section">
-                <label>Adet:</label>
-                <div class="quantity-controls">
-                  <button class="qty-btn" id="modal-decrease">-</button>
-                  <input type="number" id="modal-quantity" value="1" min="1" readonly />
-                  <button class="qty-btn" id="modal-increase">+</button>
-                </div>
-              </div>
-
-              <div class="modal-price">
-                <span>Toplam:</span>
-                <span id="modal-total">${product.price}₺</span>
-              </div>
-
-              <button class="btn-modal-add" id="modal-add-to-cart">
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                </svg>
-                Sepete Ekle
-              </button>
-
-              <div class="cart-action-buttons" id="cart-action-buttons" style="display: none;">
-                <a href="/sepet" class="btn-go-cart">
-                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                  </svg>
-                  Sepete Git
-                </a>
-                <button class="btn-continue-shopping" onclick="document.getElementById('cart-modal').remove()">
-                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                  </svg>
-                  Alışverişe Devam Et
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-    // Modal için değişkenler
-    let selectedVariant = product.variants && product.variants.length > 0 ? product.variants[0] : null;
-    let quantity = 1;
-    const modal = document.getElementById('cart-modal');
-
-    // Fiyat güncelleme fonksiyonu
-    function updateModalPrice() {
-      const unitPrice = selectedVariant ? selectedVariant.price : product.price;
-      const total = unitPrice * quantity;
-      const totalElement = document.getElementById('modal-total');
-      if (totalElement) {
-        totalElement.textContent = total.toFixed(2) + '₺';
-      }
-    }
-
-    // Varyant seçimi
-    modal?.querySelectorAll('.variant-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        modal.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
-        (e.currentTarget as HTMLElement).classList.add('active');
-
-        const target = e.currentTarget as HTMLButtonElement;
-        selectedVariant = {
-          value: parseFloat(target.dataset.value || '0'),
-          label: target.dataset.label,
-          price: parseFloat(target.dataset.price || '0')
-        };
-
-        updateModalPrice();
-      });
-    });
-
-    // Miktar artır/azalt
-    document.getElementById('modal-increase')?.addEventListener('click', () => {
-      quantity++;
-      const qtyInput = document.getElementById('modal-quantity') as HTMLInputElement;
-      if (qtyInput) qtyInput.value = quantity.toString();
-      updateModalPrice();
-    });
-
-    document.getElementById('modal-decrease')?.addEventListener('click', () => {
-      if (quantity > 1) {
-        quantity--;
-        const qtyInput = document.getElementById('modal-quantity') as HTMLInputElement;
-        if (qtyInput) qtyInput.value = quantity.toString();
-        updateModalPrice();
-      }
-    });
-
-    // Sepete ekle
-    document.getElementById('modal-add-to-cart')?.addEventListener('click', () => {
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-
-      const cartItem = {
-        id: product.id,
-        name: `${product.name}${selectedVariant ? ' - ' + selectedVariant.label : ''}`,
-        price: selectedVariant ? selectedVariant.price : product.price,
-        image: product.image,
-        unit: selectedVariant ? selectedVariant.label : product.unit,
-        quantity: quantity
-      };
-
-      const existingIndex = cart.findIndex((item: any) =>
-        item.id === product.id && item.unit === cartItem.unit
-      );
-
-      if (existingIndex >= 0) {
-        cart[existingIndex].quantity += quantity;
-      } else {
-        cart.push(cartItem);
-      }
-
-      localStorage.setItem('cart', JSON.stringify(cart));
-      window.dispatchEvent(new Event('cartUpdated'));
-
-      // Sepete ekle butonunu gizle ve aksiyon butonlarını göster
-      const addBtn = document.getElementById('modal-add-to-cart');
-      const actionButtons = document.getElementById('cart-action-buttons');
-
-      if (addBtn) addBtn.style.display = 'none';
-      if (actionButtons) actionButtons.style.display = 'flex';
-    });
-
-    // Modal dışına tıklayınca kapat
-    modal?.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.remove();
-      }
-    });
-  }
 </script>
-
-<style is:global>
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    padding: 20px;
-    animation: fadeIn 0.3s ease;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  .modal-content {
-    background: white;
-    border-radius: 20px;
-    max-width: 800px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-    animation: slideUp 0.3s ease;
-  }
-
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .modal-close {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    background: white;
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 10;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-  }
-
-  .modal-close:hover {
-    background: #fee2e2;
-    color: #dc2626;
-    transform: rotate(90deg);
-  }
-
-  .modal-body {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-    padding: 32px;
-  }
-
-  .modal-image {
-    border-radius: 16px;
-    overflow: hidden;
-    background: #f0fdfa;
-  }
-
-  .modal-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .modal-details h2 {
-    font-size: 24px;
-    color: #134e4a;
-    margin: 0 0 24px 0;
-  }
-
-  .variant-section,
-  .quantity-section {
-    margin-bottom: 24px;
-  }
-
-  .variant-section label,
-  .quantity-section label {
-    display: block;
-    font-weight: 700;
-    margin-bottom: 12px;
-    color: #134e4a;
-  }
-
-  .variant-buttons {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 12px;
-  }
-
-  .variant-btn {
-    padding: 12px;
-    border: 2px solid #99f6e4;
-    border-radius: 12px;
-    background: white;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    font-weight: 600;
-    color: #0f766e;
-  }
-
-  .variant-btn:hover {
-    border-color: #0891b2;
-    background: #f0fdfa;
-  }
-
-  .variant-btn.active {
-    border-color: #0891b2;
-    background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
-    color: #0891b2;
-  }
-
-  .variant-price {
-    font-size: 14px;
-    color: #0891b2;
-    font-weight: 700;
-  }
-
-  .quantity-controls {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .qty-btn {
-    width: 48px;
-    height: 48px;
-    border: 2px solid #99f6e4;
-    border-radius: 12px;
-    background: white;
-    font-size: 20px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s;
-    color: #0891b2;
-  }
-
-  .qty-btn:hover {
-    border-color: #0891b2;
-    background: #f0fdfa;
-  }
-
-  #modal-quantity {
-    width: 80px;
-    height: 48px;
-    text-align: center;
-    font-size: 20px;
-    font-weight: 700;
-    border: 2px solid #99f6e4;
-    border-radius: 12px;
-    color: #0891b2;
-  }
-
-  .modal-price {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
-    border-radius: 12px;
-    margin-bottom: 24px;
-  }
-
-  .modal-price span:first-child {
-    font-size: 16px;
-    font-weight: 600;
-    color: #0f766e;
-  }
-
-  #modal-total {
-    font-size: 28px;
-    font-weight: 700;
-    color: #0891b2;
-  }
-
-  .btn-modal-add {
-    width: 100%;
-    padding: 16px;
-    background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-
-  .btn-modal-add:hover {
-    background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(8, 145, 178, 0.3);
-  }
-
-  .cart-action-buttons {
-    display: flex;
-    gap: 12px;
-    margin-top: 16px;
-  }
-
-  .btn-go-cart,
-  .btn-continue-shopping {
-    flex: 1;
-    padding: 14px 20px;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    text-decoration: none;
-    border: none;
-  }
-
-  .btn-go-cart {
-    background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
-    color: white;
-  }
-
-  .btn-go-cart:hover {
-    background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
-  }
-
-  .btn-continue-shopping {
-    background: linear-gradient(135deg, #5eead4 0%, #2dd4bf 100%);
-    color: #134e4a;
-  }
-
-  .btn-continue-shopping:hover {
-    background: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
-  }
-
-  @media (max-width: 768px) {
-    .modal-body {
-      grid-template-columns: 1fr;
-      gap: 24px;
-      padding: 24px;
-    }
-
-    .variant-buttons {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .modal-details h2 {
-      font-size: 20px;
-    }
-
-    #modal-total {
-      font-size: 24px;
-    }
-
-    .cart-action-buttons {
-      flex-direction: column;
-    }
-  }
-</style>
