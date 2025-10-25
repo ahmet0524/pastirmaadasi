@@ -1,67 +1,8 @@
 ---
 import { supabaseAdmin } from '../../lib/supabase';
-
-// Static build için tüm ürün slug'larını al
-export async function getStaticPaths() {
-  const { data: products } = await supabaseAdmin
----
-
-<!-- HTML TEMPLATE -->
-<BaseLayout title={product.name} description={product.description}>
-  <Header slot="header" />
-
-  <section class="product-detail">
-    <div class="container">
-      <!-- Breadcrumb -->
-      <nav class="breadcrumb">
-        <a href="/">Ana Sayfa</a>
-        <span>/</span>
-        <a href="/online-alisveris">Online Alışveriş</a>
-        <span>/</span>
-        <a href={`/kategori/${product.category.toLowerCase()}`}>{product.category}</a>
-        <span>/</span>
-        <span>{product.name}</span>
-      </nav>
-
-      <div class="product-layout">
-        <!-- Sol: Görsel -->
-        <div class="product-gallery">
-          <div class="main-image">
-            <img
-              id="main-product-image"
-              src={productImages[0]}
-              alt={product.name}
-            />
-          </div>
-          {productImages.length > 1 && (
-            <div class="thumbnail-images">
-              {productImages.map((img: string, index: number) => (
-                <button
-                  type="button"
-                  class={`thumbnail-btn ${index === 0 ? 'active' : ''}`}
-                  data-image={img}
-                  aria-label={`${product.name} resmi ${index + 1}`}
-                >
-                  <img
-                    src={img}
-                    alt={`${product.name} - ${index + 1}`}
-                  />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <!-- Sağ taraf aynı kalacak, buraya yazmıyorum -->
-      </div>
-    </div>
-  </section>
-
-  <Footer slot="footer" />
-</BaseLayout>
-
-<!-- Devam eden style ve script kısımları -->
-import { supabaseAdmin } from '../../lib/supabase';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
 
 // Static build için tüm ürün slug'larını al
 export async function getStaticPaths() {
@@ -79,10 +20,6 @@ export async function getStaticPaths() {
   }));
 }
 
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
-
 const { slug } = Astro.params;
 
 // Ürünü Supabase'den çek
@@ -97,18 +34,15 @@ if (error || !product) {
   return Astro.redirect('/404');
 }
 
-// **ÖNEMLİ: Images'ı parse et**
+// Images'ı parse et
 function parseImages(imgs: any): string[] {
   if (!imgs) return ['/assets/image/placeholder.jpg'];
 
-  // Array ise
   if (Array.isArray(imgs)) {
     return imgs.length > 0 ? imgs : ['/assets/image/placeholder.jpg'];
   }
 
-  // String ise
   if (typeof imgs === 'string') {
-    // PostgreSQL array: {path1,path2}
     if (imgs.startsWith('{') && imgs.endsWith('}')) {
       const paths = imgs
         .slice(1, -1)
@@ -117,7 +51,6 @@ function parseImages(imgs: any): string[] {
       return paths.length > 0 ? paths : ['/assets/image/placeholder.jpg'];
     }
 
-    // JSON array
     if (imgs.startsWith('[')) {
       try {
         const parsed = JSON.parse(imgs.replace(/""/g, '"'));
@@ -129,7 +62,6 @@ function parseImages(imgs: any): string[] {
       }
     }
 
-    // Tek URL
     return [imgs];
   }
 
@@ -170,13 +102,13 @@ const { data: relatedProducts } = await supabaseAdmin
           <div class="main-image">
             <img
               id="main-product-image"
-              src={product.images?.[0] || '/assets/image/placeholder.jpg'}
+              src={productImages[0]}
               alt={product.name}
             />
           </div>
-          {product.images && product.images.length > 1 && (
+          {productImages.length > 1 && (
             <div class="thumbnail-images">
-              {product.images.map((img: string, index: number) => (
+              {productImages.map((img: string, index: number) => (
                 <button
                   type="button"
                   class={`thumbnail-btn ${index === 0 ? 'active' : ''}`}
@@ -304,13 +236,16 @@ const { data: relatedProducts } = await supabaseAdmin
         <div class="related-products">
           <h2>Benzer Ürünler</h2>
           <div class="related-grid">
-            {relatedProducts.map((item: any) => (
-              <a href={`/urun/${item.slug}`} class="related-item">
-                <img src={item.images?.[0]} alt={item.name} />
-                <h4>{item.name}</h4>
-                <p class="related-price">{item.price}₺ / {item.unit}</p>
-              </a>
-            ))}
+            {relatedProducts.map((item: any) => {
+              const relatedImages = parseImages(item.images);
+              return (
+                <a href={`/urun/${item.slug}`} class="related-item">
+                  <img src={relatedImages[0]} alt={item.name} />
+                  <h4>{item.name}</h4>
+                  <p class="related-price">{item.price}₺ / {item.unit}</p>
+                </a>
+              );
+            })}
           </div>
         </div>
       )}
@@ -707,25 +642,26 @@ const { data: relatedProducts } = await supabaseAdmin
   }
 </style>
 
-<script define:vars={{ product }}>
-  let selectedVariant = product.variants ? product.variants[0] : null;
-  let quantity = 1;
-
+<script>
   // Thumbnail click event
   document.querySelectorAll('.thumbnail-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const imageUrl = btn.getAttribute('data-image');
-      const mainImage = document.getElementById('main-product-image');
+    btn.addEventListener('click', function() {
+      const imageUrl = this.getAttribute('data-image');
+      const mainImage = document.getElementById('main-product-image') as HTMLImageElement;
 
       if (mainImage && imageUrl) {
         mainImage.src = imageUrl;
       }
 
-      // Active class'ı güncelle
       document.querySelectorAll('.thumbnail-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      this.classList.add('active');
     });
   });
+</script>
+
+<script define:vars={{ product, productImages }}>
+  let selectedVariant = product.variants ? product.variants[0] : null;
+  let quantity = 1;
 
   // Varyant seçimi
   document.querySelectorAll('.variant-btn').forEach(btn => {
@@ -776,7 +712,7 @@ const { data: relatedProducts } = await supabaseAdmin
       id: product.id,
       name: `${product.name} - ${selectedVariant ? selectedVariant.label : product.unit}`,
       price: selectedVariant ? selectedVariant.price : product.price,
-      image: product.images?.[0] || '/assets/image/placeholder.jpg',
+      image: productImages[0],
       unit: selectedVariant ? selectedVariant.label : product.unit,
       quantity: quantity
     };
@@ -794,12 +730,10 @@ const { data: relatedProducts } = await supabaseAdmin
     localStorage.setItem('cart', JSON.stringify(cart));
     window.dispatchEvent(new Event('cartUpdated'));
 
-    // Butonu değiştir
     const btn = document.getElementById('add-to-cart-btn');
     btn.innerHTML = '✓ Sepete Eklendi - Sepete Git';
     btn.style.background = '#10b981';
 
-    // 1.5 saniye sonra sepete yönlendir
     setTimeout(() => {
       window.location.href = '/sepet';
     }, 1500);
