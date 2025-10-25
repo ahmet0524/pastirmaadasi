@@ -95,13 +95,13 @@ const imageUrl = getImageUrl(images);
 <div class="product-card" data-product-id={id}>
   <a href={`/urun/${slug}`} class="product-link">
     <div class="product-image-wrapper">
-      <img
-        src={imageUrl}
-        alt={name}
-        class="product-image"
-        loading="lazy"
-        onerror="console.error('Image load failed:', this.src); this.src='/assets/image/placeholder.jpg'"
-      />
+     <img
+  src={imageUrl}
+  alt={name}
+  class="product-image"
+  loading="lazy"
+  onerror="if(this.src!='/assets/image/placeholder.jpg'){console.error('Image load failed:', this.src); this.src='/assets/image/placeholder.jpg';}"
+/>
       <div class="product-badge">Yeni</div>
     </div>
 
