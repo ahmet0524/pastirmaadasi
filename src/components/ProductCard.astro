@@ -17,43 +17,75 @@ const { id, slug, name, price, images, unit, description, variants } = Astro.pro
 function getImageUrl(imgs: any): string {
   const placeholder = '/assets/image/placeholder.jpg';
 
+  // SERVER LOG (build time)
+  console.log('\n🔧 SERVER: Processing images for', name);
+  console.log('📥 Raw input:', imgs);
+  console.log('📊 Type:', typeof imgs);
+  console.log('📏 Is Array:', Array.isArray(imgs));
+
   if (!imgs) {
-    console.log(`No images for product: ${name}`);
+    console.log('❌ No images provided');
     return placeholder;
+  }
+
+  // Array ise direkt kullan
+  if (Array.isArray(imgs)) {
+    console.log('✅ Already array:', imgs[0]);
+    return imgs.length > 0 ? imgs[0] : placeholder;
   }
 
   // String ise parse et
   if (typeof imgs === 'string') {
-    try {
-      // Önce escape edilmiş çift tırnakları düzelt
-      let cleaned = imgs.replace(/""/g, '"');
+    console.log('🔄 Attempting to parse string...');
 
-      // JSON parse dene
+    try {
+      // Farklı escape durumlarını temizle
+      let cleaned = imgs;
+
+      // Test 1: Çift tırnak escape
+      if (cleaned.includes('""')) {
+        console.log('  → Cleaning double quotes');
+        cleaned = cleaned.replace(/""/g, '"');
+      }
+
+      // Test 2: Backslash escape
+      if (cleaned.includes('\\"')) {
+        console.log('  → Cleaning backslash quotes');
+        cleaned = cleaned.replace(/\\"/g, '"');
+      }
+
+      // Test 3: Baştaki/sondaki tırnakları temizle
+      cleaned = cleaned.trim().replace(/^"|"$/g, '');
+
+      console.log('🧹 Cleaned string:', cleaned);
+
+      // Parse dene
       const parsed = JSON.parse(cleaned);
+      console.log('✅ Parsed successfully:', parsed);
 
       if (Array.isArray(parsed) && parsed.length > 0) {
-        console.log(`✅ Parsed image for ${name}:`, parsed[0]);
+        console.log('✅ Returning:', parsed[0]);
         return parsed[0];
       }
 
-      // Parse başarılı ama array değil veya boş
-      console.log(`⚠️ Parsed but not array for ${name}:`, parsed);
-      return cleaned.startsWith('[') ? placeholder : cleaned;
+      console.log('⚠️ Parsed but empty or not array');
+      return placeholder;
 
     } catch (e) {
-      console.error(`❌ Parse error for ${name}:`, e);
-      // Parse başarısız, string olarak kullan
-      return imgs.startsWith('/') ? imgs : placeholder;
+      console.error('❌ Parse failed:', e);
+      console.log('📝 Original string:', imgs);
+
+      // Son çare: Eğer direkt URL ise kullan
+      if (imgs.startsWith('/') || imgs.startsWith('http')) {
+        console.log('🔗 Using as direct URL');
+        return imgs;
+      }
+
+      return placeholder;
     }
   }
 
-  // Array ise direkt kullan
-  if (Array.isArray(imgs) && imgs.length > 0) {
-    console.log(`✅ Array image for ${name}:`, imgs[0]);
-    return imgs[0];
-  }
-
-  console.log(`⚠️ Fallback to placeholder for ${name}`);
+  console.log('❓ Unknown type, returning placeholder');
   return placeholder;
 }
 

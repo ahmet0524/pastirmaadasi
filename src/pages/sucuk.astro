@@ -355,3 +355,33 @@ if (products) {
     }
   }
 </style>
+
+<script>
+  // Client-side debug - sayfa yüklendikten sonra çalışır
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('🔍 CLIENT DEBUG STARTED');
+
+    // Tüm product card'ları bul
+    const productCards = document.querySelectorAll('.product-card');
+    console.log('📦 Product Cards Found:', productCards.length);
+
+    // Her card'daki image'i kontrol et
+    productCards.forEach((card, index) => {
+      const img = card.querySelector('.product-image');
+      const name = card.querySelector('.product-name');
+
+      console.log(`\n--- Product ${index + 1} ---`);
+      console.log('Name:', name?.textContent);
+      console.log('Image SRC:', img?.src);
+      console.log('Image Natural Width:', img?.naturalWidth);
+      console.log('Image Complete:', img?.complete);
+
+      // Eğer placeholder kullanılıyorsa
+      if (img?.src.includes('placeholder.jpg')) {
+        console.warn('⚠️ PLACEHOLDER USED!');
+      }
+    });
+
+    console.log('\n🏁 CLIENT DEBUG FINISHED');
+  });
+</script>
