@@ -22,30 +22,38 @@ function getImageUrl(imgs: any): string {
     return placeholder;
   }
 
-  // Eğer string ise, JSON parse dene
+  // String ise parse et
   if (typeof imgs === 'string') {
     try {
-      const parsed = JSON.parse(imgs);
+      // Önce escape edilmiş çift tırnakları düzelt
+      let cleaned = imgs.replace(/""/g, '"');
+
+      // JSON parse dene
+      const parsed = JSON.parse(cleaned);
+
       if (Array.isArray(parsed) && parsed.length > 0) {
-        console.log(`Parsed image for ${name}:`, parsed[0]);
+        console.log(`✅ Parsed image for ${name}:`, parsed[0]);
         return parsed[0];
       }
-      console.log(`String image for ${name}:`, imgs);
-      return imgs;
+
+      // Parse başarılı ama array değil veya boş
+      console.log(`⚠️ Parsed but not array for ${name}:`, parsed);
+      return cleaned.startsWith('[') ? placeholder : cleaned;
+
     } catch (e) {
-      console.log(`Image parse error for ${name}:`, e);
-      // JSON parse başarısız, direkt string olarak kullan
-      return imgs;
+      console.error(`❌ Parse error for ${name}:`, e);
+      // Parse başarısız, string olarak kullan
+      return imgs.startsWith('/') ? imgs : placeholder;
     }
   }
 
-  // Eğer array ise
+  // Array ise direkt kullan
   if (Array.isArray(imgs) && imgs.length > 0) {
-    console.log(`Array image for ${name}:`, imgs[0]);
+    console.log(`✅ Array image for ${name}:`, imgs[0]);
     return imgs[0];
   }
 
-  console.log(`Fallback to placeholder for ${name}`);
+  console.log(`⚠️ Fallback to placeholder for ${name}`);
   return placeholder;
 }
 

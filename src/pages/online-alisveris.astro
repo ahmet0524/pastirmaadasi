@@ -54,21 +54,29 @@ function getImageUrl(imgs: any): string {
 
   if (!imgs) return placeholder;
 
-  // Eğer string ise, JSON parse dene
+  // String ise parse et
   if (typeof imgs === 'string') {
     try {
-      const parsed = JSON.parse(imgs);
+      // Önce escape edilmiş çift tırnakları düzelt
+      let cleaned = imgs.replace(/""/g, '"');
+
+      // JSON parse dene
+      const parsed = JSON.parse(cleaned);
+
       if (Array.isArray(parsed) && parsed.length > 0) {
         return parsed[0];
       }
-      return imgs;
+
+      // Parse başarılı ama array değil
+      return cleaned.startsWith('[') ? placeholder : cleaned;
+
     } catch (e) {
-      // JSON parse başarısız, direkt string olarak kullan
-      return imgs;
+      // Parse başarısız, string olarak kullan
+      return imgs.startsWith('/') ? imgs : placeholder;
     }
   }
 
-  // Eğer array ise
+  // Array ise direkt kullan
   if (Array.isArray(imgs) && imgs.length > 0) {
     return imgs[0];
   }
