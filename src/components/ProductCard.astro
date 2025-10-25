@@ -17,75 +17,59 @@ const { id, slug, name, price, images, unit, description, variants } = Astro.pro
 function getImageUrl(imgs: any): string {
   const placeholder = '/assets/image/placeholder.jpg';
 
-  // SERVER LOG (build time)
-  console.log('\n🔧 SERVER: Processing images for', name);
-  console.log('📥 Raw input:', imgs);
-  console.log('📊 Type:', typeof imgs);
-  console.log('📏 Is Array:', Array.isArray(imgs));
-
   if (!imgs) {
-    console.log('❌ No images provided');
     return placeholder;
   }
 
-  // Array ise direkt kullan
+  // 1. Eğer zaten array ise
   if (Array.isArray(imgs)) {
-    console.log('✅ Already array:', imgs[0]);
-    return imgs.length > 0 ? imgs[0] : placeholder;
+    if (imgs.length === 0) return placeholder;
+
+    // İlk elemanı al ve temizle
+    let firstImage = imgs[0];
+    if (typeof firstImage === 'string') {
+      firstImage = firstImage.replace(/^"|"$/g, '').replace(/""/g, '').trim();
+    }
+
+    return firstImage || placeholder;
   }
 
-  // String ise parse et
+  // 2. String ise
   if (typeof imgs === 'string') {
-    console.log('🔄 Attempting to parse string...');
+    // PostgreSQL array format: {/path/to/image.jpg,/path/to/image2.jpg}
+    if (imgs.startsWith('{') && imgs.endsWith('}')) {
+      const paths = imgs
+        .slice(1, -1)  // {} kaldır
+        .split(',')     // virgülle ayır
+        .map(p => p.trim().replace(/^"|"$/g, ''));  // temizle
 
-    try {
-      // Farklı escape durumlarını temizle
-      let cleaned = imgs;
-
-      // Test 1: Çift tırnak escape
-      if (cleaned.includes('""')) {
-        console.log('  → Cleaning double quotes');
-        cleaned = cleaned.replace(/""/g, '"');
+      if (paths.length > 0 && paths[0]) {
+        return paths[0];
       }
+    }
 
-      // Test 2: Backslash escape
-      if (cleaned.includes('\\"')) {
-        console.log('  → Cleaning backslash quotes');
-        cleaned = cleaned.replace(/\\"/g, '"');
+    // JSON array format: ["path1","path2"] veya ["\"path1\"","\"path2\""]
+    if (imgs.startsWith('[')) {
+      try {
+        let cleaned = imgs.replace(/""/g, '"').replace(/\\"/g, '"');
+        const parsed = JSON.parse(cleaned);
+
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const firstImage = String(parsed[0]).replace(/^"|"$/g, '').trim();
+          return firstImage || placeholder;
+        }
+      } catch (e) {
+        // JSON parse başarısız, devam et
       }
+    }
 
-      // Test 3: Baştaki/sondaki tırnakları temizle
-      cleaned = cleaned.trim().replace(/^"|"$/g, '');
-
-      console.log('🧹 Cleaned string:', cleaned);
-
-      // Parse dene
-      const parsed = JSON.parse(cleaned);
-      console.log('✅ Parsed successfully:', parsed);
-
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        console.log('✅ Returning:', parsed[0]);
-        return parsed[0];
-      }
-
-      console.log('⚠️ Parsed but empty or not array');
-      return placeholder;
-
-    } catch (e) {
-      console.error('❌ Parse failed:', e);
-      console.log('📝 Original string:', imgs);
-
-      // Son çare: Eğer direkt URL ise kullan
-      if (imgs.startsWith('/') || imgs.startsWith('http')) {
-        console.log('🔗 Using as direct URL');
-        return imgs;
-      }
-
-      return placeholder;
+    // Direkt URL string
+    const cleaned = imgs.replace(/^"|"$/g, '').trim();
+    if (cleaned.startsWith('/') || cleaned.startsWith('http')) {
+      return cleaned;
     }
   }
 
-  console.log('❓ Unknown type, returning placeholder');
   return placeholder;
 }
 
@@ -95,13 +79,13 @@ const imageUrl = getImageUrl(images);
 <div class="product-card" data-product-id={id}>
   <a href={`/urun/${slug}`} class="product-link">
     <div class="product-image-wrapper">
-     <img
-  src={imageUrl}
-  alt={name}
-  class="product-image"
-  loading="lazy"
-  onerror="if(this.src!='/assets/image/placeholder.jpg'){console.error('Image load failed:', this.src); this.src='/assets/image/placeholder.jpg';}"
-/>
+      <img
+        src={imageUrl}
+        alt={name}
+        class="product-image"
+        loading="lazy"
+        onerror="if(this.src!='/assets/image/placeholder.jpg'){this.src='/assets/image/placeholder.jpg';}"
+      />
       <div class="product-badge">Yeni</div>
     </div>
 
