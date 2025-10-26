@@ -323,8 +323,578 @@ function getImageUrl(imgs: any): string {
 </BaseLayout>
 
 <style>
-  /* Tüm stiller aynı kalacak - sadece HTML'i güncelledik */
-  /* ... (önceki tüm style kodları buraya gelecek) ... */
+  /* Hero Banner Slider */
+  .hero-banner {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    overflow: hidden;
+    background: #000;
+  }
+
+  .banner-slider {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .banner-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.6s ease-in-out;
+    pointer-events: none;
+  }
+
+  .banner-slide.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .banner-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    text-decoration: none;
+  }
+
+  .banner-image {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .banner-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .banner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6));
+  }
+
+  .banner-content {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    color: white;
+    z-index: 2;
+    width: 90%;
+    max-width: 800px;
+  }
+
+  .banner-content h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  }
+
+  .banner-content p {
+    font-size: 1.3rem;
+    font-weight: 400;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+  }
+
+  /* Slider Controls */
+  .slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.3);
+    border: none;
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background 0.3s;
+  }
+
+  .slider-btn:hover {
+    background: rgba(255,255,255,0.5);
+  }
+
+  .slider-prev {
+    left: 20px;
+  }
+
+  .slider-next {
+    right: 20px;
+  }
+
+  .slider-dots {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+  }
+
+  .slider-dots .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .slider-dots .dot.active {
+    background: white;
+  }
+
+  /* Products Section */
+  .products-section {
+    padding: 60px 0;
+  }
+
+  .products-section.bg-light {
+    background: #f8f9fa;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 40px;
+    color: #333;
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+  }
+
+  .product-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  }
+
+  .product-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+
+  .product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+  }
+
+  .product-card:hover .product-image {
+    transform: scale(1.05);
+  }
+
+  .product-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .product-card:hover .product-overlay {
+    opacity: 1;
+  }
+
+  .btn-view-product {
+    padding: 12px 24px;
+    background: white;
+    color: #333;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: background 0.3s, transform 0.2s;
+  }
+
+  .btn-view-product:hover {
+    background: #f0f0f0;
+    transform: scale(1.05);
+  }
+
+  .product-name-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 15px;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .product-info {
+    padding: 20px;
+  }
+
+  .product-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #e74c3c;
+    margin-bottom: 15px;
+  }
+
+  .price-unit {
+    font-size: 1rem;
+    color: #666;
+    font-weight: 400;
+  }
+
+  .btn-add-cart {
+    width: 100%;
+    padding: 12px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .btn-add-cart:hover {
+    background: #c0392b;
+  }
+
+  /* Modal Styles */
+  .cart-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cart-modal.active {
+    display: flex;
+  }
+
+  .modal-content {
+    background: white;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    z-index: 10;
+    transition: color 0.3s;
+  }
+
+  .modal-close:hover {
+    color: #333;
+  }
+
+  .modal-body {
+    padding: 30px;
+  }
+
+  .modal-product-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+
+  .modal-body h3 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #333;
+  }
+
+  .variant-selector,
+  .quantity-selector {
+    margin-bottom: 25px;
+  }
+
+  .variant-selector label,
+  .quantity-selector label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .variant-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .variant-btn {
+    padding: 10px 20px;
+    border: 2px solid #ddd;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+  }
+
+  .variant-btn:hover {
+    border-color: #e74c3c;
+  }
+
+  .variant-btn.active {
+    background: #e74c3c;
+    color: white;
+    border-color: #e74c3c;
+  }
+
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .qty-btn {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #ddd;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: 600;
+    transition: all 0.3s;
+  }
+
+  .qty-btn:hover {
+    border-color: #e74c3c;
+    color: #e74c3c;
+  }
+
+  .qty-input {
+    width: 80px;
+    height: 40px;
+    text-align: center;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .modal-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+
+  .price-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .total-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #e74c3c;
+  }
+
+  .btn {
+    padding: 14px 28px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+  }
+
+  .btn-primary {
+    background: #e74c3c;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #c0392b;
+  }
+
+  .btn-outline {
+    background: white;
+    color: #e74c3c;
+    border: 2px solid #e74c3c;
+  }
+
+  .btn-outline:hover {
+    background: #e74c3c;
+    color: white;
+  }
+
+  .btn-large {
+    width: 100%;
+    font-size: 1.1rem;
+  }
+
+  /* Success Modal */
+  .success-content {
+    padding: 40px;
+    text-align: center;
+  }
+
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: #27ae60;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .success-icon svg {
+    stroke: white;
+  }
+
+  .success-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+    color: #333;
+  }
+
+  .success-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .success-buttons .btn {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero-banner {
+      height: 350px;
+    }
+
+    .banner-content h2 {
+      font-size: 1.8rem;
+    }
+
+    .banner-content p {
+      font-size: 1rem;
+    }
+
+    .slider-btn {
+      width: 40px;
+      height: 40px;
+    }
+
+    .products-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .section-title {
+      font-size: 1.6rem;
+    }
+
+    .success-buttons {
+      flex-direction: column;
+    }
+
+    .success-buttons .btn {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero-banner {
+      height: 300px;
+    }
+
+    .banner-content {
+      bottom: 60px;
+    }
+
+    .banner-content h2 {
+      font-size: 1.5rem;
+    }
+
+    .products-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .product-image-wrapper {
+      height: 250px;
+    }
+  }
 </style>
 
 <script>
