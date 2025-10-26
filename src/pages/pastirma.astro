@@ -25,13 +25,11 @@ function getImageUrl(imgs: any): string {
   }
 
   if (typeof imgs === 'string') {
-    // PostgreSQL array: {path1,path2}
     if (imgs.startsWith('{') && imgs.endsWith('}')) {
       const paths = imgs.slice(1, -1).split(',').map(p => p.trim().replace(/^"|"$/g, ''));
       if (paths.length > 0 && paths[0]) return paths[0];
     }
 
-    // JSON array: ["path1"]
     if (imgs.startsWith('[')) {
       try {
         const cleaned = imgs.replace(/""/g, '"').replace(/\\"/g, '"');
@@ -73,19 +71,19 @@ function getImageUrl(imgs: any): string {
       </p>
       <div class="hero-features">
         <div class="feature-badge">
-          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+          <svg width="20" height="20" fill="#059669" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
           </svg>
           100% Dana Eti
         </div>
         <div class="feature-badge">
-          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+          <svg width="20" height="20" fill="#059669" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
           </svg>
           Doğal Çemen
         </div>
         <div class="feature-badge">
-          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+          <svg width="20" height="20" fill="#059669" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
           </svg>
           Geleneksel Üretim
@@ -105,8 +103,8 @@ function getImageUrl(imgs: any): string {
         <div class="products-grid">
           {pastirmaProducts.map((product, index) => (
             <div class="product-card">
-              <a href={`/urun/${product.slug}`} class="product-link">
-                <div class="product-image-wrapper">
+              <div class="product-image-wrapper">
+                <a href={`/urun/${product.slug}`} class="product-image-link">
                   <img
                     src={getImageUrl(product.images)}
                     alt={product.name}
@@ -118,28 +116,27 @@ function getImageUrl(imgs: any): string {
                   <div class="product-overlay">
                     <span class="btn-view-product">Ürünü İncele</span>
                   </div>
-                </div>
-                <div class="product-info">
-                  <span class="product-category">Pastırma Çeşitlerimiz</span>
-                  <h3 class="product-name">{product.name}</h3>
-                  <div class="product-footer">
-                    <span class="product-price">{product.price}₺</span>
-                    <button
-                      class="btn-add-cart"
-                      data-product={JSON.stringify({
-                        id: product.id,
-                        name: product.name,
-                        image: getImageUrl(product.images),
-                        variants: product.variants,
-                        slug: product.slug
-                      })}
-                      onclick="event.preventDefault(); event.stopPropagation();"
-                    >
-                      Sepete Ekle
-                    </button>
-                  </div>
-                </div>
-              </a>
+                  <h3 class="product-name-overlay">{product.name}</h3>
+                </a>
+              </div>
+              <div class="product-info">
+                <p class="product-price">
+                  {product.price}₺
+                  <span class="price-unit">/{product.unit}</span>
+                </p>
+                <button
+                  class="btn-add-cart"
+                  data-product={JSON.stringify({
+                    id: product.id,
+                    name: product.name,
+                    image: getImageUrl(product.images),
+                    variants: product.variants,
+                    slug: product.slug
+                  })}
+                >
+                  Sepete Ekle
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -188,27 +185,82 @@ function getImageUrl(imgs: any): string {
     </div>
   </section>
 
+  <!-- Add to Cart Modal -->
+  <div id="cart-modal" class="cart-modal">
+    <div class="modal-content">
+      <button class="modal-close" aria-label="Kapat">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <div class="modal-body">
+        <img id="modal-product-image" src="" alt="" class="modal-product-image" />
+        <h3 id="modal-product-name"></h3>
+
+        <div class="variant-selector">
+          <label>Gramaj Seçin:</label>
+          <div id="variant-options" class="variant-options"></div>
+        </div>
+
+        <div class="quantity-selector">
+          <label>Adet:</label>
+          <div class="quantity-controls">
+            <button class="qty-btn qty-minus">-</button>
+            <input type="number" class="qty-input" value="1" min="1" />
+            <button class="qty-btn qty-plus">+</button>
+          </div>
+        </div>
+
+        <div class="modal-price">
+          <span class="price-label">Toplam:</span>
+          <span id="modal-total-price" class="total-price">0₺</span>
+        </div>
+
+        <button id="confirm-add-cart" class="btn btn-primary btn-large">Sepete Ekle</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Success Modal -->
+  <div id="success-modal" class="cart-modal">
+    <div class="modal-content success-content">
+      <div class="success-icon">
+        <svg width="60" height="60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h3>Ürün sepete eklendi!</h3>
+      <div class="success-buttons">
+        <button id="go-to-cart" class="btn btn-primary">Sepete Git</button>
+        <button id="continue-shopping" class="btn btn-outline">Alışverişe Devam</button>
+      </div>
+    </div>
+  </div>
+
   <Footer slot="footer" />
 </BaseLayout>
 
 <style>
+  /* Hero Section - TURKUAZ (Marka Kimliği) */
   .pastirma-hero {
     position: relative;
     min-height: 400px;
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 4rem 1rem;
   }
 
+  /* Koyu overlay - okunabilirlik için */
   .hero-overlay {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.3) 100%);
+    background: rgba(0, 0, 0, 0.4);
   }
 
   .hero-content {
@@ -228,34 +280,38 @@ function getImageUrl(imgs: any): string {
   }
 
   .breadcrumb a {
-    color: white;
-    opacity: 0.9;
+    color: rgba(255, 255, 255, 0.95);
+    opacity: 1;
     transition: opacity 0.3s;
+    text-decoration: none;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
 
   .breadcrumb a:hover {
-    opacity: 1;
+    opacity: 0.8;
   }
 
   .breadcrumb span {
-    opacity: 0.7;
+    color: rgba(255, 255, 255, 0.9);
   }
 
   .hero-content h1 {
     font-size: 3.5rem;
     font-weight: 800;
     margin: 0 0 1.5rem 0;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    color: white;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
   }
 
   .hero-subtitle {
     font-size: 1.25rem;
     line-height: 1.6;
     margin: 0 0 2rem 0;
-    opacity: 0.95;
+    color: rgba(255, 255, 255, 0.98);
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
   }
 
   .hero-features {
@@ -277,9 +333,13 @@ function getImageUrl(imgs: any): string {
     border: 1px solid rgba(255, 255, 255, 0.3);
   }
 
+  .feature-badge svg {
+    color: #059669;
+  }
+
   .products-section {
     padding: 4rem 1rem;
-    background: var(--bg-light);
+    background: #F3F4F6;
   }
 
   .container {
@@ -293,7 +353,7 @@ function getImageUrl(imgs: any): string {
 
   .section-header h2 {
     font-size: 1.125rem;
-    color: var(--text-gray);
+    color: #6B7280;
     font-weight: 400;
   }
 
@@ -316,23 +376,22 @@ function getImageUrl(imgs: any): string {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   }
 
-  .product-link {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-  }
-
   .product-image-wrapper {
     position: relative;
-    padding-top: 100%;
+    width: 100%;
+    height: 280px;
     overflow: hidden;
-    background: var(--bg-gray);
+    background: #f5f5f5;
+  }
+
+  .product-image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
   }
 
   .product-image {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -349,7 +408,7 @@ function getImageUrl(imgs: any): string {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(8, 145, 178, 0.9);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -366,7 +425,7 @@ function getImageUrl(imgs: any): string {
   .btn-view-product {
     padding: 0.875rem 2rem;
     background: white;
-    color: var(--primary);
+    color: #0891B2;
     border-radius: 50px;
     font-weight: 600;
     font-size: 1rem;
@@ -374,49 +433,48 @@ function getImageUrl(imgs: any): string {
   }
 
   .btn-view-product:hover {
-    background: var(--primary);
+    background: #0891B2;
     color: white;
     transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+  }
+
+  .product-name-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 15px;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
   }
 
   .product-info {
     padding: 1.5rem;
   }
 
-  .product-category {
-    font-size: 0.75rem;
-    color: var(--primary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 600;
-    display: block;
-    margin-bottom: 0.5rem;
-  }
-
-  .product-name {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: var(--text-dark);
-    margin: 0 0 1rem 0;
-    line-height: 1.4;
-  }
-
-  .product-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-  }
-
+  /* Fiyatlar - KIRMIZI */
   .product-price {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--primary);
+    color: #DC2626;
+    margin-bottom: 1rem;
   }
 
+  .price-unit {
+    font-size: 1rem;
+    color: #666;
+    font-weight: 400;
+  }
+
+  /* Sepete Ekle Butonu - KIRMIZI */
   .btn-add-cart {
+    width: 100%;
     padding: 0.75rem 1.25rem;
-    background: var(--primary);
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
     color: white;
     border: none;
     border-radius: 8px;
@@ -424,20 +482,22 @@ function getImageUrl(imgs: any): string {
     font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
   }
 
   .btn-add-cart:hover {
-    background: var(--primary-dark);
+    background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
   }
 
   .no-products {
     text-align: center;
     padding: 4rem 1rem;
-    color: var(--text-gray);
+    color: #6B7280;
   }
 
+  /* Info Section - Turkuaz İkonlar */
   .info-section {
     padding: 4rem 1rem;
     background: white;
@@ -454,21 +514,21 @@ function getImageUrl(imgs: any): string {
   .info-card {
     text-align: center;
     padding: 2rem;
-    background: var(--bg-light);
+    background: #F3F4F6;
     border-radius: 16px;
     transition: all 0.3s ease;
   }
 
   .info-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(220, 38, 38, 0.1);
+    box-shadow: 0 10px 30px rgba(8, 145, 178, 0.15);
   }
 
   .info-icon {
     width: 64px;
     height: 64px;
     margin: 0 auto 1.5rem;
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
     border-radius: 16px;
     display: flex;
     align-items: center;
@@ -479,15 +539,262 @@ function getImageUrl(imgs: any): string {
   .info-card h3 {
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--text-dark);
+    color: #1F2937;
     margin: 0 0 0.75rem 0;
   }
 
   .info-card p {
     font-size: 1rem;
-    color: var(--text-gray);
+    color: #6B7280;
     line-height: 1.6;
     margin: 0;
+  }
+
+  /* Modal Styles */
+  .cart-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cart-modal.active {
+    display: flex;
+  }
+
+  .modal-content {
+    background: white;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    z-index: 10;
+    transition: color 0.3s;
+  }
+
+  .modal-close:hover {
+    color: #333;
+  }
+
+  .modal-body {
+    padding: 30px;
+  }
+
+  .modal-product-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+
+  .modal-body h3 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #333;
+  }
+
+  .variant-selector,
+  .quantity-selector {
+    margin-bottom: 25px;
+  }
+
+  .variant-selector label,
+  .quantity-selector label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .variant-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  /* Variant Butonları - Turkuaz */
+  .variant-btn {
+    padding: 10px 20px;
+    border: 2px solid #E5E7EB;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+  }
+
+  .variant-btn:hover {
+    border-color: #0891B2;
+    color: #0891B2;
+  }
+
+  .variant-btn.active {
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+    color: white;
+    border-color: #0891B2;
+    box-shadow: 0 2px 8px rgba(8, 145, 178, 0.3);
+  }
+
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  /* Miktar Butonları - Turkuaz */
+  .qty-btn {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #0891B2;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: 600;
+    transition: all 0.3s;
+    color: #0891B2;
+  }
+
+  .qty-btn:hover {
+    background: #0891B2;
+    color: white;
+  }
+
+  .qty-input {
+    width: 80px;
+    height: 40px;
+    text-align: center;
+    border: 2px solid #0891B2;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0891B2;
+    background: #F0FDFA;
+  }
+
+  /* Modal Toplam - Turuncu */
+  .modal-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 2px solid #FED7AA;
+  }
+
+  .price-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .total-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #DC2626;
+  }
+
+  .btn {
+    padding: 14px 28px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+  }
+
+  /* Primary Buton - Kırmızı */
+  .btn-primary {
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+    transform: translateY(-2px);
+  }
+
+  /* Outline Buton - Kırmızı */
+  .btn-outline {
+    background: white;
+    color: #DC2626;
+    border: 2px solid #DC2626;
+  }
+
+  .btn-outline:hover {
+    background: #DC2626;
+    color: white;
+  }
+
+  .btn-large {
+    width: 100%;
+    font-size: 1.1rem;
+  }
+
+  /* Success Modal - Yeşil */
+  .success-content {
+    padding: 40px;
+    text-align: center;
+  }
+
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .success-icon svg {
+    stroke: white;
+  }
+
+  .success-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+    color: #333;
+  }
+
+  .success-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .success-buttons .btn {
+    flex: 1;
+    min-width: 150px;
   }
 
   @media (max-width: 768px) {
@@ -518,24 +825,183 @@ function getImageUrl(imgs: any): string {
     .info-grid {
       grid-template-columns: 1fr;
     }
+
+    .success-buttons {
+      flex-direction: column;
+    }
+
+    .success-buttons .btn {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .products-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .product-image-wrapper {
+      height: 250px;
+    }
   }
 </style>
 
 <script>
-  // Sepete ekle modal için event listener
+  const cartModal = document.getElementById('cart-modal');
+  const successModal = document.getElementById('success-modal');
+  let selectedProduct: any = null;
+  let selectedVariant: any = null;
+
   document.querySelectorAll('.btn-add-cart').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       const productData = btn.getAttribute('data-product');
       if (productData) {
-        const product = JSON.parse(productData);
-        const event = new CustomEvent('openCartModal', {
-          detail: product,
-          bubbles: true
-        });
-        document.dispatchEvent(event);
+        selectedProduct = JSON.parse(productData);
+        openCartModal(selectedProduct);
       }
     });
+  });
+
+  function openCartModal(product: any) {
+    cartModal?.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    const modalImage = document.getElementById('modal-product-image') as HTMLImageElement;
+    const modalName = document.getElementById('modal-product-name');
+    const variantOptions = document.getElementById('variant-options');
+
+    if (modalImage) modalImage.src = product.image;
+    if (modalName) modalName.textContent = product.name;
+
+    if (variantOptions && product.variants) {
+      variantOptions.innerHTML = '';
+      product.variants.forEach((variant: any, index: number) => {
+        const btn = document.createElement('button');
+        btn.className = `variant-btn ${index === 0 ? 'active' : ''}`;
+        btn.textContent = `${variant.label} - ${variant.price}₺`;
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          selectedVariant = variant;
+          updateTotalPrice();
+        });
+        variantOptions.appendChild(btn);
+      });
+
+      selectedVariant = product.variants[0];
+      updateTotalPrice();
+    }
+
+    const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
+    if (qtyInput) qtyInput.value = '1';
+  }
+
+  function updateTotalPrice() {
+    const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
+    const totalPriceEl = document.getElementById('modal-total-price');
+
+    if (qtyInput && totalPriceEl && selectedVariant) {
+      const quantity = parseInt(qtyInput.value) || 1;
+      const total = selectedVariant.price * quantity;
+      totalPriceEl.textContent = `${total}₺`;
+    }
+  }
+
+  document.querySelector('.qty-minus')?.addEventListener('click', () => {
+    const input = document.querySelector('.qty-input') as HTMLInputElement;
+    if (input) {
+      const currentValue = parseInt(input.value) || 1;
+      if (currentValue > 1) {
+        input.value = (currentValue - 1).toString();
+        updateTotalPrice();
+      }
+    }
+  });
+
+  document.querySelector('.qty-plus')?.addEventListener('click', () => {
+    const input = document.querySelector('.qty-input') as HTMLInputElement;
+    if (input) {
+      const currentValue = parseInt(input.value) || 1;
+      input.value = (currentValue + 1).toString();
+      updateTotalPrice();
+    }
+  });
+
+  document.querySelector('.qty-input')?.addEventListener('input', updateTotalPrice);
+
+  document.querySelector('.modal-close')?.addEventListener('click', () => {
+    cartModal?.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  cartModal?.addEventListener('click', (e) => {
+    if (e.target === cartModal) {
+      cartModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+
+  document.getElementById('confirm-add-cart')?.addEventListener('click', () => {
+    const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
+    const quantity = parseInt(qtyInput?.value) || 1;
+
+    if (selectedProduct && selectedVariant) {
+      const cartItem = {
+        id: selectedProduct.id,
+        name: `${selectedProduct.name} - ${selectedVariant.label}`,
+        price: selectedVariant.price,
+        image: selectedProduct.image,
+        unit: selectedVariant.label,
+        quantity: quantity
+      };
+
+      let cart = [];
+      try {
+        const cartData = localStorage.getItem('cart');
+        cart = cartData ? JSON.parse(cartData) : [];
+      } catch (e) {
+        cart = [];
+      }
+
+      const existingItemIndex = cart.findIndex(
+        (item: any) => item.id === cartItem.id && item.unit === cartItem.unit
+      );
+
+      if (existingItemIndex > -1) {
+        cart[existingItemIndex].quantity += quantity;
+      } else {
+        cart.push(cartItem);
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+      window.dispatchEvent(new Event('cartUpdated'));
+
+      cartModal?.classList.remove('active');
+      successModal?.classList.add('active');
+    }
+  });
+
+  document.getElementById('go-to-cart')?.addEventListener('click', () => {
+    window.location.href = '/sepet';
+  });
+
+  document.getElementById('continue-shopping')?.addEventListener('click', () => {
+    successModal?.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (cartModal?.classList.contains('active')) {
+        cartModal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+      if (successModal?.classList.contains('active')) {
+        successModal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
   });
 </script>

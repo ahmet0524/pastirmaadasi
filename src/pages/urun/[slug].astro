@@ -33,14 +33,7 @@ if (error || !product) {
   return Astro.redirect('/404');
 }
 
-// Yeni image parser kullan
 const productImages = parseImageArray(product.images);
-
-console.log('=== PRODUCT IMAGE DEBUG ===');
-console.log('Product:', product.name);
-console.log('Raw images:', product.images);
-console.log('Parsed images:', productImages);
-console.log('==========================');
 
 const { data: relatedProducts } = await supabaseAdmin
   .from('products')
@@ -56,19 +49,6 @@ const { data: relatedProducts } = await supabaseAdmin
 
   <section class="product-detail">
     <div class="container">
-      <!-- DEBUG INFO - Geliştirme sırasında görmek için -->
-      <div style="background: #e3f2fd; padding: 1rem; margin-bottom: 1rem; border-radius: 8px; border: 2px solid #2196f3;">
-        <strong>🔍 IMAGE DEBUG:</strong>
-        <pre style="margin: 0.5rem 0; font-size: 11px; overflow-x: auto; background: white; padding: 0.5rem; border-radius: 4px;">{JSON.stringify({
-          productName: product.name,
-          slug: product.slug,
-          rawImages: product.images,
-          parsedImages: productImages,
-          imageCount: productImages.length,
-          firstImage: productImages[0]
-        }, null, 2)}</pre>
-      </div>
-
       <nav class="breadcrumb">
         <a href="/">Ana Sayfa</a>
         <span>/</span>
@@ -86,12 +66,8 @@ const { data: relatedProducts } = await supabaseAdmin
               id="main-product-image"
               src={productImages[0]}
               alt={product.name}
-              onerror="console.error('❌ Main image failed:', this.src); this.style.border='3px solid red'; this.style.padding='20px';"
-              onload="console.log('✅ Main image loaded:', this.src);"
+              onerror="this.onerror=null; this.src='/assets/image/placeholder.jpg';"
             />
-            <div style="margin-top: 0.5rem; padding: 0.5rem; background: #f5f5f5; border-radius: 4px; font-size: 11px; word-break: break-all;">
-              <strong>Current:</strong> <code id="current-image-url">{productImages[0]}</code>
-            </div>
           </div>
 
           {productImages.length > 1 && (
@@ -107,20 +83,10 @@ const { data: relatedProducts } = await supabaseAdmin
                   <img
                     src={img}
                     alt={`${product.name} - ${index + 1}`}
-                    onerror="console.error('❌ Thumbnail failed:', this.src); this.style.border='2px solid red';"
-                    onload="console.log('✅ Thumbnail loaded:', this.src);"
+                    onerror="this.onerror=null; this.src='/assets/image/placeholder.jpg';"
                   />
-                  <div style="position: absolute; bottom: 2px; right: 2px; font-size: 10px; padding: 2px 4px; background: rgba(0,0,0,0.8); color: white; border-radius: 2px;">
-                    #{index + 1}
-                  </div>
                 </button>
               ))}
-            </div>
-          )}
-
-          {productImages.length === 1 && (
-            <div style="background: #fff3cd; padding: 0.75rem; margin-top: 1rem; border-radius: 6px; border-left: 4px solid #ffc107;">
-              <strong>ℹ️ Bilgi:</strong> Bu ürün için sadece 1 görsel mevcut
             </div>
           )}
         </div>
@@ -232,7 +198,7 @@ const { data: relatedProducts } = await supabaseAdmin
                   <img
                     src={relatedImages[0]}
                     alt={item.name}
-                    onerror="console.error('❌ Related image failed:', this.src);"
+                    onerror="this.onerror=null; this.src='/assets/image/placeholder.jpg';"
                   />
                   <h4>{item.name}</h4>
                   <p class="related-price">{item.price}₺ / {item.unit}</p>
@@ -249,10 +215,14 @@ const { data: relatedProducts } = await supabaseAdmin
 </BaseLayout>
 
 <style>
-  /* Önceki tüm CSS kodları aynı kalacak */
   .product-detail {
     padding: 2rem 1rem 4rem;
     background: var(--bg-light);
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
   }
 
   .breadcrumb {
@@ -266,10 +236,13 @@ const { data: relatedProducts } = await supabaseAdmin
   }
 
   .breadcrumb a {
-    color: var(--primary);
+    color: #0891B2;
+    text-decoration: none;
+    transition: color 0.3s;
   }
 
   .breadcrumb a:hover {
+    color: #0E7490;
     text-decoration: underline;
   }
 
@@ -278,9 +251,9 @@ const { data: relatedProducts } = await supabaseAdmin
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
     background: white;
-    border-radius: var(--radius-lg);
+    border-radius: 16px;
     padding: 2rem;
-    box-shadow: 0 4px 12px var(--shadow);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     margin-bottom: 3rem;
   }
 
@@ -291,9 +264,9 @@ const { data: relatedProducts } = await supabaseAdmin
   }
 
   .main-image {
-    border-radius: var(--radius-md);
+    border-radius: 12px;
     overflow: hidden;
-    background: var(--bg-light);
+    background: #f5f5f5;
     margin-bottom: 1rem;
   }
 
@@ -305,16 +278,16 @@ const { data: relatedProducts } = await supabaseAdmin
 
   .thumbnail-images {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     gap: 0.75rem;
   }
 
   .thumbnail-btn {
     width: 100%;
-    height: 80px;
+    height: 100px;
     padding: 0;
-    border: 2px solid transparent;
-    border-radius: var(--radius-sm);
+    border: 3px solid transparent;
+    border-radius: 8px;
     background: none;
     cursor: pointer;
     transition: all 0.3s;
@@ -323,11 +296,12 @@ const { data: relatedProducts } = await supabaseAdmin
   }
 
   .thumbnail-btn:hover {
-    border-color: var(--primary);
+    border-color: #0891B2;
+    transform: scale(1.05);
   }
 
   .thumbnail-btn.active {
-    border-color: var(--primary);
+    border-color: #0891B2;
     box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.2);
   }
 
@@ -338,45 +312,419 @@ const { data: relatedProducts } = await supabaseAdmin
     display: block;
   }
 
-  /* ... Diğer tüm CSS kodları aynı ... */
+  .product-content h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+
+  .product-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stars {
+    color: #ffc107;
+    font-size: 1.25rem;
+  }
+
+  .review-count {
+    color: #666;
+    font-size: 0.875rem;
+  }
+
+  .product-description {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 2rem;
+  }
+
+  /* BÜYÜTÜLMÜŞ FİYAT BÖLÜMÜ */
+  .price-section {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    border: 2px solid #fee;
+  }
+
+  .price-label {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .price-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #DC2626;
+    text-shadow: 0 2px 4px rgba(220, 38, 38, 0.1);
+  }
+
+  .price-unit {
+    font-size: 1.125rem;
+    color: #666;
+  }
+
+  /* BÜYÜTÜLMÜŞ MİKTAR BÖLÜMÜ */
+  .variant-section {
+    margin-bottom: 2rem;
+  }
+
+  .variant-section label {
+    display: block;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+
+  .variant-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .variant-btn {
+    padding: 1rem 1.5rem;
+    border: 2px solid #e5e7eb;
+    background: white;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1.125rem;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 120px;
+  }
+
+  .variant-btn:hover {
+    border-color: #0891B2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.2);
+  }
+
+  .variant-btn.active {
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+    color: white;
+    border-color: #0891B2;
+    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+  }
+
+  .variant-price {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #DC2626;
+  }
+
+  .variant-btn.active .variant-price {
+    color: white;
+  }
+
+  /* BÜYÜTÜLMÜŞ ADET BÖLÜMÜ */
+  .quantity-section {
+    margin-bottom: 2rem;
+  }
+
+  .quantity-section label {
+    display: block;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .qty-btn {
+    width: 50px;
+    height: 50px;
+    border: 2px solid #e5e7eb;
+    background: white;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    font-weight: 700;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0891B2;
+  }
+
+  .qty-btn:hover {
+    border-color: #0891B2;
+    background: #f0fdfa;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(8, 145, 178, 0.2);
+  }
+
+  #quantity {
+    width: 100px;
+    height: 50px;
+    text-align: center;
+    border: 2px solid #0891B2;
+    border-radius: 10px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0891B2;
+    background: #f0fdfa;
+  }
+
+  /* BÜYÜTÜLMÜŞ TOPLAM FİYAT */
+  .total-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    border: 2px solid #fed7aa;
+    box-shadow: 0 4px 12px rgba(251, 146, 60, 0.15);
+  }
+
+  .total-price span:first-child {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .total-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #DC2626;
+    text-shadow: 0 2px 4px rgba(220, 38, 38, 0.1);
+  }
+
+  .btn {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-full {
+    width: 100%;
+  }
+
+  .btn-large {
+    padding: 1.25rem 2rem;
+    font-size: 1.25rem;
+  }
+
+  .product-features {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+  }
+
+  .product-features h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+
+  .product-features ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .product-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    font-size: 1rem;
+    color: #555;
+  }
+
+  .product-features li svg {
+    color: #059669;
+    flex-shrink: 0;
+  }
+
+  .info-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .info-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+  }
+
+  .info-card svg {
+    color: #0891B2;
+    flex-shrink: 0;
+  }
+
+  .info-card h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 0.25rem 0;
+  }
+
+  .info-card p {
+    font-size: 0.875rem;
+    color: #666;
+    margin: 0;
+  }
+
+  .related-products {
+    margin-top: 4rem;
+  }
+
+  .related-products h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+  }
+
+  .related-item {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .related-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  }
+
+  .related-item img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+
+  .related-item h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #333;
+    margin: 1rem;
+  }
+
+  .related-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #DC2626;
+    margin: 0 1rem 1rem;
+  }
+
+  @media (max-width: 768px) {
+    .product-layout {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .product-gallery {
+      position: static;
+    }
+
+    .product-content h1 {
+      font-size: 1.5rem;
+    }
+
+    .price-value {
+      font-size: 2rem;
+    }
+
+    .total-value {
+      font-size: 2rem;
+    }
+
+    .info-cards {
+      grid-template-columns: 1fr;
+    }
+
+    .related-grid {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+  }
 </style>
 
 <script>
-  console.log('🎯 Product page script loaded');
-
   // Thumbnail click events
   const thumbnailBtns = document.querySelectorAll('.thumbnail-btn');
-  console.log('📸 Thumbnail buttons found:', thumbnailBtns.length);
 
-  thumbnailBtns.forEach((btn, index) => {
-    const imageUrl = btn.getAttribute('data-image');
-    console.log(`Thumbnail ${index + 1}:`, imageUrl);
-
+  thumbnailBtns.forEach((btn) => {
     btn.addEventListener('click', function() {
-      console.log('🖱️ Clicked thumbnail:', index + 1);
-
+      const imageUrl = this.getAttribute('data-image');
       const mainImage = document.getElementById('main-product-image') as HTMLImageElement;
-      const currentUrlDisplay = document.getElementById('current-image-url');
 
       if (mainImage && imageUrl) {
-        console.log('🔄 Changing main image to:', imageUrl);
         mainImage.src = imageUrl;
-        if (currentUrlDisplay) {
-          currentUrlDisplay.textContent = imageUrl;
-        }
       }
 
-      // Update active state
       thumbnailBtns.forEach(b => b.classList.remove('active'));
       this.classList.add('active');
-      console.log('✅ Thumbnail activated:', index + 1);
     });
   });
 </script>
 
 <script define:vars={{ product, productImages }}>
-  console.log('💾 Product data:', { name: product.name, images: productImages });
-
   let selectedVariant = product.variants ? product.variants[0] : null;
   let quantity = 1;
 
