@@ -10,32 +10,11 @@ const { data: products, error } = await supabase
   .from('products')
   .select('*')
   .eq('category', 'Sucuk')
-  .eq('is_active', true);
+  .eq('is_active', true)
+  .order('name', { ascending: true });
 
 if (error) {
   console.error('Supabase hatası:', error);
-}
-
-// DEBUG: Ürünleri ve resim formatlarını konsola yazdır
-if (products) {
-  console.log('=== SUCUK PRODUCTS DEBUG ===');
-  products.forEach(p => {
-    console.log(`\nProduct: ${p.name}`);
-    console.log('  Images Type:', typeof p.images);
-    console.log('  Images Value:', p.images);
-    console.log('  Is Array?:', Array.isArray(p.images));
-    
-    if (typeof p.images === 'string') {
-      console.log('  Attempting to parse...');
-      try {
-        const parsed = JSON.parse(p.images);
-        console.log('  Parsed:', parsed);
-      } catch (e) {
-        console.log('  Parse failed:', e.message);
-      }
-    }
-  });
-  console.log('=== END DEBUG ===\n');
 }
 ---
 
@@ -82,26 +61,9 @@ if (products) {
         <p>Farklı form ve boyutlarda, her damak tadına uygun sucuklar</p>
       </div>
 
-      <!-- DEBUG INFO -->
-      {products && (
-        <div style="background: #f0f0f0; padding: 1rem; margin-bottom: 2rem; border-radius: 8px; font-family: monospace; font-size: 12px;">
-          <strong>Debug Info:</strong>
-          <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
-            <li>Toplam Ürün: {products.length}</li>
-            {products.map(p => (
-              <li>
-                {p.name}: 
-                <span style="color: blue;">{typeof p.images}</span> - 
-                <span style="color: green;">{Array.isArray(p.images) ? 'Array' : 'Not Array'}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
       {products && products.length > 0 ? (
         <div class="products-grid">
-          {products.map(product => (
+          {products.map((product, index) => (
             <ProductCard
               id={product.id.toString()}
               slug={product.slug}
@@ -111,6 +73,7 @@ if (products) {
               unit={product.unit}
               description={product.description}
               variants={product.variants}
+              index={index}
             />
           ))}
         </div>
@@ -121,6 +84,59 @@ if (products) {
       )}
     </div>
   </section>
+
+  <!-- Cart Modal -->
+  <div id="cart-modal" class="cart-modal">
+    <div class="modal-content">
+      <button class="modal-close" aria-label="Kapat">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <div class="modal-body">
+        <img id="modal-product-image" src="" alt="" class="modal-product-image" />
+        <h3 id="modal-product-name"></h3>
+
+        <div class="variant-selector" id="variant-selector-container">
+          <label>Gramaj Seçin:</label>
+          <div id="variant-options" class="variant-options"></div>
+        </div>
+
+        <div class="quantity-selector">
+          <label>Adet:</label>
+          <div class="quantity-controls">
+            <button class="qty-btn qty-minus">-</button>
+            <input type="number" class="qty-input" value="1" min="1" />
+            <button class="qty-btn qty-plus">+</button>
+          </div>
+        </div>
+
+        <div class="modal-price">
+          <span class="price-label">Toplam:</span>
+          <span id="modal-total-price" class="total-price">0₺</span>
+        </div>
+
+        <button id="confirm-add-cart" class="btn-confirm-cart">Sepete Ekle</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Notification -->
+  <div id="success-notification" class="success-notification">
+    <div class="success-content">
+      <div class="success-icon">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <p class="success-message">Ürün sepete eklendi!</p>
+      <div class="success-buttons">
+        <a href="/sepet" class="btn-success btn-go-cart">Sepete Git</a>
+        <button id="continue-shopping" class="btn-success btn-continue">Alışverişe Devam</button>
+      </div>
+    </div>
+  </div>
 
   <section class="info-section">
     <div class="container">
@@ -262,6 +278,332 @@ if (products) {
     color: #0f766e;
   }
 
+  /* Cart Modal */
+  .cart-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cart-modal.active {
+    display: flex;
+  }
+
+  .modal-content {
+    background: white;
+    border-radius: 20px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.1);
+    border: none;
+    cursor: pointer;
+    color: #666;
+    z-index: 10;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+  }
+
+  .modal-close:hover {
+    background: rgba(0, 0, 0, 0.2);
+    color: #333;
+  }
+
+  .modal-body {
+    padding: 40px 30px 30px;
+  }
+
+  .modal-product-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+
+  .modal-body h3 {
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+    color: #134e4a;
+    font-weight: 700;
+  }
+
+  .variant-selector,
+  .quantity-selector {
+    margin-bottom: 25px;
+  }
+
+  .variant-selector label,
+  .quantity-selector label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #0f766e;
+    font-size: 0.95rem;
+  }
+
+  .variant-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .variant-btn {
+    padding: 12px 20px;
+    border: 2px solid #0891b2;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 600;
+    color: #0891b2;
+  }
+
+  .variant-btn:hover {
+    background: #f0fdfa;
+    transform: translateY(-2px);
+  }
+
+  .variant-btn.active {
+    background: linear-gradient(135deg, #0891b2, #06b6d4);
+    color: white;
+    border-color: #0891b2;
+  }
+
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .qty-btn {
+    width: 44px;
+    height: 44px;
+    border: 2px solid #0891b2;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #0891b2;
+    transition: all 0.3s;
+  }
+
+  .qty-btn:hover {
+    background: linear-gradient(135deg, #0891b2, #06b6d4);
+    color: white;
+    transform: scale(1.05);
+  }
+
+  .qty-input {
+    width: 80px;
+    height: 44px;
+    text-align: center;
+    border: 2px solid #0891b2;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #134e4a;
+  }
+
+  .qty-input:focus {
+    outline: none;
+    border-color: #06b6d4;
+  }
+
+  .modal-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #f0fdfa, #ccfbf1);
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+
+  .price-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0f766e;
+  }
+
+  .total-price {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #0891b2;
+  }
+
+  .btn-confirm-cart {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #0891b2, #06b6d4);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+  }
+
+  .btn-confirm-cart:hover {
+    background: linear-gradient(135deg, #06b6d4, #22d3ee);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(8, 145, 178, 0.4);
+  }
+
+  /* Success Notification */
+  .success-notification {
+    display: none;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    z-index: 10001;
+    min-width: 350px;
+    animation: slideInRight 0.4s ease;
+  }
+
+  .success-notification.active {
+    display: block;
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(100px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .success-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .success-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    animation: scaleIn 0.5s ease;
+  }
+
+  @keyframes scaleIn {
+    0% {
+      transform: scale(0);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .success-icon svg {
+    stroke: white;
+    stroke-width: 3;
+  }
+
+  .success-message {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #134e4a;
+    margin-bottom: 20px;
+  }
+
+  .success-buttons {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .btn-success {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .btn-go-cart {
+    background: linear-gradient(135deg, #0891b2, #06b6d4);
+    color: white;
+    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+  }
+
+  .btn-go-cart:hover {
+    background: linear-gradient(135deg, #06b6d4, #22d3ee);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(8, 145, 178, 0.4);
+  }
+
+  .btn-continue {
+    background: white;
+    color: #0891b2;
+    border: 2px solid #0891b2;
+  }
+
+  .btn-continue:hover {
+    background: #f0fdfa;
+    transform: translateY(-2px);
+  }
+
   .info-section {
     padding: 80px 0;
     background: white;
@@ -353,35 +695,203 @@ if (products) {
       grid-template-columns: 1fr;
       gap: 24px;
     }
+
+    .success-notification {
+      bottom: 20px;
+      right: 20px;
+      left: 20px;
+      min-width: auto;
+    }
+
+    .success-buttons {
+      flex-direction: column;
+    }
+
+    .modal-body {
+      padding: 30px 20px 20px;
+    }
   }
 </style>
 
 <script>
-  // Client-side debug - sayfa yüklendikten sonra çalışır
-  document.addEventListener('DOMContentLoaded', () => {
-    console.log('🔍 CLIENT DEBUG STARTED');
+  // Cart Modal & Success Notification
+  const cartModal = document.getElementById('cart-modal');
+  const successNotification = document.getElementById('success-notification');
+  let selectedProduct: any = null;
+  let selectedVariant: any = null;
 
-    // Tüm product card'ları bul
-    const productCards = document.querySelectorAll('.product-card');
-    console.log('📦 Product Cards Found:', productCards.length);
+  // ProductCard'dan gelen openCartModal eventi dinle
+  document.addEventListener('openCartModal', (e: any) => {
+    const product = e.detail;
+    if (product) {
+      selectedProduct = product;
+      openCartModal(product);
+    }
+  });
 
-    // Her card'daki image'i kontrol et
-    productCards.forEach((card, index) => {
-      const img = card.querySelector('.product-image');
-      const name = card.querySelector('.product-name');
+  function openCartModal(product: any) {
+    cartModal?.classList.add('active');
+    document.body.style.overflow = 'hidden';
 
-      console.log(`\n--- Product ${index + 1} ---`);
-      console.log('Name:', name?.textContent);
-      console.log('Image SRC:', img?.src);
-      console.log('Image Natural Width:', img?.naturalWidth);
-      console.log('Image Complete:', img?.complete);
+    const modalImage = document.getElementById('modal-product-image') as HTMLImageElement;
+    const modalName = document.getElementById('modal-product-name');
+    const variantOptions = document.getElementById('variant-options');
+    const variantContainer = document.getElementById('variant-selector-container');
 
-      // Eğer placeholder kullanılıyorsa
-      if (img?.src.includes('placeholder.jpg')) {
-        console.warn('⚠️ PLACEHOLDER USED!');
+    if (modalImage) modalImage.src = product.image;
+    if (modalName) modalName.textContent = product.name;
+
+    // Varyant varsa göster
+    if (variantContainer && product.variants && Array.isArray(product.variants) && product.variants.length > 0) {
+      variantContainer.style.display = 'block';
+
+      if (variantOptions) {
+        variantOptions.innerHTML = '';
+        product.variants.forEach((variant: any, index: number) => {
+          const btn = document.createElement('button');
+          btn.className = `variant-btn ${index === 0 ? 'active' : ''}`;
+          btn.textContent = `${variant.label} - ${variant.price}₺`;
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedVariant = variant;
+            updateTotalPrice();
+          });
+          variantOptions.appendChild(btn);
+        });
+
+        selectedVariant = product.variants[0];
       }
-    });
+    } else {
+      // Varyant yoksa gizle ve ürünün kendi fiyatını kullan
+      if (variantContainer) variantContainer.style.display = 'none';
+      selectedVariant = {
+        label: product.unit || 'adet',
+        price: product.price
+      };
+    }
 
-    console.log('\n🏁 CLIENT DEBUG FINISHED');
+    const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
+    if (qtyInput) qtyInput.value = '1';
+
+    updateTotalPrice();
+  }
+
+  function updateTotalPrice() {
+    const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
+    const totalPriceEl = document.getElementById('modal-total-price');
+
+    if (qtyInput && totalPriceEl && selectedVariant) {
+      const quantity = parseInt(qtyInput.value) || 1;
+      const total = selectedVariant.price * quantity;
+      totalPriceEl.textContent = `${total}₺`;
+    }
+  }
+
+  // Quantity controls
+  document.querySelector('.qty-minus')?.addEventListener('click', () => {
+    const input = document.querySelector('.qty-input') as HTMLInputElement;
+    if (input) {
+      const currentValue = parseInt(input.value) || 1;
+      if (currentValue > 1) {
+        input.value = (currentValue - 1).toString();
+        updateTotalPrice();
+      }
+    }
+  });
+
+  document.querySelector('.qty-plus')?.addEventListener('click', () => {
+    const input = document.querySelector('.qty-input') as HTMLInputElement;
+    if (input) {
+      const currentValue = parseInt(input.value) || 1;
+      input.value = (currentValue + 1).toString();
+      updateTotalPrice();
+    }
+  });
+
+  document.querySelector('.qty-input')?.addEventListener('input', updateTotalPrice);
+
+  // Modal close
+  document.querySelector('.modal-close')?.addEventListener('click', () => {
+    cartModal?.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  cartModal?.addEventListener('click', (e) => {
+    if (e.target === cartModal) {
+      cartModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+
+  // Confirm add to cart
+  document.getElementById('confirm-add-cart')?.addEventListener('click', () => {
+    const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
+    const quantity = parseInt(qtyInput?.value) || 1;
+
+    if (selectedProduct && selectedVariant) {
+      const cartItem = {
+        id: `${selectedProduct.id}-${selectedVariant.label}`,
+        productId: selectedProduct.id,
+        name: `${selectedProduct.name} - ${selectedVariant.label}`,
+        price: selectedVariant.price,
+        image: selectedProduct.image,
+        unit: selectedVariant.label,
+        quantity: quantity
+      };
+
+      let cart = [];
+      try {
+        const cartData = localStorage.getItem('cart');
+        cart = cartData ? JSON.parse(cartData) : [];
+      } catch (e) {
+        cart = [];
+      }
+
+      const existingItemIndex = cart.findIndex(
+        (item: any) => item.id === cartItem.id
+      );
+
+      if (existingItemIndex > -1) {
+        cart[existingItemIndex].quantity += quantity;
+      } else {
+        cart.push(cartItem);
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+      window.dispatchEvent(new Event('cartUpdated'));
+
+      // Modal'ı kapat
+      cartModal?.classList.remove('active');
+
+      // Success notification göster
+      successNotification?.classList.add('active');
+
+      // 5 saniye sonra otomatik kapat
+      setTimeout(() => {
+        successNotification?.classList.remove('active');
+        document.body.style.overflow = '';
+      }, 5000);
+    }
+  });
+
+  // Continue shopping button
+  document.getElementById('continue-shopping')?.addEventListener('click', () => {
+    successNotification?.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  // ESC tuşu ile kapat
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (cartModal?.classList.contains('active')) {
+        cartModal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+      if (successNotification?.classList.contains('active')) {
+        successNotification.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
   });
 </script>

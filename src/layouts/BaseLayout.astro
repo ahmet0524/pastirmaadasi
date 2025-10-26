@@ -122,6 +122,20 @@ const {
       padding-bottom: 0;
     }
 
+    /* ========================================
+       GLOBAL FIX: Ürün Resimlerini Görünür Yap
+       ======================================== */
+    .product-image,
+    .product-card img,
+    .product-image-wrapper img,
+    img[src*="/products/"],
+    img[alt*="Pastırma"],
+    img[alt*="Sucuk"],
+    img[alt*="Mantı"] {
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
+
     /* WhatsApp Button */
     .whatsapp-button {
       position: fixed;

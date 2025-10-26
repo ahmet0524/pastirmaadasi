@@ -23,16 +23,21 @@ const cities = [
 
   <section class="cart-page">
     <div class="container">
-      <h1>🛒 Sepetim</h1>
+      <div class="page-header">
+        <h1>🛒 Sepetim</h1>
+        <p class="page-subtitle">Sipariş bilgilerinizi girin ve ödemeye geçin</p>
+      </div>
 
       <div class="cart-layout">
         <div class="cart-items-section">
           <div id="cart-items" class="cart-items"></div>
 
           <div id="empty-cart" class="empty-cart hidden">
-            <svg width="96" height="96" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
+            <div class="empty-cart-icon">
+              <svg width="120" height="120" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+            </div>
             <h3>Sepetiniz Boş</h3>
             <p>Alışverişe başlamak için ürünlerimize göz atın</p>
             <a href="/online-alisveris" class="btn btn-primary btn-large">Alışverişe Başla</a>
@@ -41,11 +46,16 @@ const cities = [
 
         <div class="cart-summary">
           <div class="summary-card">
-            <h2>📋 Sipariş Özeti</h2>
+            <h2 class="summary-title">📋 Sipariş Özeti</h2>
 
             <!-- Müşteri Bilgileri -->
             <div class="customer-info-section">
-              <h3>👤 Kişisel Bilgiler</h3>
+              <h3 class="section-title">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                </svg>
+                Kişisel Bilgiler
+              </h3>
               <div class="form-row">
                 <div class="form-group">
                   <label for="buyer-name">Ad *</label>
@@ -71,7 +81,7 @@ const cities = [
                   maxlength="10"
                   required
                 />
-                <small style="color: #666; font-size: 0.85rem;">0 olmadan 10 haneli telefon numarası</small>
+                <small>0 olmadan 10 haneli telefon numarası</small>
               </div>
 
               <div class="form-group">
@@ -83,13 +93,18 @@ const cities = [
                   maxlength="11"
                   required
                 />
-                <small style="color: #666; font-size: 0.85rem;">11 haneli TC kimlik numarası</small>
+                <small>11 haneli TC kimlik numarası</small>
               </div>
             </div>
 
             <!-- Teslimat Adresi -->
             <div class="customer-info-section">
-              <h3>📦 Teslimat Adresi</h3>
+              <h3 class="section-title">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                </svg>
+                Teslimat Adresi
+              </h3>
               <div class="form-group">
                 <label for="buyer-address">Adres *</label>
                 <textarea
@@ -119,7 +134,12 @@ const cities = [
 
             <!-- Kupon -->
             <div class="coupon-section">
-              <label for="coupon-input">🎟️ İndirim Kuponu</label>
+              <label for="coupon-input" class="section-title">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z"/>
+                </svg>
+                İndirim Kuponu
+              </label>
               <div class="coupon-input-group">
                 <input type="text" id="coupon-input" placeholder="Kupon kodunuz" />
                 <button id="apply-coupon" class="btn btn-secondary">Uygula</button>
@@ -131,15 +151,15 @@ const cities = [
             <div class="summary-details">
               <div class="summary-row">
                 <span>Ara Toplam</span>
-                <span id="subtotal">0₺</span>
+                <span id="subtotal" class="price-value">0₺</span>
               </div>
               <div class="summary-row">
                 <span>Kargo</span>
-                <span id="shipping">0₺</span>
+                <span id="shipping" class="price-value">0₺</span>
               </div>
               <div id="discount-row" class="summary-row discount-row hidden">
                 <span>İndirim</span>
-                <span id="discount">0₺</span>
+                <span id="discount" class="price-value">0₺</span>
               </div>
             </div>
 
@@ -152,7 +172,12 @@ const cities = [
               <span id="checkout-btn-text">💳 Ödemeye Geç</span>
             </button>
 
-            <a href="/online-alisveris" class="continue-shopping">← Alışverişe Devam Et</a>
+            <a href="/online-alisveris" class="continue-shopping">
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+              </svg>
+              Alışverişe Devam Et
+            </a>
           </div>
         </div>
       </div>
@@ -166,96 +191,178 @@ const cities = [
 .cart-page {
   padding: 4rem 0;
   min-height: 60vh;
+  background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  color: #134e4a;
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+}
+
+.page-subtitle {
+  font-size: 1.1rem;
+  color: #0f766e;
+  margin: 0;
 }
 
 .cart-layout {
   display: grid;
-  grid-template-columns: 1fr 450px;
-  gap: 2rem;
+  grid-template-columns: 1fr 480px;
+  gap: 2.5rem;
   margin-top: 2rem;
 }
 
 .cart-items-section {
-  min-height: 300px;
+  min-height: 400px;
 }
 
 .empty-cart {
   text-align: center;
-  padding: 4rem 2rem;
-  background: #f8f9fa;
-  border-radius: 12px;
+  padding: 5rem 2rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
-.empty-cart svg {
-  color: #ccc;
+.empty-cart-icon {
+  margin-bottom: 2rem;
+}
+
+.empty-cart-icon svg {
+  color: #d1d5db;
+}
+
+.empty-cart h3 {
+  font-size: 1.8rem;
+  color: #134e4a;
   margin-bottom: 1rem;
+}
+
+.empty-cart p {
+  font-size: 1.1rem;
+  color: #0f766e;
+  margin-bottom: 2rem;
 }
 
 .hidden {
   display: none !important;
 }
 
+/* Cart Item Styles - MÜKEMMELLEŞTIRILMIŞ */
 .cart-item {
-  display: flex;
-  gap: 1.5rem;
-  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 180px 1fr auto;
+  gap: 2rem;
+  padding: 2rem;
   background: white;
-  border-radius: 12px;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 20px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  align-items: center;
+}
+
+.cart-item:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+  transform: translateY(-3px);
+}
+
+.cart-item-image {
+  width: 180px;
+  height: 180px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #f3f4f6;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .cart-item-image img {
-  width: 100px;
-  height: 100px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 8px;
+  display: block;
 }
 
 .cart-item-info {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
 }
 
 .cart-item-info h3 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.1rem;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #134e4a;
+  line-height: 1.3;
 }
 
 .cart-item-price {
-  color: #666;
-  margin: 0.25rem 0;
+  color: #0891b2;
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .quantity-controls {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
   margin-top: 0.5rem;
 }
 
 .qty-btn {
-  width: 32px;
-  height: 32px;
-  border: 1px solid #ddd;
+  width: 48px;
+  height: 48px;
+  border: 2px solid #0891b2;
   background: white;
-  border-radius: 4px;
+  border-radius: 12px;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 1.5rem;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all 0.3s;
+  color: #0891b2;
 }
 
 .qty-btn:hover {
-  background: #f8f9fa;
-  border-color: #999;
+  background: linear-gradient(135deg, #0891b2, #06b6d4);
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+}
+
+.qty-btn:active {
+  transform: scale(1.05);
 }
 
 .qty-amount {
-  min-width: 30px;
+  min-width: 60px;
   text-align: center;
-  font-weight: 600;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #134e4a;
+  padding: 0.5rem 1rem;
+  background: #f0fdfa;
+  border-radius: 10px;
 }
 
 .cart-item-actions {
@@ -263,98 +370,132 @@ const cities = [
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-end;
+  gap: 1.5rem;
+  min-height: 180px;
 }
 
 .remove-btn {
-  background: none;
+  background: #fee2e2;
   border: none;
-  font-size: 1.5rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   cursor: pointer;
-  padding: 0.25rem;
-  opacity: 0.6;
-  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  font-size: 1.5rem;
 }
 
 .remove-btn:hover {
-  opacity: 1;
+  background: #fecaca;
+  transform: scale(1.15) rotate(10deg);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 .cart-item-total {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: var(--primary-color, #c41e3a);
+  font-size: 2rem;
+  font-weight: 900;
+  color: #0891b2;
   margin: 0;
+  letter-spacing: -0.03em;
+  text-align: right;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #f0fdfa, #ccfbf1);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(8, 145, 178, 0.1);
 }
 
+/* Summary Card */
 .summary-card {
   background: white;
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
   position: sticky;
   top: 100px;
   max-height: calc(100vh - 120px);
   overflow-y: auto;
 }
 
-.summary-card h2 {
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
+.summary-title {
+  margin: 0 0 2rem 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #134e4a;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid #f0fdfa;
 }
 
 .customer-info-section,
 .coupon-section {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #eee;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid #f0fdfa;
 }
 
-.customer-info-section h3,
-.coupon-section label {
-  font-size: 1rem;
-  margin-bottom: 1rem;
-  display: block;
-  font-weight: 600;
+.section-title {
+  font-size: 1.1rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: #0f766e;
+}
+
+.section-title svg {
+  flex-shrink: 0;
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: 500;
-  font-size: 0.9rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #134e4a;
 }
 
 .form-group input,
 .form-group textarea,
 .form-group select {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
   font-size: 1rem;
   font-family: inherit;
-}
-
-.form-group select {
-  cursor: pointer;
-  background-color: white;
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 80px;
+  transition: all 0.3s;
+  background: white;
 }
 
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
   outline: none;
-  border-color: var(--primary-color, #c41e3a);
+  border-color: #0891b2;
+  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+}
+
+.form-group small {
+  display: block;
+  margin-top: 0.5rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.form-group select {
+  cursor: pointer;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 90px;
 }
 
 .form-row {
@@ -365,91 +506,168 @@ const cities = [
 
 .coupon-input-group {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .coupon-input-group input {
   flex: 1;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 1rem;
+}
+
+.coupon-input-group input:focus {
+  outline: none;
+  border-color: #0891b2;
+}
+
+.btn-secondary {
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  transform: translateY(-2px);
 }
 
 .coupon-message {
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 .coupon-message.success {
-  background: #d4edda;
-  color: #155724;
+  background: #d1fae5;
+  color: #065f46;
 }
 
 .coupon-message.error {
-  background: #f8d7da;
-  color: #721c24;
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 .summary-details {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #f0fdfa;
 }
 
 .summary-row {
   display: flex;
   justify-content: space-between;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #eee;
+  align-items: center;
+  padding: 0.875rem 0;
+  font-size: 1.05rem;
 }
 
-.summary-row:last-child {
-  border-bottom: none;
+.summary-row span:first-child {
+  color: #0f766e;
+  font-weight: 600;
+}
+
+.price-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #134e4a;
 }
 
 .discount-row {
-  color: green;
-  font-weight: 600;
+  color: #059669;
+}
+
+.discount-row .price-value {
+  color: #059669;
 }
 
 .summary-total {
   display: flex;
   justify-content: space-between;
-  padding: 1rem 0;
+  align-items: center;
+  padding: 1.5rem 0;
   font-size: 1.5rem;
-  font-weight: bold;
-  border-top: 2px solid #000;
-  margin-top: 1rem;
+  font-weight: 800;
+  border-top: 3px solid #134e4a;
+  margin-top: 1.5rem;
+  color: #134e4a;
+}
+
+.summary-total span:last-child {
+  color: #0891b2;
+  font-size: 1.75rem;
+}
+
+.btn {
+  padding: 0.875rem 1.75rem;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0891b2, #06b6d4);
+  color: white;
+  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #06b6d4, #22d3ee);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(8, 145, 178, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .btn-full {
   width: 100%;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
 }
 
 .btn-large {
-  padding: 1rem 2rem;
-  font-size: 1.1rem;
+  padding: 1.125rem 2rem;
+  font-size: 1.15rem;
 }
 
 .continue-shopping {
-  display: block;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   margin-top: 1rem;
-  color: #666;
+  color: #0f766e;
   text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s;
 }
 
 .continue-shopping:hover {
-  color: var(--primary-color, #c41e3a);
+  color: #0891b2;
+  gap: 0.75rem;
 }
 
-@media (max-width: 768px) {
+/* Responsive Design */
+@media (max-width: 1024px) {
   .cart-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .form-row {
     grid-template-columns: 1fr;
   }
 
@@ -458,11 +676,118 @@ const cities = [
     max-height: none;
   }
 }
+
+@media (max-width: 768px) {
+  .page-header h1 {
+    font-size: 2rem;
+  }
+
+  .cart-item {
+    grid-template-columns: 140px 1fr;
+    gap: 1.25rem;
+    padding: 1.5rem;
+  }
+
+  .cart-item-image {
+    width: 140px;
+    height: 140px;
+  }
+
+  .cart-item-info h3 {
+    font-size: 1.25rem;
+  }
+
+  .cart-item-price {
+    font-size: 1.2rem;
+  }
+
+  .cart-item-actions {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    min-height: auto;
+    margin-top: 1rem;
+  }
+
+  .cart-item-total {
+    font-size: 1.5rem;
+  }
+
+  .qty-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
+  }
+
+  .qty-amount {
+    font-size: 1.3rem;
+    min-width: 50px;
+  }
+
+  .remove-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-card {
+    padding: 1.5rem;
+  }
+
+  .coupon-input-group {
+    flex-direction: column;
+  }
+
+  .btn-secondary {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .cart-item {
+    grid-template-columns: 120px 1fr;
+    gap: 1rem;
+    padding: 1.25rem;
+  }
+
+  .cart-item-image {
+    width: 120px;
+    height: 120px;
+  }
+
+  .cart-item-info h3 {
+    font-size: 1.15rem;
+  }
+
+  .cart-item-price {
+    font-size: 1.1rem;
+  }
+
+  .cart-item-total {
+    font-size: 1.35rem;
+  }
+
+  .qty-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+
+  .qty-amount {
+    font-size: 1.2rem;
+    min-width: 45px;
+  }
+}
 </style>
 
 <script>
 interface CartItem {
-  id: number;
+  id: string;
+  productId: string;
   name: string;
   price: number;
   image: string;
@@ -494,19 +819,19 @@ const coupons: Record<string, number> = { HOSGELDIN10: 10, YENI15: 15, KAYSER20:
   cartContainer.innerHTML = cart.map((item, index) => `
     <div class="cart-item">
       <div class="cart-item-image">
-        <img src="${item.image}" alt="${item.name}">
+        <img src="${item.image}" alt="${item.name}" loading="lazy">
       </div>
       <div class="cart-item-info">
         <h3>${item.name}</h3>
-        <p class="cart-item-price">${item.price}₺ / ${item.unit}</p>
+        <p class="cart-item-price">${item.price.toFixed(2)}₺ / ${item.unit}</p>
         <div class="quantity-controls">
-          <button class="qty-btn decrease-qty" data-index="${index}">−</button>
+          <button class="qty-btn decrease-qty" data-index="${index}" aria-label="Azalt">−</button>
           <span class="qty-amount">${item.quantity}</span>
-          <button class="qty-btn increase-qty" data-index="${index}">+</button>
+          <button class="qty-btn increase-qty" data-index="${index}" aria-label="Artır">+</button>
         </div>
       </div>
       <div class="cart-item-actions">
-        <button class="remove-btn" data-index="${index}" title="Sepetten Çıkar">🗑️</button>
+        <button class="remove-btn" data-index="${index}" title="Sepetten Çıkar" aria-label="Sil">🗑️</button>
         <p class="cart-item-total">${(item.price * item.quantity).toFixed(2)}₺</p>
       </div>
     </div>
@@ -533,8 +858,10 @@ const coupons: Record<string, number> = { HOSGELDIN10: 10, YENI15: 15, KAYSER20:
   document.querySelectorAll('.remove-btn').forEach(btn => {
     btn.addEventListener('click', e => {
       const index = parseInt((e.currentTarget as HTMLElement).dataset.index || '0');
-      cart.splice(index, 1);
-      saveCart();
+      if (confirm('Bu ürünü sepetten çıkarmak istediğinize emin misiniz?')) {
+        cart.splice(index, 1);
+        saveCart();
+      }
     });
   });
 }
@@ -569,7 +896,7 @@ function updateSummary() {
   const totalEl = document.getElementById('total');
 
   if (subtotalEl) subtotalEl.textContent = `${subtotal.toFixed(2)}₺`;
-  if (shippingEl) shippingEl.textContent = shipping === 0 ? 'Ücretsiz' : `${shipping}₺`;
+  if (shippingEl) shippingEl.textContent = shipping === 0 ? 'Ücretsiz' : `${shipping.toFixed(2)}₺`;
   if (discountEl) discountEl.textContent = `-${discount.toFixed(2)}₺`;
   if (discountRowEl) discountRowEl.classList.toggle('hidden', discount === 0);
   if (totalEl) totalEl.textContent = `${total.toFixed(2)}₺`;
@@ -642,9 +969,7 @@ async function handleCheckout() {
   localStorage.setItem('lastOrderAddress', address);
   localStorage.setItem('lastOrderCity', city);
   localStorage.setItem('lastOrderZipcode', zipcode);
-  // 🛒 SEPET BİLGİLERİNİ DE KAYDET
-localStorage.setItem('lastOrderCart', JSON.stringify(cart));
-console.log('🛒 Sepet localStorage\'a kaydedildi:', cart);
+  localStorage.setItem('lastOrderCart', JSON.stringify(cart));
 
   const btn = document.getElementById('checkout-btn') as HTMLButtonElement;
   const btnText = document.getElementById('checkout-btn-text');
@@ -695,8 +1020,6 @@ console.log('🛒 Sepet localStorage\'a kaydedildi:', cart);
   };
 
   try {
-    console.log('📤 Ödeme isteği gönderiliyor...');
-
     const response = await fetch('/api/create-payment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -715,10 +1038,8 @@ console.log('🛒 Sepet localStorage\'a kaydedildi:', cart);
     }
 
     const data = await response.json();
-    console.log('📥 API yanıtı:', data);
 
     if (data.success && data.paymentPageUrl) {
-      console.log('✅ Ödeme sayfasına yönlendiriliyor:', data.paymentPageUrl);
       window.location.href = data.paymentPageUrl;
     } else {
       throw new Error(data.error || 'Ödeme başlatılamadı!');
