@@ -32,35 +32,62 @@ if (error || !product) {
   return Astro.redirect('/404');
 }
 
+// Images parse - DEBUG ile
 function parseImages(imgs: any): string[] {
-  if (!imgs) return ['/assets/image/placeholder.jpg'];
+  console.log('=== PARSE IMAGES DEBUG ===');
+  console.log('Input:', imgs);
+  console.log('Type:', typeof imgs);
+  console.log('Is Array:', Array.isArray(imgs));
+
+  if (!imgs) {
+    console.log('No images, returning placeholder');
+    return ['/assets/image/placeholder.jpg'];
+  }
 
   if (Array.isArray(imgs)) {
+    console.log('Already array:', imgs);
     return imgs.length > 0 ? imgs : ['/assets/image/placeholder.jpg'];
   }
 
   if (typeof imgs === 'string') {
+    console.log('String detected');
+
+    // PostgreSQL array: {path1,path2}
     if (imgs.startsWith('{') && imgs.endsWith('}')) {
-      const paths = imgs.slice(1, -1).split(',').map(p => p.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+      console.log('PostgreSQL array format');
+      const paths = imgs
+        .slice(1, -1)
+        .split(',')
+        .map(p => p.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+      console.log('Parsed paths:', paths);
       return paths.length > 0 ? paths : ['/assets/image/placeholder.jpg'];
     }
 
+    // JSON array
     if (imgs.startsWith('[')) {
+      console.log('JSON array format');
       try {
         const parsed = JSON.parse(imgs.replace(/""/g, '"'));
-        return Array.isArray(parsed) && parsed.length > 0 ? parsed : ['/assets/image/placeholder.jpg'];
+        console.log('Parsed JSON:', parsed);
+        return Array.isArray(parsed) && parsed.length > 0
+          ? parsed
+          : ['/assets/image/placeholder.jpg'];
       } catch (e) {
+        console.error('JSON parse error:', e);
         return ['/assets/image/placeholder.jpg'];
       }
     }
 
+    console.log('Direct string URL:', imgs);
     return [imgs];
   }
 
+  console.log('Unknown format, returning placeholder');
   return ['/assets/image/placeholder.jpg'];
 }
 
 const productImages = parseImages(product.images);
+console.log('Final productImages:', productImages);
 
 const { data: relatedProducts } = await supabaseAdmin
   .from('products')
@@ -69,100 +96,94 @@ const { data: relatedProducts } = await supabaseAdmin
   .eq('is_active', true)
   .neq('id', product.id)
   .limit(4);
-
-// Pastırma için varsayılan açıklama
-const pastirmaDescription = `Kayseri pastırmasının lezzeti yöreye özeldir. ${product.name} yerli kesim büyükbaş hayvanların ${product.name.toLowerCase().includes('antrikot') ? 'antrikot' : product.name.toLowerCase().includes('sırt') ? 'sırt' : product.name.toLowerCase().includes('tütünlük') ? 'tütünlük' : 'potuk'} etinin yağlı, yumuşak ve lezzetli bölümünden elde edilir.
-
-Özenle çıkarılan etin saklama, tuzlama ve 1.kalite baharatlarla hazırlanan çemenle kaplanarak dinlendirilmesiyle üretilir. Bu işlem ortalama 3 hafta sürmektedir.
-
-Pastırmamız bu işe özel pastırma bıçağı ile özenle ve ince bir şekilde doğranır. (Makine ile doğranan pastırmanın lezzeti bıçağın ısınmasıyla bozulur.) Doğranan pastırma 250 gr, 500 gr, 1 kg'lık kutularda paketlenir ve vakumlanır.
-
-Mevsim koşullarına uygun olarak kargoya verilir. Vakumlu ambalajdan çıkarılan pastırmanın 1 saat havalandırılmasını, daha sonra buzdolabında veya derin dondurucuda (uzun süreli muhafaza istenirse) muhafaza edilmesini tavsiye ediyoruz.
-
-Çiğ olarak veya kısık ateşte bir miktar su ile pişirilerek tüketilebilir.
-
-Afiyet olsun.`;
 ---
 
-<BaseLayout title={product.name} description={product.description || pastirmaDescription.substring(0, 160)}>
+<BaseLayout title={product.name} description={product.description}>
   <Header slot="header" />
 
   <section class="product-detail">
     <div class="container">
+      <!-- DEBUG INFO -->
+      <div style="background: #fff3cd; padding: 1rem; margin-bottom: 1rem; border-radius: 8px; border: 2px solid #ffc107;">
+        <strong>🔍 DEBUG INFO:</strong>
+        <pre style="margin: 0.5rem 0; font-size: 12px; overflow-x: auto;">{JSON.stringify({
+          productId: product.id,
+          productName: product.name,
+          rawImages: product.images,
+          parsedImages: productImages,
+          imageCount: productImages.length
+        }, null, 2)}</pre>
+      </div>
+
       <nav class="breadcrumb">
         <a href="/">Ana Sayfa</a>
         <span>/</span>
         <a href="/online-alisveris">Online Alışveriş</a>
         <span>/</span>
-        <a href={`/pastirma`}>{product.category}</a>
+        <a href={`/kategori/${product.category.toLowerCase()}`}>{product.category}</a>
         <span>/</span>
         <span>{product.name}</span>
       </nav>
 
       <div class="product-layout">
-        <!-- Sol: Fotoğraf Galerisi (Swipe) -->
         <div class="product-gallery">
-          <div class="gallery-main">
-            <div class="swiper-container">
-              {productImages.map((img: string, index: number) => (
-                <div class={`swiper-slide ${index === 0 ? 'active' : ''}`}>
-                  <img src={img} alt={`${product.name} - ${index + 1}`} />
-                </div>
-              ))}
+          <div class="main-image">
+            <img
+              id="main-product-image"
+              src={productImages[0]}
+              alt={product.name}
+              onerror="console.error('Image failed to load:', this.src); this.style.border='3px solid red';"
+            />
+            <div style="margin-top: 0.5rem; font-size: 12px; color: #666;">
+              Current: <span id="current-image-url">{productImages[0]}</span>
             </div>
-
-            {productImages.length > 1 && (
-              <>
-                <button class="swiper-btn swiper-prev" aria-label="Önceki">
-                  <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <button class="swiper-btn swiper-next" aria-label="Sonraki">
-                  <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-                <div class="swiper-pagination">
-                  {productImages.map((_, index: number) => (
-                    <button class={`pagination-dot ${index === 0 ? 'active' : ''}`} data-index={index}></button>
-                  ))}
-                </div>
-              </>
-            )}
           </div>
 
           {productImages.length > 1 && (
-            <div class="gallery-thumbnails">
+            <div class="thumbnail-images">
               {productImages.map((img: string, index: number) => (
                 <button
                   type="button"
                   class={`thumbnail-btn ${index === 0 ? 'active' : ''}`}
+                  data-image={img}
                   data-index={index}
+                  aria-label={`${product.name} resmi ${index + 1}`}
                 >
-                  <img src={img} alt={`${product.name} - ${index + 1}`} />
+                  <img
+                    src={img}
+                    alt={`${product.name} - ${index + 1}`}
+                    onerror="console.error('Thumbnail failed:', this.src); this.style.border='2px solid red';"
+                  />
+                  <div style="font-size: 10px; padding: 2px; background: rgba(0,0,0,0.7); color: white;">
+                    #{index + 1}
+                  </div>
                 </button>
               ))}
             </div>
           )}
+
+          <!-- Thumbnail'ler yoksa uyarı -->
+          {productImages.length === 1 && (
+            <div style="background: #d1ecf1; padding: 0.5rem; margin-top: 1rem; border-radius: 4px; font-size: 12px;">
+              ℹ️ Bu üründe sadece 1 görsel var
+            </div>
+          )}
         </div>
 
-        <!-- Sağ: Ürün Bilgileri -->
         <div class="product-content">
-          <div class="product-header">
-            <span class="product-category">{product.category}</span>
-            <h1>{product.name}</h1>
-            <div class="product-rating">
-              <div class="stars">★★★★★</div>
-              <span class="review-count">(24 değerlendirme)</span>
-            </div>
+          <h1>{product.name}</h1>
+
+          <div class="product-rating">
+            <div class="stars">★★★★★</div>
+            <span class="review-count">(24 değerlendirme)</span>
           </div>
 
+          <p class="product-description">{product.description}</p>
+
           <div class="price-section">
-            <div class="price-main">
-              <span id="display-price" class="price-value">{product.price}₺</span>
-              <span class="price-unit">/ <span id="display-unit">{product.unit}</span></span>
-            </div>
+            <span class="price-label">Fiyat:</span>
+            <span id="display-price" class="price-value">{product.price}₺</span>
+            <span class="price-unit">/ <span id="display-unit">{product.unit}</span></span>
           </div>
 
           {product.variants && (
@@ -177,7 +198,7 @@ Afiyet olsun.`;
                     data-label={variant.label}
                     data-price={variant.price}
                   >
-                    <span class="variant-label">{variant.label}</span>
+                    {variant.label}
                     <span class="variant-price">{variant.price}₺</span>
                   </button>
                 ))}
@@ -199,28 +220,12 @@ Afiyet olsun.`;
             <span id="total-price" class="total-value">{product.price}₺</span>
           </div>
 
-          <div class="action-buttons">
-            <button id="add-to-cart-btn" class="btn btn-primary btn-full">
-              <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              Sepete Ekle
-            </button>
-          </div>
-
-          <!-- Success Message (Hidden) -->
-          <div id="cart-success" class="cart-success-message" style="display: none;">
-            <div class="success-content">
-              <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-              <span>Ürün sepete eklendi!</span>
-            </div>
-            <div class="success-actions">
-              <button id="continue-shopping" class="btn btn-outline-sm">Alışverişe Devam Et</button>
-              <button id="go-to-cart" class="btn btn-primary-sm">Sepete Git</button>
-            </div>
-          </div>
+          <button id="add-to-cart-btn" class="btn btn-primary btn-full btn-large">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            Sepete Ekle
+          </button>
 
           {product.features && product.features.length > 0 && (
             <div class="product-features">
@@ -261,19 +266,6 @@ Afiyet olsun.`;
         </div>
       </div>
 
-      <!-- Ürün Açıklaması -->
-      <div class="product-description-section">
-        <h2>Ürün Açıklaması</h2>
-        <div class="description-content">
-          {product.category === 'Pastırma' ? (
-            <p style="white-space: pre-line;">{pastirmaDescription}</p>
-          ) : (
-            <p>{product.description}</p>
-          )}
-        </div>
-      </div>
-
-      <!-- İlgili Ürünler -->
       {relatedProducts && relatedProducts.length > 0 && (
         <div class="related-products">
           <h2>Benzer Ürünler</h2>
@@ -303,11 +295,6 @@ Afiyet olsun.`;
     background: var(--bg-light);
   }
 
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
   .breadcrumb {
     display: flex;
     flex-wrap: wrap;
@@ -320,11 +307,10 @@ Afiyet olsun.`;
 
   .breadcrumb a {
     color: var(--primary);
-    transition: opacity 0.3s;
   }
 
   .breadcrumb a:hover {
-    opacity: 0.7;
+    text-decoration: underline;
   }
 
   .product-layout {
@@ -332,114 +318,32 @@ Afiyet olsun.`;
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
     background: white;
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     padding: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px var(--shadow);
     margin-bottom: 3rem;
   }
 
-  /* Swipe Gallery */
   .product-gallery {
     position: sticky;
     top: 100px;
     align-self: start;
   }
 
-  .gallery-main {
-    position: relative;
-    border-radius: 12px;
+  .main-image {
+    border-radius: var(--radius-md);
     overflow: hidden;
     background: var(--bg-light);
     margin-bottom: 1rem;
   }
 
-  .swiper-container {
-    position: relative;
+  .main-image img {
     width: 100%;
-    padding-top: 100%;
-  }
-
-  .swiper-slide {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.5s ease, visibility 0.5s ease;
-  }
-
-  .swiper-slide.active {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .swiper-slide img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
     display: block;
   }
 
-  .swiper-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 48px;
-    height: 48px;
-    background: rgba(255, 255, 255, 0.95);
-    border: none;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 10;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  }
-
-  .swiper-btn:hover {
-    background: white;
-    transform: translateY(-50%) scale(1.1);
-  }
-
-  .swiper-prev {
-    left: 1rem;
-  }
-
-  .swiper-next {
-    right: 1rem;
-  }
-
-  .swiper-pagination {
-    position: absolute;
-    bottom: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 0.5rem;
-    z-index: 10;
-  }
-
-  .pagination-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.6);
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .pagination-dot.active {
-    background: white;
-    width: 24px;
-    border-radius: 5px;
-  }
-
-  .gallery-thumbnails {
+  .thumbnail-images {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     gap: 0.75rem;
@@ -450,16 +354,21 @@ Afiyet olsun.`;
     height: 80px;
     padding: 0;
     border: 2px solid transparent;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     background: none;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s;
     overflow: hidden;
+    position: relative;
   }
 
-  .thumbnail-btn:hover,
+  .thumbnail-btn:hover {
+    border-color: var(--primary);
+  }
+
   .thumbnail-btn.active {
     border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.2);
   }
 
   .thumbnail-btn img {
@@ -469,37 +378,21 @@ Afiyet olsun.`;
     display: block;
   }
 
-  /* Product Content */
-  .product-header {
-    margin-bottom: 2rem;
-  }
-
-  .product-category {
-    display: inline-block;
-    font-size: 0.75rem;
-    color: var(--primary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-
   .product-content h1 {
     font-size: 2rem;
-    margin: 0 0 1rem 0;
-    color: var(--text-dark);
-    line-height: 1.3;
+    margin-bottom: 1rem;
   }
 
   .product-rating {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    margin-bottom: 1.5rem;
   }
 
   .stars {
     color: #fbbf24;
-    font-size: 1.125rem;
+    font-size: 1.25rem;
   }
 
   .review-count {
@@ -507,17 +400,24 @@ Afiyet olsun.`;
     font-size: 0.875rem;
   }
 
-  .price-section {
-    padding: 1.5rem;
-    background: var(--bg-light);
-    border-radius: 12px;
+  .product-description {
+    color: var(--text-gray);
+    line-height: 1.8;
     margin-bottom: 2rem;
   }
 
-  .price-main {
+  .price-section {
     display: flex;
     align-items: baseline;
     gap: 0.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--border-color);
+  }
+
+  .price-label {
+    font-size: 1rem;
+    color: var(--text-gray);
   }
 
   .price-value {
@@ -545,38 +445,33 @@ Afiyet olsun.`;
   }
 
   .variant-buttons {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 0.75rem;
   }
 
   .variant-btn {
-    padding: 1rem;
+    padding: 0.875rem 1.5rem;
     border: 2px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     background: white;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
+    font-weight: 600;
   }
 
   .variant-btn:hover {
     border-color: var(--primary);
-    transform: translateY(-2px);
   }
 
   .variant-btn.active {
     border-color: var(--primary);
     background: var(--primary-light);
     color: var(--primary);
-  }
-
-  .variant-label {
-    font-weight: 600;
-    font-size: 1rem;
   }
 
   .variant-price {
@@ -595,18 +490,17 @@ Afiyet olsun.`;
     width: 48px;
     height: 48px;
     border: 2px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     background: white;
     font-size: 1.5rem;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s ease;
-    color: var(--primary);
+    transition: all 0.3s;
   }
 
   .qty-btn:hover {
     border-color: var(--primary);
-    background: var(--primary-light);
+    color: var(--primary);
   }
 
   #quantity {
@@ -616,7 +510,7 @@ Afiyet olsun.`;
     font-size: 1.25rem;
     font-weight: 700;
     border: 2px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
   }
 
   .total-price {
@@ -625,14 +519,13 @@ Afiyet olsun.`;
     align-items: center;
     padding: 1.5rem;
     background: var(--bg-light);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     margin-bottom: 2rem;
   }
 
   .total-price span:first-child {
     font-size: 1.125rem;
     font-weight: 600;
-    color: var(--text-dark);
   }
 
   .total-value {
@@ -641,101 +534,15 @@ Afiyet olsun.`;
     color: var(--primary);
   }
 
-  .action-buttons {
-    margin-bottom: 2rem;
-  }
-
-  .btn-full {
-    width: 100%;
-    padding: 1.125rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    font-size: 1.125rem;
-  }
-
-  .cart-success-message {
-    padding: 1.5rem;
-    background: linear-gradient(135deg, #10b981, #059669);
-    border-radius: 12px;
-    margin-bottom: 2rem;
-    animation: slideDown 0.4s ease;
-  }
-
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .success-content {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    color: white;
-    font-weight: 600;
-    font-size: 1.125rem;
-    margin-bottom: 1rem;
-  }
-
-  .success-content svg {
-    flex-shrink: 0;
-  }
-
-  .success-actions {
-    display: flex;
-    gap: 1rem;
-  }
-
-  .btn-outline-sm,
-  .btn-primary-sm {
-    flex: 1;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .btn-outline-sm {
-    background: transparent;
-    border: 2px solid white;
-    color: white;
-  }
-
-  .btn-outline-sm:hover {
-    background: white;
-    color: var(--primary);
-  }
-
-  .btn-primary-sm {
-    background: white;
-    border: 2px solid white;
-    color: var(--primary);
-  }
-
-  .btn-primary-sm:hover {
-    background: rgba(255, 255, 255, 0.9);
-    transform: translateY(-2px);
-  }
-
   .product-features {
     margin: 2rem 0;
     padding: 2rem;
     background: var(--bg-light);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
   }
 
   .product-features h3 {
-    font-size: 1.25rem;
     margin-bottom: 1rem;
-    color: var(--text-dark);
   }
 
   .product-features ul {
@@ -761,6 +568,7 @@ Afiyet olsun.`;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
+    margin-top: 2rem;
   }
 
   .info-card {
@@ -768,13 +576,7 @@ Afiyet olsun.`;
     gap: 1rem;
     padding: 1rem;
     border: 1px solid var(--border-color);
-    border-radius: 12px;
-    transition: all 0.3s ease;
-  }
-
-  .info-card:hover {
-    border-color: var(--primary);
-    background: var(--bg-light);
+    border-radius: var(--radius-md);
   }
 
   .info-card svg {
@@ -784,8 +586,7 @@ Afiyet olsun.`;
 
   .info-card h4 {
     font-size: 0.875rem;
-    margin: 0 0 0.25rem 0;
-    color: var(--text-dark);
+    margin-bottom: 0.25rem;
   }
 
   .info-card p {
@@ -794,32 +595,6 @@ Afiyet olsun.`;
     margin: 0;
   }
 
-  /* Product Description */
-  .product-description-section {
-    background: white;
-    border-radius: 16px;
-    padding: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    margin-bottom: 3rem;
-  }
-
-  .product-description-section h2 {
-    font-size: 1.75rem;
-    margin-bottom: 1.5rem;
-    color: var(--text-dark);
-  }
-
-  .description-content {
-    color: var(--text-gray);
-    line-height: 1.8;
-    font-size: 1.0625rem;
-  }
-
-  .description-content p {
-    margin-bottom: 1rem;
-  }
-
-  /* Related Products */
   .related-products {
     margin-top: 4rem;
   }
@@ -828,7 +603,6 @@ Afiyet olsun.`;
     font-size: 2rem;
     margin-bottom: 2rem;
     text-align: center;
-    color: var(--text-dark);
   }
 
   .related-grid {
@@ -839,17 +613,16 @@ Afiyet olsun.`;
 
   .related-item {
     background: white;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
+    box-shadow: 0 2px 8px var(--shadow);
+    transition: transform 0.3s;
     text-decoration: none;
     color: inherit;
   }
 
   .related-item:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   }
 
   .related-item img {
@@ -861,7 +634,6 @@ Afiyet olsun.`;
   .related-item h4 {
     padding: 1rem 1rem 0.5rem;
     font-size: 1rem;
-    color: var(--text-dark);
   }
 
   .related-price {
@@ -903,66 +675,42 @@ Afiyet olsun.`;
     .related-grid {
       grid-template-columns: repeat(2, 1fr);
     }
-
-    .success-actions {
-      flex-direction: column;
-    }
   }
 </style>
 
+<script>
+  console.log('🎯 Thumbnail script loaded');
+
+  // Thumbnail click event
+  const thumbnailBtns = document.querySelectorAll('.thumbnail-btn');
+  console.log('📸 Found thumbnail buttons:', thumbnailBtns.length);
+
+  thumbnailBtns.forEach((btn, index) => {
+    const imageUrl = btn.getAttribute('data-image');
+    console.log(`Thumbnail ${index}:`, imageUrl);
+
+    btn.addEventListener('click', function() {
+      console.log('🖱️ Thumbnail clicked:', index, imageUrl);
+
+      const mainImage = document.getElementById('main-product-image') as HTMLImageElement;
+      const currentUrlSpan = document.getElementById('current-image-url');
+
+      if (mainImage && imageUrl) {
+        console.log('Changing main image to:', imageUrl);
+        mainImage.src = imageUrl;
+        if (currentUrlSpan) currentUrlSpan.textContent = imageUrl;
+      }
+
+      thumbnailBtns.forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      console.log('✅ Thumbnail activated:', index);
+    });
+  });
+</script>
+
 <script define:vars={{ product, productImages }}>
-  // Swiper functionality
-  let currentSlide = 0;
-  const slides = document.querySelectorAll('.swiper-slide');
-  const dots = document.querySelectorAll('.pagination-dot');
-  const thumbnails = document.querySelectorAll('.thumbnail-btn');
+  console.log('💾 Product data loaded:', { product: product.name, images: productImages });
 
-  function showSlide(index) {
-    slides.forEach(slide => slide.classList.remove('active'));
-    dots.forEach(dot => dot.classList.remove('active'));
-    thumbnails.forEach(thumb => thumb.classList.remove('active'));
-
-    currentSlide = (index + slides.length) % slides.length;
-    slides[currentSlide]?.classList.add('active');
-    dots[currentSlide]?.classList.add('active');
-    thumbnails[currentSlide]?.classList.add('active');
-  }
-
-  document.querySelector('.swiper-next')?.addEventListener('click', () => {
-    showSlide(currentSlide + 1);
-  });
-
-  document.querySelector('.swiper-prev')?.addEventListener('click', () => {
-    showSlide(currentSlide - 1);
-  });
-
-  dots.forEach((dot, index) => {
-    dot.addEventListener('click', () => showSlide(index));
-  });
-
-  thumbnails.forEach((thumb, index) => {
-    thumb.addEventListener('click', () => showSlide(index));
-  });
-
-  // Touch swipe support
-  let touchStartX = 0;
-  let touchEndX = 0;
-
-  const swiperContainer = document.querySelector('.swiper-container');
-  swiperContainer?.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-  });
-
-  swiperContainer?.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    if (touchStartX - touchEndX > 50) {
-      showSlide(currentSlide + 1);
-    } else if (touchEndX - touchStartX > 50) {
-      showSlide(currentSlide - 1);
-    }
-  });
-
-  // Product variants and cart
   let selectedVariant = product.variants ? product.variants[0] : null;
   let quantity = 1;
 
@@ -1029,26 +777,12 @@ Afiyet olsun.`;
     localStorage.setItem('cart', JSON.stringify(cart));
     window.dispatchEvent(new Event('cartUpdated'));
 
-    // Show success message
-    const successMsg = document.getElementById('cart-success');
-    const addBtn = document.getElementById('add-to-cart-btn');
+    const btn = document.getElementById('add-to-cart-btn');
+    btn.innerHTML = '✓ Sepete Eklendi - Sepete Git';
+    btn.style.background = '#10b981';
 
-    addBtn.style.display = 'none';
-    successMsg.style.display = 'block';
-
-    // Scroll to success message
-    successMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  });
-
-  document.getElementById('continue-shopping')?.addEventListener('click', () => {
-    const successMsg = document.getElementById('cart-success');
-    const addBtn = document.getElementById('add-to-cart-btn');
-
-    successMsg.style.display = 'none';
-    addBtn.style.display = 'flex';
-  });
-
-  document.getElementById('go-to-cart')?.addEventListener('click', () => {
-    window.location.href = '/sepet';
+    setTimeout(() => {
+      window.location.href = '/sepet';
+    }, 1500);
   });
 </script>
