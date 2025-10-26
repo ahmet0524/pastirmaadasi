@@ -9,9 +9,10 @@ export interface Props {
   unit: string;
   description?: string;
   variants?: any[];
+  index?: number; // Performans optimizasyonu için
 }
 
-const { id, slug, name, price, images, unit, description, variants } = Astro.props;
+const { id, slug, name, price, images, unit, description, variants, index = 0 } = Astro.props;
 
 // Resim URL'sini güvenli şekilde al - Supabase'den gelen veriyi parse et
 function getImageUrl(imgs: any): string {
@@ -59,7 +60,7 @@ function getImageUrl(imgs: any): string {
           return firstImage || placeholder;
         }
       } catch (e) {
-        // JSON parse başarısız, devam et
+        console.error('ProductCard - Image parse error:', e, imgs);
       }
     }
 
@@ -74,6 +75,10 @@ function getImageUrl(imgs: any): string {
 }
 
 const imageUrl = getImageUrl(images);
+
+// İlk 4 ürün için eager loading, diğerleri için lazy
+const loadingStrategy = index < 4 ? "eager" : "lazy";
+const fetchPriority = index < 2 ? "high" : "auto";
 ---
 
 <div class="product-card" data-product-id={id}>
@@ -83,8 +88,10 @@ const imageUrl = getImageUrl(images);
         src={imageUrl}
         alt={name}
         class="product-image"
-        loading="lazy"
-        onerror="if(this.src!='/assets/image/placeholder.jpg'){this.src='/assets/image/placeholder.jpg';}"
+        loading={loadingStrategy}
+        fetchpriority={fetchPriority}
+        onerror="this.onerror=null; this.src='/assets/image/placeholder.jpg'; console.error('Image failed to load:', this.getAttribute('data-original-src'));"
+        data-original-src={imageUrl}
       />
       <div class="product-badge">Yeni</div>
     </div>
@@ -184,6 +191,7 @@ const imageUrl = getImageUrl(images);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     box-shadow: 0 2px 8px rgba(8, 145, 178, 0.3);
+    z-index: 2;
   }
 
   .product-info {
@@ -292,15 +300,26 @@ const imageUrl = getImageUrl(images);
 
       const productData = this.getAttribute('data-product');
       if (productData) {
-        const product = JSON.parse(productData);
+        try {
+          const product = JSON.parse(productData);
 
-        // Custom event ile modal açma sinyali gönder
-        const event = new CustomEvent('openCartModal', {
-          detail: product,
-          bubbles: true
-        });
-        document.dispatchEvent(event);
+          // Custom event ile modal açma sinyali gönder
+          const event = new CustomEvent('openCartModal', {
+            detail: product,
+            bubbles: true
+          });
+          document.dispatchEvent(event);
+        } catch (error) {
+          console.error('ProductCard - Error parsing product data:', error);
+        }
       }
+    });
+  });
+
+  // Resim yükleme hatalarını logla
+  document.querySelectorAll('.product-image').forEach(img => {
+    img.addEventListener('load', function() {
+      console.log('✅ Image loaded:', this.alt, this.src);
     });
   });
 </script>

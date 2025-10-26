@@ -25,11 +25,13 @@ function getImageUrl(imgs: any): string {
   }
 
   if (typeof imgs === 'string') {
+    // PostgreSQL array: {path1,path2}
     if (imgs.startsWith('{') && imgs.endsWith('}')) {
       const paths = imgs.slice(1, -1).split(',').map(p => p.trim().replace(/^"|"$/g, ''));
       if (paths.length > 0 && paths[0]) return paths[0];
     }
 
+    // JSON array: ["path1"]
     if (imgs.startsWith('[')) {
       try {
         const cleaned = imgs.replace(/""/g, '"').replace(/\\"/g, '"');
@@ -37,7 +39,9 @@ function getImageUrl(imgs: any): string {
         if (Array.isArray(parsed) && parsed.length > 0) {
           return String(parsed[0]).replace(/^"|"$/g, '').trim() || placeholder;
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error('Image parse error:', e);
+      }
     }
 
     const cleaned = imgs.replace(/^"|"$/g, '').trim();
@@ -99,7 +103,7 @@ function getImageUrl(imgs: any): string {
 
       {pastirmaProducts && pastirmaProducts.length > 0 && (
         <div class="products-grid">
-          {pastirmaProducts.map(product => (
+          {pastirmaProducts.map((product, index) => (
             <div class="product-card">
               <a href={`/urun/${product.slug}`} class="product-link">
                 <div class="product-image-wrapper">
@@ -107,7 +111,9 @@ function getImageUrl(imgs: any): string {
                     src={getImageUrl(product.images)}
                     alt={product.name}
                     class="product-image"
-                    loading="lazy"
+                    loading={index < 4 ? "eager" : "lazy"}
+                    fetchpriority={index < 2 ? "high" : "auto"}
+                    onError="this.onerror=null; this.src='/assets/image/placeholder.jpg';"
                   />
                   <div class="product-overlay">
                     <span class="btn-view-product">Ürünü İncele</span>
