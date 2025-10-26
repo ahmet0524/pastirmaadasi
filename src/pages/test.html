@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thumbnail Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .main-image {
+      width: 100%;
+      max-width: 500px;
+      margin-bottom: 20px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+    }
+    .thumbnails {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .thumbnail-btn {
+      width: 100px;
+      height: 100px;
+      border: 3px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      padding: 0;
+      background: none;
+    }
+    .thumbnail-btn:hover {
+      border-color: #0891b2;
+    }
+    .thumbnail-btn.active {
+      border-color: #0891b2;
+      box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.2);
+    }
+    .thumbnail-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 5px;
+    }
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f0f0f0;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Thumbnail Test</h1>
+
+  <div>
+    <h2>Ana Görsel:</h2>
+    <img id="main-image"
+         src="https://placehold.co/600x400/e2e8f0/334155?text=Resim+1"
+         alt="Ana görsel"
+         class="main-image">
+    <p id="current-url" style="font-size: 12px; color: #666;"></p>
+  </div>
+
+  <div>
+    <h2>Thumbnail'ler (Tıklayın):</h2>
+    <div class="thumbnails">
+      <button class="thumbnail-btn active" data-image="https://placehold.co/600x400/e2e8f0/334155?text=Resim+1">
+        <img src="https://placehold.co/600x400/e2e8f0/334155?text=Resim+1" alt="Thumbnail 1">
+      </button>
+      <button class="thumbnail-btn" data-image="https://placehold.co/600x400/fbbf24/92400e?text=Resim+2">
+        <img src="https://placehold.co/600x400/fbbf24/92400e?text=Resim+2" alt="Thumbnail 2">
+      </button>
+      <button class="thumbnail-btn" data-image="https://placehold.co/600x400/10b981/064e3b?text=Resim+3">
+        <img src="https://placehold.co/600x400/10b981/064e3b?text=Resim+3" alt="Thumbnail 3">
+      </button>
+      <button class="thumbnail-btn" data-image="https://placehold.co/600x400/ef4444/7f1d1d?text=Resim+4">
+        <img src="https://placehold.co/600x400/ef4444/7f1d1d?text=Resim+4" alt="Thumbnail 4">
+      </button>
+    </div>
+  </div>
+
+  <div class="status">
+    <strong>🔍 Test Durumu:</strong>
+    <div id="status-log"></div>
+  </div>
+
+  <script>
+    const statusLog = document.getElementById('status-log');
+    const currentUrlP = document.getElementById('current-url');
+
+    function log(message) {
+      const time = new Date().toLocaleTimeString();
+      statusLog.innerHTML += `<div>[${time}] ${message}</div>`;
+      console.log(message);
+    }
+
+    log('✅ Sayfa yüklendi');
+
+    const thumbnailBtns = document.querySelectorAll('.thumbnail-btn');
+    const mainImage = document.getElementById('main-image');
+
+    log(`📸 ${thumbnailBtns.length} thumbnail bulundu`);
+
+    thumbnailBtns.forEach((btn, index) => {
+      const imageUrl = btn.getAttribute('data-image');
+      log(`Thumbnail ${index + 1}: ${imageUrl.substring(0, 50)}...`);
+
+      btn.addEventListener('click', function() {
+        log(`🖱️ Thumbnail ${index + 1} tıklandı`);
+
+        if (mainImage && imageUrl) {
+          mainImage.src = imageUrl;
+          currentUrlP.textContent = `Aktif: ${imageUrl}`;
+          log(`✓ Ana görsel değiştirildi`);
+        }
+
+        thumbnailBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        log(`✓ Active class güncellendi`);
+      });
+    });
+
+    log('🎉 Tüm event listener\'lar eklendi - Test hazır!');
+  </script>
+</body>
+</html>
