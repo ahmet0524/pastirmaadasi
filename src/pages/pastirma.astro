@@ -1,329 +1,535 @@
 ---
 // src/pages/pastirma.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ProductCard from '../components/ProductCard.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { supabase } from '../lib/supabase';
 
-const products = [
-  {
-    id: 'antrikot-pastirma',
-    name: 'Antrikot Pastırma',
-    image: '/assets/image/products/antrikot-pastirma.jpg',
-    price: 450,
-    weight: '1 kg',
-    description: 'Geleneksel yöntemlerle hazırlanmış, özenle seçilmiş antrikot etinden üretilen Kayseri pastırması.',
-    category: 'Pastırma'
-  },
-  {
-    id: 'sirt-pastirma',
-    name: 'Sırt Pastırma',
-    image: '/assets/image/products/sirt-pastirma.jpg',
-    price: 420,
-    weight: '1 kg',
-    description: 'Sırt etinden üretilen, yumuşak dokusu ile öne çıkan lezzetli pastırma.',
-    category: 'Pastırma'
-  },
-  {
-    id: 'bonfile-pastirma',
-    name: 'Bonfile/Kuşgömü Pastırma',
-    image: '/assets/image/products/bonfile-pastirma.jpg',
-    price: 480,
-    weight: '1 kg',
-    description: 'Premium kalitede bonfile etinden üretilen, en yumuşak pastırma çeşidi.',
-    category: 'Pastırma',
-    discount: 10
-  },
-  {
-    id: 'karaparca-pastirma',
-    name: 'Karaparça Pastırma',
-    image: '/assets/image/products/karaparca-pastirma.jpg',
-    price: 380,
-    weight: '1 kg',
-    description: 'Yoğun aroması ile damak tadınızı şenlendirecek karaparça pastırma.',
-    category: 'Pastırma'
+// Pastırma kategorisindeki tüm ürünleri çek
+const { data: pastirmaProducts } = await supabase
+  .from('products')
+  .select('*')
+  .eq('category', 'Pastırma')
+  .eq('is_active', true)
+  .order('name', { ascending: true });
+
+// Resim URL'sini al
+function getImageUrl(imgs: any): string {
+  const placeholder = '/assets/image/placeholder.jpg';
+  if (!imgs) return placeholder;
+
+  if (Array.isArray(imgs)) {
+    if (imgs.length === 0) return placeholder;
+    const firstImage = String(imgs[0]).replace(/^"|"$/g, '').replace(/""/g, '').trim();
+    return firstImage || placeholder;
   }
-];
+
+  if (typeof imgs === 'string') {
+    if (imgs.startsWith('{') && imgs.endsWith('}')) {
+      const paths = imgs.slice(1, -1).split(',').map(p => p.trim().replace(/^"|"$/g, ''));
+      if (paths.length > 0 && paths[0]) return paths[0];
+    }
+
+    if (imgs.startsWith('[')) {
+      try {
+        const cleaned = imgs.replace(/""/g, '"').replace(/\\"/g, '"');
+        const parsed = JSON.parse(cleaned);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return String(parsed[0]).replace(/^"|"$/g, '').trim() || placeholder;
+        }
+      } catch (e) {}
+    }
+
+    const cleaned = imgs.replace(/^"|"$/g, '').trim();
+    if (cleaned.startsWith('/') || cleaned.startsWith('http')) return cleaned;
+  }
+
+  return placeholder;
+}
 ---
 
 <BaseLayout
-  title="Kayseri Pastırması"
+  title="Kayseri Pastırması - Pastırma Çeşitlerimiz"
   description="Geleneksel yöntemlerle üretilen, çeşit çeşit Kayseri pastırması ürünlerimizi keşfedin."
 >
-  <div class="category-page">
-    <!-- Hero Bölümü -->
-    <section class="category-hero">
-      <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <h1 class="hero-title">Kayseri Pastırması</h1>
-        <p class="hero-description">
-          Kayseri'nin geleneksel lezzeti, özenle seçilmiş dana etinden, doğal çemen ile üretilmiş pastırmalarımız
-        </p>
-        <div class="hero-features">
-          <div class="feature">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-            </svg>
-            100% Dana Eti
-          </div>
-          <div class="feature">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-            </svg>
-            Doğal Çemen
-          </div>
-          <div class="feature">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-            </svg>
-            Geleneksel Üretim
-          </div>
+  <Header slot="header" />
+
+  <!-- Hero Section -->
+  <section class="pastirma-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <nav class="breadcrumb">
+        <a href="/">Ana Sayfa</a>
+        <span>/</span>
+        <span>Pastırma Çeşitlerimiz</span>
+      </nav>
+      <h1>Pastırma Çeşitlerimiz</h1>
+      <p class="hero-subtitle">
+        Kayseri'nin geleneksel lezzeti, özenle seçilmiş dana etinden, doğal çemen ile üretilmiş pastırmalarımız
+      </p>
+      <div class="hero-features">
+        <div class="feature-badge">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          100% Dana Eti
+        </div>
+        <div class="feature-badge">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          Doğal Çemen
+        </div>
+        <div class="feature-badge">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          Geleneksel Üretim
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Ürünler -->
-    <section class="products-section">
-      <div class="container">
-        <div class="section-header">
-          <h2>Pastırma Çeşitlerimiz</h2>
-          <p>Farklı et kısımlarından üretilen özel pastırmalarımız</p>
-        </div>
+  <!-- Products Grid -->
+  <section class="products-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>{pastirmaProducts?.length || 0} sonucun tümü gösteriliyor</h2>
+      </div>
 
+      {pastirmaProducts && pastirmaProducts.length > 0 && (
         <div class="products-grid">
-          {products.map(product => (
-            <ProductCard {...product} />
+          {pastirmaProducts.map(product => (
+            <div class="product-card">
+              <a href={`/urun/${product.slug}`} class="product-link">
+                <div class="product-image-wrapper">
+                  <img
+                    src={getImageUrl(product.images)}
+                    alt={product.name}
+                    class="product-image"
+                    loading="lazy"
+                  />
+                  <div class="product-overlay">
+                    <span class="btn-view-product">Ürünü İncele</span>
+                  </div>
+                </div>
+                <div class="product-info">
+                  <span class="product-category">Pastırma Çeşitlerimiz</span>
+                  <h3 class="product-name">{product.name}</h3>
+                  <div class="product-footer">
+                    <span class="product-price">{product.price}₺</span>
+                    <button
+                      class="btn-add-cart"
+                      data-product={JSON.stringify({
+                        id: product.id,
+                        name: product.name,
+                        image: getImageUrl(product.images),
+                        variants: product.variants,
+                        slug: product.slug
+                      })}
+                      onclick="event.preventDefault(); event.stopPropagation();"
+                    >
+                      Sepete Ekle
+                    </button>
+                  </div>
+                </div>
+              </a>
+            </div>
           ))}
         </div>
-      </div>
-    </section>
+      )}
 
-    <!-- Bilgilendirme -->
-    <section class="info-section">
-      <div class="container">
-        <div class="info-grid">
-          <div class="info-card">
-            <div class="info-icon">
-              <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </div>
-            <h3>Kalite Garantisi</h3>
-            <p>Tüm ürünlerimiz hijyenik ortamlarda, kalite kontrolünden geçerek üretilir.</p>
+      {(!pastirmaProducts || pastirmaProducts.length === 0) && (
+        <div class="no-products">
+          <p>Şu anda görüntülenecek ürün bulunmamaktadır.</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Info Section -->
+  <section class="info-section">
+    <div class="container">
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
           </div>
-          <div class="info-card">
-            <div class="info-icon">
-              <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </div>
-            <h3>Hızlı Teslimat</h3>
-            <p>Siparişleriniz özenle paketlenir ve hızlı kargo ile gönderilir.</p>
+          <h3>Kalite Garantisi</h3>
+          <p>Tüm ürünlerimiz hijyenik ortamlarda, kalite kontrolünden geçerek üretilir.</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
           </div>
-          <div class="info-card">
-            <div class="info-icon">
-              <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-              </svg>
-            </div>
-            <h3>Güvenli Ödeme</h3>
-            <p>Tüm ödemeleriniz SSL sertifikası ile güvence altındadır.</p>
+          <h3>Hızlı Teslimat</h3>
+          <p>Siparişleriniz özenle paketlenir ve hızlı kargo ile gönderilir.</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+            </svg>
           </div>
+          <h3>Güvenli Ödeme</h3>
+          <p>Tüm ödemeleriniz SSL sertifikası ile güvence altındadır.</p>
         </div>
       </div>
-    </section>
-  </div>
+    </div>
+  </section>
 
-  <style>
-    .category-page {
-      min-height: 100vh;
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  .pastirma-hero {
+    position: relative;
+    min-height: 400px;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.3) 100%);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: white;
+    max-width: 1000px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    font-size: 0.875rem;
+  }
+
+  .breadcrumb a {
+    color: white;
+    opacity: 0.9;
+    transition: opacity 0.3s;
+  }
+
+  .breadcrumb a:hover {
+    opacity: 1;
+  }
+
+  .breadcrumb span {
+    opacity: 0.7;
+  }
+
+  .hero-content h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin: 0 0 1.5rem 0;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    margin: 0 0 2rem 0;
+    opacity: 0.95;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-features {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .feature-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 50px;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .products-section {
+    padding: 4rem 1rem;
+    background: var(--bg-light);
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-header {
+    margin-bottom: 3rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.125rem;
+    color: var(--text-gray);
+    font-weight: 400;
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+
+  .product-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .product-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .product-image-wrapper {
+    position: relative;
+    padding-top: 100%;
+    overflow: hidden;
+    background: var(--bg-gray);
+  }
+
+  .product-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .product-card:hover .product-image {
+    transform: scale(1.1);
+  }
+
+  .product-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .product-card:hover .product-overlay {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .btn-view-product {
+    padding: 0.875rem 2rem;
+    background: white;
+    color: var(--primary);
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .btn-view-product:hover {
+    background: var(--primary);
+    color: white;
+    transform: scale(1.05);
+  }
+
+  .product-info {
+    padding: 1.5rem;
+  }
+
+  .product-category {
+    font-size: 0.75rem;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .product-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 1rem 0;
+    line-height: 1.4;
+  }
+
+  .product-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .product-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .btn-add-cart {
+    padding: 0.75rem 1.25rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .btn-add-cart:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+
+  .no-products {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: var(--text-gray);
+  }
+
+  .info-section {
+    padding: 4rem 1rem;
+    background: white;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .info-card {
+    text-align: center;
+    padding: 2rem;
+    background: var(--bg-light);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+  }
+
+  .info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(220, 38, 38, 0.1);
+  }
+
+  .info-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .info-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 0.75rem 0;
+  }
+
+  .info-card p {
+    font-size: 1rem;
+    color: var(--text-gray);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .pastirma-hero {
+      min-height: 300px;
+      padding: 3rem 1rem;
     }
 
-    .category-hero {
-      position: relative;
-      height: 400px;
-      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
+    .hero-content h1 {
+      font-size: 2.5rem;
     }
 
-
-
-    .hero-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.3) 100%);
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-      color: white;
-      max-width: 800px;
-      padding: 0 20px;
-    }
-
-    .hero-title {
-      font-size: 48px;
-      font-weight: 800;
-      margin: 0 0 16px 0;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    }
-
-    .hero-description {
-      font-size: 18px;
-      line-height: 1.6;
-      margin: 0 0 32px 0;
-      opacity: 0.95;
+    .hero-subtitle {
+      font-size: 1rem;
     }
 
     .hero-features {
-      display: flex;
-      justify-content: center;
-      gap: 32px;
-      flex-wrap: wrap;
-    }
-
-    .feature {
-      display: flex;
+      flex-direction: column;
+      gap: 1rem;
       align-items: center;
-      gap: 8px;
-      font-size: 16px;
-      font-weight: 600;
-    }
-
-    .feature svg {
-      flex-shrink: 0;
-    }
-
-    .products-section {
-      padding: 80px 0;
-      background: #faf9f7;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    .section-header {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-
-    .section-header h2 {
-      font-size: 36px;
-      font-weight: 700;
-      color: #1f2937;
-      margin: 0 0 12px 0;
-    }
-
-    .section-header p {
-      font-size: 18px;
-      color: #6b7280;
-      margin: 0;
     }
 
     .products-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 32px;
-    }
-
-    .info-section {
-      padding: 80px 0;
-      background: white;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
     }
 
     .info-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 32px;
+      grid-template-columns: 1fr;
     }
+  }
+</style>
 
-    .info-card {
-      text-align: center;
-      padding: 32px;
-      background: #faf9f7;
-      border-radius: 16px;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .info-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 12px 32px rgba(220, 38, 38, 0.1);
-    }
-
-    .info-icon {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 20px;
-      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-    }
-
-    .info-card h3 {
-      font-size: 22px;
-      font-weight: 700;
-      color: #1f2937;
-      margin: 0 0 12px 0;
-    }
-
-    .info-card p {
-      font-size: 16px;
-      color: #6b7280;
-      line-height: 1.6;
-      margin: 0;
-    }
-
-    @media (max-width: 768px) {
-      .category-hero {
-        height: 300px;
+<script>
+  // Sepete ekle modal için event listener
+  document.querySelectorAll('.btn-add-cart').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const productData = btn.getAttribute('data-product');
+      if (productData) {
+        const product = JSON.parse(productData);
+        const event = new CustomEvent('openCartModal', {
+          detail: product,
+          bubbles: true
+        });
+        document.dispatchEvent(event);
       }
-
-      .hero-title {
-        font-size: 32px;
-      }
-
-      .hero-description {
-        font-size: 16px;
-      }
-
-      .hero-features {
-        flex-direction: column;
-        gap: 16px;
-      }
-
-      .products-section {
-        padding: 60px 0;
-      }
-
-      .section-header h2 {
-        font-size: 28px;
-      }
-
-      .products-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
-      }
-
-      .info-section {
-        padding: 60px 0;
-      }
-
-      .info-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
-      }
-    }
-  </style>
-</BaseLayout>
+    });
+  });
+</script>
