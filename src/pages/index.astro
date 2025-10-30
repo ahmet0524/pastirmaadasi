@@ -29,7 +29,7 @@ const { data: featuredProducts } = await supabase
         <div class="hero-card" data-link="/online-alisveris">
           <div class="hero-card-image">
             <img
-              src="/assets/image/online-shopping.jpg"
+              src="/assets/image/online-shopping.webp"
               alt="Online Alışveriş"
               loading="eager"
             />
@@ -54,7 +54,7 @@ const { data: featuredProducts } = await supabase
         <div class="hero-card" data-link="/kayseri-sofrasi">
           <div class="hero-card-image">
             <img
-              src="/assets/image/kayseri-sofrasi.jpg"
+              src="/assets/image/kayseri-sofrasi.webp"
               alt="Kayseri Sofrası"
               loading="eager"
             />
@@ -233,7 +233,7 @@ const { data: featuredProducts } = await supabase
           <p>Yılların deneyimi ve titiz üretim süreçleriyle hazırlanan ürünlerimiz, sofranıza değer katıyor.</p>
         </div>
         <div class="info-image">
-          <img src="/assets/image/about.jpg" alt="Hakkımızda" loading="lazy" />
+          <img src="/assets/image/kayseri-mantisi.webp" alt="Hakkımızda" loading="lazy" />
         </div>
       </div>
     </div>
@@ -1281,19 +1281,41 @@ const { data: featuredProducts } = await supabase
     }
   });
 
-  // Perde animasyonu ile sayfa geçişi
+// Perde animasyonu ile sayfa geçişi
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.hero-card').forEach(card => {
-      card.addEventListener('click', () => {
+      card.addEventListener('click', (e) => {
+        e.preventDefault();
         const link = card.getAttribute('data-link');
         const curtain = document.getElementById('curtain-overlay');
 
         if (curtain && link) {
+          // Hedef sayfayı arka planda yükle
+          const iframe = document.createElement('iframe');
+          iframe.style.display = 'none';
+          iframe.src = link;
+          document.body.appendChild(iframe);
+
+          // Perde animasyonunu başlat
           curtain.classList.add('active');
 
+          // Animasyon bitince yönlendir
           setTimeout(() => {
             window.location.href = link;
-          }, 1200);
+          }, 800);
+        }
+      });
+    });
+
+    // Hover'da sayfayı prefetch et (daha hızlı)
+    document.querySelectorAll('.hero-card').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        const link = card.getAttribute('data-link');
+        if (link) {
+          const linkEl = document.createElement('link');
+          linkEl.rel = 'prefetch';
+          linkEl.href = link;
+          document.head.appendChild(linkEl);
         }
       });
     });
