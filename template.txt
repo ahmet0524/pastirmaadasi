@@ -1,0 +1,459 @@
+---
+ srcpages[KATEGORI_ADI].astro
+ KULLANIM Bu template'i kopyala ve değişkenleri kategoriye göre güncelle
+ Örnek kavurma.astro, salam.astro, vb.
+
+import BaseLayout from '..layoutsBaseLayout.astro';
+import Header from '..componentsHeader.astro';
+import Footer from '..componentsFooter.astro';
+import { supabase } from '..libsupabase';
+
+ ============================================
+ KATEGORI AYARLARI - Buradan değiştir
+ ============================================
+const CATEGORY_NAME = 'Sucuk';  Supabase'deki kategori adı
+const PAGE_TITLE = 'Sucuk Çeşitlerimiz';  Sayfa başlığı
+const PAGE_DESCRIPTION = 'Özenle seçilmiş dana etinden, özel baharat karışımımızla hazırlanan geleneksel Kayseri sucuklarımız';  Açıklama
+const BREADCRUMB_TEXT = 'Sucuk Çeşitlerimiz';
+const SEO_TITLE = 'Kayseri Sucuğu - Sucuk Çeşitlerimiz  Pastırma Adası';
+const SEO_DESCRIPTION = 'Özenle seçilmiş dana etinden, özel baharat karışımımızla hazırlanan geleneksel Kayseri sucuklarımız. Farklı form ve boyutlarda, her damak tadına uygun sucuklar.';
+
+ Feature badges - 3 tane özellik
+const FEATURES = [
+  '100% Dana Eti',
+  'Özel Baharat',
+  'Geleneksel Üretim'
+];
+
+ Info cards - 3 tane bilgi kartı
+const INFO_CARDS = [
+  {
+    title 'Kalite Garantisi',
+    description 'Tüm ürünlerimiz hijyenik ortamlarda, kalite kontrolünden geçerek üretilir.'
+  },
+  {
+    title 'Hızlı Teslimat',
+    description 'Siparişleriniz özenle paketlenir ve hızlı kargo ile gönderilir.'
+  },
+  {
+    title 'Güvenli Ödeme',
+    description 'Tüm ödemeleriniz SSL sertifikası ile güvence altındadır.'
+  }
+];
+
+ ============================================
+ VERİ ÇEKME - Değiştirme!
+ ============================================
+const { data products } = await supabase
+  .from('products')
+  .select('')
+  .eq('category', CATEGORY_NAME)
+  .eq('is_active', true)
+  .order('name', { ascending true });
+
+ ============================================
+ RESİM İŞLEME FONKSİYONU - Değiştirme!
+ ============================================
+function getImageUrl(imgs any) string {
+  const placeholder = 'assetsimageplaceholder.jpg';
+  if (!imgs) return placeholder;
+
+  if (Array.isArray(imgs)) {
+    if (imgs.length === 0) return placeholder;
+    const firstImage = String(imgs[0]).replace(^$g, '').replace(g, '').trim();
+    return firstImage  placeholder;
+  }
+
+  if (typeof imgs === 'string') {
+    if (imgs.startsWith('{') && imgs.endsWith('}')) {
+      const paths = imgs.slice(1, -1).split(',').map(p = p.trim().replace(^$g, ''));
+      if (paths.length  0 && paths[0]) return paths[0];
+    }
+
+    if (imgs.startsWith('[')) {
+      try {
+        const cleaned = imgs.replace(g, '').replace(g, '');
+        const parsed = JSON.parse(cleaned);
+        if (Array.isArray(parsed) && parsed.length  0) {
+          return String(parsed[0]).replace(^$g, '').trim()  placeholder;
+        }
+      } catch (e) {
+        console.error('Image parse error', e);
+      }
+    }
+
+    const cleaned = imgs.replace(^$g, '').trim();
+    if (cleaned.startsWith('')  cleaned.startsWith('http')) return cleaned;
+  }
+
+  return placeholder;
+}
+---
+
+BaseLayout
+  title={SEO_TITLE}
+  description={SEO_DESCRIPTION}
+
+  Header slot=header 
+
+  !-- Hero Section - Global CSS'den geliyor --
+  section class=hero-section
+    div class=hero-overlaydiv
+    div class=hero-content
+      nav class=breadcrumb
+        a href=Ana Sayfaa
+        spanspan
+        span{BREADCRUMB_TEXT}span
+      nav
+      h1{PAGE_TITLE}h1
+      p class=hero-subtitle
+        {PAGE_DESCRIPTION}
+      p
+      div class=hero-features
+        {FEATURES.map(feature = (
+          div class=feature-badge
+            svg width=20 height=20 fill=#059669 viewBox=0 0 20 20
+              path fill-rule=evenodd d=M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z clip-rule=evenodd
+            svg
+            {feature}
+          div
+        ))}
+      div
+    div
+  section
+
+  !-- Products Grid - Global CSS'den geliyor --
+  section class=products-section
+    div class=container
+      div class=section-header
+        h2{products.length  0} sonucun tümü gösteriliyorh2
+      div
+
+      {products && products.length  0 && (
+        div class=products-grid
+          {products.map((product, index) = (
+            div class=product-card
+              div class=product-image-wrapper
+                a href={`urun${product.slug}`} class=product-image-link
+                  img
+                    src={getImageUrl(product.images)}
+                    alt={product.name}
+                    class=product-image
+                    loading={index  4  eager  lazy}
+                    fetchpriority={index  2  high  auto}
+                    onError=this.onerror=null; this.src='assetsimageplaceholder.jpg';
+                  
+                  div class=product-overlay
+                    span class=btn-view-productÜrünü İncelespan
+                  div
+                  h3 class=product-name-overlay{product.name}h3
+                a
+              div
+              div class=product-info
+                p class=product-price
+                  {product.price}₺
+                  span class=price-unit{product.unit}span
+                p
+                button
+                  class=btn-add-cart
+                  data-product={JSON.stringify({
+                    id product.id,
+                    name product.name,
+                    image getImageUrl(product.images),
+                    variants product.variants,
+                    slug product.slug,
+                    price product.price,
+                    unit product.unit
+                  })}
+                
+                  Sepete Ekle
+                button
+              div
+            div
+          ))}
+        div
+      )}
+
+      {(!products  products.length === 0) && (
+        div class=no-products
+          pŞu anda görüntülenecek ürün bulunmamaktadır.p
+        div
+      )}
+    div
+  section
+
+  !-- Info Section - Global CSS'den geliyor --
+  section class=info-section
+    div class=container
+      div class=info-grid
+        {INFO_CARDS.map(card = (
+          div class=info-card
+            div class=info-icon
+              svg width=32 height=32 fill=none stroke=currentColor viewBox=0 0 24 24
+                path stroke-linecap=round stroke-linejoin=round stroke-width=2 d=M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z
+              svg
+            div
+            h3{card.title}h3
+            p{card.description}p
+          div
+        ))}
+      div
+    div
+  section
+
+  !-- Add to Cart Modal - Global CSS'den geliyor --
+  div id=cart-modal class=cart-modal
+    div class=modal-content
+      button class=modal-close aria-label=Kapat
+        svg width=24 height=24 fill=none stroke=currentColor viewBox=0 0 24 24
+          path stroke-linecap=round stroke-linejoin=round stroke-width=2 d=M6 18L18 6M6 6l12 12 
+        svg
+      button
+
+      div class=modal-body
+        img id=modal-product-image src= alt= class=modal-product-image 
+        h3 id=modal-product-nameh3
+
+        div class=variant-selector id=variant-selector-wrapper
+          labelGramaj Seçinlabel
+          div id=variant-options class=variant-optionsdiv
+        div
+
+        div class=quantity-selector
+          labelAdetlabel
+          div class=quantity-controls
+            button class=qty-btn qty-minus type=button-button
+            input type=number class=qty-input value=1 min=1 
+            button class=qty-btn qty-plus type=button+button
+          div
+        div
+
+        div class=modal-price
+          span class=price-labelToplamspan
+          span id=modal-total-price class=total-price0₺span
+        div
+
+        button id=confirm-add-cart class=btn btn-primary btn-large type=buttonSepete Eklebutton
+      div
+    div
+  div
+
+  !-- Cart Success Modal - Global CSS'den geliyor --
+  div id=success-modal class=cart-modal
+    div class=modal-content success-content
+      div class=success-icon
+        svg width=60 height=60 fill=none stroke=currentColor viewBox=0 0 24 24
+          path stroke-linecap=round stroke-linejoin=round stroke-width=2 d=M5 13l4 4L19 7 
+        svg
+      div
+      h3Ürün sepete eklendi!h3
+      div class=success-buttons
+        button id=go-to-cart class=btn btn-primary type=buttonSepete Gitbutton
+        button id=continue-shopping class=btn btn-outline type=buttonAlışverişe Devambutton
+      div
+    div
+  div
+
+  Footer slot=footer 
+BaseLayout
+
+script
+   ============================================
+   CART MODAL LOGIC - Her sayfada aynı
+   ============================================
+  const cartModal = document.getElementById('cart-modal');
+  const successModal = document.getElementById('success-modal');
+  const variantWrapper = document.getElementById('variant-selector-wrapper');
+  let selectedProduct any = null;
+  let selectedVariant any = null;
+
+  document.querySelectorAll('.btn-add-cart').forEach(btn = {
+    btn.addEventListener('click', (e) = {
+      e.preventDefault();
+      e.stopPropagation();
+      const productData = btn.getAttribute('data-product');
+      if (productData) {
+        try {
+          selectedProduct = JSON.parse(productData);
+          openCartModal(selectedProduct);
+        } catch (error) {
+          console.error('Product data parse error', error);
+        }
+      }
+    });
+  });
+
+  function openCartModal(product any) {
+    if (!cartModal) return;
+    
+    cartModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    const modalImage = document.getElementById('modal-product-image') as HTMLImageElement;
+    const modalName = document.getElementById('modal-product-name');
+    const variantOptions = document.getElementById('variant-options');
+
+    if (modalImage) modalImage.src = product.image;
+    if (modalName) modalName.textContent = product.name;
+
+    if (product.variants && Array.isArray(product.variants) && product.variants.length  0) {
+      if (variantWrapper) variantWrapper.style.display = 'block';
+      
+      if (variantOptions) {
+        variantOptions.innerHTML = '';
+        product.variants.forEach((variant any, index number) = {
+          const btn = document.createElement('button');
+          btn.className = `variant-btn ${index === 0  'active'  ''}`;
+          btn.textContent = `${variant.label} - ${variant.price}₺`;
+          btn.type = 'button';
+          btn.addEventListener('click', () = {
+            document.querySelectorAll('.variant-btn').forEach(b = b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedVariant = variant;
+            updateTotalPrice();
+          });
+          variantOptions.appendChild(btn);
+        });
+        selectedVariant = product.variants[0];
+      }
+    } else {
+      if (variantWrapper) variantWrapper.style.display = 'none';
+      selectedVariant = {
+        label product.unit  'adet',
+        price product.price
+      };
+    }
+
+    const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
+    if (qtyInput) qtyInput.value = '1';
+    updateTotalPrice();
+  }
+
+  function updateTotalPrice() {
+    const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
+    const totalPriceEl = document.getElementById('modal-total-price');
+    if (qtyInput && totalPriceEl && selectedVariant) {
+      const quantity = parseInt(qtyInput.value)  1;
+      const total = selectedVariant.price  quantity;
+      totalPriceEl.textContent = `${total}₺`;
+    }
+  }
+
+  document.querySelector('.qty-minus').addEventListener('click', () = {
+    const input = document.querySelector('.qty-input') as HTMLInputElement;
+    if (input) {
+      const currentValue = parseInt(input.value)  1;
+      if (currentValue  1) {
+        input.value = (currentValue - 1).toString();
+        updateTotalPrice();
+      }
+    }
+  });
+
+  document.querySelector('.qty-plus').addEventListener('click', () = {
+    const input = document.querySelector('.qty-input') as HTMLInputElement;
+    if (input) {
+      const currentValue = parseInt(input.value)  1;
+      input.value = (currentValue + 1).toString();
+      updateTotalPrice();
+    }
+  });
+
+  document.querySelector('.qty-input').addEventListener('input', updateTotalPrice);
+
+  document.querySelector('.modal-close').addEventListener('click', () = {
+    cartModal.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  cartModal.addEventListener('click', (e) = {
+    if (e.target === cartModal) {
+      cartModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+
+  document.getElementById('confirm-add-cart').addEventListener('click', () = {
+    const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
+    const quantity = parseInt(qtyInput.value)  1;
+
+    if (selectedProduct && selectedVariant) {
+      const cartItem = {
+        id `${selectedProduct.id}-${selectedVariant.label}`,
+        productId selectedProduct.id,
+        name `${selectedProduct.name} - ${selectedVariant.label}`,
+        price selectedVariant.price,
+        image selectedProduct.image,
+        unit selectedVariant.label,
+        quantity quantity
+      };
+
+      let cart = [];
+      try {
+        const cartData = localStorage.getItem('cart');
+        cart = cartData  JSON.parse(cartData)  [];
+      } catch (e) {
+        cart = [];
+      }
+
+      const existingItemIndex = cart.findIndex((item any) = item.id === cartItem.id);
+
+      if (existingItemIndex  -1) {
+        cart[existingItemIndex].quantity += quantity;
+      } else {
+        cart.push(cartItem);
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+      window.dispatchEvent(new Event('cartUpdated'));
+
+      cartModal.classList.remove('active');
+      successModal.classList.add('active');
+    }
+  });
+
+  document.getElementById('go-to-cart').addEventListener('click', () = {
+    window.location.href = 'sepet';
+  });
+
+  document.getElementById('continue-shopping').addEventListener('click', () = {
+    successModal.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  document.addEventListener('keydown', (e) = {
+    if (e.key === 'Escape') {
+      if (cartModal.classList.contains('active')) {
+        cartModal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+      if (successModal.classList.contains('active')) {
+        successModal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
+  });
+script
+
+!-- 
+============================================
+YENİ KATEGORİ OLUŞTURMA ADIMLARI
+============================================
+
+1. Bu dosyayı kopyala → yeni-kategori.astro
+2. Üstteki KATEGORI AYARLARI bölümünü güncelle
+   - CATEGORY_NAME Supabase'deki kategori adı
+   - PAGE_TITLE Sayfa başlığı
+   - PAGE_DESCRIPTION Hero açıklama
+   - FEATURES 3 özellik badge
+   - INFO_CARDS 3 info kartı
+
+3. Diğer hiçbir şeyi değiştirme!
+4. Global CSS tüm stilleri sağlıyor
+5. Script kodu tüm sayfalarda aynı
+
+ÖRNEK
+- kavurma.astro
+- salam.astro
+- sosis.astro
+--

@@ -1,295 +1,718 @@
-/* src/styles/global.css */
-
 /* ============================================
-   CSS VARIABLES - Modern Color Palette
+   GLOBAL STYLES - Pastırma Adası
+   Tüm sayfalarda kullanılacak ortak stiller
    ============================================ */
+
+/* CSS Variables - Renk Paleti */
 :root {
-  /* Primary Colors - Warm & Inviting */
-  --primary: #39cce6;
-  --primary-dark: #088ea6;
-  --primary-light: #f1faee;
+  /* Primary Colors - Turkuaz (Marka Kimliği) */
+  --color-primary: #0891B2;
+  --color-primary-light: #06B6D4;
+  --color-primary-lighter: #22D3EE;
+  --color-primary-dark: #0e7490;
+  --color-primary-bg: #F0FDFA;
 
-  /* Secondary Colors - Fresh & Modern */
-  --secondary: #f77f00;
-  --accent: #fcbf49;
+  /* Secondary Colors - Kırmızı (CTA & Fiyat) */
+  --color-secondary: #DC2626;
+  --color-secondary-dark: #B91C1C;
+  --color-secondary-darker: #991B1B;
 
-  /* Neutral Colors */
-  --text-dark: #1a1a1a;
-  --text-gray: #4a5568;
-  --text-light: #718096;
+  /* Success - Yeşil */
+  --color-success: #059669;
+  --color-success-light: #10B981;
 
-  --bg-white: #ffffff;
-  --bg-gray: #088ea6;
-  --bg-light: #edf2f7;
+  /* Gray Scale */
+  --color-gray-50: #F9FAFB;
+  --color-gray-100: #F3F4F6;
+  --color-gray-200: #E5E7EB;
+  --color-gray-300: #D1D5DB;
+  --color-gray-400: #9CA3AF;
+  --color-gray-500: #6B7280;
+  --color-gray-600: #4B5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1F2937;
+  --color-gray-900: #111827;
 
-  --border-color: #e2e8f0;
+  /* Text Colors */
+  --color-text-primary: #1F2937;
+  --color-text-secondary: #6B7280;
+  --color-text-muted: #9CA3AF;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  --gradient-secondary: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary-dark) 100%);
+  --gradient-success: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-light) 100%);
+  --gradient-overlay: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
 
   /* Shadows */
-  --shadow: rgba(0, 0, 0, 0.1);
-  --shadow-lg: rgba(0, 0, 0, 0.15);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-base: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 10px 30px rgba(0, 0, 0, 0.2);
+  --shadow-primary: 0 2px 8px rgba(8, 145, 178, 0.3);
+  --shadow-secondary: 0 2px 8px rgba(220, 38, 38, 0.2);
 
-  /* Radius */
+  /* Spacing */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 0.75rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+
+  /* Border Radius */
   --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 50px;
 
   /* Transitions */
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.2s ease;
+  --transition-base: 0.3s ease;
+  --transition-slow: 0.4s ease;
+
+  /* Container */
+  --container-max-width: 1200px;
 }
 
 /* ============================================
-   RESET & BASE STYLES
+   UTILITY CLASSES
    ============================================ */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
-html {
-  scroll-behavior: smooth;
-  font-size: 16px;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  line-height: 1.6;
-  color: var(--text-dark);
-  background: var(--bg-white);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* ============================================
-   TYPOGRAPHY
-   ============================================ */
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 700;
-  line-height: 1.2;
-  color: var(--text-dark);
-  margin-bottom: 1rem;
-}
-
-h1 { font-size: 2.5rem; }
-h2 { font-size: 2rem; }
-h3 { font-size: 1.75rem; }
-h4 { font-size: 1.5rem; }
-h5 { font-size: 1.25rem; }
-h6 { font-size: 1rem; }
-
-p {
-  margin-bottom: 1rem;
-  color: var(--text-gray);
-}
-
-a {
-  color: var(--primary);
-  text-decoration: none;
-  transition: var(--transition);
-}
-
-a:hover {
-  color: var(--primary-dark);
-}
-
-/* ============================================
-   LAYOUT UTILITIES
-   ============================================ */
 .container {
-  max-width: 1280px;
+  max-width: var(--container-max-width);
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 var(--spacing-lg);
+}
+
+.section-padding {
+  padding: var(--spacing-3xl) var(--spacing-md);
+}
+
+/* Text Utilities */
+.text-primary { color: var(--color-text-primary); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-muted { color: var(--color-text-muted); }
+
+/* Background Utilities */
+.bg-gray-50 { background: var(--color-gray-50); }
+.bg-gray-100 { background: var(--color-gray-100); }
+.bg-white { background: white; }
+
+/* ============================================
+   HERO SECTION - Ortak Yapı
+   ============================================ */
+
+.hero-section {
+  position: relative;
+  min-height: 400px;
+  background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-3xl) var(--spacing-md);
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: white;
+  max-width: 1000px;
+}
+
+.breadcrumb {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-xl);
+  font-size: 0.875rem;
+}
+
+.breadcrumb a {
+  color: rgba(255, 255, 255, 0.95);
+  opacity: 1;
+  transition: opacity var(--transition-base);
+  text-decoration: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.breadcrumb a:hover {
+  opacity: 0.8;
+}
+
+.breadcrumb span {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.hero-content h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin: 0 0 1.5rem 0;
+  color: white;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  margin: 0 0 var(--spacing-xl) 0;
+  color: rgba(255, 255, 255, 0.98);
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.hero-features {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-xl);
+  flex-wrap: wrap;
+}
+
+.feature-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.feature-badge svg {
+  color: var(--color-success);
 }
 
 /* ============================================
-   BUTTONS
+   PRODUCTS SECTION - Ortak Yapı
    ============================================ */
+
+.products-section {
+  padding: var(--spacing-3xl) var(--spacing-md);
+  background: var(--color-gray-100);
+}
+
+.section-header {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.section-header h2 {
+  font-size: 1.125rem;
+  color: var(--color-gray-500);
+  font-weight: 400;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-xl);
+}
+
+.no-products {
+  text-align: center;
+  padding: var(--spacing-3xl) var(--spacing-md);
+  color: var(--color-gray-500);
+}
+
+/* ============================================
+   PRODUCT CARD - Ortak Yapı
+   ============================================ */
+
+.product-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-base);
+  transition: all var(--transition-base);
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.product-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.product-image-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.1);
+}
+
+.product-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(8, 145, 178, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-base);
+}
+
+.product-card:hover .product-overlay {
+  opacity: 1;
+  visibility: visible;
+}
+
+.btn-view-product {
+  padding: 0.875rem 2rem;
+  background: white;
+  color: var(--color-primary);
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all var(--transition-base);
+}
+
+.btn-view-product:hover {
+  background: var(--color-primary);
+  color: white;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+.product-name-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 15px;
+  background: var(--gradient-overlay);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.product-info {
+  padding: var(--spacing-lg);
+}
+
+.product-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-secondary);
+  margin-bottom: var(--spacing-md);
+}
+
+.price-unit {
+  font-size: 1rem;
+  color: #666;
+  font-weight: 400;
+}
+
+/* ============================================
+   BUTTONS - Ortak Buton Stilleri
+   ============================================ */
+
 .btn {
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
+  padding: 14px 28px;
   border: none;
   border-radius: var(--radius-md);
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all var(--transition-base);
+  text-decoration: none;
+  display: inline-block;
   text-align: center;
 }
 
 .btn-primary {
-  background: var(--primary);
+  background: var(--gradient-secondary);
   color: white;
+  box-shadow: var(--shadow-secondary);
 }
 
 .btn-primary:hover {
-  background: var(--primary-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--shadow-lg);
-}
-
-.btn-secondary {
-  background: var(--secondary);
-  color: white;
-}
-
-.btn-secondary:hover {
-  background: #e67300;
+  background: linear-gradient(135deg, var(--color-secondary-dark) 0%, var(--color-secondary-darker) 100%);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
   transform: translateY(-2px);
 }
 
 .btn-outline {
-  background: transparent;
-  border: 2px solid var(--primary);
-  color: var(--primary);
+  background: white;
+  color: var(--color-secondary);
+  border: 2px solid var(--color-secondary);
 }
 
 .btn-outline:hover {
-  background: var(--primary);
+  background: var(--color-secondary);
   color: white;
 }
 
-.btn-full {
-  width: 100%;
-}
-
 .btn-large {
-  padding: 1rem 2rem;
-  font-size: 1.125rem;
-}
-
-/* ============================================
-   FORMS
-   ============================================ */
-input,
-textarea,
-select {
   width: 100%;
-  padding: 0.75rem 1rem;
-  border: 2px solid var(--border-color);
+  font-size: 1.1rem;
+}
+
+.btn-add-cart {
+  width: 100%;
+  padding: 0.75rem 1.25rem;
+  background: var(--gradient-secondary);
+  color: white;
+  border: none;
   border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-secondary);
+}
+
+.btn-add-cart:hover {
+  background: linear-gradient(135deg, var(--color-secondary-dark) 0%, var(--color-secondary-darker) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+/* ============================================
+   INFO SECTION - Ortak Yapı
+   ============================================ */
+
+.info-section {
+  padding: var(--spacing-3xl) var(--spacing-md);
+  background: white;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-xl);
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+}
+
+.info-card {
+  text-align: center;
+  padding: var(--spacing-xl);
+  background: var(--color-gray-100);
+  border-radius: var(--radius-xl);
+  transition: all var(--transition-base);
+}
+
+.info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(8, 145, 178, 0.15);
+}
+
+.info-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--spacing-lg);
+  background: var(--gradient-primary);
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.info-card h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 0.75rem 0;
+}
+
+.info-card p {
   font-size: 1rem;
-  font-family: inherit;
-  color: var(--text-dark);
-  background: var(--bg-white);
-  transition: var(--transition);
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1);
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: var(--text-light);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
 }
 
 /* ============================================
-   CARDS
+   MODAL - Ortak Modal Stilleri
    ============================================ */
-.card {
-  background: var(--bg-white);
+
+.cart-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: white;
   border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  box-shadow: 0 4px 12px var(--shadow);
-  transition: var(--transition);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: var(--shadow-xl);
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px var(--shadow-lg);
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  z-index: 10;
+  transition: color var(--transition-base);
+}
+
+.modal-close:hover {
+  color: #333;
+}
+
+.modal-body {
+  padding: 30px;
+}
+
+.modal-product-image {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+}
+
+.modal-body h3 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.variant-selector,
+.quantity-selector {
+  margin-bottom: 25px;
+}
+
+.variant-selector label,
+.quantity-selector label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.variant-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.variant-btn {
+  padding: 10px 20px;
+  border: 2px solid var(--color-gray-200);
+  background: white;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  font-weight: 500;
+}
+
+.variant-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.variant-btn.active {
+  background: var(--gradient-primary);
+  color: white;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-primary);
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.qty-btn {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--color-primary);
+  background: white;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: all var(--transition-base);
+  color: var(--color-primary);
+}
+
+.qty-btn:hover {
+  background: var(--color-primary);
+  color: white;
+}
+
+.qty-input {
+  width: 80px;
+  height: 40px;
+  text-align: center;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: var(--color-primary-bg);
+}
+
+.modal-price {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  border: 2px solid #FED7AA;
+}
+
+.price-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.total-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-secondary);
+}
+
+/* Success Modal */
+.success-content {
+  padding: 40px;
+  text-align: center;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  background: var(--gradient-success);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.success-icon svg {
+  stroke: white;
+}
+
+.success-content h3 {
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.success-buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.success-buttons .btn {
+  flex: 1;
+  min-width: 150px;
 }
 
 /* ============================================
-   UTILITIES
+   RESPONSIVE DESIGN
    ============================================ */
-.text-center { text-align: center; }
-.text-left { text-align: left; }
-.text-right { text-align: right; }
 
-.text-primary { color: var(--primary); }
-.text-secondary { color: var(--secondary); }
-.text-gray { color: var(--text-gray); }
-
-.bg-primary { background: var(--primary); }
-.bg-secondary { background: var(--secondary); }
-.bg-gray { background: var(--bg-gray); }
-.bg-light { background: var(--bg-light); }
-
-.hidden { display: none; }
-
-.mt-1 { margin-top: 0.5rem; }
-.mt-2 { margin-top: 1rem; }
-.mt-3 { margin-top: 1.5rem; }
-.mt-4 { margin-top: 2rem; }
-
-.mb-1 { margin-bottom: 0.5rem; }
-.mb-2 { margin-bottom: 1rem; }
-.mb-3 { margin-bottom: 1.5rem; }
-.mb-4 { margin-bottom: 2rem; }
-
-.p-1 { padding: 0.5rem; }
-.p-2 { padding: 1rem; }
-.p-3 { padding: 1.5rem; }
-.p-4 { padding: 2rem; }
-
-/* ============================================
-   LAZY LOADING
-   ============================================ */
-img[loading="lazy"] {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-img[loading="lazy"].loaded {
-  opacity: 1;
-}
-
-/* ============================================
-   CUSTOM SCROLLBAR
-   ============================================ */
-::-webkit-scrollbar {
-  width: 12px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg-light);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--primary);
-  border-radius: 6px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-dark);
-}
-
-/* ============================================
-   RESPONSIVE
-   ============================================ */
 @media (max-width: 768px) {
-  html {
-    font-size: 14px;
+  .hero-section {
+    min-height: 300px;
+    padding: var(--spacing-2xl) var(--spacing-md);
   }
 
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.75rem; }
-  h3 { font-size: 1.5rem; }
-
-  .container {
-    padding: 0 1rem;
+  .hero-content h1 {
+    font-size: 2.5rem;
   }
 
-  .btn {
-    padding: 0.625rem 1.25rem;
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .hero-features {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    align-items: center;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .success-buttons {
+    flex-direction: column;
+  }
+
+  .success-buttons .btn {
+    width: 100%;
   }
 }
 
 @media (max-width: 480px) {
-  h1 { font-size: 1.75rem; }
-  h2 { font-size: 1.5rem; }
-  h3 { font-size: 1.25rem; }
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .product-image-wrapper {
+    height: 250px;
+  }
 }

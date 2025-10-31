@@ -1,91 +1,191 @@
 ---
+// src/pages/sucuk.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import ProductCard from '../components/ProductCard.astro';
 import { supabase } from '../lib/supabase';
 
-// Supabase'den Sucuk kategorisindeki ürünleri çek
-const { data: products, error } = await supabase
+// Sucuk kategorisindeki tüm ürünleri çek
+const { data: sucukProducts } = await supabase
   .from('products')
   .select('*')
   .eq('category', 'Sucuk')
   .eq('is_active', true)
   .order('name', { ascending: true });
 
-if (error) {
-  console.error('Supabase hatası:', error);
+// Resim URL'sini al
+function getImageUrl(imgs: any): string {
+  const placeholder = '/assets/image/placeholder.jpg';
+  if (!imgs) return placeholder;
+
+  if (Array.isArray(imgs)) {
+    if (imgs.length === 0) return placeholder;
+    const firstImage = String(imgs[0]).replace(/^"|"$/g, '').replace(/""/g, '').trim();
+    return firstImage || placeholder;
+  }
+
+  if (typeof imgs === 'string') {
+    if (imgs.startsWith('{') && imgs.endsWith('}')) {
+      const paths = imgs.slice(1, -1).split(',').map(p => p.trim().replace(/^"|"$/g, ''));
+      if (paths.length > 0 && paths[0]) return paths[0];
+    }
+
+    if (imgs.startsWith('[')) {
+      try {
+        const cleaned = imgs.replace(/""/g, '"').replace(/\\"/g, '"');
+        const parsed = JSON.parse(cleaned);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return String(parsed[0]).replace(/^"|"$/g, '').trim() || placeholder;
+        }
+      } catch (e) {
+        console.error('Image parse error:', e);
+      }
+    }
+
+    const cleaned = imgs.replace(/^"|"$/g, '').trim();
+    if (cleaned.startsWith('/') || cleaned.startsWith('http')) return cleaned;
+  }
+
+  return placeholder;
 }
 ---
 
 <BaseLayout
-  title="Kayseri Sucuğu - Pastırma Adası"
-  description="Geleneksel yöntemlerle üretilen, farklı şekil ve boyutlarda Kayseri sucuğu çeşitlerimiz."
+  title="Kayseri Sucuğu - Sucuk Çeşitlerimiz"
+  description="Geleneksel yöntemlerle üretilen, farklı şekil ve boyutlarda Kayseri sucuğu çeşitlerimizi keşfedin."
 >
   <Header slot="header" />
 
-  <section class="hero-section">
+  <!-- Hero Section -->
+  <section class="pastirma-hero">
     <div class="hero-overlay"></div>
     <div class="hero-content">
-      <h1 class="hero-title">Kayseri Sucuğu</h1>
+      <nav class="breadcrumb">
+        <a href="/">Ana Sayfa</a>
+        <span>/</span>
+        <span>Sucuk Çeşitlerimiz</span>
+      </nav>
+      <h1>Sucuk Çeşitlerimiz</h1>
       <p class="hero-subtitle">
         Özenle seçilmiş dana etinden, özel baharat karışımımızla hazırlanan geleneksel Kayseri sucuklarımız
       </p>
       <div class="hero-features">
-        <div class="feature">
-          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+        <div class="feature-badge">
+          <svg width="20" height="20" fill="#059669" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
           </svg>
           100% Dana Eti
         </div>
-        <div class="feature">
-          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+        <div class="feature-badge">
+          <svg width="20" height="20" fill="#059669" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
           </svg>
           Özel Baharat
         </div>
-        <div class="feature">
-          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+        <div class="feature-badge">
+          <svg width="20" height="20" fill="#059669" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
           </svg>
-          Doğal Kurutma
+          Geleneksel Üretim
         </div>
       </div>
     </div>
   </section>
 
+  <!-- Products Grid -->
   <section class="products-section">
     <div class="container">
       <div class="section-header">
-        <h2>Sucuk Çeşitlerimiz</h2>
-        <p>Farklı form ve boyutlarda, her damak tadına uygun sucuklar</p>
+        <h2>{sucukProducts?.length || 0} sonucun tümü gösteriliyor</h2>
       </div>
 
-      {products && products.length > 0 ? (
+      {sucukProducts && sucukProducts.length > 0 && (
         <div class="products-grid">
-          {products.map((product, index) => (
-            <ProductCard
-              id={product.id.toString()}
-              slug={product.slug}
-              name={product.name}
-              price={product.price}
-              images={product.images}
-              unit={product.unit}
-              description={product.description}
-              variants={product.variants}
-              index={index}
-            />
+          {sucukProducts.map((product, index) => (
+            <div class="product-card">
+              <div class="product-image-wrapper">
+                <a href={`/urun/${product.slug}`} class="product-image-link">
+                  <img
+                    src={getImageUrl(product.images)}
+                    alt={product.name}
+                    class="product-image"
+                    loading={index < 4 ? "eager" : "lazy"}
+                    fetchpriority={index < 2 ? "high" : "auto"}
+                    onError="this.onerror=null; this.src='/assets/image/placeholder.jpg';"
+                  />
+                  <div class="product-overlay">
+                    <span class="btn-view-product">Ürünü İncele</span>
+                  </div>
+                  <h3 class="product-name-overlay">{product.name}</h3>
+                </a>
+              </div>
+              <div class="product-info">
+                <p class="product-price">
+                  {product.price}₺
+                  <span class="price-unit">/{product.unit}</span>
+                </p>
+                <button
+                  class="btn-add-cart"
+                  data-product={JSON.stringify({
+                    id: product.id,
+                    name: product.name,
+                    image: getImageUrl(product.images),
+                    variants: product.variants,
+                    slug: product.slug
+                  })}
+                >
+                  Sepete Ekle
+                </button>
+              </div>
+            </div>
           ))}
         </div>
-      ) : (
+      )}
+
+      {(!sucukProducts || sucukProducts.length === 0) && (
         <div class="no-products">
-          <p>Şu anda bu kategoride ürün bulunmamaktadır.</p>
+          <p>Şu anda görüntülenecek ürün bulunmamaktadır.</p>
         </div>
       )}
     </div>
   </section>
 
-  <!-- Cart Modal -->
+  <!-- Info Section -->
+  <section class="info-section">
+    <div class="container">
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3>Kalite Garantisi</h3>
+          <p>Tüm ürünlerimiz hijyenik ortamlarda, kalite kontrolünden geçerek üretilir.</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3>Hızlı Teslimat</h3>
+          <p>Siparişleriniz özenle paketlenir ve hızlı kargo ile gönderilir.</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+            </svg>
+          </div>
+          <h3>Güvenli Ödeme</h3>
+          <p>Tüm ödemeleriniz SSL sertifikası ile güvence altındadır.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Add to Cart Modal -->
   <div id="cart-modal" class="cart-modal">
     <div class="modal-content">
       <button class="modal-close" aria-label="Kapat">
@@ -98,7 +198,7 @@ if (error) {
         <img id="modal-product-image" src="" alt="" class="modal-product-image" />
         <h3 id="modal-product-name"></h3>
 
-        <div class="variant-selector" id="variant-selector-container">
+        <div class="variant-selector">
           <label>Gramaj Seçin:</label>
           <div id="variant-options" class="variant-options"></div>
         </div>
@@ -117,168 +217,340 @@ if (error) {
           <span id="modal-total-price" class="total-price">0₺</span>
         </div>
 
-        <button id="confirm-add-cart" class="btn-confirm-cart">Sepete Ekle</button>
+        <button id="confirm-add-cart" class="btn btn-primary btn-large">Sepete Ekle</button>
       </div>
     </div>
   </div>
 
-  <!-- Success Notification -->
-  <div id="success-notification" class="success-notification">
-    <div class="success-content">
+  <!-- Cart Success Modal -->
+  <div id="success-modal" class="cart-modal">
+    <div class="modal-content success-content">
       <div class="success-icon">
-        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg width="60" height="60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
         </svg>
       </div>
-      <p class="success-message">Ürün sepete eklendi!</p>
+      <h3>Ürün sepete eklendi!</h3>
       <div class="success-buttons">
-        <a href="/sepet" class="btn-success btn-go-cart">Sepete Git</a>
-        <button id="continue-shopping" class="btn-success btn-continue">Alışverişe Devam</button>
+        <button id="go-to-cart" class="btn btn-primary">Sepete Git</button>
+        <button id="continue-shopping" class="btn btn-outline">Alışverişe Devam</button>
       </div>
     </div>
   </div>
-
-  <section class="info-section">
-    <div class="container">
-      <div class="info-grid">
-        <div class="info-card">
-          <div class="info-icon">
-            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-          </div>
-          <h3>Helal Sertifikalı</h3>
-          <p>Tüm ürünlerimiz helal kesim ve hijyenik üretim standartlarına uygundur.</p>
-        </div>
-        <div class="info-card">
-          <div class="info-icon">
-            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-            </svg>
-          </div>
-          <h3>Vakumlu Paket</h3>
-          <p>Ürünlerimiz vakumlu ambalajda, tazeliğini koruyarak gönderilir.</p>
-        </div>
-        <div class="info-card">
-          <div class="info-icon">
-            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-          </div>
-          <h3>Uzun Raf Ömrü</h3>
-          <p>Doğru saklama koşullarında uzun süre taze kalır.</p>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <Footer slot="footer" />
 </BaseLayout>
 
 <style>
-  .hero-section {
+  /* Hero Section - TURKUAZ (Marka Kimliği) */
+  .pastirma-hero {
     position: relative;
-    background: linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #22d3ee 100%);
-    padding: 5rem 1rem;
-    text-align: center;
-    color: white;
     min-height: 400px;
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 4rem 1rem;
   }
 
+  /* Koyu overlay - okunabilirlik için */
   .hero-overlay {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.15) 100%);
+    background: rgba(0, 0, 0, 0.4);
   }
 
   .hero-content {
     position: relative;
     z-index: 2;
-    max-width: 800px;
-    padding: 0 20px;
+    text-align: center;
+    color: white;
+    max-width: 1000px;
   }
 
-  .hero-title {
-    font-size: 48px;
+  .breadcrumb {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    font-size: 0.875rem;
+  }
+
+  .breadcrumb a {
+    color: rgba(255, 255, 255, 0.95);
+    opacity: 1;
+    transition: opacity 0.3s;
+    text-decoration: none;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .breadcrumb a:hover {
+    opacity: 0.8;
+  }
+
+  .breadcrumb span {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .hero-content h1 {
+    font-size: 3.5rem;
     font-weight: 800;
-    margin: 0 0 16px 0;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    margin: 0 0 1.5rem 0;
+    color: white;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
   }
 
   .hero-subtitle {
-    font-size: 18px;
+    font-size: 1.25rem;
     line-height: 1.6;
-    margin: 0 0 32px 0;
-    opacity: 0.95;
+    margin: 0 0 2rem 0;
+    color: rgba(255, 255, 255, 0.98);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
   }
 
   .hero-features {
     display: flex;
     justify-content: center;
-    gap: 32px;
+    gap: 2rem;
     flex-wrap: wrap;
   }
 
-  .feature {
+  .feature-badge {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 16px;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 50px;
     font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .feature-badge svg {
+    color: #059669;
   }
 
   .products-section {
-    padding: 80px 0;
-    background: #f0fdfa;
+    padding: 4rem 1rem;
+    background: #F3F4F6;
   }
 
   .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px;
   }
 
   .section-header {
-    text-align: center;
-    margin-bottom: 48px;
+    margin-bottom: 3rem;
   }
 
   .section-header h2 {
-    font-size: 36px;
-    font-weight: 700;
-    color: #134e4a;
-    margin: 0 0 12px 0;
-  }
-
-  .section-header p {
-    font-size: 18px;
-    color: #0f766e;
-    margin: 0;
+    font-size: 1.125rem;
+    color: #6B7280;
+    font-weight: 400;
   }
 
   .products-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 32px;
+    gap: 2rem;
+  }
+
+  .product-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .product-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+
+  .product-image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+  }
+
+  .product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .product-card:hover .product-image {
+    transform: scale(1.1);
+  }
+
+  .product-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(8, 145, 178, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .product-card:hover .product-overlay {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .btn-view-product {
+    padding: 0.875rem 2rem;
+    background: white;
+    color: #0891B2;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .btn-view-product:hover {
+    background: #0891B2;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+  }
+
+  .product-name-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 15px;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .product-info {
+    padding: 1.5rem;
+  }
+
+  /* Fiyatlar - KIRMIZI */
+  .product-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #DC2626;
+    margin-bottom: 1rem;
+  }
+
+  .price-unit {
+    font-size: 1rem;
+    color: #666;
+    font-weight: 400;
+  }
+
+  /* Sepete Ekle Butonu - KIRMIZI */
+  .btn-add-cart {
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+  }
+
+  .btn-add-cart:hover {
+    background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
   }
 
   .no-products {
     text-align: center;
-    padding: 60px 20px;
+    padding: 4rem 1rem;
+    color: #6B7280;
   }
 
-  .no-products p {
-    font-size: 18px;
-    color: #0f766e;
+  /* Info Section - Turkuaz İkonlar */
+  .info-section {
+    padding: 4rem 1rem;
+    background: white;
   }
 
-  /* Cart Modal */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .info-card {
+    text-align: center;
+    padding: 2rem;
+    background: #F3F4F6;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+  }
+
+  .info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(8, 145, 178, 0.15);
+  }
+
+  .info-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .info-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 0.75rem 0;
+  }
+
+  .info-card p {
+    font-size: 1rem;
+    color: #6B7280;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Modal Styles */
   .cart-modal {
     display: none;
     position: fixed;
@@ -286,8 +558,8 @@ if (error) {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 10000;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
     align-items: center;
     justify-content: center;
   }
@@ -298,67 +570,47 @@ if (error) {
 
   .modal-content {
     background: white;
-    border-radius: 20px;
+    border-radius: 12px;
     max-width: 500px;
     width: 90%;
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    animation: slideUp 0.3s ease;
-  }
-
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   }
 
   .modal-close {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(0, 0, 0, 0.1);
+    top: 15px;
+    right: 15px;
+    background: none;
     border: none;
     cursor: pointer;
     color: #666;
     z-index: 10;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s;
+    transition: color 0.3s;
   }
 
   .modal-close:hover {
-    background: rgba(0, 0, 0, 0.2);
     color: #333;
   }
 
   .modal-body {
-    padding: 40px 30px 30px;
+    padding: 30px;
   }
 
   .modal-product-image {
     width: 100%;
     height: 250px;
     object-fit: cover;
-    border-radius: 12px;
+    border-radius: 8px;
     margin-bottom: 20px;
   }
 
   .modal-body h3 {
     font-size: 1.5rem;
-    margin-bottom: 25px;
-    color: #134e4a;
-    font-weight: 700;
+    margin-bottom: 20px;
+    color: #333;
   }
 
   .variant-selector,
@@ -370,9 +622,8 @@ if (error) {
   .quantity-selector label {
     display: block;
     font-weight: 600;
-    margin-bottom: 12px;
-    color: #0f766e;
-    font-size: 0.95rem;
+    margin-bottom: 10px;
+    color: #333;
   }
 
   .variant-options {
@@ -381,26 +632,27 @@ if (error) {
     gap: 10px;
   }
 
+  /* Variant Butonları - Turkuaz */
   .variant-btn {
-    padding: 12px 20px;
-    border: 2px solid #0891b2;
+    padding: 10px 20px;
+    border: 2px solid #E5E7EB;
     background: white;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s;
-    font-weight: 600;
-    color: #0891b2;
+    font-weight: 500;
   }
 
   .variant-btn:hover {
-    background: #f0fdfa;
-    transform: translateY(-2px);
+    border-color: #0891B2;
+    color: #0891B2;
   }
 
   .variant-btn.active {
-    background: linear-gradient(135deg, #0891b2, #06b6d4);
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
     color: white;
-    border-color: #0891b2;
+    border-color: #0891B2;
+    box-shadow: 0 2px 8px rgba(8, 145, 178, 0.3);
   }
 
   .quantity-controls {
@@ -409,324 +661,207 @@ if (error) {
     gap: 15px;
   }
 
+  /* Miktar Butonları - Turkuaz */
   .qty-btn {
-    width: 44px;
-    height: 44px;
-    border: 2px solid #0891b2;
+    width: 40px;
+    height: 40px;
+    border: 2px solid #0891B2;
     background: white;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #0891b2;
+    font-size: 1.2rem;
+    font-weight: 600;
     transition: all 0.3s;
+    color: #0891B2;
   }
 
   .qty-btn:hover {
-    background: linear-gradient(135deg, #0891b2, #06b6d4);
+    background: #0891B2;
     color: white;
-    transform: scale(1.05);
   }
 
   .qty-input {
     width: 80px;
-    height: 44px;
+    height: 40px;
     text-align: center;
-    border: 2px solid #0891b2;
-    border-radius: 8px;
+    border: 2px solid #0891B2;
+    border-radius: 6px;
     font-size: 1.1rem;
     font-weight: 600;
-    color: #134e4a;
+    color: #0891B2;
+    background: #F0FDFA;
   }
 
-  .qty-input:focus {
-    outline: none;
-    border-color: #06b6d4;
-  }
-
+  /* Modal Toplam - Turuncu */
   .modal-price {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    background: linear-gradient(135deg, #f0fdfa, #ccfbf1);
-    border-radius: 12px;
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    border-radius: 8px;
     margin-bottom: 20px;
+    border: 2px solid #FED7AA;
   }
 
   .price-label {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #0f766e;
+    color: #333;
   }
 
   .total-price {
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: #0891b2;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #DC2626;
   }
 
-  .btn-confirm-cart {
-    width: 100%;
-    padding: 16px;
-    background: linear-gradient(135deg, #0891b2, #06b6d4);
-    color: white;
+  .btn {
+    padding: 14px 28px;
     border: none;
-    border-radius: 12px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
   }
 
-  .btn-confirm-cart:hover {
-    background: linear-gradient(135deg, #06b6d4, #22d3ee);
+  /* Primary Buton - Kırmızı */
+  .btn-primary {
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(8, 145, 178, 0.4);
   }
 
-  /* Success Notification */
-  .success-notification {
-    display: none;
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
+  /* Outline Buton - Kırmızı */
+  .btn-outline {
     background: white;
-    border-radius: 16px;
-    padding: 25px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-    z-index: 10001;
-    min-width: 350px;
-    animation: slideInRight 0.4s ease;
+    color: #DC2626;
+    border: 2px solid #DC2626;
   }
 
-  .success-notification.active {
-    display: block;
+  .btn-outline:hover {
+    background: #DC2626;
+    color: white;
   }
 
-  @keyframes slideInRight {
-    from {
-      opacity: 0;
-      transform: translateX(100px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
+  .btn-large {
+    width: 100%;
+    font-size: 1.1rem;
   }
 
+  /* Success Modal - Yeşil */
   .success-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    padding: 40px;
     text-align: center;
   }
 
   .success-icon {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #10b981, #059669);
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #059669 0%, #10B981 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 15px;
-    animation: scaleIn 0.5s ease;
-  }
-
-  @keyframes scaleIn {
-    0% {
-      transform: scale(0);
-    }
-    50% {
-      transform: scale(1.1);
-    }
-    100% {
-      transform: scale(1);
-    }
   }
 
   .success-icon svg {
     stroke: white;
-    stroke-width: 3;
   }
 
-  .success-message {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #134e4a;
-    margin-bottom: 20px;
+  .success-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+    color: #333;
   }
 
   .success-buttons {
     display: flex;
-    gap: 12px;
-    width: 100%;
+    gap: 15px;
+    flex-wrap: wrap;
   }
 
-  .btn-success {
+  .success-buttons .btn {
     flex: 1;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 10px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-  }
-
-  .btn-go-cart {
-    background: linear-gradient(135deg, #0891b2, #06b6d4);
-    color: white;
-    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
-  }
-
-  .btn-go-cart:hover {
-    background: linear-gradient(135deg, #06b6d4, #22d3ee);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(8, 145, 178, 0.4);
-  }
-
-  .btn-continue {
-    background: white;
-    color: #0891b2;
-    border: 2px solid #0891b2;
-  }
-
-  .btn-continue:hover {
-    background: #f0fdfa;
-    transform: translateY(-2px);
-  }
-
-  .info-section {
-    padding: 80px 0;
-    background: white;
-  }
-
-  .info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 32px;
-  }
-
-  .info-card {
-    text-align: center;
-    padding: 32px;
-    background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
-    border-radius: 16px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 2px solid #99f6e4;
-  }
-
-  .info-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 32px rgba(6, 182, 212, 0.2);
-  }
-
-  .info-icon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 20px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
-    color: white;
-  }
-
-  .info-card h3 {
-    font-size: 22px;
-    font-weight: 700;
-    color: #134e4a;
-    margin: 0 0 12px 0;
-  }
-
-  .info-card p {
-    font-size: 16px;
-    color: #0f766e;
-    line-height: 1.6;
-    margin: 0;
+    min-width: 150px;
   }
 
   @media (max-width: 768px) {
-    .hero-section {
+    .pastirma-hero {
       min-height: 300px;
       padding: 3rem 1rem;
     }
 
-    .hero-title {
-      font-size: 32px;
+    .hero-content h1 {
+      font-size: 2.5rem;
     }
 
     .hero-subtitle {
-      font-size: 16px;
+      font-size: 1rem;
     }
 
     .hero-features {
       flex-direction: column;
-      gap: 16px;
-    }
-
-    .products-section {
-      padding: 60px 0;
-    }
-
-    .section-header h2 {
-      font-size: 28px;
+      gap: 1rem;
+      align-items: center;
     }
 
     .products-grid {
-      grid-template-columns: 1fr;
-      gap: 24px;
-    }
-
-    .info-section {
-      padding: 60px 0;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
     }
 
     .info-grid {
       grid-template-columns: 1fr;
-      gap: 24px;
-    }
-
-    .success-notification {
-      bottom: 20px;
-      right: 20px;
-      left: 20px;
-      min-width: auto;
     }
 
     .success-buttons {
       flex-direction: column;
     }
 
-    .modal-body {
-      padding: 30px 20px 20px;
+    .success-buttons .btn {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .products-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .product-image-wrapper {
+      height: 250px;
     }
   }
 </style>
 
 <script>
-  // Cart Modal & Success Notification
   const cartModal = document.getElementById('cart-modal');
-  const successNotification = document.getElementById('success-notification');
+  const successModal = document.getElementById('success-modal');
   let selectedProduct: any = null;
   let selectedVariant: any = null;
 
-  // ProductCard'dan gelen openCartModal eventi dinle
-  document.addEventListener('openCartModal', (e: any) => {
-    const product = e.detail;
-    if (product) {
-      selectedProduct = product;
-      openCartModal(product);
-    }
+  document.querySelectorAll('.btn-add-cart').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const productData = btn.getAttribute('data-product');
+      if (productData) {
+        selectedProduct = JSON.parse(productData);
+        openCartModal(selectedProduct);
+      }
+    });
   });
 
   function openCartModal(product: any) {
@@ -736,45 +871,31 @@ if (error) {
     const modalImage = document.getElementById('modal-product-image') as HTMLImageElement;
     const modalName = document.getElementById('modal-product-name');
     const variantOptions = document.getElementById('variant-options');
-    const variantContainer = document.getElementById('variant-selector-container');
 
     if (modalImage) modalImage.src = product.image;
     if (modalName) modalName.textContent = product.name;
 
-    // Varyant varsa göster
-    if (variantContainer && product.variants && Array.isArray(product.variants) && product.variants.length > 0) {
-      variantContainer.style.display = 'block';
-
-      if (variantOptions) {
-        variantOptions.innerHTML = '';
-        product.variants.forEach((variant: any, index: number) => {
-          const btn = document.createElement('button');
-          btn.className = `variant-btn ${index === 0 ? 'active' : ''}`;
-          btn.textContent = `${variant.label} - ${variant.price}₺`;
-          btn.addEventListener('click', () => {
-            document.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            selectedVariant = variant;
-            updateTotalPrice();
-          });
-          variantOptions.appendChild(btn);
+    if (variantOptions && product.variants) {
+      variantOptions.innerHTML = '';
+      product.variants.forEach((variant: any, index: number) => {
+        const btn = document.createElement('button');
+        btn.className = `variant-btn ${index === 0 ? 'active' : ''}`;
+        btn.textContent = `${variant.label} - ${variant.price}₺`;
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          selectedVariant = variant;
+          updateTotalPrice();
         });
+        variantOptions.appendChild(btn);
+      });
 
-        selectedVariant = product.variants[0];
-      }
-    } else {
-      // Varyant yoksa gizle ve ürünün kendi fiyatını kullan
-      if (variantContainer) variantContainer.style.display = 'none';
-      selectedVariant = {
-        label: product.unit || 'adet',
-        price: product.price
-      };
+      selectedVariant = product.variants[0];
+      updateTotalPrice();
     }
 
     const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
     if (qtyInput) qtyInput.value = '1';
-
-    updateTotalPrice();
   }
 
   function updateTotalPrice() {
@@ -788,7 +909,6 @@ if (error) {
     }
   }
 
-  // Quantity controls
   document.querySelector('.qty-minus')?.addEventListener('click', () => {
     const input = document.querySelector('.qty-input') as HTMLInputElement;
     if (input) {
@@ -811,7 +931,6 @@ if (error) {
 
   document.querySelector('.qty-input')?.addEventListener('input', updateTotalPrice);
 
-  // Modal close
   document.querySelector('.modal-close')?.addEventListener('click', () => {
     cartModal?.classList.remove('active');
     document.body.style.overflow = '';
@@ -824,15 +943,13 @@ if (error) {
     }
   });
 
-  // Confirm add to cart
   document.getElementById('confirm-add-cart')?.addEventListener('click', () => {
     const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
     const quantity = parseInt(qtyInput?.value) || 1;
 
     if (selectedProduct && selectedVariant) {
       const cartItem = {
-        id: `${selectedProduct.id}-${selectedVariant.label}`,
-        productId: selectedProduct.id,
+        id: selectedProduct.id,
         name: `${selectedProduct.name} - ${selectedVariant.label}`,
         price: selectedVariant.price,
         image: selectedProduct.image,
@@ -849,7 +966,7 @@ if (error) {
       }
 
       const existingItemIndex = cart.findIndex(
-        (item: any) => item.id === cartItem.id
+        (item: any) => item.id === cartItem.id && item.unit === cartItem.unit
       );
 
       if (existingItemIndex > -1) {
@@ -861,35 +978,28 @@ if (error) {
       localStorage.setItem('cart', JSON.stringify(cart));
       window.dispatchEvent(new Event('cartUpdated'));
 
-      // Modal'ı kapat
       cartModal?.classList.remove('active');
-
-      // Success notification göster
-      successNotification?.classList.add('active');
-
-      // 5 saniye sonra otomatik kapat
-      setTimeout(() => {
-        successNotification?.classList.remove('active');
-        document.body.style.overflow = '';
-      }, 5000);
+      successModal?.classList.add('active');
     }
   });
 
-  // Continue shopping button
+  document.getElementById('go-to-cart')?.addEventListener('click', () => {
+    window.location.href = '/sepet';
+  });
+
   document.getElementById('continue-shopping')?.addEventListener('click', () => {
-    successNotification?.classList.remove('active');
+    successModal?.classList.remove('active');
     document.body.style.overflow = '';
   });
 
-  // ESC tuşu ile kapat
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       if (cartModal?.classList.contains('active')) {
         cartModal.classList.remove('active');
         document.body.style.overflow = '';
       }
-      if (successNotification?.classList.contains('active')) {
-        successNotification.classList.remove('active');
+      if (successModal?.classList.contains('active')) {
+        successModal.classList.remove('active');
         document.body.style.overflow = '';
       }
     }

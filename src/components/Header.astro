@@ -6,7 +6,7 @@ import CategoryMenu from './CategoryMenu.astro';
 <div class="header-container">
   <div class="header-content">
     <a href="/" class="logo">
-      <span>Pastırma Adası</span>
+      <img src="/assets/image/logo/Pastirma-Adasi-logo.webp" alt="Pastırma Adası" class="logo-img" />
     </a>
 
     <nav class="desktop-nav">
@@ -134,18 +134,26 @@ import CategoryMenu from './CategoryMenu.astro';
   }
 
   .logo {
-    font-size: 1.75rem;
-    font-weight: 800;
-    color: var(--primary);
-    text-decoration: none;
-    transition: var(--transition);
-    white-space: nowrap;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  transition: var(--transition);
   }
+
+  .logo-img {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+}
 
   .logo:hover {
-    color: var(--primary-dark);
+   opacity: 0.85;
+   }
+@media (max-width: 768px) {
+  .logo-img {
+    height: 40px;
   }
-
+}
   .desktop-nav {
     display: none;
     align-items: center;

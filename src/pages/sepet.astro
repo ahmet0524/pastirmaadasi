@@ -74,25 +74,13 @@ const cities = [
 
               <div class="form-group">
                 <label for="buyer-phone">Telefon *</label>
-                <input
-                  type="tel"
-                  id="buyer-phone"
-                  placeholder="5XX XXX XX XX"
-                  maxlength="10"
-                  required
-                />
+                <input type="tel" id="buyer-phone" placeholder="5XX XXX XX XX" maxlength="10" required />
                 <small>0 olmadan 10 haneli telefon numarası</small>
               </div>
 
               <div class="form-group">
                 <label for="buyer-identity">TC Kimlik No *</label>
-                <input
-                  type="text"
-                  id="buyer-identity"
-                  placeholder="XXXXXXXXXXX"
-                  maxlength="11"
-                  required
-                />
+                <input type="text" id="buyer-identity" placeholder="XXXXXXXXXXX" maxlength="11" required />
                 <small>11 haneli TC kimlik numarası</small>
               </div>
             </div>
@@ -107,12 +95,7 @@ const cities = [
               </h3>
               <div class="form-group">
                 <label for="buyer-address">Adres *</label>
-                <textarea
-                  id="buyer-address"
-                  placeholder="Açık adresinizi giriniz (Mahalle, sokak, bina no, daire no)"
-                  rows="3"
-                  required
-                ></textarea>
+                <textarea id="buyer-address" placeholder="Açık adresinizi giriniz (Mahalle, sokak, bina no, daire no)" rows="3" required></textarea>
               </div>
 
               <div class="form-row">
@@ -191,7 +174,7 @@ const cities = [
 .cart-page {
   padding: 4rem 0;
   min-height: 60vh;
-  background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+  background: linear-gradient(135deg, var(--teal-50, #f0fdfa) 0%, var(--teal-100, #ccfbf1) 100%);
 }
 
 .container {
@@ -207,14 +190,14 @@ const cities = [
 
 .page-header h1 {
   font-size: 2.5rem;
-  color: #134e4a;
+  color: var(--teal-900, #134e4a);
   margin-bottom: 0.5rem;
   font-weight: 800;
 }
 
 .page-subtitle {
   font-size: 1.1rem;
-  color: #0f766e;
+  color: var(--teal-700, #0f766e);
   margin: 0;
 }
 
@@ -233,8 +216,8 @@ const cities = [
   text-align: center;
   padding: 5rem 2rem;
   background: white;
-  border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border-radius: var(--radius-xl, 20px);
+  box-shadow: var(--shadow, 0 4px 12px rgba(0,0,0,0.1));
 }
 
 .empty-cart-icon {
@@ -247,13 +230,13 @@ const cities = [
 
 .empty-cart h3 {
   font-size: 1.8rem;
-  color: #134e4a;
+  color: var(--teal-900, #134e4a);
   margin-bottom: 1rem;
 }
 
 .empty-cart p {
   font-size: 1.1rem;
-  color: #0f766e;
+  color: var(--teal-700, #0f766e);
   margin-bottom: 2rem;
 }
 
@@ -261,108 +244,97 @@ const cities = [
   display: none !important;
 }
 
-/* Cart Item Styles - MÜKEMMELLEŞTIRILMIŞ */
+/* Cart Item Styles */
 .cart-item {
-  display: grid;
-  grid-template-columns: 180px 1fr auto;
-  gap: 2rem;
-  padding: 2rem;
+  display: flex;
+  gap: 1.25rem;
+  padding: 1.25rem;
   background: white;
-  border-radius: 20px;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  transition: all 0.3s ease;
-  align-items: center;
+  border-radius: var(--radius-lg, 16px);
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow, 0 4px 12px rgba(0,0,0,0.1));
+  transition: transform var(--transition, 0.3s), box-shadow var(--transition, 0.3s);
+  align-items: flex-start;
 }
 
 .cart-item:hover {
-  box-shadow: 0 6px 24px rgba(0,0,0,0.12);
-  transform: translateY(-3px);
+  box-shadow: var(--shadow-md, 0 4px 16px rgba(0,0,0,0.12));
+  transform: translateY(-2px);
 }
 
 .cart-item-image {
-  width: 180px;
-  height: 180px;
-  border-radius: 16px;
+  width: 110px;
+  height: 110px;
+  border-radius: var(--radius-md, 10px);
   overflow: hidden;
-  background: #f3f4f6;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .cart-item-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
 }
 
 .cart-item-info {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
   min-width: 0;
 }
 
 .cart-item-info h3 {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #134e4a;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--teal-900, #134e4a);
   line-height: 1.3;
 }
 
 .cart-item-price {
-  color: #0891b2;
-  margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
+  color: var(--emerald-800, #065f46);
   font-weight: 700;
-  letter-spacing: -0.02em;
 }
 
 .quantity-controls {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-top: 0.5rem;
+  gap: 0.5rem;
 }
 
 .qty-btn {
-  width: 48px;
-  height: 48px;
-  border: 2px solid #0891b2;
+  width: 40px;
+  height: 40px;
+  font-size: 1.4rem;
+  border: 2px solid var(--emerald-500, #10b981);
+  color: var(--emerald-500, #10b981);
   background: white;
-  border-radius: 12px;
+  border-radius: var(--radius-sm, 6px);
   cursor: pointer;
-  font-size: 1.5rem;
-  font-weight: 700;
+  transition: background var(--transition, 0.3s), color var(--transition, 0.3s), transform 0.15s;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s;
-  color: #0891b2;
+  font-weight: 700;
 }
 
 .qty-btn:hover {
-  background: linear-gradient(135deg, #0891b2, #06b6d4);
+  background: var(--emerald-500, #10b981);
   color: white;
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
 }
 
 .qty-btn:active {
-  transform: scale(1.05);
+  transform: scale(0.95);
 }
 
 .qty-amount {
-  min-width: 60px;
+  font-size: 1.3rem;
+  min-width: 50px;
   text-align: center;
-  font-weight: 800;
-  font-size: 1.5rem;
-  color: #134e4a;
-  padding: 0.5rem 1rem;
-  background: #f0fdfa;
-  border-radius: 10px;
+  font-weight: 700;
+  color: var(--text-dark, #1a1a1a);
 }
 
 .cart-item-actions {
@@ -370,49 +342,42 @@ const cities = [
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 1.5rem;
-  min-height: 180px;
+  gap: 1rem;
+  min-height: 100px;
 }
 
 .remove-btn {
-  background: #fee2e2;
+  background: var(--red-100, #fee2e2);
   border: none;
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm, 8px);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s;
-  font-size: 1.5rem;
+  transition: background var(--transition, 0.3s), transform var(--transition, 0.3s), box-shadow var(--transition, 0.3s);
+  font-size: 1.25rem;
 }
 
 .remove-btn:hover {
-  background: #fecaca;
-  transform: scale(1.15) rotate(10deg);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  background: var(--red-200, #fecaca);
+  transform: scale(1.1) rotate(8deg);
+  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3);
 }
 
 .cart-item-total {
-  font-size: 2rem;
-  font-weight: 900;
-  color: #0891b2;
-  margin: 0;
-  letter-spacing: -0.03em;
-  text-align: right;
-  padding: 0.75rem 1.25rem;
-  background: linear-gradient(135deg, #f0fdfa, #ccfbf1);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(8, 145, 178, 0.1);
+  font-size: 1.3rem;
+  color: var(--emerald-700, #047857);
+  font-weight: 800;
 }
 
 /* Summary Card */
 .summary-card {
   background: white;
   padding: 2rem;
-  border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border-radius: var(--radius-xl, 20px);
+  box-shadow: var(--shadow, 0 4px 12px rgba(0,0,0,0.1));
   position: sticky;
   top: 100px;
   max-height: calc(100vh - 120px);
@@ -423,16 +388,16 @@ const cities = [
   margin: 0 0 2rem 0;
   font-size: 1.75rem;
   font-weight: 800;
-  color: #134e4a;
+  color: var(--teal-900, #134e4a);
   padding-bottom: 1rem;
-  border-bottom: 3px solid #f0fdfa;
+  border-bottom: 3px solid var(--teal-50, #f0fdfa);
 }
 
 .customer-info-section,
 .coupon-section {
   margin-bottom: 2rem;
   padding-bottom: 2rem;
-  border-bottom: 2px solid #f0fdfa;
+  border-bottom: 2px solid var(--teal-50, #f0fdfa);
 }
 
 .section-title {
@@ -442,7 +407,7 @@ const cities = [
   align-items: center;
   gap: 0.5rem;
   font-weight: 700;
-  color: #0f766e;
+  color: var(--teal-700, #0f766e);
 }
 
 .section-title svg {
@@ -458,7 +423,7 @@ const cities = [
   margin-bottom: 0.5rem;
   font-weight: 600;
   font-size: 0.95rem;
-  color: #134e4a;
+  color: var(--teal-900, #134e4a);
 }
 
 .form-group input,
@@ -466,11 +431,11 @@ const cities = [
 .form-group select {
   width: 100%;
   padding: 0.875rem 1rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 10px;
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: var(--radius-md, 10px);
   font-size: 1rem;
   font-family: inherit;
-  transition: all 0.3s;
+  transition: border-color var(--transition, 0.3s), box-shadow var(--transition, 0.3s);
   background: white;
 }
 
@@ -478,14 +443,14 @@ const cities = [
 .form-group textarea:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #0891b2;
+  border-color: var(--primary, #0891b2);
   box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
 }
 
 .form-group small {
   display: block;
   margin-top: 0.5rem;
-  color: #6b7280;
+  color: var(--text-light, #718096);
   font-size: 0.875rem;
 }
 
@@ -512,14 +477,15 @@ const cities = [
 .coupon-input-group input {
   flex: 1;
   padding: 0.875rem 1rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 10px;
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: var(--radius-md, 10px);
   font-size: 1rem;
 }
 
 .coupon-input-group input:focus {
   outline: none;
-  border-color: #0891b2;
+  border-color: var(--primary, #0891b2);
+  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
 }
 
 .btn-secondary {
@@ -527,10 +493,10 @@ const cities = [
   background: linear-gradient(135deg, #f59e0b, #f97316);
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 10px);
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: background var(--transition, 0.3s), transform var(--transition, 0.3s);
   white-space: nowrap;
 }
 
@@ -542,25 +508,25 @@ const cities = [
 .coupon-message {
   margin-top: 0.75rem;
   padding: 0.75rem;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 10px);
   font-size: 0.95rem;
   font-weight: 600;
 }
 
 .coupon-message.success {
   background: #d1fae5;
-  color: #065f46;
+  color: var(--emerald-800, #065f46);
 }
 
 .coupon-message.error {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--red-100, #fee2e2);
+  color: var(--red-800, #991b1b);
 }
 
 .summary-details {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 2px solid #f0fdfa;
+  border-top: 2px solid var(--teal-50, #f0fdfa);
 }
 
 .summary-row {
@@ -572,22 +538,22 @@ const cities = [
 }
 
 .summary-row span:first-child {
-  color: #0f766e;
+  color: var(--teal-700, #0f766e);
   font-weight: 600;
 }
 
 .price-value {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #134e4a;
+  color: var(--teal-900, #134e4a);
 }
 
 .discount-row {
-  color: #059669;
+  color: var(--emerald-600, #059669);
 }
 
 .discount-row .price-value {
-  color: #059669;
+  color: var(--emerald-600, #059669);
 }
 
 .summary-total {
@@ -597,23 +563,23 @@ const cities = [
   padding: 1.5rem 0;
   font-size: 1.5rem;
   font-weight: 800;
-  border-top: 3px solid #134e4a;
+  border-top: 3px solid var(--teal-900, #134e4a);
   margin-top: 1.5rem;
-  color: #134e4a;
+  color: var(--teal-900, #134e4a);
 }
 
 .summary-total span:last-child {
-  color: #0891b2;
+  color: var(--primary, #0891b2);
   font-size: 1.75rem;
 }
 
 .btn {
   padding: 0.875rem 1.75rem;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 10px);
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: background var(--transition, 0.3s), transform var(--transition, 0.3s), box-shadow var(--transition, 0.3s);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -622,7 +588,7 @@ const cities = [
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #0891b2, #06b6d4);
+  background: linear-gradient(135deg, var(--primary, #0891b2), #06b6d4);
   color: white;
   box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
 }
@@ -654,23 +620,21 @@ const cities = [
   justify-content: center;
   gap: 0.5rem;
   margin-top: 1rem;
-  color: #0f766e;
+  color: var(--teal-700, #0f766e);
   text-decoration: none;
   font-weight: 600;
-  transition: all 0.3s;
+  transition: color var(--transition, 0.3s), gap var(--transition, 0.3s);
 }
 
 .continue-shopping:hover {
-  color: #0891b2;
+  color: var(--primary, #0891b2);
   gap: 0.75rem;
 }
 
-/* Responsive Design */
 @media (max-width: 1024px) {
   .cart-layout {
     grid-template-columns: 1fr;
   }
-
   .summary-card {
     position: static;
     max-height: none;
@@ -681,67 +645,64 @@ const cities = [
   .page-header h1 {
     font-size: 2rem;
   }
-
   .cart-item {
-    grid-template-columns: 140px 1fr;
-    gap: 1.25rem;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
     padding: 1.5rem;
   }
-
   .cart-item-image {
-    width: 140px;
-    height: 140px;
+    width: 120px;
+    height: 120px;
   }
-
+  .cart-item-info {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+  }
   .cart-item-info h3 {
-    font-size: 1.25rem;
+    font-size: 1.15rem;
   }
-
   .cart-item-price {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
-
+  .quantity-controls {
+    justify-content: center;
+  }
   .cart-item-actions {
-    grid-column: 1 / -1;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
     min-height: auto;
-    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--teal-50, #f0fdfa);
   }
-
   .cart-item-total {
-    font-size: 1.5rem;
+    font-size: 1.35rem;
   }
-
   .qty-btn {
     width: 44px;
     height: 44px;
     font-size: 1.3rem;
   }
-
   .qty-amount {
     font-size: 1.3rem;
     min-width: 50px;
   }
-
   .remove-btn {
     width: 44px;
     height: 44px;
   }
-
   .form-row {
     grid-template-columns: 1fr;
   }
-
   .summary-card {
     padding: 1.5rem;
   }
-
   .coupon-input-group {
     flex-direction: column;
   }
-
   .btn-secondary {
     width: 100%;
   }
@@ -749,34 +710,26 @@ const cities = [
 
 @media (max-width: 480px) {
   .cart-item {
-    grid-template-columns: 120px 1fr;
-    gap: 1rem;
     padding: 1.25rem;
   }
-
   .cart-item-image {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
   }
-
   .cart-item-info h3 {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
   }
-
   .cart-item-price {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
-
   .cart-item-total {
-    font-size: 1.35rem;
+    font-size: 1.25rem;
   }
-
   .qty-btn {
     width: 40px;
     height: 40px;
     font-size: 1.2rem;
   }
-
   .qty-amount {
     font-size: 1.2rem;
     min-width: 45px;
@@ -934,33 +887,28 @@ async function handleCheckout() {
   const city = citySelect?.value.trim();
   const zipcode = zipcodeInput?.value.trim() || '38000';
 
-  // Validasyonlar
   if (!email || !name || !surname || !phone || !identity || !address || !city) {
     alert('Lütfen tüm zorunlu alanları doldurun!');
     return;
   }
 
-  // Email validasyonu
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     alert('Lütfen geçerli bir e-posta adresi girin!');
     return;
   }
 
-  // Telefon validasyonu (10 haneli)
   const cleanedPhone = formatPhone(phone);
   if (cleanedPhone.length !== 10) {
     alert('Telefon numarası 10 haneli olmalıdır (0 olmadan)!\nÖrnek: 5XX XXX XX XX');
     return;
   }
 
-  // TC Kimlik validasyonu
   if (identity.length !== 11 || !/^\d{11}$/.test(identity)) {
     alert('TC Kimlik numarası 11 haneli olmalıdır!');
     return;
   }
 
-  // LocalStorage'a TÜM bilgileri kaydet
   localStorage.setItem('lastOrderEmail', email);
   localStorage.setItem('lastOrderName', name);
   localStorage.setItem('lastOrderSurname', surname);
@@ -1054,7 +1002,6 @@ async function handleCheckout() {
   }
 }
 
-// Event listeners
 document.addEventListener('DOMContentLoaded', () => {
   loadCart();
 
@@ -1063,21 +1010,18 @@ document.addEventListener('DOMContentLoaded', () => {
     checkoutBtn.addEventListener('click', handleCheckout);
   }
 
-  // Telefon input - sadece rakam
   const phoneInput = document.getElementById('buyer-phone');
   phoneInput?.addEventListener('input', (e) => {
     const input = e.target as HTMLInputElement;
     input.value = input.value.replace(/\D/g, '').substring(0, 10);
   });
 
-  // TC Kimlik input - sadece rakam
   const identityInput = document.getElementById('buyer-identity');
   identityInput?.addEventListener('input', (e) => {
     const input = e.target as HTMLInputElement;
     input.value = input.value.replace(/\D/g, '').substring(0, 11);
   });
 
-  // Kupon uygulama
   const applyCouponBtn = document.getElementById('apply-coupon');
   if (applyCouponBtn) {
     applyCouponBtn.addEventListener('click', () => {
