@@ -9,62 +9,48 @@ export interface Props {
   unit: string;
   description?: string;
   variants?: any[];
-  index?: number; // Performans optimizasyonu için
+  index?: number;
 }
 
 const { id, slug, name, price, images, unit, description, variants, index = 0 } = Astro.props;
 
-// Resim URL'sini güvenli şekilde al - Supabase'den gelen veriyi parse et
+// Resim URL'sini güvenli şekilde al
 function getImageUrl(imgs: any): string {
   const placeholder = '/assets/image/placeholder.jpg';
 
-  if (!imgs) {
-    return placeholder;
-  }
+  if (!imgs) return placeholder;
 
-  // 1. Eğer zaten array ise
   if (Array.isArray(imgs)) {
     if (imgs.length === 0) return placeholder;
-
-    // İlk elemanı al ve temizle
     let firstImage = imgs[0];
     if (typeof firstImage === 'string') {
       firstImage = firstImage.replace(/^"|"$/g, '').replace(/""/g, '').trim();
     }
-
     return firstImage || placeholder;
   }
 
-  // 2. String ise
   if (typeof imgs === 'string') {
-    // PostgreSQL array format: {/path/to/image.jpg,/path/to/image2.jpg}
     if (imgs.startsWith('{') && imgs.endsWith('}')) {
       const paths = imgs
-        .slice(1, -1)  // {} kaldır
-        .split(',')     // virgülle ayır
-        .map(p => p.trim().replace(/^"|"$/g, ''));  // temizle
-
-      if (paths.length > 0 && paths[0]) {
-        return paths[0];
-      }
+        .slice(1, -1)
+        .split(',')
+        .map(p => p.trim().replace(/^"|"$/g, ''));
+      if (paths.length > 0 && paths[0]) return paths[0];
     }
 
-    // JSON array format: ["path1","path2"] veya ["\"path1\"","\"path2\""]
     if (imgs.startsWith('[')) {
       try {
         let cleaned = imgs.replace(/""/g, '"').replace(/\\"/g, '"');
         const parsed = JSON.parse(cleaned);
-
         if (Array.isArray(parsed) && parsed.length > 0) {
           const firstImage = String(parsed[0]).replace(/^"|"$/g, '').trim();
           return firstImage || placeholder;
         }
       } catch (e) {
-        console.error('ProductCard - Image parse error:', e, imgs);
+        console.error('Image parse error:', e);
       }
     }
 
-    // Direkt URL string
     const cleaned = imgs.replace(/^"|"$/g, '').trim();
     if (cleaned.startsWith('/') || cleaned.startsWith('http')) {
       return cleaned;
@@ -75,60 +61,45 @@ function getImageUrl(imgs: any): string {
 }
 
 const imageUrl = getImageUrl(images);
-
-// İlk 4 ürün için eager loading, diğerleri için lazy
 const loadingStrategy = index < 4 ? "eager" : "lazy";
 const fetchPriority = index < 2 ? "high" : "auto";
 ---
 
-<div class="product-card" data-product-id={id}>
-  <a href={`/urun/${slug}`} class="product-link">
-    <div class="product-image-wrapper">
+<div class="product-card">
+  <div class="product-image-wrapper">
+    <a href={`/urun/${slug}`} class="product-image-link">
       <img
         src={imageUrl}
         alt={name}
         class="product-image"
         loading={loadingStrategy}
         fetchpriority={fetchPriority}
-        onerror="this.onerror=null; this.src='/assets/image/placeholder.jpg'; console.error('Image failed to load:', this.getAttribute('data-original-src'));"
-        data-original-src={imageUrl}
+        onerror="this.onerror=null; this.src='/assets/image/placeholder.jpg';"
       />
-      <div class="product-badge">Yeni</div>
-    </div>
-
-    <div class="product-info">
-      <h3 class="product-name">{name}</h3>
-      {description && (
-        <p class="product-description">{description.substring(0, 80)}...</p>
-      )}
-
-      <div class="product-footer">
-        <div class="product-price">
-          <span class="price-value">{price}₺</span>
-          <span class="price-unit">/ {unit}</span>
-        </div>
-
-        <button
-          class="btn-add-to-cart"
-          data-product={JSON.stringify({
-            id,
-            slug,
-            name,
-            price,
-            image: imageUrl,
-            unit,
-            variants
-          })}
-          onclick="event.preventDefault(); event.stopPropagation();"
-        >
-          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          Sepete Ekle
-        </button>
+      <div class="product-overlay">
+        <span class="btn-view-product">Ürünü İncele</span>
       </div>
-    </div>
-  </a>
+      <h3 class="product-name-overlay">{name}</h3>
+    </a>
+  </div>
+  <div class="product-info">
+    <p class="product-price">
+      {price}₺
+      <span class="price-unit">/{unit}</span>
+    </p>
+    <button
+      class="btn-add-cart"
+      data-product={JSON.stringify({
+        id,
+        name,
+        image: imageUrl,
+        variants,
+        slug
+      })}
+    >
+      Sepete Ekle
+    </button>
+  </div>
 </div>
 
 <style>
@@ -138,9 +109,6 @@ const fetchPriority = index < 2 ? "high" : "auto";
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
   }
 
   .product-card:hover {
@@ -148,107 +116,105 @@ const fetchPriority = index < 2 ? "high" : "auto";
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   }
 
-  .product-link {
-    text-decoration: none;
-    color: inherit;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-
   .product-image-wrapper {
     position: relative;
     width: 100%;
-    padding-top: 100%;
+    height: 280px;
     overflow: hidden;
-    background: #f3f4f6;
+    background: #f5f5f5;
+  }
+
+  .product-image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
   }
 
   .product-image {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.4s ease;
+    transition: transform 0.5s ease;
   }
 
   .product-card:hover .product-image {
     transform: scale(1.1);
   }
 
-  .product-badge {
+  .product-overlay {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    background: linear-gradient(135deg, #0891b2, #06b6d4);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(8, 145, 178, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .product-card:hover .product-overlay {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .btn-view-product {
+    padding: 0.875rem 2rem;
+    background: white;
+    color: #0891B2;
+    border-radius: 50px;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 8px rgba(8, 145, 178, 0.3);
-    z-index: 2;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .btn-view-product:hover {
+    background: #0891B2;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+  }
+
+  .product-name-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 15px;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
   }
 
   .product-info {
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
+    padding: 1.5rem;
   }
 
-  .product-name {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: #134e4a;
-    margin: 0 0 0.5rem 0;
-    line-height: 1.4;
-    min-height: 2.8em;
-  }
-
-  .product-description {
-    font-size: 0.875rem;
-    color: #0f766e;
-    line-height: 1.5;
-    margin: 0 0 1rem 0;
-    flex: 1;
-  }
-
-  .product-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.75rem;
-    margin-top: auto;
-  }
-
+  /* Fiyatlar - KIRMIZI */
   .product-price {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .price-value {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #0891b2;
+    color: #DC2626;
+    margin-bottom: 1rem;
   }
 
   .price-unit {
-    font-size: 0.875rem;
-    color: #0f766e;
+    font-size: 1rem;
+    color: #666;
+    font-weight: 400;
   }
 
-  .btn-add-to-cart {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    background: linear-gradient(135deg, #0891b2, #06b6d4);
+  /* Sepete Ekle Butonu - KIRMIZI */
+  .btn-add-cart {
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
     color: white;
     border: none;
     border-radius: 8px;
@@ -256,70 +222,18 @@ const fetchPriority = index < 2 ? "high" : "auto";
     font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
   }
 
-  .btn-add-to-cart:hover {
-    background: linear-gradient(135deg, #06b6d4, #22d3ee);
+  .btn-add-cart:hover {
+    background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
   }
 
-  .btn-add-to-cart svg {
-    flex-shrink: 0;
-  }
-
-  @media (max-width: 768px) {
-    .product-footer {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .btn-add-to-cart {
-      width: 100%;
-      justify-content: center;
-    }
-
-    .product-name {
-      font-size: 1rem;
-      min-height: auto;
-    }
-
-    .price-value {
-      font-size: 1.25rem;
+  @media (max-width: 480px) {
+    .product-image-wrapper {
+      height: 250px;
     }
   }
 </style>
-
-<script>
-  // Sepete ekle butonları için event listener
-  document.querySelectorAll('.btn-add-to-cart').forEach(button => {
-    button.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-
-      const productData = this.getAttribute('data-product');
-      if (productData) {
-        try {
-          const product = JSON.parse(productData);
-
-          // Custom event ile modal açma sinyali gönder
-          const event = new CustomEvent('openCartModal', {
-            detail: product,
-            bubbles: true
-          });
-          document.dispatchEvent(event);
-        } catch (error) {
-          console.error('ProductCard - Error parsing product data:', error);
-        }
-      }
-    });
-  });
-
-  // Resim yükleme hatalarını logla
-  document.querySelectorAll('.product-image').forEach(img => {
-    img.addEventListener('load', function() {
-      console.log('✅ Image loaded:', this.alt, this.src);
-    });
-  });
-</script>
