@@ -11,6 +11,7 @@ const { data: pastirmaProducts } = await supabase
   .select('*')
   .eq('category', 'Pastırma')
   .eq('is_active', true)
+  .order('sort_order', { ascending: true })
   .limit(4);
 
 const { data: sucukProducts } = await supabase

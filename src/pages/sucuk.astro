@@ -11,7 +11,7 @@ const { data: sucukProducts } = await supabase
   .select('*')
   .eq('category', 'Sucuk')
   .eq('is_active', true)
-  .order('name', { ascending: true });
+  .order('sort_order', { ascending: true });
 
 // Resim URL'sini al
 function getImageUrl(imgs: any): string {

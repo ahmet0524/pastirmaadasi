@@ -1,18 +1,45 @@
 
 ---
 // src/pages/index.astro
+
+export const prerender = true;
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ProductCard from '../components/ProductCard.astro';
 import { supabase } from '../lib/supabase';
 
-// Öne çıkan ürünleri çek
-const { data: featuredProducts } = await supabase
+// Öne çıkan ürünleri kategorilere göre çek
+const { data: pastirmaProducts } = await supabase
   .from('products')
   .select('*')
+  .eq('category', 'Pastırma')
   .eq('is_active', true)
-  .limit(4);
+  .order('sort_order', { ascending: true })
+  .limit(3);
+
+const { data: sucukProducts } = await supabase
+  .from('products')
+  .select('*')
+  .eq('category', 'Sucuk')
+  .eq('is_active', true)
+  .order('sort_order', { ascending: true })
+  .limit(2);
+
+const { data: mantiProducts } = await supabase
+  .from('products')
+  .select('*')
+  .eq('category', 'Mantı')
+  .eq('is_active', true)
+  .order('sort_order', { ascending: true })
+  .limit(1);
+
+// Tüm ürünleri birleştir
+const featuredProducts = [
+  ...(pastirmaProducts || []),
+  ...(sucukProducts || []),
+  ...(mantiProducts || [])
+];
 ---
 
 <BaseLayout title="Pastırma Adası" description="Kayseri'nin eşsiz lezzetleri">
