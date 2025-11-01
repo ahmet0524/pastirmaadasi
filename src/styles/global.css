@@ -103,6 +103,107 @@
 .bg-white { background: white; }
 
 /* ============================================
+   CART PAGE STYLES - Sepet Sayfası
+   ============================================ */
+
+/* Cart Item Card */
+.cart-item {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-base);
+  transition: all var(--transition-base);
+  align-items: flex-start;
+}
+
+.cart-item:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* Cart Item Image */
+.cart-item-image {
+  width: 140px;
+  height: 140px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #f9f9f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Cart Item Info */
+.cart-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.cart-item-info h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-gray-900);
+  line-height: 1.4;
+}
+
+.cart-item-price {
+  font-size: 1.3rem;
+  color: var(--color-success);
+  font-weight: 700;
+  margin-top: 0.5rem;
+}
+
+/* Cart Item Actions */
+.cart-item-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  min-height: 120px;
+}
+
+.remove-btn {
+  background: #fee2e2;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+  font-size: 1.25rem;
+}
+
+.remove-btn:hover {
+  background: #fecaca;
+  transform: scale(1.1) rotate(8deg);
+  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3);
+}
+
+.cart-item-total {
+  font-size: 1.4rem;
+  color: var(--color-success);
+  font-weight: 800;
+}
+
+/* ============================================
    HERO SECTION - Ortak Yapı
    ============================================ */
 
@@ -571,25 +672,34 @@
 .quantity-controls {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
 }
 
 .qty-btn {
-  width: 40px;
-  height: 40px;
-  border: 2px solid var(--color-primary);
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--color-success-light);
   background: white;
   border-radius: var(--radius-md);
   cursor: pointer;
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 700;
   transition: all var(--transition-base);
-  color: var(--color-primary);
+  color: var(--color-success-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .qty-btn:hover {
-  background: var(--color-primary);
+  background: var(--color-success-light);
   color: white;
+  transform: scale(1.05);
+}
+
+.qty-btn:active {
+  transform: scale(0.95);
 }
 
 .qty-input {
@@ -602,6 +712,14 @@
   font-weight: 600;
   color: var(--color-primary);
   background: var(--color-primary-bg);
+}
+
+.qty-amount {
+  font-size: 1.4rem;
+  min-width: 55px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--color-gray-900);
 }
 
 .modal-price {
@@ -670,6 +788,7 @@
    ============================================ */
 
 @media (max-width: 768px) {
+  /* Hero Section */
   .hero-section {
     min-height: 300px;
     padding: var(--spacing-2xl) var(--spacing-md);
@@ -689,21 +808,68 @@
     align-items: center;
   }
 
+  /* Products Grid */
   .products-grid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: var(--spacing-lg);
   }
 
+  /* Info Grid */
   .info-grid {
     grid-template-columns: 1fr;
   }
 
+  /* Success Buttons */
   .success-buttons {
     flex-direction: column;
   }
 
   .success-buttons .btn {
     width: 100%;
+  }
+
+  /* Cart Item Mobile */
+  .cart-item {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .cart-item-image {
+    width: 120px;
+    height: 120px;
+  }
+
+  .cart-item-info {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+  }
+
+  .cart-item-info h3 {
+    font-size: 1.15rem;
+  }
+
+  .cart-item-price {
+    font-size: 1.2rem;
+  }
+
+  .quantity-controls {
+    justify-content: center;
+  }
+
+  .cart-item-actions {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    min-height: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-gray-200);
+  }
+
+  .cart-item-total {
+    font-size: 1.3rem;
   }
 }
 
@@ -714,5 +880,34 @@
 
   .product-image-wrapper {
     height: 250px;
+  }
+
+  /* Cart Item Extra Small */
+  .cart-item-image {
+    width: 100px;
+    height: 100px;
+  }
+
+  .cart-item-info h3 {
+    font-size: 1.05rem;
+  }
+
+  .cart-item-price {
+    font-size: 1.1rem;
+  }
+
+  .cart-item-total {
+    font-size: 1.2rem;
+  }
+
+  .qty-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.3rem;
+  }
+
+  .qty-amount {
+    font-size: 1.3rem;
+    min-width: 50px;
   }
 }
