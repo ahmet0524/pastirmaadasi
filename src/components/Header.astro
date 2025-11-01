@@ -301,19 +301,19 @@ import CategoryMenu from './CategoryMenu.astro';
     color: #0891B2;
   }
 
-  /* Cart Badge - DÜZELTİLDİ */
+  /* Cart Badge */
   .cart-badge {
     position: absolute;
     top: 0;
     right: 0;
     background: linear-gradient(135deg, #DC2626, #B91C1C);
     color: white;
-    font-size: 0.7rem; /* 0.625rem → 0.7rem */
+    font-size: 0.7rem;
     font-weight: 700;
     border-radius: 50%;
-    min-width: 20px; /* 18px → 20px */
-    height: 20px; /* 18px → 20px */
-    display: flex; /* Her zaman flex */
+    min-width: 20px;
+    height: 20px;
+    display: flex;
     align-items: center;
     justify-content: center;
     border: 2px solid white;
@@ -322,7 +322,6 @@ import CategoryMenu from './CategoryMenu.astro';
     padding: 0 4px;
   }
 
-  /* Badge animasyonu */
   @keyframes badgePulse {
     0%, 100% {
       transform: scale(1);
@@ -332,7 +331,6 @@ import CategoryMenu from './CategoryMenu.astro';
     }
   }
 
-  /* Badge güncelleme animasyonu */
   .cart-badge.updated {
     animation: badgeUpdate 0.5s ease;
   }
@@ -712,8 +710,34 @@ import CategoryMenu from './CategoryMenu.astro';
     }
   });
 
-  // Search functionality
+  // Search functionality - Client-side
   let searchTimeout: NodeJS.Timeout;
+  let allProducts: any[] = [];
+
+  async function loadProducts() {
+    try {
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabase = createClient(
+        import.meta.env.PUBLIC_SUPABASE_URL,
+        import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+      );
+
+      const { data } = await supabase
+        .from('products')
+        .select('id, name, slug, price, unit, images')
+        .eq('is_active', true);
+
+      allProducts = data || [];
+      console.log('Ürünler yüklendi:', allProducts.length);
+    } catch (error) {
+      console.error('Ürün yükleme hatası:', error);
+    }
+  }
+
+  // Sayfa yüklendiğinde ürünleri yükle
+  if (typeof window !== 'undefined') {
+    loadProducts();
+  }
 
   searchInput?.addEventListener('input', (e) => {
     clearTimeout(searchTimeout);
@@ -724,10 +748,24 @@ import CategoryMenu from './CategoryMenu.astro';
       return;
     }
 
-    searchTimeout = setTimeout(async () => {
+    searchTimeout = setTimeout(() => {
       try {
-        const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-        const results = await response.json();
+        // Ürünler henüz yüklenmediyse
+        if (allProducts.length === 0) {
+          if (searchResults) {
+            searchResults.innerHTML = `
+              <div class="search-no-results">
+                <p>Ürünler yükleniyor...</p>
+              </div>
+            `;
+          }
+          return;
+        }
+
+        // Client-side filtreleme
+        const results = allProducts.filter(product =>
+          product.name.toLowerCase().includes(query)
+        ).slice(0, 10);
 
         if (searchResults) {
           if (results.length === 0) {
@@ -758,7 +796,7 @@ import CategoryMenu from './CategoryMenu.astro';
     }, 300);
   });
 
-  // Cart count update - DÜZELTİLDİ
+  // Cart count update
   function updateHeaderCartCount() {
     try {
       const cart = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -768,7 +806,6 @@ import CategoryMenu from './CategoryMenu.astro';
       const badge = document.getElementById('header-cart-count');
       if (badge) {
         badge.textContent = count.toString();
-        // Güncelleme animasyonu
         badge.classList.add('updated');
         setTimeout(() => badge.classList.remove('updated'), 500);
       }
@@ -779,28 +816,28 @@ import CategoryMenu from './CategoryMenu.astro';
         mobileBadge.textContent = count.toString();
       }
 
-      console.log('Cart count updated:', count); // Debug
+      console.log('Sepet sayısı güncellendi:', count);
     } catch (error) {
-      console.error('Cart count update error:', error);
+      console.error('Sepet sayısı güncelleme hatası:', error);
     }
   }
 
   // İlk yükleme
   document.addEventListener('DOMContentLoaded', () => {
     updateHeaderCartCount();
-    console.log('Header cart count initialized');
+    console.log('Header sepet sayısı başlatıldı');
   });
 
   // Cart güncellemelerini dinle
   window.addEventListener('cartUpdated', () => {
-    console.log('Cart updated event received');
+    console.log('Cart updated event alındı');
     updateHeaderCartCount();
   });
 
   // Storage değişikliklerini dinle (farklı sekmeler arası)
   window.addEventListener('storage', (e) => {
     if (e.key === 'cart') {
-      console.log('Storage changed, updating cart count');
+      console.log('Storage değişti, sepet sayısı güncelleniyor');
       updateHeaderCartCount();
     }
   });
