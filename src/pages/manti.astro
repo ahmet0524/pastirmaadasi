@@ -3,7 +3,6 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import ProductCard from '../components/ProductCard.astro';
 import { supabase } from '../lib/supabase';
 
 // Mantı kategorisindeki tüm ürünleri çek
@@ -12,62 +11,179 @@ const { data: mantiProducts } = await supabase
   .select('*')
   .eq('category', 'Mantı')
   .eq('is_active', true)
-  .order('name', { ascending: true });
+  .order('sort_order', { ascending: true });
+
+// Resim URL'sini al
+function getImageUrl(imgs: any): string {
+  const placeholder = '/assets/image/placeholder.jpg';
+  if (!imgs) return placeholder;
+
+  if (Array.isArray(imgs)) {
+    if (imgs.length === 0) return placeholder;
+    const firstImage = String(imgs[0]).replace(/^"|"$/g, '').replace(/""/g, '').trim();
+    return firstImage || placeholder;
+  }
+
+  if (typeof imgs === 'string') {
+    if (imgs.startsWith('{') && imgs.endsWith('}')) {
+      const paths = imgs.slice(1, -1).split(',').map(p => p.trim().replace(/^"|"$/g, ''));
+      if (paths.length > 0 && paths[0]) return paths[0];
+    }
+
+    if (imgs.startsWith('[')) {
+      try {
+        const cleaned = imgs.replace(/""/g, '"').replace(/\\"/g, '"');
+        const parsed = JSON.parse(cleaned);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return String(parsed[0]).replace(/^"|"$/g, '').trim() || placeholder;
+        }
+      } catch (e) {
+        console.error('Image parse error:', e);
+      }
+    }
+
+    const cleaned = imgs.replace(/^"|"$/g, '').trim();
+    if (cleaned.startsWith('/') || cleaned.startsWith('http')) return cleaned;
+  }
+
+  return placeholder;
+}
 ---
 
-<BaseLayout title="Mantı ve Un Mamülleri" description="Geleneksel el emeği ile hazırlanan mantı ve böreklermiz.">
+<BaseLayout
+  title="Mantı ve Un Mamulleri - Kayseri'nin Lezzetleri"
+  description="El emeği ile hazırlanan geleneksel mantı ve böreklerimizi keşfedin."
+>
   <Header slot="header" />
 
-  <div class="category-page">
-    <section class="category-hero manti-hero">
-      <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <nav class="breadcrumb">
-          <a href="/">Ana Sayfa</a>
-          <span>/</span>
-          <span>Mantı ve Un Mamülleri</span>
-        </nav>
-        <h1 class="hero-title">Mantı ve Un Mamülleri</h1>
-        <p class="hero-description">
-          El emeği ile hazırlanan, lezzet dolu mantı ve böreklermiz
-        </p>
-      </div>
-    </section>
-
-    <section class="products-section">
-      <div class="container">
-        <div class="section-header">
-          <h2>{mantiProducts?.length || 0} sonucun tümü gösteriliyor</h2>
+  <!-- Hero Section -->
+  <section class="pastirma-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <nav class="breadcrumb">
+        <a href="/">Ana Sayfa</a>
+        <span>/</span>
+        <span>Mantı ve Un Mamulleri</span>
+      </nav>
+      <h1>Mantı ve Un Mamulleri</h1>
+      <p class="hero-subtitle">
+        El emeği ile özenle hazırlanan, geleneksel lezzetlerimizle sofralarınıza keyif katıyoruz
+      </p>
+      <div class="hero-features">
+        <div class="feature-badge">
+          <svg width="20" height="20" fill="#059669" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          El Emeği
         </div>
-
-        {mantiProducts && mantiProducts.length > 0 && (
-          <div class="products-grid">
-            {mantiProducts.map((product, index) => (
-              <ProductCard
-                id={product.id}
-                slug={product.slug}
-                name={product.name}
-                price={product.price}
-                images={product.images}
-                unit={product.unit}
-                description={product.description}
-                variants={product.variants}
-                index={index}
-              />
-            ))}
-          </div>
-        )}
-
-        {(!mantiProducts || mantiProducts.length === 0) && (
-          <div class="no-products">
-            <p>Şu anda görüntülenecek ürün bulunmamaktadır.</p>
-          </div>
-        )}
+        <div class="feature-badge">
+          <svg width="20" height="20" fill="#059669" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          Özel Tarifler
+        </div>
+        <div class="feature-badge">
+          <svg width="20" height="20" fill="#059669" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          Geleneksel Üretim
+        </div>
       </div>
-    </section>
-  </div>
+    </div>
+  </section>
 
-  <Footer slot="footer" />
+  <!-- Products Grid -->
+  <section class="products-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>{mantiProducts?.length || 0} sonucun tümü gösteriliyor</h2>
+      </div>
+
+      {mantiProducts && mantiProducts.length > 0 && (
+        <div class="products-grid">
+          {mantiProducts.map((product, index) => (
+            <div class="product-card">
+              <div class="product-image-wrapper">
+                <a href={`/urun/${product.slug}`} class="product-image-link">
+                  <img
+                    src={getImageUrl(product.images)}
+                    alt={product.name}
+                    class="product-image"
+                    loading={index < 4 ? "eager" : "lazy"}
+                    fetchpriority={index < 2 ? "high" : "auto"}
+                    onError="this.onerror=null; this.src='/assets/image/placeholder.jpg';"
+                  />
+                  <div class="product-overlay">
+                    <span class="btn-view-product">Ürünü İncele</span>
+                  </div>
+                  <h3 class="product-name-overlay">{product.name}</h3>
+                </a>
+              </div>
+              <div class="product-info">
+                <p class="product-price">
+                  {product.price}₺
+                  <span class="price-unit">/{product.unit}</span>
+                </p>
+                <button
+                  class="btn-add-cart"
+                  data-product={JSON.stringify({
+                    id: product.id,
+                    name: product.name,
+                    image: getImageUrl(product.images),
+                    variants: product.variants,
+                    slug: product.slug
+                  })}
+                >
+                  Sepete Ekle
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {(!mantiProducts || mantiProducts.length === 0) && (
+        <div class="no-products">
+          <p>Şu anda görüntülenecek ürün bulunmamaktadır.</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Info Section -->
+  <section class="info-section">
+    <div class="container">
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3>Kalite Garantisi</h3>
+          <p>Tüm ürünlerimiz hijyenik ortamlarda, kalite kontrolünden geçerek üretilir.</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3>Hızlı Teslimat</h3>
+          <p>Siparişleriniz özenle paketlenir ve hızlı kargo ile gönderilir.</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+            </svg>
+          </div>
+          <h3>Güvenli Ödeme</h3>
+          <p>Tüm ödemeleriniz SSL sertifikası ile güvence altındadır.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Add to Cart Modal -->
   <div id="cart-modal" class="cart-modal">
@@ -121,19 +237,23 @@ const { data: mantiProducts } = await supabase
       </div>
     </div>
   </div>
+
+  <Footer slot="footer" />
 </BaseLayout>
 
 <style>
-  .manti-hero {
+  /* Hero Section - MOR (Mantı teması) */
+  .pastirma-hero {
     position: relative;
     min-height: 400px;
-    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+   background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 4rem 1rem;
   }
 
+  /* Koyu overlay - okunabilirlik için */
   .hero-overlay {
     position: absolute;
     top: 0;
@@ -161,6 +281,7 @@ const { data: mantiProducts } = await supabase
 
   .breadcrumb a {
     color: rgba(255, 255, 255, 0.95);
+    opacity: 1;
     transition: opacity 0.3s;
     text-decoration: none;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -174,7 +295,7 @@ const { data: mantiProducts } = await supabase
     color: rgba(255, 255, 255, 0.9);
   }
 
-  .hero-title {
+  .hero-content h1 {
     font-size: 3.5rem;
     font-weight: 800;
     margin: 0 0 1.5rem 0;
@@ -182,265 +303,38 @@ const { data: mantiProducts } = await supabase
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
   }
 
-  .hero-description {
+  .hero-subtitle {
     font-size: 1.25rem;
     line-height: 1.6;
-    margin: 0;
+    margin: 0 0 2rem 0;
     color: rgba(255, 255, 255, 0.98);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
   }
-/* Modal Styles */
-.cart-modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
-  z-index: 1000;
-  align-items: center;
-  justify-content: center;
-}
 
-.cart-modal.active {
-  display: flex;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 12px;
-  max-width: 500px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-}
-
-.modal-close {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #666;
-  z-index: 10;
-  transition: color 0.3s;
-}
-
-.modal-close:hover {
-  color: #333;
-}
-
-.modal-body {
-  padding: 30px;
-}
-
-.modal-product-image {
-  width: 100%;
-  height: 250px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-.modal-body h3 {
-  font-size: 1.5rem;
-  margin-bottom: 20px;
-  color: #333;
-}
-
-.variant-selector,
-.quantity-selector {
-  margin-bottom: 25px;
-}
-
-.variant-selector label,
-.quantity-selector label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 10px;
-  color: #333;
-}
-
-.variant-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.variant-btn {
-  padding: 10px 20px;
-  border: 2px solid #E5E7EB;
-  background: white;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-weight: 500;
-}
-
-.variant-btn:hover {
-  border-color: #7c3aed;
-  color: #7c3aed;
-}
-
-.variant-btn.active {
-  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
-  color: white;
-  border-color: #7c3aed;
-  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
-}
-
-.quantity-controls {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.qty-btn {
-  width: 40px;
-  height: 40px;
-  border: 2px solid #7c3aed;
-  background: white;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1.2rem;
-  font-weight: 600;
-  transition: all 0.3s;
-  color: #7c3aed;
-}
-
-.qty-btn:hover {
-  background: #7c3aed;
-  color: white;
-}
-
-.qty-input {
-  width: 80px;
-  height: 40px;
-  text-align: center;
-  border: 2px solid #7c3aed;
-  border-radius: 6px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #7c3aed;
-  background: #faf5ff;
-}
-
-.modal-price {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
-  border-radius: 8px;
-  margin-bottom: 20px;
-  border: 2px solid #FED7AA;
-}
-
-.price-label {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.total-price {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #DC2626;
-}
-
-.btn {
-  padding: 14px 28px;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  text-decoration: none;
-  display: inline-block;
-  text-align: center;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
-  color: white;
-  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
-}
-
-.btn-primary:hover {
-  background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
-  transform: translateY(-2px);
-}
-
-.btn-outline {
-  background: white;
-  color: #DC2626;
-  border: 2px solid #DC2626;
-}
-
-.btn-outline:hover {
-  background: #DC2626;
-  color: white;
-}
-
-.btn-large {
-  width: 100%;
-  font-size: 1.1rem;
-}
-
-.success-content {
-  padding: 40px;
-  text-align: center;
-}
-
-.success-icon {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 20px;
-  background: linear-gradient(135deg, #059669 0%, #10B981 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.success-icon svg {
-  stroke: white;
-}
-
-.success-content h3 {
-  font-size: 1.5rem;
-  margin-bottom: 30px;
-  color: #333;
-}
-
-.success-buttons {
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
-}
-
-.success-buttons .btn {
-  flex: 1;
-  min-width: 150px;
-}
-
-@media (max-width: 768px) {
-  .success-buttons {
-    flex-direction: column;
+  .hero-features {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
   }
 
-  .success-buttons .btn {
-    width: 100%;
+  .feature-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 50px;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.3);
   }
-}
-  .category-page {
-    min-height: 100vh;
+
+  .feature-badge svg {
+    color: #059669;
   }
 
   .products-section {
@@ -469,13 +363,194 @@ const { data: mantiProducts } = await supabase
     gap: 2rem;
   }
 
+  .product-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .product-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+
+  .product-image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+  }
+
+  .product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .product-card:hover .product-image {
+    transform: scale(1.1);
+  }
+
+  .product-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(8, 145, 178, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .product-card:hover .product-overlay {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .btn-view-product {
+    padding: 0.875rem 2rem;
+    background: white;
+    color: #7c3aed;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .btn-view-product:hover {
+    background: #7c3aed;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+  }
+
+  .product-name-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 15px;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .product-info {
+    padding: 1.5rem;
+  }
+
+  /* Fiyatlar - KIRMIZI */
+  .product-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #DC2626;
+    margin-bottom: 1rem;
+  }
+
+  .price-unit {
+    font-size: 1rem;
+    color: #666;
+    font-weight: 400;
+  }
+
+  /* Sepete Ekle Butonu - KIRMIZI */
+  .btn-add-cart {
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+  }
+
+  .btn-add-cart:hover {
+    background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  }
+
   .no-products {
     text-align: center;
     padding: 4rem 1rem;
     color: #6B7280;
   }
 
-  /* Modal styles - pastirma.astro'dan kopyalayın */
+  /* Info Section - Mor İkonlar */
+  .info-section {
+    padding: 4rem 1rem;
+    background: white;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .info-card {
+    text-align: center;
+    padding: 2rem;
+    background: #F3F4F6;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+  }
+
+  .info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.15);
+  }
+
+  .info-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .info-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 0.75rem 0;
+  }
+
+  .info-card p {
+    font-size: 1rem;
+    color: #6B7280;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Modal Styles */
   .cart-modal {
     display: none;
     position: fixed;
@@ -493,71 +568,307 @@ const { data: mantiProducts } = await supabase
     display: flex;
   }
 
-  /* ... diğer modal stilleri pastirma.astro'dan ekleyin ... */
+  .modal-content {
+    background: white;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    z-index: 10;
+    transition: color 0.3s;
+  }
+
+  .modal-close:hover {
+    color: #333;
+  }
+
+  .modal-body {
+    padding: 30px;
+  }
+
+  .modal-product-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+
+  .modal-body h3 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #333;
+  }
+
+  .variant-selector,
+  .quantity-selector {
+    margin-bottom: 25px;
+  }
+
+  .variant-selector label,
+  .quantity-selector label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .variant-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  /* Variant Butonları - Mor */
+  .variant-btn {
+    padding: 10px 20px;
+    border: 2px solid #E5E7EB;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+  }
+
+  .variant-btn:hover {
+    border-color: #7c3aed;
+    color: #7c3aed;
+  }
+
+  .variant-btn.active {
+    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+    color: white;
+    border-color: #7c3aed;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+  }
+
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  /* Miktar Butonları - Mor */
+  .qty-btn {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #7c3aed;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: 600;
+    transition: all 0.3s;
+    color: #7c3aed;
+  }
+
+  .qty-btn:hover {
+    background: #7c3aed;
+    color: white;
+  }
+
+  .qty-input {
+    width: 80px;
+    height: 40px;
+    text-align: center;
+    border: 2px solid #7c3aed;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #7c3aed;
+    background: #faf5ff;
+  }
+
+  /* Modal Toplam - Turuncu */
+  .modal-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 2px solid #FED7AA;
+  }
+
+  .price-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .total-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #DC2626;
+  }
+
+  .btn {
+    padding: 14px 28px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+  }
+
+  /* Primary Buton - Kırmızı */
+  .btn-primary {
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+    transform: translateY(-2px);
+  }
+
+  /* Outline Buton - Kırmızı */
+  .btn-outline {
+    background: white;
+    color: #DC2626;
+    border: 2px solid #DC2626;
+  }
+
+  .btn-outline:hover {
+    background: #DC2626;
+    color: white;
+  }
+
+  .btn-large {
+    width: 100%;
+    font-size: 1.1rem;
+  }
+
+  /* Success Modal - Yeşil */
+  .success-content {
+    padding: 40px;
+    text-align: center;
+  }
+
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .success-icon svg {
+    stroke: white;
+  }
+
+  .success-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+    color: #333;
+  }
+
+  .success-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .success-buttons .btn {
+    flex: 1;
+    min-width: 150px;
+  }
 
   @media (max-width: 768px) {
-    .manti-hero {
+    .pastirma-hero {
       min-height: 300px;
       padding: 3rem 1rem;
     }
 
-    .hero-title {
+    .hero-content h1 {
       font-size: 2.5rem;
     }
 
-    .hero-description {
+    .hero-subtitle {
       font-size: 1rem;
     }
 
+    .hero-features {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .products-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .success-buttons {
+      flex-direction: column;
+    }
+
+    .success-buttons .btn {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
     .products-grid {
       grid-template-columns: 1fr;
+    }
+
+    .product-image-wrapper {
+      height: 250px;
     }
   }
 </style>
 
 <script>
-
   const cartModal = document.getElementById('cart-modal');
   const successModal = document.getElementById('success-modal');
-  let selectedProduct = null;
-  let selectedVariant = null;
+  let selectedProduct: any = null;
+  let selectedVariant: any = null;
 
-  // DOMContentLoaded ile tüm butonların yüklenmesini bekle
-  function initCartButtons() {
-    document.querySelectorAll('.btn-add-cart').forEach(btn => {
-      // Önceki event listener'ları temizle
-      const newBtn = btn.cloneNode(true);
-      btn.parentNode?.replaceChild(newBtn, btn);
-
-      newBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const productData = newBtn.getAttribute('data-product');
-        if (productData) {
-          try {
-            selectedProduct = JSON.parse(productData);
-            openCartModal(selectedProduct);
-          } catch (error) {
-            console.error('Ürün verisi parse edilemedi:', error);
-          }
-        }
-      });
+  document.querySelectorAll('.btn-add-cart').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const productData = btn.getAttribute('data-product');
+      if (productData) {
+        selectedProduct = JSON.parse(productData);
+        openCartModal(selectedProduct);
+      }
     });
-  }
+  });
 
-  // Sayfa yüklendiğinde ve her güncelleme sonrası çalıştır
-  document.addEventListener('DOMContentLoaded', initCartButtons);
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCartButtons);
-  } else {
-    initCartButtons();
-  }
-
-  function openCartModal(product) {
+  function openCartModal(product: any) {
     cartModal?.classList.add('active');
     document.body.style.overflow = 'hidden';
 
-    const modalImage = document.getElementById('modal-product-image');
+    const modalImage = document.getElementById('modal-product-image') as HTMLImageElement;
     const modalName = document.getElementById('modal-product-name');
     const variantOptions = document.getElementById('variant-options');
 
@@ -566,7 +877,7 @@ const { data: mantiProducts } = await supabase
 
     if (variantOptions && product.variants) {
       variantOptions.innerHTML = '';
-      product.variants.forEach((variant, index) => {
+      product.variants.forEach((variant: any, index: number) => {
         const btn = document.createElement('button');
         btn.className = `variant-btn ${index === 0 ? 'active' : ''}`;
         btn.textContent = `${variant.label} - ${variant.price}₺`;
@@ -583,12 +894,12 @@ const { data: mantiProducts } = await supabase
       updateTotalPrice();
     }
 
-    const qtyInput = document.querySelector('.qty-input');
+    const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
     if (qtyInput) qtyInput.value = '1';
   }
 
   function updateTotalPrice() {
-    const qtyInput = document.querySelector('.qty-input');
+    const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
     const totalPriceEl = document.getElementById('modal-total-price');
 
     if (qtyInput && totalPriceEl && selectedVariant) {
@@ -599,7 +910,7 @@ const { data: mantiProducts } = await supabase
   }
 
   document.querySelector('.qty-minus')?.addEventListener('click', () => {
-    const input = document.querySelector('.qty-input');
+    const input = document.querySelector('.qty-input') as HTMLInputElement;
     if (input) {
       const currentValue = parseInt(input.value) || 1;
       if (currentValue > 1) {
@@ -610,7 +921,7 @@ const { data: mantiProducts } = await supabase
   });
 
   document.querySelector('.qty-plus')?.addEventListener('click', () => {
-    const input = document.querySelector('.qty-input');
+    const input = document.querySelector('.qty-input') as HTMLInputElement;
     if (input) {
       const currentValue = parseInt(input.value) || 1;
       input.value = (currentValue + 1).toString();
@@ -633,7 +944,7 @@ const { data: mantiProducts } = await supabase
   });
 
   document.getElementById('confirm-add-cart')?.addEventListener('click', () => {
-    const qtyInput = document.querySelector('.qty-input');
+    const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
     const quantity = parseInt(qtyInput?.value) || 1;
 
     if (selectedProduct && selectedVariant) {
@@ -655,7 +966,7 @@ const { data: mantiProducts } = await supabase
       }
 
       const existingItemIndex = cart.findIndex(
-        (item) => item.id === cartItem.id && item.unit === cartItem.unit
+        (item: any) => item.id === cartItem.id && item.unit === cartItem.unit
       );
 
       if (existingItemIndex > -1) {
@@ -693,5 +1004,4 @@ const { data: mantiProducts } = await supabase
       }
     }
   });
-
 </script>
