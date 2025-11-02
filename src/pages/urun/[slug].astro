@@ -213,9 +213,16 @@ const { data: relatedProducts } = await supabaseAdmin
 
   <Footer slot="footer" />
 
-  <!-- Success Modal -->
+  <!-- Success Modal - ✅ X BUTONU EKLENDİ -->
   <div id="success-modal" class="success-modal">
     <div class="success-modal-content">
+      <!-- ✅ YENİ: X Butonu -->
+      <button class="modal-close success-close" aria-label="Kapat">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
       <div class="success-icon">
         <svg width="60" height="60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -723,6 +730,25 @@ const { data: relatedProducts } = await supabaseAdmin
     text-align: center;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     animation: modalSlideIn 0.3s ease;
+    position: relative;
+  }
+
+  /* ✅ YENİ: X Butonu Stili */
+  .modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #999;
+    z-index: 10;
+    transition: color 0.3s;
+    padding: 5px;
+  }
+
+  .modal-close:hover {
+    color: #DC2626;
   }
 
   @keyframes modalSlideIn {
@@ -922,6 +948,14 @@ const { data: relatedProducts } = await supabaseAdmin
     setTimeout(() => {
       document.getElementById('success-modal')?.classList.add('active');
       document.body.style.overflow = 'hidden';
+
+      // ✅ 5 SANİYE SONRA OTOMATİK KAPAT
+      setTimeout(() => {
+        const modal = document.getElementById('success-modal');
+        if (modal?.classList.contains('active')) {
+          document.getElementById('continue-shopping')?.click();
+        }
+      }, 5000);
     }, 300);
   });
 
@@ -944,6 +978,11 @@ const { data: relatedProducts } = await supabaseAdmin
     quantity = 1;
     document.getElementById('quantity').value = '1';
     updateDisplay();
+  });
+
+  // ✅ YENİ: X BUTONU
+  document.querySelector('.success-close')?.addEventListener('click', () => {
+    document.getElementById('continue-shopping')?.click();
   });
 
   // Modal dışına tıklama

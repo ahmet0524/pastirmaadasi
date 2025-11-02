@@ -1,0 +1,1537 @@
+---
+// src/pages/kullanim-kosullari.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const lastUpdate = '05/01/2024';
+---
+
+<BaseLayout
+  title="Kullanım Koşulları - Pastırma Adası"
+  description="Pastırma Adası web sitesi kullanım koşulları ve yasal bilgilendirme."
+>
+  <Header slot="header" />
+
+  <!-- Hero Section -->
+  <section class="terms-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <nav class="breadcrumb">
+        <a href="/">Ana Sayfa</a>
+        <span>/</span>
+        <span>Kullanım Koşulları</span>
+      </nav>
+      <h1>Kullanım Koşulları</h1>
+      <p class="hero-subtitle">
+        Web sitemizi kullanmadan önce lütfen bu kullanım koşullarını dikkatlice okuyunuz.
+      </p>
+      <div class="last-update">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        Son güncellenme: {lastUpdate}
+      </div>
+    </div>
+  </section>
+
+  <!-- Content Section -->
+  <section class="terms-content">
+    <div class="container">
+      <div class="content-wrapper">
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar-nav">
+          <div class="nav-sticky">
+            <h3>İçindekiler</h3>
+            <nav>
+              <a href="#giris" class="nav-link">Giriş</a>
+              <a href="#gizlilik" class="nav-link">Gizlilik</a>
+              <a href="#hizmet-kapsami" class="nav-link">Hizmet Kapsamı</a>
+              <a href="#telif-haklari" class="nav-link">Telif Hakları</a>
+              <a href="#genel-hukumler" class="nav-link">Genel Hükümler</a>
+              <a href="#sorumluluk" class="nav-link">Sorumluluk Sınırı</a>
+              <a href="#uyusmazlik" class="nav-link">Uyuşmazlık Çözümü</a>
+            </nav>
+          </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+          <!-- Giriş -->
+          <div id="giris" class="content-block intro-block">
+            <div class="icon-box">
+              <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <p class="intro-text">
+              Sevgili ziyaretçimiz, lütfen <strong>pastirmaadasi.com</strong> web sitemizi ziyaret etmeden önce
+              işbu kullanım koşulları sözleşmesini dikkatlice okuyunuz.
+            </p>
+            <div class="important-box">
+              <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+              <div>
+                <strong>Önemli Bilgilendirme</strong>
+                <p>
+                  Siteye erişiminiz tamamen bu sözleşmeyi kabulünüze ve bu sözleşme ile belirlenen şartlara
+                  uymanıza bağlıdır. Şayet bu sözleşmede yazan herhangi bir koşulu kabul etmiyorsanız, lütfen
+                  siteye erişiminizi sonlandırınız.
+                </p>
+                <p>
+                  Siteye erişiminizi sürdürdüğünüz takdirde, koşulsuz ve kısıtlamasız olarak, işbu sözleşme
+                  metninin tamamını kabul ettiğinizin, tarafımızca varsayılacağını lütfen unutmayınız.
+                </p>
+              </div>
+            </div>
+            <p>
+              <strong>pastirmaadasi.com</strong> web sitesi Pastırma Adası tarafından yönetilmekte olup,
+              bundan sonra <strong>SİTE</strong> olarak anılacaktır. İşbu siteye ilişkin Kullanım Koşulları,
+              yayınlanmakla yürürlüğe girer. Değişiklik yapma hakkı, tek taraflı olarak SİTE'ye aittir ve
+              SİTE üzerinden güncel olarak paylaşılacak olan bu değişiklikleri, tüm kullanıcılarımız baştan
+              kabul etmiş sayılır.
+            </p>
+          </div>
+
+          <!-- Gizlilik -->
+          <div id="gizlilik" class="content-block">
+            <h2>
+              <span class="section-number">01</span>
+              Gizlilik
+            </h2>
+            <p>
+              Gizlilik, ayrı bir sayfada, kişisel verilerinizin tarafımızca işlenmesinin esaslarını düzenlemek
+              üzere mevcuttur. SİTE'yi kullandığınız takdirde, bu verilerin işlenmesinin gizlilik politikasına
+              uygun olarak gerçekleştiğini kabul edersiniz.
+            </p>
+            <div class="link-card">
+              <div class="link-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+              </div>
+              <div class="link-content">
+                <h4>Gizlilik Politikamız</h4>
+                <p>Kişisel verilerinizin nasıl işlendiği hakkında detaylı bilgi için:</p>
+                <a href="/gizlilik-politikasi" class="link-button">
+                  Gizlilik Politikasını İncele
+                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hizmet Kapsamı -->
+          <div id="hizmet-kapsami" class="content-block">
+            <h2>
+              <span class="section-number">02</span>
+              Hizmet Kapsamı
+            </h2>
+            <p>
+              Pastırma Adası olarak, sunacağımız hizmetlerin kapsamını ve niteliğini, yasalar çerçevesinde
+              belirlemekte tamamen serbest olup; hizmetlere ilişkin yapacağımız değişiklikler, SİTE'de
+              yayınlanmakla yürürlüğe girmiş sayılacaktır.
+            </p>
+            <div class="service-grid">
+              <div class="service-card">
+                <div class="service-icon">
+                  <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                  </svg>
+                </div>
+                <h4>E-Ticaret</h4>
+                <p>Online ürün satışı ve sipariş yönetimi</p>
+              </div>
+              <div class="service-card">
+                <div class="service-icon">
+                  <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <h4>Bilgilendirme</h4>
+                <p>Ürün ve hizmet bilgilerinin paylaşımı</p>
+              </div>
+              <div class="service-card">
+                <div class="service-icon">
+                  <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
+                  </svg>
+                </div>
+                <h4>Müşteri Hizmetleri</h4>
+                <p>Destek ve iletişim hizmetleri</p>
+              </div>
+            </div>
+            <div class="info-box">
+              <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <p>
+                Hizmetlerimizde yapılacak değişiklikler sitemizde yayınlandığı anda yürürlüğe girer.
+                Düzenli olarak kontrol etmenizi öneririz.
+              </p>
+            </div>
+          </div>
+
+          <!-- Telif Hakları -->
+          <div id="telif-haklari" class="content-block">
+            <h2>
+              <span class="section-number">03</span>
+              Telif Hakları
+            </h2>
+            <p>
+              SİTE'de yayınlanan tüm metin, kod, grafikler, logolar, resimler, ses dosyaları ve kullanılan
+              yazılımın sahibi (bundan böyle ve daha sonra <strong>"içerik"</strong> olarak anılacaktır)
+              Pastırma Adası olup, tüm hakları saklıdır.
+            </p>
+            <div class="copyright-box">
+              <div class="copyright-icon">
+                <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+              </div>
+              <div class="copyright-content">
+                <h4>Korunan İçerikler</h4>
+                <ul>
+                  <li>Tüm metinler ve yazılar</li>
+                  <li>Yazılım kodları ve uygulamalar</li>
+                  <li>Grafikler ve tasarım öğeleri</li>
+                  <li>Logolar ve markalar</li>
+                  <li>Fotoğraflar ve görseller</li>
+                  <li>Ses ve video dosyaları</li>
+                </ul>
+              </div>
+            </div>
+            <div class="warning-box">
+              <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+              <div>
+                <strong>Yasal Uyarı</strong>
+                <p>
+                  Yazılı izin olmaksızın site içeriğinin çoğaltılması veya kopyalanması
+                  <strong>kesinlikle yasaktır</strong> ve yasal yaptırımlara tabidir.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Genel Hükümler -->
+          <div id="genel-hukumler" class="content-block">
+            <h2>
+              <span class="section-number">04</span>
+              Genel Hükümler
+            </h2>
+
+            <div class="rule-section">
+              <h3>Kullanıcı Taahhütleri</h3>
+              <p>
+                Kullanıcıların tamamı, SİTE'yi yalnızca hukuka uygun ve şahsi amaçlarla kullanacaklarını
+                ve üçüncü kişinin haklarına tecavüz teşkil edecek nitelikteki herhangi bir faaliyette
+                bulunmayacağını taahhüt eder.
+              </p>
+              <div class="obligations-grid">
+                <div class="obligation-item">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span>Hukuka uygun kullanım</span>
+                </div>
+                <div class="obligation-item">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span>Kişisel amaçlarla kullanım</span>
+                </div>
+                <div class="obligation-item">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span>Üçüncü kişi haklarına saygı</span>
+                </div>
+                <div class="obligation-item">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span>Sorumlu davranış</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="rule-section">
+              <h3>Kullanıcı Sorumluluğu</h3>
+              <p>
+                SİTE dâhilinde yaptıkları işlem ve eylemlerindeki, hukuki ve cezai sorumlulukları kendilerine
+                aittir. İşbu iş ve eylemler sebebiyle, üçüncü kişilerin uğradıkları veya uğrayabilecekleri
+                zararlardan dolayı SİTE'nin doğrudan ve/veya dolaylı hiçbir sorumluluğu yoktur.
+              </p>
+            </div>
+
+            <div class="rule-section">
+              <h3>Bilgi Güncelliği</h3>
+              <p>
+                SİTE'de mevcut bilgilerin doğruluk ve güncelliğini sağlamak için elimizden geleni yapmaktayız.
+                Lakin gösterdiğimiz çabaya rağmen, bu bilgiler, fiili değişikliklerin gerisinde kalabilir,
+                birtakım farklılıklar olabilir.
+              </p>
+              <div class="disclaimer-box">
+                <strong>Sorumluluk Reddi:</strong>
+                <p>
+                  Site içerisinde yer alan bilgilerin doğruluğu ve güncelliği ile ilgili tarafımızca,
+                  açık veya zımni, herhangi bir garanti verilmemekte, hiçbir taahhütte bulunulmamaktadır.
+                </p>
+              </div>
+            </div>
+
+            <div class="rule-section">
+              <h3>Dış Bağlantılar</h3>
+              <p>
+                SİTE'de üçüncü şahıslar tarafından işletilen ve içerikleri tarafımızca bilinmeyen diğer web
+                sitelerine, uygulamalara ve platformlara köprüler (hyperlink) bulunabilir. SİTE, işlevsellik
+                yalnızca bu sitelere ulaşımı sağlamakta olup, içerikleri ile ilgili hiçbir sorumluluk kabul
+                etmemekteyiz.
+              </p>
+            </div>
+
+            <div class="rule-section">
+              <h3>Güvenlik ve Virüsler</h3>
+              <p>
+                SİTE'yi virüslerden temizlenmiş tutmak konusunda elimizden geleni yapsak da, virüslerin
+                tamamen bulunmadığı garantisini vermemekteyiz. Bu nedenle veri indirirken, virüslere karşı
+                gerekli önlemi almak, kullanıcıların sorumluluğundadır. Virüs vb. kötü amaçlı programlar,
+                kodlar veya materyallerin sebep olabileceği zararlardan dolayı sorumluluk kabul etmemekteyiz.
+              </p>
+            </div>
+
+            <div class="rule-section">
+              <h3>Hizmet Kesintileri</h3>
+              <p>
+                SİTE'de sunulan hizmetlerde, kusur veya hata olmayacağına ya da kesintisiz hizmet verileceğine
+                dair garanti vermemekteyiz. SİTE'ye ve sitenin hizmetlerine veya herhangi bir bölümüne olan
+                erişiminizi önceden bildirmeksizin herhangi bir zamanda sonlandırabiliriz.
+              </p>
+            </div>
+          </div>
+
+          <!-- Sorumluluk Sınırı -->
+          <div id="sorumluluk" class="content-block">
+            <h2>
+              <span class="section-number">05</span>
+              Sorumluluğun Sınırlandırılması
+            </h2>
+            <p>
+              SİTE'nin kullanımından doğan zararlara ilişkin sorumluluğumuz, aşağıdaki şartlar ve
+              sınırlamalar çerçevesinde belirlenir:
+            </p>
+
+            <div class="liability-grid">
+              <div class="liability-card">
+                <div class="liability-icon red">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                  </svg>
+                </div>
+                <h4>Sorumluluk Kapsamı</h4>
+                <p>
+                  Sorumluluğumuz <strong>kast ve ağır ihmal</strong> ile sınırlıdır. Sözleşmenin ihlalinden
+                  doğan zararlarda, talep edilebilecek toplam tazminat, öngörülebilir hasarlar ile sınırlıdır.
+                </p>
+              </div>
+
+              <div class="liability-card">
+                <div class="liability-icon yellow">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <h4>İstisnalar</h4>
+                <p>
+                  Yukarıda bahsedilen sorumluluk sınırlamaları, <strong>insan hayatına, bedeni yaralanmaya
+                  veya bir kişinin sağlığına</strong> gelebilecek zararlar durumunda geçerli değildir.
+                </p>
+              </div>
+
+              <div class="liability-card">
+                <div class="liability-icon green">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                  </svg>
+                </div>
+                <h4>Mücbir Sebepler</h4>
+                <p>
+                  Hukuken mücbir sebep sayılan tüm durumlarda, gecikme, ifa etmeme veya temerrütten dolayı,
+                  herhangi bir tazminat yükümlülüğümüz doğmayacaktır.
+                </p>
+              </div>
+            </div>
+
+            <div class="force-majeure-box">
+              <h4>Mücbir Sebep Halleri:</h4>
+              <ul>
+                <li>Doğal afetler (deprem, sel, yangın vb.)</li>
+                <li>Savaş, ayaklanma, terör eylemleri</li>
+                <li>Grev, lokavt gibi toplu hareketler</li>
+                <li>Altyapı arızaları ve internet kesintileri</li>
+                <li>Yasal düzenlemeler ve resmi makam kararları</li>
+                <li>Salgın hastalıklar ve pandemi</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Uyuşmazlık Çözümü -->
+          <div id="uyusmazlik" class="content-block">
+            <h2>
+              <span class="section-number">06</span>
+              Uyuşmazlık Çözümü
+            </h2>
+            <p>
+              İşbu Sözleşme'nin uygulanmasından veya yorumlanmasından doğacak her türlü uyuşmazlığın
+              çözümünde aşağıdaki hükümler geçerlidir:
+            </p>
+
+            <div class="jurisdiction-box">
+              <div class="jurisdiction-icon">
+                <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/>
+                </svg>
+              </div>
+              <div class="jurisdiction-content">
+                <h4>Yetkili Merciler</h4>
+                <div class="jurisdiction-item">
+                  <strong>Uygulanacak Hukuk:</strong>
+                  <p>Türkiye Cumhuriyeti yasaları</p>
+                </div>
+                <div class="jurisdiction-item">
+                  <strong>Yetkili Mahkemeler:</strong>
+                  <p>Kayseri Adliyesi Mahkemeleri</p>
+                </div>
+                <div class="jurisdiction-item">
+                  <strong>Yetkili İcra Daireleri:</strong>
+                  <p>Kayseri İcra Daireleri</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-box">
+              <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <p>
+                Bu sözleşmenin tarafları, işbu maddenin uygulanmasında Türkiye Cumhuriyeti yasalarının
+                uygulanacağını ve herhangi bir uyuşmazlıkta Kayseri mahkemelerinin yetkili olduğunu
+                kabul, beyan ve taahhüt ederler.
+              </p>
+            </div>
+          </div>
+
+          <!-- Son Hükümler -->
+          <div class="content-block final-block">
+            <div class="final-box">
+              <div class="final-icon">
+                <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <div class="final-content">
+                <h3>Sözleşmenin Kabulü</h3>
+                <p>
+                  İşbu kullanım koşulları sözleşmesi, sitemizi ziyaret ettiğiniz anda yürürlüğe girer ve
+                  siteyi kullanmaya devam etmeniz halinde tüm maddeleri kabul etmiş sayılırsınız.
+                </p>
+                <p>
+                  Kullanım koşullarımızda yapılacak değişiklikler sitemizde yayınlandığı anda yürürlüğe girer.
+                  Sitemizi düzenli olarak ziyaret ederek güncel koşulları takip etmenizi öneririz.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </main>
+      </div>
+    </div>
+  </section>
+
+  <!-- Related Links Section -->
+  <section class="related-links">
+    <div class="container">
+      <h2>İlgili Belgeler</h2>
+      <div class="links-grid">
+        <a href="/gizlilik-politikasi" class="link-card">
+          <div class="link-card-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+          </div>
+          <div class="link-card-content">
+            <h3>Gizlilik Politikası</h3>
+            <p>Kişisel verilerinizin nasıl korunduğunu öğrenin</p>
+          </div>
+          <svg class="link-arrow" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </a>
+
+        <a href="/cerez-politikasi" class="link-card">
+          <div class="link-card-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+          </div>
+          <div class="link-card-content">
+            <h3>Çerez Politikası</h3>
+            <p>Çerez kullanımımız hakkında bilgi alın</p>
+          </div>
+          <svg class="link-arrow" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </a>
+
+        <a href="/iletisim" class="link-card">
+          <div class="link-card-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div class="link-card-content">
+            <h3>İletişim</h3>
+            <p>Sorularınız için bizimle iletişime geçin</p>
+          </div>
+          <svg class="link-arrow" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <div class="cta-icon">
+          <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </div>
+        <h2>Sorularınız mı var?</h2>
+        <p>
+          Kullanım koşulları hakkında daha fazla bilgi almak veya herhangi bir sorunuz için bizimle iletişime geçebilirsiniz.
+        </p>
+        <a href="/iletisim" class="btn btn-primary">İletişime Geçin</a>
+      </div>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  /* Hero Section */
+  .terms-hero {
+    position: relative;
+    min-height: 350px;
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: white;
+    max-width: 800px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+
+  .breadcrumb a {
+    color: rgba(255, 255, 255, 0.95);
+    text-decoration: none;
+    transition: opacity 0.3s;
+  }
+
+  .breadcrumb a:hover {
+    opacity: 0.8;
+  }
+
+  .breadcrumb span {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .hero-content h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0 0 1rem 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .hero-subtitle {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    margin: 0 0 1.5rem 0;
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  .last-update {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.25rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  /* Content Section */
+  .terms-content {
+    padding: 4rem 1rem;
+    background: #F9FAFB;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .content-wrapper {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  /* Sidebar Navigation */
+  .sidebar-nav {
+    position: relative;
+  }
+
+  .nav-sticky {
+    position: sticky;
+    top: 2rem;
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .nav-sticky h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 1rem 0;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #E5E7EB;
+  }
+
+  .nav-sticky nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .nav-link {
+    padding: 0.75rem 1rem;
+    color: #6B7280;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    background: #FEE2E2;
+    color: #DC2626;
+    transform: translateX(4px);
+  }
+
+  /* Main Content */
+  .main-content {
+    background: white;
+    border-radius: 16px;
+    padding: 3rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  .content-block {
+    margin-bottom: 4rem;
+    scroll-margin-top: 2rem;
+  }
+
+  .content-block:last-child {
+    margin-bottom: 0;
+  }
+
+  .intro-block {
+    padding-bottom: 3rem;
+    border-bottom: 2px solid #E5E7EB;
+  }
+
+  .icon-box {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-bottom: 1.5rem;
+  }
+
+  .intro-text {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #374151;
+    margin-bottom: 1.25rem;
+  }
+
+  .intro-text strong {
+    color: #DC2626;
+  }
+
+  .content-block p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #4B5563;
+    margin-bottom: 1.25rem;
+  }
+
+  .content-block p:last-child {
+    margin-bottom: 0;
+  }
+
+  .content-block a {
+    color: #DC2626;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+
+  .content-block a:hover {
+    color: #B91C1C;
+    text-decoration: underline;
+  }
+
+  .content-block h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .section-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+    color: white;
+    border-radius: 12px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* Important Box */
+  .important-box {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    border-left: 4px solid #F59E0B;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+  }
+
+  .important-box svg {
+    flex-shrink: 0;
+    color: #D97706;
+    margin-top: 0.25rem;
+  }
+
+  .important-box strong {
+    display: block;
+    color: #92400E;
+    margin-bottom: 0.75rem;
+    font-size: 1.05rem;
+  }
+
+  .important-box p {
+    margin-bottom: 0.75rem;
+    color: #78350F;
+  }
+
+  .important-box p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Info Box */
+  .info-box {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+    border-left: 4px solid #3B82F6;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+  }
+
+  .info-box svg {
+    flex-shrink: 0;
+    color: #2563EB;
+  }
+
+  .info-box p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #1E3A8A;
+  }
+
+  /* Link Card */
+  .link-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: #F9FAFB;
+    border-radius: 12px;
+    border: 2px solid #E5E7EB;
+    margin-top: 2rem;
+    transition: all 0.3s;
+  }
+
+  .link-card:hover {
+    border-color: #DC2626;
+    background: #FEF2F2;
+    transform: translateX(8px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+  }
+
+  .link-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .link-content {
+    flex: 1;
+  }
+
+  .link-content h4 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .link-content p {
+    font-size: 0.9rem;
+    color: #6B7280;
+    margin: 0 0 0.75rem 0;
+  }
+
+  .link-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #DC2626;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: gap 0.2s;
+  }
+
+  .link-button:hover {
+    gap: 0.75rem;
+  }
+
+  /* Service Grid */
+  .service-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .service-card {
+    padding: 1.5rem;
+    background: #F9FAFB;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .service-card:hover {
+    background: #FEF2F2;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(220, 38, 38, 0.15);
+  }
+
+  .service-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .service-card h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .service-card p {
+    font-size: 0.9rem;
+    color: #6B7280;
+    margin: 0;
+  }
+
+  /* Copyright Box */
+  .copyright-box {
+    display: flex;
+    gap: 2rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+    border-radius: 12px;
+    border: 2px solid #FECACA;
+    margin-top: 2rem;
+  }
+
+  .copyright-icon {
+    flex-shrink: 0;
+    color: #DC2626;
+  }
+
+  .copyright-content h4 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 1rem 0;
+  }
+
+  .copyright-content ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    list-style: none;
+  }
+
+  .copyright-content li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: #4B5563;
+    font-size: 0.95rem;
+  }
+
+  .copyright-content li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #DC2626;
+    font-weight: 700;
+  }
+
+  .copyright-content li:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Warning Box */
+  .warning-box {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+    border-left: 4px solid #DC2626;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+  }
+
+  .warning-box svg {
+    flex-shrink: 0;
+    color: #B91C1C;
+  }
+
+  .warning-box strong {
+    display: block;
+    color: #7F1D1D;
+    margin-bottom: 0.5rem;
+  }
+
+  .warning-box p {
+    margin: 0;
+    color: #991B1B;
+  }
+
+  /* Rule Section */
+  .rule-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .rule-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .rule-section h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #E5E7EB;
+  }
+
+  /* Obligations Grid */
+  .obligations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .obligation-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: #F9FAFB;
+    border-radius: 8px;
+    border-left: 3px solid #10B981;
+  }
+
+  .obligation-item svg {
+    flex-shrink: 0;
+    color: #10B981;
+  }
+
+  .obligation-item span {
+    font-size: 0.9rem;
+    color: #374151;
+    font-weight: 500;
+  }
+
+  /* Disclaimer Box */
+  .disclaimer-box {
+    padding: 1.25rem;
+    background: #FEF3C7;
+    border-radius: 8px;
+    border-left: 4px solid #F59E0B;
+    margin-top: 1.5rem;
+  }
+
+  .disclaimer-box strong {
+    display: block;
+    color: #92400E;
+    margin-bottom: 0.5rem;
+  }
+
+  .disclaimer-box p {
+    margin: 0;
+    color: #78350F;
+    font-size: 0.95rem;
+  }
+
+  /* Liability Grid */
+  .liability-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .liability-card {
+    padding: 2rem;
+    background: #F9FAFB;
+    border-radius: 12px;
+    border: 2px solid #E5E7EB;
+    transition: all 0.3s;
+  }
+
+  .liability-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+
+  .liability-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-bottom: 1.25rem;
+  }
+
+  .liability-icon.red {
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+  }
+
+  .liability-icon.yellow {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  }
+
+  .liability-icon.green {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  }
+
+  .liability-card h4 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 0.75rem 0;
+  }
+
+  .liability-card p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #6B7280;
+    margin: 0;
+  }
+
+  /* Force Majeure Box */
+  .force-majeure-box {
+    padding: 2rem;
+    background: #F9FAFB;
+    border-radius: 12px;
+    margin-top: 2rem;
+  }
+
+  .force-majeure-box h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 1rem 0;
+  }
+
+  .force-majeure-box ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    list-style: none;
+  }
+
+  .force-majeure-box li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: #4B5563;
+    font-size: 0.95rem;
+  }
+
+  .force-majeure-box li:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #DC2626;
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+
+  .force-majeure-box li:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Jurisdiction Box */
+  .jurisdiction-box {
+    display: flex;
+    gap: 2rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+    border-radius: 12px;
+    border: 2px solid #FECACA;
+    margin-top: 2rem;
+  }
+
+  .jurisdiction-icon {
+    flex-shrink: 0;
+    color: #DC2626;
+  }
+
+  .jurisdiction-content h4 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 1.5rem 0;
+  }
+
+  .jurisdiction-item {
+    margin-bottom: 1.25rem;
+  }
+
+  .jurisdiction-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .jurisdiction-item strong {
+    display: block;
+    color: #DC2626;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .jurisdiction-item p {
+    margin: 0;
+    color: #4B5563;
+    font-size: 1rem;
+    padding-left: 1.25rem;
+  }
+
+  /* Final Block */
+  .final-block {
+    margin-top: 3rem;
+    padding-top: 3rem;
+    border-top: 2px solid #E5E7EB;
+  }
+
+  .final-box {
+    display: flex;
+    gap: 2rem;
+    padding: 2.5rem;
+    background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%);
+    border-radius: 12px;
+    border: 2px solid #86EFAC;
+  }
+
+  .final-icon {
+    flex-shrink: 0;
+    color: #059669;
+  }
+
+  .final-content h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 1rem 0;
+  }
+
+  .final-content p {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #166534;
+    margin-bottom: 1rem;
+  }
+
+  .final-content p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Related Links Section */
+  .related-links {
+    padding: 4rem 1rem;
+    background: white;
+  }
+
+  .related-links h2 {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1F2937;
+    margin: 0 0 3rem 0;
+  }
+
+  .links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .links-grid .link-card {
+    margin-top: 0;
+    text-decoration: none;
+    position: relative;
+  }
+
+  .link-card-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .link-card-content h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .link-card-content p {
+    font-size: 0.95rem;
+    color: #6B7280;
+    margin: 0;
+  }
+
+  .link-arrow {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #DC2626;
+    transition: transform 0.3s;
+  }
+
+  .links-grid .link-card:hover .link-arrow {
+    transform: translateY(-50%) translateX(4px);
+  }
+
+  /* CTA Section */
+  .cta-section {
+    padding: 4rem 1rem;
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+    text-align: center;
+  }
+
+  .cta-content {
+    max-width: 600px;
+    margin: 0 auto;
+    color: white;
+  }
+
+  .cta-icon {
+    margin: 0 auto 1.5rem;
+    color: white;
+  }
+
+  .cta-content h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0 0 1rem 0;
+  }
+
+  .cta-content p {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    margin: 0 0 2rem 0;
+    opacity: 0.95;
+  }
+
+  .btn {
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background: white;
+    color: #0891B2;
+  }
+
+  .btn-primary:hover {
+    background: #F0FDFA;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .content-wrapper {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .sidebar-nav {
+      order: -1;
+    }
+
+    .nav-sticky {
+      position: static;
+    }
+
+    .nav-sticky nav {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+  }
+
+  @media (max-width: 768px) {
+    .terms-hero {
+      min-height: 280px;
+      padding: 2rem 1rem;
+    }
+
+    .hero-content h1 {
+      font-size: 2rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1rem;
+    }
+
+    .main-content {
+      padding: 2rem 1.5rem;
+    }
+
+    .content-block h2 {
+      font-size: 1.5rem;
+      flex-direction: column;
+      align-items: start;
+      gap: 0.75rem;
+    }
+
+    .service-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .obligations-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .liability-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .copyright-box,
+    .jurisdiction-box,
+    .final-box {
+      flex-direction: column;
+    }
+
+    .links-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .cta-content h2 {
+      font-size: 1.75rem;
+    }
+
+    .link-card {
+      flex-wrap: wrap;
+    }
+
+    .link-arrow {
+      position: static;
+      transform: none;
+      margin-left: auto;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .nav-sticky nav {
+      grid-template-columns: 1fr;
+    }
+
+    .icon-box {
+      width: 56px;
+      height: 56px;
+    }
+
+    .intro-text {
+      font-size: 1rem;
+    }
+
+    .important-box,
+    .warning-box {
+      flex-direction: column;
+      align-items: start;
+    }
+  }
+</style>
+
+<script>
+  // Smooth scroll for navigation links
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = link.getAttribute('href');
+      const targetElement = document.querySelector(targetId);
+
+      if (targetElement) {
+        const offset = 100;
+        const elementPosition = targetElement.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    });
+  });
+
+  // Highlight active section in navigation
+  const observerOptions = {
+    root: null,
+    rootMargin: '-100px 0px -66%',
+    threshold: 0
+  };
+
+  const observerCallback = (entries: IntersectionObserverEntry[]) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+        document.querySelectorAll('.nav-link').forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === `#${id}`) {
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+  };
+
+  const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+  document.querySelectorAll('.content-block[id]').forEach(section => {
+    observer.observe(section);
+  });
+
+  // Print functionality
+  const printButton = document.querySelector('.print-button');
+  if (printButton) {
+    printButton.addEventListener('click', () => {
+      window.print();
+    });
+  }
+</script>
