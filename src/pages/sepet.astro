@@ -244,183 +244,6 @@ const cities = [
   display: none !important;
 }
 
-/* Cart Item Styles */
-.cart-item {
-  display: flex;
-  gap: 1.25rem;
-  padding: 1.25rem;
-  background: white;
-  border-radius: var(--radius-lg, 16px);
-  margin-bottom: 1rem;
-  box-shadow: var(--shadow, 0 4px 12px rgba(0,0,0,0.1));
-  transition: transform var(--transition, 0.3s), box-shadow var(--transition, 0.3s);
-  align-items: flex-start;
-}
-
-.cart-item:hover {
-  box-shadow: var(--shadow-md, 0 4px 16px rgba(0,0,0,0.12));
-  transform: translateY(-2px);
-}
-
-.cart-item-image {
-  width: 110px;
-  height: 110px;
-  border-radius: var(--radius-md, 10px);
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.cart-item-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.cart-item-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  min-width: 0;
-}
-
-.cart-item-info h3 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--teal-900, #134e4a);
-  line-height: 1.3;
-}
-
-.cart-item-price {
-  font-size: 1.2rem;
-  color: var(--emerald-800, #065f46);
-  font-weight: 700;
-}
-
-/* Variant Selector - Sepete Özel Gramaj Seçici */
-.variant-selector-inline {
-  margin: 0.75rem 0 0 0;
-}
-
-.variant-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--teal-700, #0f766e);
-  margin-bottom: 0.5rem;
-}
-
-.variant-buttons {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.variant-btn-inline {
-  flex: 1;
-  min-width: 70px;
-  padding: 0.5rem 0.75rem;
-  border: 2px solid var(--teal-200, #99f6e4);
-  background: white;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: var(--teal-700, #0f766e);
-  text-align: center;
-}
-
-.variant-btn-inline:hover {
-  border-color: var(--primary, #0891b2);
-  background: var(--teal-50, #f0fdfa);
-  transform: translateY(-1px);
-}
-
-.variant-btn-inline.active {
-  background: linear-gradient(135deg, var(--primary, #0891b2), #06b6d4) !important;
-  color: white;
-  border-color: var(--primary, #0891b2);
-  box-shadow: 0 2px 8px rgba(8, 145, 178, 0.3);
-}
-
-.quantity-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.qty-btn {
-  width: 40px;
-  height: 40px;
-  font-size: 1.4rem;
-  border: 2px solid var(--emerald-500, #10b981);
-  color: var(--emerald-500, #10b981);
-  background: white;
-  border-radius: var(--radius-sm, 6px);
-  cursor: pointer;
-  transition: background var(--transition, 0.3s), color var(--transition, 0.3s), transform 0.15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-}
-
-.qty-btn:hover {
-  background: var(--emerald-500, #10b981);
-  color: white;
-}
-
-.qty-btn:active {
-  transform: scale(0.95);
-}
-
-.qty-amount {
-  font-size: 1.3rem;
-  min-width: 50px;
-  text-align: center;
-  font-weight: 700;
-  color: var(--text-dark, #1a1a1a);
-}
-
-.cart-item-actions {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 1rem;
-  min-height: 100px;
-}
-
-.remove-btn {
-  background: var(--red-100, #fee2e2);
-  border: none;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm, 8px);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background var(--transition, 0.3s), transform var(--transition, 0.3s), box-shadow var(--transition, 0.3s);
-  font-size: 1.25rem;
-}
-
-.remove-btn:hover {
-  background: var(--red-200, #fecaca);
-  transform: scale(1.1) rotate(8deg);
-  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3);
-}
-
-.cart-item-total {
-  font-size: 1.3rem;
-  color: var(--emerald-700, #047857);
-  font-weight: 800;
-}
-
 /* Summary Card */
 .summary-card {
   background: white;
@@ -700,55 +523,6 @@ const cities = [
   .page-header h1 {
     font-size: 2rem;
   }
-  .cart-item {
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.5rem;
-  }
-  .cart-item-image {
-    width: 120px;
-    height: 120px;
-  }
-  .cart-item-info {
-    width: 100%;
-    align-items: center;
-    text-align: center;
-  }
-  .cart-item-info h3 {
-    font-size: 1.15rem;
-  }
-  .cart-item-price {
-    font-size: 1.1rem;
-  }
-  .quantity-controls {
-    justify-content: center;
-  }
-  .cart-item-actions {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    min-height: auto;
-    padding-top: 1rem;
-    border-top: 1px solid var(--teal-50, #f0fdfa);
-  }
-  .cart-item-total {
-    font-size: 1.35rem;
-  }
-  .qty-btn {
-    width: 44px;
-    height: 44px;
-    font-size: 1.3rem;
-  }
-  .qty-amount {
-    font-size: 1.3rem;
-    min-width: 50px;
-  }
-  .remove-btn {
-    width: 44px;
-    height: 44px;
-  }
   .form-row {
     grid-template-columns: 1fr;
   }
@@ -760,48 +534,6 @@ const cities = [
   }
   .btn-secondary {
     width: 100%;
-  }
-  .variant-buttons {
-    flex-direction: column;
-  }
-  .variant-btn-inline {
-    min-width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .cart-item {
-    padding: 1.25rem;
-  }
-  .cart-item-image {
-    width: 100px;
-    height: 100px;
-  }
-  .cart-item-info h3 {
-    font-size: 1.05rem;
-  }
-  .cart-item-price {
-    font-size: 1rem;
-  }
-  .cart-item-total {
-    font-size: 1.25rem;
-  }
-  .qty-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 1.2rem;
-  }
-  .qty-amount {
-    font-size: 1.2rem;
-    min-width: 45px;
-  }
-  .variant-buttons {
-    gap: 0.4rem;
-  }
-  .variant-btn-inline {
-    min-width: 65px;
-    padding: 0.5rem;
-    font-size: 0.85rem;
   }
 }
 </style>
@@ -846,7 +578,12 @@ const coupons: Record<string, number> = { HOSGELDIN10: 10, YENI15: 15, KAYSER20:
     if (item.availableVariants && item.availableVariants.length > 1) {
       variantButtons = `
         <div class="variant-selector-inline">
-          <label class="variant-label">Gramaj Seçin</label>
+          <label class="variant-label">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1zm-5 8.274l-.818 2.552c.25.112.526.174.818.174.292 0 .569-.062.818-.174L5 10.274zm10 0l-.818 2.552c.25.112.526.174.818.174.292 0 .569-.062.818-.174L15 10.274z" clip-rule="evenodd"/>
+            </svg>
+            Gramaj Seçin
+          </label>
           <div class="variant-buttons">
             ${item.availableVariants.map((variant: any) => `
               <button
@@ -855,7 +592,7 @@ const coupons: Record<string, number> = { HOSGELDIN10: 10, YENI15: 15, KAYSER20:
                 data-label="${variant.label}"
                 data-price="${variant.price}"
               >
-                ${variant.label}
+                ${variant.label}<br><strong>${variant.price}₺</strong>
               </button>
             `).join('')}
           </div>
