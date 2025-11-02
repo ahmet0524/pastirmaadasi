@@ -298,6 +298,55 @@ const cities = [
   font-weight: 700;
 }
 
+/* Variant Selector - Sepete Özel Gramaj Seçici */
+.variant-selector-inline {
+  margin: 0.75rem 0 0 0;
+}
+
+.variant-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--teal-700, #0f766e);
+  margin-bottom: 0.5rem;
+}
+
+.variant-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.variant-btn-inline {
+  flex: 1;
+  min-width: 70px;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--teal-200, #99f6e4);
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--teal-700, #0f766e);
+  text-align: center;
+}
+
+.variant-btn-inline:hover {
+  border-color: var(--primary, #0891b2);
+  background: var(--teal-50, #f0fdfa);
+  transform: translateY(-1px);
+}
+
+.variant-btn-inline.active {
+  background: linear-gradient(135deg, var(--primary, #0891b2), #06b6d4) !important;
+  color: white;
+  border-color: var(--primary, #0891b2);
+  box-shadow: 0 2px 8px rgba(8, 145, 178, 0.3);
+}
+
 .quantity-controls {
   display: flex;
   align-items: center;
@@ -585,6 +634,11 @@ const cities = [
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.btn svg {
+  flex-shrink: 0;
 }
 
 .btn-primary {
@@ -612,6 +666,7 @@ const cities = [
 .btn-large {
   padding: 1.125rem 2rem;
   font-size: 1.15rem;
+  width: 100%;
 }
 
 .continue-shopping {
@@ -706,6 +761,12 @@ const cities = [
   .btn-secondary {
     width: 100%;
   }
+  .variant-buttons {
+    flex-direction: column;
+  }
+  .variant-btn-inline {
+    min-width: 100%;
+  }
 }
 
 @media (max-width: 480px) {
@@ -734,6 +795,14 @@ const cities = [
     font-size: 1.2rem;
     min-width: 45px;
   }
+  .variant-buttons {
+    gap: 0.4rem;
+  }
+  .variant-btn-inline {
+    min-width: 65px;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
 }
 </style>
 
@@ -746,6 +815,7 @@ interface CartItem {
   image: string;
   unit: string;
   quantity: number;
+  availableVariants?: any[];
 }
 
 let cart: CartItem[] = [];
@@ -769,14 +839,39 @@ const coupons: Record<string, number> = { HOSGELDIN10: 10, YENI15: 15, KAYSER20:
   emptyCart.classList.add('hidden');
   if (checkoutBtn) checkoutBtn.disabled = false;
 
-  cartContainer.innerHTML = cart.map((item, index) => `
+  cartContainer.innerHTML = cart.map((item, index) => {
+    const displayName = item.name || 'Ürün';
+
+    let variantButtons = '';
+    if (item.availableVariants && item.availableVariants.length > 1) {
+      variantButtons = `
+        <div class="variant-selector-inline">
+          <label class="variant-label">Gramaj Seçin</label>
+          <div class="variant-buttons">
+            ${item.availableVariants.map((variant: any) => `
+              <button
+                class="variant-btn-inline ${variant.label === item.unit ? 'active' : ''}"
+                data-index="${index}"
+                data-label="${variant.label}"
+                data-price="${variant.price}"
+              >
+                ${variant.label}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    return `
     <div class="cart-item">
       <div class="cart-item-image">
-        <img src="${item.image}" alt="${item.name}" loading="lazy">
+        <img src="${item.image}" alt="${displayName}" loading="lazy">
       </div>
       <div class="cart-item-info">
-        <h3>${item.name}</h3>
+        <h3>${displayName}</h3>
         <p class="cart-item-price">${item.price.toFixed(2)}₺ / ${item.unit}</p>
+        ${variantButtons}
         <div class="quantity-controls">
           <button class="qty-btn decrease-qty" data-index="${index}" aria-label="Azalt">−</button>
           <span class="qty-amount">${item.quantity}</span>
@@ -788,7 +883,8 @@ const coupons: Record<string, number> = { HOSGELDIN10: 10, YENI15: 15, KAYSER20:
         <p class="cart-item-total">${(item.price * item.quantity).toFixed(2)}₺</p>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 
   document.querySelectorAll('.increase-qty').forEach(btn => {
     btn.addEventListener('click', e => {
@@ -813,6 +909,32 @@ const coupons: Record<string, number> = { HOSGELDIN10: 10, YENI15: 15, KAYSER20:
       const index = parseInt((e.currentTarget as HTMLElement).dataset.index || '0');
       if (confirm('Bu ürünü sepetten çıkarmak istediğinize emin misiniz?')) {
         cart.splice(index, 1);
+        saveCart();
+      }
+    });
+  });
+
+  document.querySelectorAll('.variant-btn-inline').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const target = e.currentTarget as HTMLElement;
+      const index = parseInt(target.dataset.index || '0');
+      const newLabel = target.dataset.label || '';
+      const newPrice = parseFloat(target.dataset.price || '0');
+
+      if (newLabel && newPrice) {
+        document.querySelectorAll(`.variant-btn-inline[data-index="${index}"]`).forEach(b => {
+          b.classList.remove('active');
+        });
+
+        target.classList.add('active');
+
+        cart[index] = {
+          ...cart[index],
+          unit: newLabel,
+          price: newPrice,
+          id: `${cart[index].productId}_${newLabel}`
+        };
+
         saveCart();
       }
     });
@@ -936,6 +1058,8 @@ async function handleCheckout() {
     name: item.name,
     category1: 'Et Ürünleri',
     price: (item.price * item.quantity).toFixed(2),
+    quantity: item.quantity,
+    unit: item.unit
   }));
 
   const buyer = {

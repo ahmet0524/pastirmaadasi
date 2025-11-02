@@ -19,8 +19,29 @@ function isValidEmail(email) {
   return !!email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
 
-// Müşteri Email Template - TAM BİLGİLERLE
+// Müşteri Email Template - GÜNCEL VE ANLAŞILIR
 function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDate, shippingAddress, customerPhone }) {
+  // Ürünleri grupla ve düzenle
+  const itemsHTML = items.map((item, index) => {
+    const itemName = item.name || `Ürün ${index + 1}`;
+    const quantity = item.quantity || 1;
+    const unit = item.unit || '500gr';
+    const price = parseFloat(item.price || 0);
+    const totalPrice = (price * quantity).toFixed(2);
+
+    return `
+      <div class="item">
+        <div>
+          <div class="item-name">${index + 1}. ${itemName}</div>
+          <div class="item-detail">
+            <strong>${quantity} Adet</strong> × ${price.toFixed(2)}₺ (${unit})
+          </div>
+        </div>
+        <div style="font-weight: 700; color: #059669;">${totalPrice}₺</div>
+      </div>
+    `;
+  }).join('');
+
   return `
 <!DOCTYPE html>
 <html>
@@ -28,83 +49,88 @@ function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDa
   <meta charset="utf-8">
   <style>
     body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
-    .container { max-width: 600px; margin: 0 auto; }
-    .header { background: #c41e3a; color: white; padding: 30px 20px; text-align: center; }
-    .header h1 { margin: 0; font-size: 28px; }
+    .container { max-width: 600px; margin: 0 auto; background: #fff; }
+    .header { background: linear-gradient(135deg, #c41e3a 0%, #a01729 100%); color: white; padding: 40px 20px; text-align: center; }
+    .header h1 { margin: 0; font-size: 32px; font-weight: 800; }
+    .header p { margin: 10px 0 0 0; font-size: 16px; opacity: 0.95; }
     .content { background: #f9f9f9; padding: 30px 20px; }
-    .order-details { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    .order-details h3 { color: #c41e3a; margin-top: 0; }
-    .info-row { padding: 10px 0; border-bottom: 1px solid #eee; }
+    .greeting { font-size: 18px; margin-bottom: 20px; color: #333; }
+    .order-details { background: white; padding: 25px; margin: 20px 0; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #0891B2; }
+    .order-details h3 { color: #0891B2; margin-top: 0; margin-bottom: 15px; font-size: 20px; }
+    .info-row { padding: 12px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; }
     .info-row:last-child { border-bottom: none; }
-    .info-label { font-weight: 600; color: #666; display: inline-block; width: 120px; }
-    .item { padding: 12px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+    .info-label { font-weight: 600; color: #666; }
+    .info-value { color: #333; text-align: right; }
+    .items-section { background: white; padding: 25px; margin: 20px 0; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .items-section h4 { margin-top: 0; margin-bottom: 20px; color: #333; font-size: 18px; }
+    .item { padding: 15px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: flex-start; }
     .item:last-child { border-bottom: none; }
-    .item-name { font-weight: 600; }
+    .item-name { font-weight: 600; color: #333; margin-bottom: 5px; font-size: 15px; }
     .item-detail { color: #666; font-size: 14px; }
-    .total { font-size: 24px; font-weight: bold; color: #c41e3a; margin-top: 20px; padding-top: 20px; border-top: 2px solid #c41e3a; text-align: right; }
-    .info-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px; }
-    .footer { text-align: center; padding: 20px; color: #666; font-size: 13px; }
+    .item-detail strong { color: #0891B2; }
+    .total-box { background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%); padding: 25px; margin: 20px 0; border-radius: 12px; text-align: center; border: 2px solid #0891B2; }
+    .total-label { font-size: 18px; color: #333; margin-bottom: 10px; }
+    .total-amount { font-size: 36px; font-weight: 800; color: #c41e3a; }
+    .info-box { background: #fff7ed; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 8px; }
+    .info-box strong { color: #c2410c; display: block; margin-bottom: 8px; font-size: 16px; }
+    .footer { text-align: center; padding: 30px 20px; color: #666; font-size: 14px; background: white; border-top: 1px solid #e5e7eb; }
+    .footer strong { color: #0891B2; font-size: 16px; }
+    .footer .tagline { font-size: 13px; color: #999; margin-top: 10px; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
       <h1>🎉 Siparişiniz Alındı!</h1>
+      <p>Ödemeniz başarıyla tamamlandı</p>
     </div>
+
     <div class="content">
-      <p style="font-size: 18px;">Merhaba <strong>${customerName}</strong>,</p>
-      <p>Pastırma Adası'nı tercih ettiğiniz için teşekkür ederiz! Ödemeniz başarıyla tamamlandı ve siparişiniz hazırlanmaya başlandı.</p>
+      <p class="greeting">Merhaba <strong>${customerName}</strong>,</p>
+      <p style="margin-bottom: 30px;">Pastırma Adası'nı tercih ettiğiniz için teşekkür ederiz! Siparişiniz hazırlanmaya başlandı.</p>
 
       <div class="order-details">
-        <h3>📋 Sipariş Detayları</h3>
+        <h3>📋 Sipariş Bilgileri</h3>
         <div class="info-row">
           <span class="info-label">Sipariş No:</span>
-          <span>${orderNumber}</span>
+          <span class="info-value"><strong>${orderNumber}</strong></span>
         </div>
         <div class="info-row">
           <span class="info-label">Tarih:</span>
-          <span>${orderDate}</span>
+          <span class="info-value">${orderDate}</span>
         </div>
         <div class="info-row">
           <span class="info-label">Telefon:</span>
-          <span>${customerPhone}</span>
+          <span class="info-value">${customerPhone}</span>
         </div>
         <div class="info-row">
           <span class="info-label">Teslimat Adresi:</span>
-          <span>${shippingAddress}</span>
+          <span class="info-value" style="max-width: 300px;">${shippingAddress}</span>
         </div>
       </div>
 
-      <div class="order-details">
-        <h4 style="margin-top: 0; margin-bottom: 10px;">Satın Aldığınız Ürünler:</h4>
-        ${items.length > 0 ? items.map((item, index) => `
-          <div class="item">
-            <div>
-              <div class="item-name">${index + 1}. ${item.name}</div>
-              <div class="item-detail">
-                ${item.quantity}x ${parseFloat(item.price).toFixed(2)}₺
-                ${item.unit ? `(${item.unit})` : ''}
-              </div>
-            </div>
-            <div style="font-weight: 600;">${(parseFloat(item.price) * item.quantity).toFixed(2)}₺</div>
-          </div>
-        `).join('') : '<p style="color: #999; text-align: center; padding: 20px;">Ürün detayları yüklenemedi</p>'}
+      <div class="items-section">
+        <h4>🛒 Sipariş İçeriği</h4>
+        ${items.length > 0 ? itemsHTML : '<p style="color: #999; text-align: center; padding: 20px;">Ürün detayları yüklenemedi</p>'}
+      </div>
 
-        <div class="total">
-          Toplam: ${total}₺
-        </div>
+      <div class="total-box">
+        <div class="total-label">Toplam Tutar</div>
+        <div class="total-amount">${total}₺</div>
       </div>
 
       <div class="info-box">
-        <strong>📦 Kargo Bilgisi:</strong><br>
-        Siparişiniz hazırlandığında kargo takip numaranız email adresinize gönderilecektir.
+        <strong>📦 Kargo Takip Bilgisi</strong>
+        <p style="margin: 0;">Siparişiniz hazırlandığında kargo takip numaranız e-posta adresinize gönderilecektir. Kargonuz 2-5 iş günü içinde adresinize teslim edilecektir.</p>
       </div>
 
-      <p style="margin-top: 30px;">Afiyet olsun! 🙏</p>
+      <p style="margin-top: 30px; text-align: center; font-size: 18px; color: #059669;">Afiyet olsun! 🙏</p>
     </div>
+
     <div class="footer">
-      <p><strong>Pastırma Adası</strong><br>successodysseyhub.com</p>
-      <p style="font-size: 11px; color: #999;">Bu otomatik bir emaildir, lütfen yanıtlamayın.</p>
+      <p><strong>Pastırma Adası</strong></p>
+      <p class="tagline">Kayseri'nin geleneksel lezzeti</p>
+      <p style="margin-top: 15px; font-size: 12px; color: #999;">Bu otomatik bir e-postadır, lütfen yanıtlamayın.</p>
     </div>
   </div>
 </body>
@@ -112,7 +138,7 @@ function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDa
 `;
 }
 
-// Admin Email Template - TAM BİLGİLERLE
+// Admin Email Template - GÜNCEL VE ANLAŞILIR
 function getAdminEmailHTML({
   customerName,
   customerEmail,
@@ -124,26 +150,76 @@ function getAdminEmailHTML({
   orderDate,
   shippingAddress
 }) {
+  // Ürünleri grupla ve düzenle
+  const itemsHTML = items.map((item, index) => {
+    const itemName = item.name || `Ürün ${index + 1}`;
+    const quantity = item.quantity || 1;
+    const unit = item.unit || '500gr';
+    const price = parseFloat(item.price || 0);
+    const totalPrice = (price * quantity).toFixed(2);
+
+    return `
+      <div class="item">
+        <div class="item-header">
+          <strong style="color: #1976D2; font-size: 16px;">${index + 1}. ${itemName}</strong>
+        </div>
+        <div class="item-details">
+          <div class="detail-row">
+            <span class="detail-label">📦 Adet:</span>
+            <span class="detail-value"><strong>${quantity}</strong></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">⚖️ Gramaj:</span>
+            <span class="detail-value"><strong>${unit}</strong></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">💰 Birim Fiyat:</span>
+            <span class="detail-value">${price.toFixed(2)}₺</span>
+          </div>
+          <div class="detail-row total-row">
+            <span class="detail-label">🎯 Toplam:</span>
+            <span class="detail-value"><strong style="color: #059669; font-size: 18px;">${totalPrice}₺</strong></span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
   return `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
-    .container { max-width: 700px; margin: 0 auto; }
-    .header { background: #1976D2; color: white; padding: 30px 20px; text-align: center; }
-    .header h1 { margin: 0; font-size: 28px; }
-    .urgent { background: #fff3cd; border-left: 4px solid #ff9800; padding: 15px; margin: 20px; border-radius: 4px; }
-    .urgent strong { color: #c41e3a; }
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background: #f5f5f5; }
+    .container { max-width: 700px; margin: 0 auto; background: #fff; }
+    .header { background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%); color: white; padding: 30px 20px; text-align: center; }
+    .header h1 { margin: 0; font-size: 28px; font-weight: 800; }
+    .urgent { background: #fff3cd; border-left: 5px solid #ff9800; padding: 20px; margin: 20px; border-radius: 8px; }
+    .urgent strong { color: #c41e3a; font-size: 16px; }
     .content { padding: 20px; }
-    .info-box { background: #f5f5f5; padding: 15px; margin: 15px 0; border-left: 4px solid #1976D2; border-radius: 4px; }
-    .info-box h3 { margin-top: 0; color: #1976D2; }
-    .info-row { padding: 8px 0; border-bottom: 1px solid #ddd; }
+    .info-box { background: #f8f9fa; padding: 20px; margin: 15px 0; border-left: 4px solid #1976D2; border-radius: 8px; }
+    .info-box h3 { margin-top: 0; color: #1976D2; font-size: 18px; margin-bottom: 15px; }
+    .info-row { padding: 10px 0; border-bottom: 1px solid #e0e0e0; display: flex; }
     .info-row:last-child { border-bottom: none; }
-    .info-label { font-weight: 600; color: #555; display: inline-block; min-width: 150px; }
-    .item { padding: 12px; background: #fafafa; margin: 8px 0; border-radius: 4px; }
-    .total { font-size: 24px; font-weight: bold; color: #1976D2; margin-top: 20px; padding: 20px; background: #e3f2fd; border-radius: 8px; text-align: center; }
+    .info-label { font-weight: 600; color: #555; min-width: 150px; }
+    .info-value { color: #333; flex: 1; }
+    .items-box { background: #fff; padding: 20px; margin: 15px 0; border: 2px solid #1976D2; border-radius: 8px; }
+    .items-box h3 { margin-top: 0; color: #1976D2; font-size: 20px; margin-bottom: 20px; }
+    .item { padding: 20px; background: #f8f9fa; margin: 15px 0; border-radius: 8px; border-left: 4px solid #059669; }
+    .item-header { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #e0e0e0; }
+    .item-details { }
+    .detail-row { display: flex; justify-content: space-between; padding: 8px 0; }
+    .detail-label { color: #666; font-size: 14px; }
+    .detail-value { color: #333; font-weight: 600; }
+    .total-row { margin-top: 10px; padding-top: 10px; border-top: 2px solid #d0d0d0; }
+    .grand-total { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); padding: 25px; margin: 20px 0; border-radius: 12px; text-align: center; border: 3px solid #059669; }
+    .grand-total .label { font-size: 20px; color: #333; margin-bottom: 10px; }
+    .grand-total .amount { font-size: 42px; font-weight: 800; color: #c41e3a; }
+    .action-box { background: #e8f5e9; padding: 20px; margin: 20px 0; border-radius: 8px; border-left: 4px solid #059669; }
+    .action-box strong { color: #1b5e20; display: block; margin-bottom: 10px; font-size: 16px; }
+    .action-box ol { margin: 10px 0 0 0; padding-left: 20px; }
+    .action-box li { padding: 5px 0; color: #2e7d32; }
   </style>
 </head>
 <body>
@@ -153,23 +229,24 @@ function getAdminEmailHTML({
     </div>
 
     <div class="urgent">
-      <strong>⚠️ ÖDEME TAMAMLANDI - YENİ SİPARİŞ!</strong> Lütfen hemen kontrol edin ve hazırlığa başlayın.
+      <strong>⚠️ ÖDEME TAMAMLANDI - YENİ SİPARİŞ!</strong><br>
+      Lütfen hemen kontrol edin ve hazırlığa başlayın.
     </div>
 
     <div class="content">
       <div class="info-box">
-        <h3>📅 Sipariş Bilgileri</h3>
+        <h3>📅 Sipariş Detayları</h3>
         <div class="info-row">
           <span class="info-label">Sipariş No:</span>
-          <span>${orderNumber}</span>
+          <span class="info-value"><strong>${orderNumber}</strong></span>
         </div>
         <div class="info-row">
           <span class="info-label">Ödeme ID:</span>
-          <span>${orderNumber}</span>
+          <span class="info-value">${orderNumber}</span>
         </div>
         <div class="info-row">
           <span class="info-label">Tarih/Saat:</span>
-          <span>${orderDate}</span>
+          <span class="info-value">${orderDate}</span>
         </div>
       </div>
 
@@ -177,49 +254,45 @@ function getAdminEmailHTML({
         <h3>👤 Müşteri Bilgileri</h3>
         <div class="info-row">
           <span class="info-label">Ad Soyad:</span>
-          <span>${customerName}</span>
+          <span class="info-value"><strong>${customerName}</strong></span>
         </div>
         <div class="info-row">
           <span class="info-label">Email:</span>
-          <span><a href="mailto:${customerEmail}">${customerEmail}</a></span>
+          <span class="info-value"><a href="mailto:${customerEmail}">${customerEmail}</a></span>
         </div>
         <div class="info-row">
           <span class="info-label">Telefon:</span>
-          <span>${customerPhone || 'Belirtilmemiş'}</span>
+          <span class="info-value"><strong>${customerPhone || 'Belirtilmemiş'}</strong></span>
         </div>
         ${customerIdentity ? `
         <div class="info-row">
           <span class="info-label">TC Kimlik No:</span>
-          <span>${customerIdentity}</span>
+          <span class="info-value">${customerIdentity}</span>
         </div>
         ` : ''}
       </div>
 
       <div class="info-box">
         <h3>📦 Teslimat Adresi</h3>
-        <p style="margin: 0; padding: 10px; background: white; border-radius: 4px;">${shippingAddress}</p>
+        <p style="margin: 0; padding: 15px; background: white; border-radius: 6px; border: 1px solid #e0e0e0;">${shippingAddress}</p>
       </div>
 
-      <div class="info-box">
-        <h3>🛒 Sipariş İçeriği</h3>
-        ${items.length > 0 ? items.map((item, index) => `
-          <div class="item">
-            <strong>${index + 1}. ${item.name}</strong><br>
-            <strong style="color: #1976D2;">Tutar: ${parseFloat(item.price).toFixed(2)}₺</strong>
-          </div>
-        `).join('') : '<p style="color: #999; text-align: center; padding: 20px;">Ürün detayları yüklenemedi</p>'}
+      <div class="items-box">
+        <h3>🛒 Sipariş Edilen Ürünler</h3>
+        ${items.length > 0 ? itemsHTML : '<p style="color: #999; text-align: center; padding: 20px;">Ürün detayları yüklenemedi</p>'}
       </div>
 
-      <div class="total">
-        💰 TOPLAM TUTAR: ${total}₺
+      <div class="grand-total">
+        <div class="label">💰 TOPLAM SİPARİŞ TUTARI</div>
+        <div class="amount">${total}₺</div>
       </div>
 
-      <div style="margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 8px;">
-        <p style="margin: 0; color: #2e7d32;"><strong>✅ Yapılacaklar:</strong></p>
-        <ol style="margin: 10px 0;">
-          <li>Siparişi hazırla</li>
-          <li>Kargoya ver</li>
-          <li>Admin panelinden kargo takip numarasını müşteriye gönder</li>
+      <div class="action-box">
+        <strong>✅ Yapılacaklar:</strong>
+        <ol>
+          <li><strong>Siparişi hazırla</strong> - Ürünleri kontrol et ve paketle</li>
+          <li><strong>Kargoya ver</strong> - En kısa sürede kargo şirketine teslim et</li>
+          <li><strong>Takip numarasını gönder</strong> - Admin panelinden müşteriye kargo takip numarasını ilet</li>
         </ol>
       </div>
     </div>
@@ -227,7 +300,6 @@ function getAdminEmailHTML({
 </body>
 </html>
 `;
-}
 
 export async function POST({ request }) {
   console.log("🚀 VERIFY-PAYMENT: Ödeme doğrulanıyor...");
