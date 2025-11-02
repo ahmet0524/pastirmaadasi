@@ -222,9 +222,16 @@ function getImageUrl(imgs: any): string {
     </div>
   </div>
 
-  <!-- Cart Success Modal -->
+  <!-- Cart Success Modal - ✅ X BUTONU EKLENDİ -->
   <div id="success-modal" class="cart-modal">
     <div class="modal-content success-content">
+      <!-- ✅ YENİ: X Butonu -->
+      <button class="modal-close success-close" aria-label="Kapat">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
       <div class="success-icon">
         <svg width="60" height="60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -253,7 +260,6 @@ function getImageUrl(imgs: any): string {
     padding: 4rem 1rem;
   }
 
-  /* Koyu overlay - okunabilirlik için */
   .hero-overlay {
     position: absolute;
     top: 0;
@@ -456,7 +462,6 @@ function getImageUrl(imgs: any): string {
     padding: 1.5rem;
   }
 
-  /* Fiyatlar - KIRMIZI */
   .product-price {
     font-size: 1.5rem;
     font-weight: 700;
@@ -470,7 +475,6 @@ function getImageUrl(imgs: any): string {
     font-weight: 400;
   }
 
-  /* Sepete Ekle Butonu - KIRMIZI */
   .btn-add-cart {
     width: 100%;
     padding: 0.75rem 1.25rem;
@@ -497,7 +501,6 @@ function getImageUrl(imgs: any): string {
     color: #6B7280;
   }
 
-  /* Info Section - Turkuaz İkonlar */
   .info-section {
     padding: 4rem 1rem;
     background: white;
@@ -595,6 +598,15 @@ function getImageUrl(imgs: any): string {
     color: #333;
   }
 
+  /* ✅ YENİ: Success Modal X Butonu Özel Stil */
+  .success-close {
+    color: #999;
+  }
+
+  .success-close:hover {
+    color: #DC2626;
+  }
+
   .modal-body {
     padding: 30px;
   }
@@ -632,7 +644,6 @@ function getImageUrl(imgs: any): string {
     gap: 10px;
   }
 
-  /* Variant Butonları - Turkuaz */
   .variant-btn {
     padding: 10px 20px;
     border: 2px solid #E5E7EB;
@@ -661,7 +672,6 @@ function getImageUrl(imgs: any): string {
     gap: 15px;
   }
 
-  /* Miktar Butonları - Turkuaz */
   .qty-btn {
     width: 40px;
     height: 40px;
@@ -692,7 +702,6 @@ function getImageUrl(imgs: any): string {
     background: #F0FDFA;
   }
 
-  /* Modal Toplam - Turuncu */
   .modal-price {
     display: flex;
     justify-content: space-between;
@@ -729,7 +738,6 @@ function getImageUrl(imgs: any): string {
     text-align: center;
   }
 
-  /* Primary Buton - Kırmızı */
   .btn-primary {
     background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
     color: white;
@@ -742,7 +750,6 @@ function getImageUrl(imgs: any): string {
     transform: translateY(-2px);
   }
 
-  /* Outline Buton - Kırmızı */
   .btn-outline {
     background: white;
     color: #DC2626;
@@ -759,7 +766,6 @@ function getImageUrl(imgs: any): string {
     font-size: 1.1rem;
   }
 
-  /* Success Modal - Yeşil */
   .success-content {
     padding: 40px;
     text-align: center;
@@ -964,7 +970,6 @@ function getImageUrl(imgs: any): string {
     const selectedVariant = (window as any).selectedVariant;
 
     if (selectedProduct && selectedVariant) {
-      // ✅ ÖNEMLİ: availableVariants mutlaka eklenmeli
       const cartItem = {
         id: `${selectedProduct.id}_${selectedVariant.label}`,
         productId: selectedProduct.id,
@@ -973,7 +978,7 @@ function getImageUrl(imgs: any): string {
         image: selectedProduct.image,
         unit: selectedVariant.label,
         quantity: quantity,
-        availableVariants: selectedProduct.variants || [] // ✅ BURASI ÇOK ÖNEMLİ
+        availableVariants: selectedProduct.variants || []
       };
 
       console.log('🛒 Sepete eklenecek ürün:', cartItem);
@@ -987,14 +992,12 @@ function getImageUrl(imgs: any): string {
         cart = [];
       }
 
-      // Aynı ürün ve aynı gramaj varsa miktarı arttır
       const existingItemIndex = cart.findIndex(
         (item: any) => item.productId === cartItem.productId && item.unit === cartItem.unit
       );
 
       if (existingItemIndex > -1) {
         cart[existingItemIndex].quantity += quantity;
-        // Variants bilgisini güncelle
         cart[existingItemIndex].availableVariants = cartItem.availableVariants;
         console.log('✅ Miktar artırıldı');
       } else {
@@ -1010,11 +1013,12 @@ function getImageUrl(imgs: any): string {
       cartModal?.classList.remove('active');
       successModal?.classList.add('active');
 
-      // 5 saniye sonra otomatik kapat
+      // ✅ 5 SANİYE SONRA OTOMATİK KAPAT
       setTimeout(() => {
         successModal?.classList.remove('active');
         document.body.style.overflow = '';
       }, 5000);
+
     } else {
       console.error('❌ Ürün veya varyant seçilmedi!');
       alert('Lütfen bir gramaj seçin!');
@@ -1028,6 +1032,20 @@ function getImageUrl(imgs: any): string {
   document.getElementById('continue-shopping')?.addEventListener('click', () => {
     successModal?.classList.remove('active');
     document.body.style.overflow = '';
+  });
+
+  // ✅ YENİ: SUCCESS MODAL X BUTONU
+  document.querySelector('.success-close')?.addEventListener('click', () => {
+    successModal?.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  // ✅ YENİ: SUCCESS MODAL DIŞINA TIKLANINCA KAPAT
+  successModal?.addEventListener('click', (e) => {
+    if (e.target === successModal) {
+      successModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
   });
 
   document.addEventListener('keydown', (e) => {

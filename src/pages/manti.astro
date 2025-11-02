@@ -222,9 +222,16 @@ function getImageUrl(imgs: any): string {
     </div>
   </div>
 
-  <!-- Cart Success Modal -->
+  <!-- Cart Success Modal - ✅ X BUTONU EKLENDİ -->
   <div id="success-modal" class="cart-modal">
     <div class="modal-content success-content">
+      <!-- ✅ YENİ: X Butonu -->
+      <button class="modal-close success-close" aria-label="Kapat">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
       <div class="success-icon">
         <svg width="60" height="60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -242,18 +249,17 @@ function getImageUrl(imgs: any): string {
 </BaseLayout>
 
 <style>
-  /* Hero Section - MOR (Mantı teması) */
+  /* Hero Section - TURKUAZ */
   .pastirma-hero {
     position: relative;
     min-height: 400px;
-   background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 4rem 1rem;
   }
 
-  /* Koyu overlay - okunabilirlik için */
   .hero-overlay {
     position: absolute;
     top: 0;
@@ -425,7 +431,7 @@ function getImageUrl(imgs: any): string {
   .btn-view-product {
     padding: 0.875rem 2rem;
     background: white;
-    color: #7c3aed;
+    color: #0891B2;
     border-radius: 50px;
     font-weight: 600;
     font-size: 1rem;
@@ -433,7 +439,7 @@ function getImageUrl(imgs: any): string {
   }
 
   .btn-view-product:hover {
-    background: #7c3aed;
+    background: #0891B2;
     color: white;
     transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
@@ -456,7 +462,6 @@ function getImageUrl(imgs: any): string {
     padding: 1.5rem;
   }
 
-  /* Fiyatlar - KIRMIZI */
   .product-price {
     font-size: 1.5rem;
     font-weight: 700;
@@ -470,7 +475,6 @@ function getImageUrl(imgs: any): string {
     font-weight: 400;
   }
 
-  /* Sepete Ekle Butonu - KIRMIZI */
   .btn-add-cart {
     width: 100%;
     padding: 0.75rem 1.25rem;
@@ -497,7 +501,6 @@ function getImageUrl(imgs: any): string {
     color: #6B7280;
   }
 
-  /* Info Section - Mor İkonlar */
   .info-section {
     padding: 4rem 1rem;
     background: white;
@@ -521,7 +524,7 @@ function getImageUrl(imgs: any): string {
 
   .info-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.15);
+    box-shadow: 0 10px 30px rgba(8, 145, 178, 0.15);
   }
 
   .info-icon {
@@ -595,6 +598,15 @@ function getImageUrl(imgs: any): string {
     color: #333;
   }
 
+  /* ✅ YENİ: Success Modal X Butonu Özel Stil */
+  .success-close {
+    color: #999;
+  }
+
+  .success-close:hover {
+    color: #DC2626;
+  }
+
   .modal-body {
     padding: 30px;
   }
@@ -632,7 +644,6 @@ function getImageUrl(imgs: any): string {
     gap: 10px;
   }
 
-  /* Variant Butonları - Mor */
   .variant-btn {
     padding: 10px 20px;
     border: 2px solid #E5E7EB;
@@ -644,15 +655,15 @@ function getImageUrl(imgs: any): string {
   }
 
   .variant-btn:hover {
-    border-color: #7c3aed;
-    color: #7c3aed;
+    border-color: #0891B2;
+    color: #0891B2;
   }
 
   .variant-btn.active {
-    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
     color: white;
-    border-color: #7c3aed;
-    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+    border-color: #0891B2;
+    box-shadow: 0 2px 8px rgba(8, 145, 178, 0.3);
   }
 
   .quantity-controls {
@@ -661,22 +672,21 @@ function getImageUrl(imgs: any): string {
     gap: 15px;
   }
 
-  /* Miktar Butonları - Mor */
   .qty-btn {
     width: 40px;
     height: 40px;
-    border: 2px solid #7c3aed;
+    border: 2px solid #0891B2;
     background: white;
     border-radius: 6px;
     cursor: pointer;
     font-size: 1.2rem;
     font-weight: 600;
     transition: all 0.3s;
-    color: #7c3aed;
+    color: #0891B2;
   }
 
   .qty-btn:hover {
-    background: #7c3aed;
+    background: #0891B2;
     color: white;
   }
 
@@ -684,15 +694,14 @@ function getImageUrl(imgs: any): string {
     width: 80px;
     height: 40px;
     text-align: center;
-    border: 2px solid #7c3aed;
+    border: 2px solid #0891B2;
     border-radius: 6px;
     font-size: 1.1rem;
     font-weight: 600;
-    color: #7c3aed;
-    background: #faf5ff;
+    color: #0891B2;
+    background: #F0FDFA;
   }
 
-  /* Modal Toplam - Turuncu */
   .modal-price {
     display: flex;
     justify-content: space-between;
@@ -729,7 +738,6 @@ function getImageUrl(imgs: any): string {
     text-align: center;
   }
 
-  /* Primary Buton - Kırmızı */
   .btn-primary {
     background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
     color: white;
@@ -742,7 +750,6 @@ function getImageUrl(imgs: any): string {
     transform: translateY(-2px);
   }
 
-  /* Outline Buton - Kırmızı */
   .btn-outline {
     background: white;
     color: #DC2626;
@@ -759,7 +766,6 @@ function getImageUrl(imgs: any): string {
     font-size: 1.1rem;
   }
 
-  /* Success Modal - Yeşil */
   .success-content {
     padding: 40px;
     text-align: center;
@@ -850,7 +856,6 @@ function getImageUrl(imgs: any): string {
   const cartModal = document.getElementById('cart-modal');
   const successModal = document.getElementById('success-modal');
 
-  // Global değişkenler - window objesine ekle
   (window as any).selectedProduct = null;
   (window as any).selectedVariant = null;
 
@@ -956,7 +961,7 @@ function getImageUrl(imgs: any): string {
     }
   });
 
-  // Sepete ekle butonu - ✅ EN ÖNEMLİ KISIM
+  // Sepete ekle butonu
   document.getElementById('confirm-add-cart')?.addEventListener('click', () => {
     const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
     const quantity = parseInt(qtyInput?.value) || 1;
@@ -964,7 +969,6 @@ function getImageUrl(imgs: any): string {
     const selectedVariant = (window as any).selectedVariant;
 
     if (selectedProduct && selectedVariant) {
-      // ✅ ÖNEMLİ: availableVariants mutlaka eklenmeli
       const cartItem = {
         id: `${selectedProduct.id}_${selectedVariant.label}`,
         productId: selectedProduct.id,
@@ -973,7 +977,7 @@ function getImageUrl(imgs: any): string {
         image: selectedProduct.image,
         unit: selectedVariant.label,
         quantity: quantity,
-        availableVariants: selectedProduct.variants || [] // ✅ BURASI ÇOK ÖNEMLİ
+        availableVariants: selectedProduct.variants || []
       };
 
       console.log('🛒 Sepete eklenecek ürün:', cartItem);
@@ -987,14 +991,12 @@ function getImageUrl(imgs: any): string {
         cart = [];
       }
 
-      // Aynı ürün ve aynı gramaj varsa miktarı arttır
       const existingItemIndex = cart.findIndex(
         (item: any) => item.productId === cartItem.productId && item.unit === cartItem.unit
       );
 
       if (existingItemIndex > -1) {
         cart[existingItemIndex].quantity += quantity;
-        // Variants bilgisini güncelle
         cart[existingItemIndex].availableVariants = cartItem.availableVariants;
         console.log('✅ Miktar artırıldı');
       } else {
@@ -1010,11 +1012,12 @@ function getImageUrl(imgs: any): string {
       cartModal?.classList.remove('active');
       successModal?.classList.add('active');
 
-      // 5 saniye sonra otomatik kapat
+      // ✅ 5 SANİYE SONRA OTOMATİK KAPAT
       setTimeout(() => {
         successModal?.classList.remove('active');
         document.body.style.overflow = '';
       }, 5000);
+
     } else {
       console.error('❌ Ürün veya varyant seçilmedi!');
       alert('Lütfen bir gramaj seçin!');
@@ -1028,6 +1031,20 @@ function getImageUrl(imgs: any): string {
   document.getElementById('continue-shopping')?.addEventListener('click', () => {
     successModal?.classList.remove('active');
     document.body.style.overflow = '';
+  });
+
+  // ✅ YENİ: SUCCESS MODAL X BUTONU
+  document.querySelector('.success-close')?.addEventListener('click', () => {
+    successModal?.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  // ✅ YENİ: SUCCESS MODAL DIŞINA TIKLANINCA KAPAT
+  successModal?.addEventListener('click', (e) => {
+    if (e.target === successModal) {
+      successModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
   });
 
   document.addEventListener('keydown', (e) => {
