@@ -19,9 +19,9 @@ function isValidEmail(email) {
   return !!email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
 
-// Müşteri Email Template - GÜNCEL VE ANLAŞILIR
+// Müşteri Email Template - DETAYLI VE ANLAŞILIR
 function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDate, shippingAddress, customerPhone }) {
-  // Ürünleri grupla ve düzenle
+  // Ürünleri detaylı göster
   const itemsHTML = items.map((item, index) => {
     const itemName = item.name || `Ürün ${index + 1}`;
     const quantity = item.quantity || 1;
@@ -138,7 +138,7 @@ function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDa
 `;
 }
 
-// Admin Email Template - GÜNCEL VE ANLAŞILIR
+// Admin Email Template - DETAYLI VE ANLAŞILIR
 function getAdminEmailHTML({
   customerName,
   customerEmail,
@@ -150,7 +150,7 @@ function getAdminEmailHTML({
   orderDate,
   shippingAddress
 }) {
-  // Ürünleri grupla ve düzenle
+  // Ürünleri detaylı göster
   const itemsHTML = items.map((item, index) => {
     const itemName = item.name || `Ürün ${index + 1}`;
     const quantity = item.quantity || 1;
@@ -300,6 +300,7 @@ function getAdminEmailHTML({
 </body>
 </html>
 `;
+}
 
 export async function POST({ request }) {
   console.log("🚀 VERIFY-PAYMENT: Ödeme doğrulanıyor...");

@@ -983,7 +983,7 @@
   .products-grid {
     grid-template-columns: 1fr;
   }
-
+}
   .product-image-wrapper {
     height: 250px;
   }
