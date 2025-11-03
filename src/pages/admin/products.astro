@@ -70,7 +70,7 @@ if (error) {
     <main class="admin-main">
       <header class="admin-header">
         <div>
-          <h1>🛍️ Ürünler</h1>
+          <h1>🛒️ Ürünler</h1>
           <p>{products?.length || 0} ürün listeleniyor</p>
         </div>
         <button id="add-product-btn" class="btn btn-primary">
@@ -187,21 +187,42 @@ if (error) {
           </div>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="price">Fiyat (₺) *</label>
-            <input type="number" id="price" required step="0.01" placeholder="149.99" />
-          </div>
-
-          <div class="form-group">
-            <label for="stock">Stok</label>
-            <input type="number" id="stock" value="100" min="0" />
-          </div>
-        </div>
-
         <div class="form-group">
           <label for="description">Açıklama</label>
           <textarea id="description" rows="3" placeholder="Ürün hakkında detaylı bilgi"></textarea>
+        </div>
+
+        <!-- VARYANT SİSTEMİ -->
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" id="has_variants" />
+            <span>Bu ürünün varyantları var (farklı gramajlar)</span>
+          </label>
+        </div>
+
+        <div id="variants-section" style="display: none;">
+          <div class="form-group">
+            <label>Varyantlar</label>
+            <div id="variants-list"></div>
+            <button type="button" id="add-variant-btn" class="btn btn-secondary btn-sm">
+              ➕ Varyant Ekle
+            </button>
+          </div>
+        </div>
+
+        <!-- TEK FİYAT (Varyant yoksa) -->
+        <div id="single-price-section">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="price">Fiyat (₺) *</label>
+              <input type="number" id="price" step="0.01" placeholder="149.99" />
+            </div>
+
+            <div class="form-group">
+              <label for="stock">Stok</label>
+              <input type="number" id="stock" value="100" min="0" />
+            </div>
+          </div>
         </div>
 
         <div class="form-group">
@@ -668,6 +689,47 @@ if (error) {
       border-top: 1px solid #e5e7eb;
     }
 
+    /* VARYANT STİLLERİ */
+    .variant-card {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      position: relative;
+    }
+
+    .variant-card .form-row {
+      margin-bottom: 0;
+    }
+
+    .variant-card .form-group {
+      margin-bottom: 0;
+    }
+
+    .variant-remove {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      line-height: 1;
+      padding: 0;
+    }
+
+    .variant-remove:hover {
+      background: #c82333;
+    }
+
     @media (max-width: 1024px) {
       .admin-layout {
         grid-template-columns: 1fr;
@@ -700,171 +762,309 @@ if (error) {
     }
   </style>
 
-<script>
-  import { supabase } from '../../lib/supabase';
+  <script>
+    import { supabase } from '../../lib/supabase';
 
-  const modal = document.getElementById('product-modal');
-  const modalTitle = document.getElementById('modal-title');
-  const productForm = document.getElementById('product-form');
-  const addBtn = document.getElementById('add-product-btn');
-  const closeButtons = document.querySelectorAll('.modal-close');
-  const submitBtn = document.getElementById('submit-btn');
+    const modal = document.getElementById('product-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const productForm = document.getElementById('product-form');
+    const addBtn = document.getElementById('add-product-btn');
+    const closeButtons = document.querySelectorAll('.modal-close');
+    const submitBtn = document.getElementById('submit-btn');
 
-  // Logout
-  document.getElementById('logout-btn')?.addEventListener('click', async () => {
-    await supabase.auth.signOut();
-    window.location.href = '/admin/login';
-  });
+    // Varyant sistemi
+    let variantCounter = 0;
+    const hasVariantsCheckbox = document.getElementById('has_variants');
+    const variantsSection = document.getElementById('variants-section');
+    const singlePriceSection = document.getElementById('single-price-section');
+    const variantsList = document.getElementById('variants-list');
+    const addVariantBtn = document.getElementById('add-variant-btn');
 
-  // Slug oluştur
-  function createSlug(text) {
-    return text
-      .toLowerCase()
-      .replace(/ğ/g, 'g')
-      .replace(/ü/g, 'u')
-      .replace(/ş/g, 's')
-      .replace(/ı/g, 'i')
-      .replace(/ö/g, 'o')
-      .replace(/ç/g, 'c')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-  }
+    // Logout
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = '/admin/login';
+    });
 
-  // İsim değiştiğinde slug oluştur
-  document.getElementById('name')?.addEventListener('input', (e) => {
-    const slugInput = document.getElementById('slug');
-    if (slugInput && !slugInput.value) {
-      slugInput.value = createSlug(e.target.value);
+    // Slug oluştur
+    function createSlug(text) {
+      return text
+        .toLowerCase()
+        .replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u')
+        .replace(/ş/g, 's')
+        .replace(/ı/g, 'i')
+        .replace(/ö/g, 'o')
+        .replace(/ç/g, 'c')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
     }
-  });
 
-  // Modal aç/kapat
-  function openModal(product = null) {
-    modal?.classList.add('show');
+    // İsim değiştiğinde slug oluştur
+    document.getElementById('name')?.addEventListener('input', (e) => {
+      const slugInput = document.getElementById('slug');
+      if (slugInput && !slugInput.value) {
+        slugInput.value = createSlug(e.target.value);
+      }
+    });
 
-    if (product) {
-      modalTitle.textContent = '✏️ Ürün Düzenle';
-      document.getElementById('product-id').value = product.id;
-      document.getElementById('name').value = product.name;
-      document.getElementById('slug').value = product.slug || '';
-      document.getElementById('category').value = product.category || 'Pastırma';
-      document.getElementById('unit').value = product.unit || 'kg';
-      document.getElementById('price').value = product.price;
-      document.getElementById('stock').value = product.stock || 100;
-      document.getElementById('description').value = product.description || '';
-      document.getElementById('sort_order').value = product.sort_order || 0;
-      document.getElementById('is_active').checked = product.is_active !== false;
+    // Varyant checkbox toggle
+    hasVariantsCheckbox?.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        variantsSection.style.display = 'block';
+        singlePriceSection.style.display = 'none';
+        // İlk varyantı otomatik ekle
+        if (variantsList.children.length === 0) {
+          addVariant();
+        }
+      } else {
+        variantsSection.style.display = 'none';
+        singlePriceSection.style.display = 'block';
+      }
+    });
+
+    // Varyant ekleme fonksiyonu
+    function addVariant(data = null) {
+      const variantId = variantCounter++;
+      const variantCard = document.createElement('div');
+      variantCard.className = 'variant-card';
+      variantCard.dataset.variantId = variantId;
+
+      variantCard.innerHTML = `
+        <button type="button" class="variant-remove" onclick="window.removeVariant(${variantId})">×</button>
+        <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr;">
+          <div class="form-group">
+            <label>Gramaj</label>
+            <select class="variant-size" required>
+              <option value="250gr">250 gram</option>
+              <option value="500gr">500 gram</option>
+              <option value="1000gr">1 kg</option>
+              <option value="1500gr">1.5 kg</option>
+              <option value="2000gr">2 kg</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Fiyat (₺)</label>
+            <input type="number" class="variant-price" step="0.01" required placeholder="0.00" />
+          </div>
+          <div class="form-group">
+            <label>Stok</label>
+            <input type="number" class="variant-stock" value="100" min="0" />
+          </div>
+        </div>
+      `;
+
+      if (data) {
+        variantCard.querySelector('.variant-size').value = data.size;
+        variantCard.querySelector('.variant-price').value = data.price;
+        variantCard.querySelector('.variant-stock').value = data.stock || 100;
+      }
+
+      variantsList.appendChild(variantCard);
+    }
+
+    // Varyant silme fonksiyonu
+    window.removeVariant = function(variantId) {
+      const card = document.querySelector(`[data-variant-id="${variantId}"]`);
+      if (card) {
+        card.remove();
+      }
+    };
+
+    // Varyant ekle butonu
+    addVariantBtn?.addEventListener('click', () => addVariant());
+
+    // Modal aç/kapat
+    function openModal(product = null) {
+      modal?.classList.add('show');
+
+      // Varyant listesini temizle
+      variantsList.innerHTML = '';
+      variantCounter = 0;
+
+      if (product) {
+        modalTitle.textContent = '✏️ Ürün Düzenle';
+        document.getElementById('product-id').value = product.id;
+        document.getElementById('name').value = product.name;
+        document.getElementById('slug').value = product.slug || '';
+        document.getElementById('category').value = product.category || 'Pastırma';
+        document.getElementById('unit').value = product.unit || 'kg';
+        document.getElementById('description').value = product.description || '';
+        document.getElementById('sort_order').value = product.sort_order || 0;
+        document.getElementById('is_active').checked = product.is_active !== false;
+
+        // Images
+        if (product.images && Array.isArray(product.images)) {
+          document.getElementById('image_url').value = product.images.join('\n');
+        }
+
+        // Varyantları kontrol et
+        if (product.variants && Array.isArray(product.variants) && product.variants.length > 0) {
+          hasVariantsCheckbox.checked = true;
+          variantsSection.style.display = 'block';
+          singlePriceSection.style.display = 'none';
+
+          product.variants.forEach(variant => {
+            addVariant(variant);
+          });
+        } else {
+          hasVariantsCheckbox.checked = false;
+          variantsSection.style.display = 'none';
+          singlePriceSection.style.display = 'block';
+          document.getElementById('price').value = product.price;
+          document.getElementById('stock').value = product.stock || 100;
+        }
+      } else {
+        modalTitle.textContent = '🆕 Yeni Ürün Ekle';
+        productForm?.reset();
+        document.getElementById('product-id').value = '';
+        document.getElementById('is_active').checked = true;
+        document.getElementById('stock').value = '100';
+        document.getElementById('sort_order').value = '0';
+        hasVariantsCheckbox.checked = false;
+        variantsSection.style.display = 'none';
+        singlePriceSection.style.display = 'block';
+      }
+    }
+
+    function closeModal() {
+      modal?.classList.remove('show');
+      productForm?.reset();
+      variantsList.innerHTML = '';
+      variantCounter = 0;
+    }
+
+    addBtn?.addEventListener('click', () => openModal());
+    closeButtons.forEach(btn => btn.addEventListener('click', closeModal));
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    // Edit buttons
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const product = JSON.parse(e.currentTarget.dataset.product);
+        openModal(product);
+      });
+    });
+
+    // Delete buttons
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.currentTarget.dataset.id;
+        const name = e.currentTarget.dataset.name;
+
+        if (!confirm(`"${name}" ürününü silmek istediğinizden emin misiniz?`)) return;
+
+        try {
+          const { error } = await supabase
+            .from('products')
+            .delete()
+            .eq('id', id);
+
+          if (error) throw error;
+
+          alert('✅ Ürün silindi!');
+          location.reload();
+        } catch (error) {
+          console.error('Error:', error);
+          alert('❌ Hata: ' + error.message);
+        }
+      });
+    });
+
+    // Form submit
+    productForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const id = document.getElementById('product-id').value;
 
       // Images
-      if (product.images && Array.isArray(product.images)) {
-        document.getElementById('image_url').value = product.images.join('\n');
+      const imageText = document.getElementById('image_url').value;
+      const images = imageText
+        .split(/[\n,]+/)
+        .map(url => url.trim())
+        .filter(url => url.length > 0);
+
+      // Varyantları topla
+      let variants = null;
+      let price = 0;
+      let stock = 0;
+
+      if (hasVariantsCheckbox.checked) {
+        variants = [];
+        const variantCards = variantsList.querySelectorAll('.variant-card');
+
+        if (variantCards.length === 0) {
+          alert('❌ En az bir varyant eklemelisiniz!');
+          return;
+        }
+
+        variantCards.forEach(card => {
+          const variantPrice = parseFloat(card.querySelector('.variant-price').value);
+          const variantStock = parseInt(card.querySelector('.variant-stock').value) || 0;
+
+          variants.push({
+            size: card.querySelector('.variant-size').value,
+            price: variantPrice,
+            stock: variantStock
+          });
+
+          stock += variantStock;
+        });
+
+        // İlk varyantın fiyatını ana fiyat olarak kullan
+        price = variants[0].price;
+      } else {
+        price = parseFloat(document.getElementById('price').value);
+        stock = parseInt(document.getElementById('stock').value);
+
+        if (!price || price <= 0) {
+          alert('❌ Geçerli bir fiyat giriniz!');
+          return;
+        }
       }
-    } else {
-      modalTitle.textContent = '🆕 Yeni Ürün Ekle';
-      productForm?.reset();
-      document.getElementById('product-id').value = '';
-      document.getElementById('is_active').checked = true;
-      document.getElementById('stock').value = '100';
-      document.getElementById('sort_order').value = '0';
-    }
-  }
 
-  function closeModal() {
-    modal?.classList.remove('show');
-    productForm?.reset();
-  }
-
-  addBtn?.addEventListener('click', () => openModal());
-  closeButtons.forEach(btn => btn.addEventListener('click', closeModal));
-  modal?.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
-  });
-
-  // Edit buttons
-  document.querySelectorAll('.edit-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const product = JSON.parse(e.currentTarget.dataset.product);
-      openModal(product);
-    });
-  });
-
-  // Delete buttons
-  document.querySelectorAll('.delete-btn').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      const id = e.currentTarget.dataset.id;
-      const name = e.currentTarget.dataset.name;
-
-      if (!confirm(`"${name}" ürününü silmek istediğinizden emin misiniz?`)) return;
+      const formData = {
+        name: document.getElementById('name').value,
+        slug: document.getElementById('slug').value,
+        category: document.getElementById('category').value,
+        unit: document.getElementById('unit').value,
+        price: price,
+        stock: stock,
+        description: document.getElementById('description').value,
+        images: images,
+        variants: variants,
+        sort_order: parseInt(document.getElementById('sort_order').value),
+        is_active: document.getElementById('is_active').checked
+      };
 
       try {
-        const { error } = await supabase
-          .from('products')
-          .delete()
-          .eq('id', id);
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Kaydediliyor...';
 
-        if (error) throw error;
+        let result;
+        if (id) {
+          result = await supabase
+            .from('products')
+            .update(formData)
+            .eq('id', id);
+        } else {
+          result = await supabase
+            .from('products')
+            .insert(formData);
+        }
 
-        alert('✅ Ürün silindi!');
+        if (result.error) throw result.error;
+
+        alert(id ? '✅ Ürün güncellendi!' : '✅ Ürün eklendi!');
         location.reload();
       } catch (error) {
         console.error('Error:', error);
         alert('❌ Hata: ' + error.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = '💾 Kaydet';
       }
     });
-  });
-
-  // Form submit
-  productForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const id = document.getElementById('product-id').value;
-
-    // Images
-    const imageText = document.getElementById('image_url').value;
-    const images = imageText
-      .split(/[\n,]+/)
-      .map(url => url.trim())
-      .filter(url => url.length > 0);
-
-    const formData = {
-      name: document.getElementById('name').value,
-      slug: document.getElementById('slug').value,
-      category: document.getElementById('category').value,
-      unit: document.getElementById('unit').value,
-      price: parseFloat(document.getElementById('price').value),
-      stock: parseInt(document.getElementById('stock').value),
-      description: document.getElementById('description').value,
-      images: images,
-      sort_order: parseInt(document.getElementById('sort_order').value),
-      is_active: document.getElementById('is_active').checked
-    };
-
-    try {
-      submitBtn.disabled = true;
-      submitBtn.textContent = '⏳ Kaydediliyor...';
-
-      let result;
-      if (id) {
-        result = await supabase
-          .from('products')
-          .update(formData)
-          .eq('id', id);
-      } else {
-        result = await supabase
-          .from('products')
-          .insert(formData);
-      }
-
-      if (result.error) throw result.error;
-
-      alert(id ? '✅ Ürün güncellendi!' : '✅ Ürün eklendi!');
-      location.reload();
-    } catch (error) {
-      console.error('Error:', error);
-      alert('❌ Hata: ' + error.message);
-      submitBtn.disabled = false;
-      submitBtn.textContent = '💾 Kaydet';
-    }
-  });
-</script>
+  </script>
 </BaseLayout>
