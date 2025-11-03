@@ -700,176 +700,171 @@ if (error) {
     }
   </style>
 
-  <script>
-    import { createClient } from '@supabase/supabase-js';
+<script>
+  import { supabase } from '../../lib/supabase';
 
-    const supabase = createClient(
-      import.meta.env.PUBLIC_SUPABASE_URL,
-      import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-    );
+  const modal = document.getElementById('product-modal');
+  const modalTitle = document.getElementById('modal-title');
+  const productForm = document.getElementById('product-form');
+  const addBtn = document.getElementById('add-product-btn');
+  const closeButtons = document.querySelectorAll('.modal-close');
+  const submitBtn = document.getElementById('submit-btn');
 
-    const modal = document.getElementById('product-modal');
-    const modalTitle = document.getElementById('modal-title');
-    const productForm = document.getElementById('product-form');
-    const addBtn = document.getElementById('add-product-btn');
-    const closeButtons = document.querySelectorAll('.modal-close');
-    const submitBtn = document.getElementById('submit-btn');
+  // Logout
+  document.getElementById('logout-btn')?.addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    window.location.href = '/admin/login';
+  });
 
-    // Logout
-    document.getElementById('logout-btn')?.addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      window.location.href = '/admin/login';
-    });
+  // Slug oluştur
+  function createSlug(text) {
+    return text
+      .toLowerCase()
+      .replace(/ğ/g, 'g')
+      .replace(/ü/g, 'u')
+      .replace(/ş/g, 's')
+      .replace(/ı/g, 'i')
+      .replace(/ö/g, 'o')
+      .replace(/ç/g, 'c')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
 
-    // Slug oluştur
-    function createSlug(text) {
-      return text
-        .toLowerCase()
-        .replace(/ğ/g, 'g')
-        .replace(/ü/g, 'u')
-        .replace(/ş/g, 's')
-        .replace(/ı/g, 'i')
-        .replace(/ö/g, 'o')
-        .replace(/ç/g, 'c')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
+  // İsim değiştiğinde slug oluştur
+  document.getElementById('name')?.addEventListener('input', (e) => {
+    const slugInput = document.getElementById('slug');
+    if (slugInput && !slugInput.value) {
+      slugInput.value = createSlug(e.target.value);
     }
+  });
 
-    // İsim değiştiğinde slug oluştur
-    document.getElementById('name')?.addEventListener('input', (e) => {
-      const slugInput = document.getElementById('slug');
-      if (slugInput && !slugInput.value) {
-        slugInput.value = createSlug(e.target.value);
-      }
-    });
+  // Modal aç/kapat
+  function openModal(product = null) {
+    modal?.classList.add('show');
 
-    // Modal aç/kapat
-    function openModal(product = null) {
-      modal?.classList.add('show');
-
-      if (product) {
-        modalTitle.textContent = '✏️ Ürün Düzenle';
-        document.getElementById('product-id').value = product.id;
-        document.getElementById('name').value = product.name;
-        document.getElementById('slug').value = product.slug || '';
-        document.getElementById('category').value = product.category || 'Pastırma';
-        document.getElementById('unit').value = product.unit || 'kg';
-        document.getElementById('price').value = product.price;
-        document.getElementById('stock').value = product.stock || 100;
-        document.getElementById('description').value = product.description || '';
-        document.getElementById('sort_order').value = product.sort_order || 0;
-        document.getElementById('is_active').checked = product.is_active !== false;
-
-        // Images
-        if (product.images && Array.isArray(product.images)) {
-          document.getElementById('image_url').value = product.images.join('\n');
-        }
-      } else {
-        modalTitle.textContent = '🆕 Yeni Ürün Ekle';
-        productForm?.reset();
-        document.getElementById('product-id').value = '';
-        document.getElementById('is_active').checked = true;
-        document.getElementById('stock').value = '100';
-        document.getElementById('sort_order').value = '0';
-      }
-    }
-
-    function closeModal() {
-      modal?.classList.remove('show');
-      productForm?.reset();
-    }
-
-    addBtn?.addEventListener('click', () => openModal());
-    closeButtons.forEach(btn => btn.addEventListener('click', closeModal));
-    modal?.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
-    });
-
-    // Edit buttons
-    document.querySelectorAll('.edit-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const product = JSON.parse(e.currentTarget.dataset.product);
-        openModal(product);
-      });
-    });
-
-    // Delete buttons
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        const id = e.currentTarget.dataset.id;
-        const name = e.currentTarget.dataset.name;
-
-        if (!confirm(`"${name}" ürününü silmek istediğinizden emin misiniz?`)) return;
-
-        try {
-          const { error } = await supabase
-            .from('products')
-            .delete()
-            .eq('id', id);
-
-          if (error) throw error;
-
-          alert('✅ Ürün silindi!');
-          location.reload();
-        } catch (error) {
-          console.error('Error:', error);
-          alert('❌ Hata: ' + error.message);
-        }
-      });
-    });
-
-    // Form submit
-    productForm?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const id = document.getElementById('product-id').value;
+    if (product) {
+      modalTitle.textContent = '✏️ Ürün Düzenle';
+      document.getElementById('product-id').value = product.id;
+      document.getElementById('name').value = product.name;
+      document.getElementById('slug').value = product.slug || '';
+      document.getElementById('category').value = product.category || 'Pastırma';
+      document.getElementById('unit').value = product.unit || 'kg';
+      document.getElementById('price').value = product.price;
+      document.getElementById('stock').value = product.stock || 100;
+      document.getElementById('description').value = product.description || '';
+      document.getElementById('sort_order').value = product.sort_order || 0;
+      document.getElementById('is_active').checked = product.is_active !== false;
 
       // Images
-      const imageText = document.getElementById('image_url').value;
-      const images = imageText
-        .split(/[\n,]+/)
-        .map(url => url.trim())
-        .filter(url => url.length > 0);
+      if (product.images && Array.isArray(product.images)) {
+        document.getElementById('image_url').value = product.images.join('\n');
+      }
+    } else {
+      modalTitle.textContent = '🆕 Yeni Ürün Ekle';
+      productForm?.reset();
+      document.getElementById('product-id').value = '';
+      document.getElementById('is_active').checked = true;
+      document.getElementById('stock').value = '100';
+      document.getElementById('sort_order').value = '0';
+    }
+  }
 
-      const formData = {
-        name: document.getElementById('name').value,
-        slug: document.getElementById('slug').value,
-        category: document.getElementById('category').value,
-        unit: document.getElementById('unit').value,
-        price: parseFloat(document.getElementById('price').value),
-        stock: parseInt(document.getElementById('stock').value),
-        description: document.getElementById('description').value,
-        images: images,
-        sort_order: parseInt(document.getElementById('sort_order').value),
-        is_active: document.getElementById('is_active').checked
-      };
+  function closeModal() {
+    modal?.classList.remove('show');
+    productForm?.reset();
+  }
+
+  addBtn?.addEventListener('click', () => openModal());
+  closeButtons.forEach(btn => btn.addEventListener('click', closeModal));
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  // Edit buttons
+  document.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const product = JSON.parse(e.currentTarget.dataset.product);
+      openModal(product);
+    });
+  });
+
+  // Delete buttons
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const id = e.currentTarget.dataset.id;
+      const name = e.currentTarget.dataset.name;
+
+      if (!confirm(`"${name}" ürününü silmek istediğinizden emin misiniz?`)) return;
 
       try {
-        submitBtn.disabled = true;
-        submitBtn.textContent = '⏳ Kaydediliyor...';
+        const { error } = await supabase
+          .from('products')
+          .delete()
+          .eq('id', id);
 
-        let result;
-        if (id) {
-          result = await supabase
-            .from('products')
-            .update(formData)
-            .eq('id', id);
-        } else {
-          result = await supabase
-            .from('products')
-            .insert(formData);
-        }
+        if (error) throw error;
 
-        if (result.error) throw result.error;
-
-        alert(id ? '✅ Ürün güncellendi!' : '✅ Ürün eklendi!');
+        alert('✅ Ürün silindi!');
         location.reload();
       } catch (error) {
         console.error('Error:', error);
         alert('❌ Hata: ' + error.message);
-        submitBtn.disabled = false;
-        submitBtn.textContent = '💾 Kaydet';
       }
     });
-  </script>
+  });
+
+  // Form submit
+  productForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const id = document.getElementById('product-id').value;
+
+    // Images
+    const imageText = document.getElementById('image_url').value;
+    const images = imageText
+      .split(/[\n,]+/)
+      .map(url => url.trim())
+      .filter(url => url.length > 0);
+
+    const formData = {
+      name: document.getElementById('name').value,
+      slug: document.getElementById('slug').value,
+      category: document.getElementById('category').value,
+      unit: document.getElementById('unit').value,
+      price: parseFloat(document.getElementById('price').value),
+      stock: parseInt(document.getElementById('stock').value),
+      description: document.getElementById('description').value,
+      images: images,
+      sort_order: parseInt(document.getElementById('sort_order').value),
+      is_active: document.getElementById('is_active').checked
+    };
+
+    try {
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Kaydediliyor...';
+
+      let result;
+      if (id) {
+        result = await supabase
+          .from('products')
+          .update(formData)
+          .eq('id', id);
+      } else {
+        result = await supabase
+          .from('products')
+          .insert(formData);
+      }
+
+      if (result.error) throw result.error;
+
+      alert(id ? '✅ Ürün güncellendi!' : '✅ Ürün eklendi!');
+      location.reload();
+    } catch (error) {
+      console.error('Error:', error);
+      alert('❌ Hata: ' + error.message);
+      submitBtn.disabled = false;
+      submitBtn.textContent = '💾 Kaydet';
+    }
+  });
+</script>
 </BaseLayout>
