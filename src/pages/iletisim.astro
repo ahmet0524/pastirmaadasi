@@ -1,0 +1,680 @@
+---
+// src/pages/iletisim.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="İletişim - Pastırma Adası"
+  description="Pastırma Adası ile iletişime geçin. Kayseri Talas'ta bulunan mağazamızı ziyaret edin veya bize ulaşın."
+>
+  <Header slot="header" />
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <nav class="breadcrumb">
+        <a href="/">Ana Sayfa</a>
+        <span>/</span>
+        <span>İletişim</span>
+      </nav>
+      <h1>Bize Ulaşın</h1>
+      <p class="hero-subtitle">
+        Sorularınız, siparişleriniz veya önerileriniz için bizimle iletişime geçebilirsiniz
+      </p>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="contact-section">
+    <div class="container">
+      <div class="contact-grid">
+
+        <!-- İletişim Bilgileri -->
+        <div class="contact-info">
+          <h2>İletişim Bilgileri</h2>
+          <p class="contact-intro">
+            Geleneksel Kayseri lezzetlerini sizlere ulaştırmanın mutluluğunu yaşıyoruz.
+            Her türlü soru ve öneriniz için bize ulaşabilirsiniz.
+          </p>
+
+          <div class="info-items">
+            <!-- Adres -->
+            <div class="info-item">
+              <div class="info-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+              </div>
+              <div class="info-content">
+                <h3>Adres</h3>
+                <p>Tablakaya, Yeni Bağlar Cd. No:17/A<br>38200 Talas/Kayseri</p>
+                <a href="https://maps.app.goo.gl/c9XbN23wG9Aww9BK6" target="_blank" rel="noopener noreferrer" class="map-link">
+                  Haritada Görüntüle
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+
+            <!-- Telefon -->
+            <div class="info-item">
+              <div class="info-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                </svg>
+              </div>
+              <div class="info-content">
+                <h3>Telefon</h3>
+                <a href="tel:+905077623838" class="contact-link">+90 507 762 38 38</a>
+              </div>
+            </div>
+
+            <!-- E-posta -->
+            <div class="info-item">
+              <div class="info-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <div class="info-content">
+                <h3>E-posta</h3>
+                <a href="mailto:pastirmaadasi@gmail.com" class="contact-link">pastirmaadasi@gmail.com</a>
+              </div>
+            </div>
+
+            <!-- Çalışma Saatleri -->
+            <div class="info-item">
+              <div class="info-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <div class="info-content">
+                <h3>Çalışma Saatleri</h3>
+                <p>Pazartesi - Cumartesi: 09:00 - 19:00<br>Pazar: 10:00 - 18:00</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sosyal Medya -->
+          <div class="social-section">
+            <h3>Bizi Takip Edin</h3>
+            <div class="social-links">
+              <a href="#" class="social-link" aria-label="Facebook">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </a>
+              <a href="#" class="social-link" aria-label="Instagram">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/>
+                </svg>
+              </a>
+              <a href="#" class="social-link" aria-label="Twitter">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- İletişim Formu -->
+        <div class="contact-form-wrapper">
+          <h2>Bize Mesaj Gönderin</h2>
+          <p class="form-intro">Aşağıdaki formu doldurarak bizimle iletişime geçebilirsiniz. En kısa sürede size geri dönüş yapacağız.</p>
+
+          <!-- Web3Forms ile entegrasyon - API key'inizi alın: https://web3forms.com -->
+          <form id="contact-form" class="contact-form">
+            <!-- Web3Forms Access Key - KENDİ KEY'İNİZİ ALIN -->
+            <input type="hidden" name="access_key" value="cd87f586-7c03-4995-aeba-8360c7eb318a">
+
+            <!-- Honeypot Spam Protection -->
+            <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="name">Adınız Soyadınız *</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  required
+                  placeholder="Ad Soyad"
+                >
+              </div>
+
+              <div class="form-group">
+                <label for="email">E-posta Adresiniz *</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  placeholder="ornek@email.com"
+                >
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="phone">Telefon Numaranız</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="0555 555 55 55"
+                >
+              </div>
+
+              <div class="form-group">
+                <label for="subject">Konu</label>
+                <select id="subject" name="subject">
+                  <option value="">Konu Seçin</option>
+                  <option value="siparis">Sipariş Bilgisi</option>
+                  <option value="urun">Ürün Sorusu</option>
+                  <option value="oneri">Öneri</option>
+                  <option value="sikayet">Şikayet</option>
+                  <option value="diger">Diğer</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="message">Mesajınız *</label>
+              <textarea
+                id="message"
+                name="message"
+                rows="6"
+                required
+                placeholder="Mesajınızı buraya yazın..."
+              ></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-large">
+              <span class="btn-text">Mesajı Gönder</span>
+              <span class="btn-loading" style="display: none;">
+                <svg class="spinner" width="20" height="20" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"/>
+                  <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" opacity="0.75"/>
+                </svg>
+                Gönderiliyor...
+              </span>
+            </button>
+
+            <div id="form-message" class="form-message"></div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Map Section -->
+  <section class="map-section">
+    <div class="map-overlay">
+      <div class="map-card">
+        <h3>Mağazamızı Ziyaret Edin</h3>
+        <p>Kayseri Talas'ta bulunan mağazamızda sizi ağırlamaktan mutluluk duyarız.</p>
+        <a href="https://maps.app.goo.gl/c9XbN23wG9Aww9BK6" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+          Yol Tarifi Al
+        </a>
+      </div>
+    </div>
+    <iframe
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3115.662624897686!2d35.52785137641194!3d38.69248095778831!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x152b1e0e8e8e8e8e%3A0x8e8e8e8e8e8e8e8e!2sTablekaya%2C%20Yeni%20Ba%C4%9Flar%20Cd.%20No%3A17%2FA%2C%2038200%20Talas%2FKayseri!5e0!3m2!1str!2str!4v1234567890123!5m2!1str!2str"
+      width="100%"
+      height="500"
+      style="border:0;"
+      allowfullscreen=""
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      title="Pastırma Adası Konum"
+    ></iframe>
+  </section>
+
+  <!-- Info Section -->
+  <section class="info-section">
+    <div class="container">
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3>Hızlı Yanıt</h3>
+          <p>Mesajlarınıza en geç 24 saat içinde yanıt veriyoruz.</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+          </div>
+          <h3>7/24 Destek</h3>
+          <p>Her zaman sizin için buradayız, ihtiyacınız olduğunda bize ulaşın.</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3>Güvenilir İletişim</h3>
+          <p>Kişisel bilgileriniz güvende, gizliliğinize önem veriyoruz.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  .hero-section {
+    position: relative;
+    min-height: 350px;
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-3xl) var(--spacing-md);
+  }
+
+  .contact-section {
+    padding: var(--spacing-3xl) var(--spacing-md);
+    background: var(--color-gray-50);
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+  }
+
+  .contact-info h2,
+  .contact-form-wrapper h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 1rem;
+  }
+
+  .contact-intro,
+  .form-intro {
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+
+  .info-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .info-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
+  }
+
+  .info-item:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateX(5px);
+  }
+
+  .info-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--gradient-primary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .info-content h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .info-content p {
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .contact-link {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color var(--transition-fast);
+  }
+
+  .contact-link:hover {
+    color: var(--color-primary-dark);
+  }
+
+  .map-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all var(--transition-fast);
+  }
+
+  .map-link:hover {
+    color: var(--color-primary-dark);
+    gap: 0.75rem;
+  }
+
+  .social-section {
+    padding: 1.5rem;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .social-section h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 1rem;
+  }
+
+  .social-links {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .social-link {
+    width: 44px;
+    height: 44px;
+    background: var(--color-gray-100);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-gray-600);
+    transition: all var(--transition-base);
+  }
+
+  .social-link:hover {
+    background: var(--gradient-primary);
+    color: white;
+    transform: translateY(-3px);
+  }
+
+  .contact-form-wrapper {
+    background: white;
+    padding: 2.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+  }
+
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-group label {
+    font-weight: 600;
+    color: var(--color-text-primary);
+    font-size: 0.95rem;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: all var(--transition-base);
+    font-family: inherit;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-bg);
+  }
+
+  .form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .btn-loading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .spinner {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .form-message {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    display: none;
+    font-weight: 500;
+  }
+
+  .form-message.success {
+    display: block;
+    background: #D1FAE5;
+    color: #065F46;
+    border: 2px solid #10B981;
+  }
+
+  .form-message.error {
+    display: block;
+    background: #FEE2E2;
+    color: #991B1B;
+    border: 2px solid #DC2626;
+  }
+
+  .map-section {
+    position: relative;
+    height: 500px;
+  }
+
+  .map-section iframe {
+    width: 100%;
+    height: 100%;
+  }
+
+  .map-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .map-card {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    text-align: center;
+    max-width: 400px;
+    pointer-events: auto;
+  }
+
+  .map-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 0.75rem;
+  }
+
+  .map-card p {
+    color: var(--color-text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 968px) {
+    .contact-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .map-overlay {
+      position: static;
+      transform: none;
+      padding: 1rem;
+    }
+
+    .map-section {
+      height: auto;
+    }
+
+    .map-section iframe {
+      height: 400px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .contact-form-wrapper {
+      padding: 1.5rem;
+    }
+
+    .social-links {
+      justify-content: center;
+    }
+  }
+</style>
+
+<script>
+  // Web3Forms ile form gönderimi
+  const form = document.getElementById('contact-form') as HTMLFormElement;
+  const formMessage = document.getElementById('form-message');
+  const btnText = document.querySelector('.btn-text') as HTMLElement;
+  const btnLoading = document.querySelector('.btn-loading') as HTMLElement;
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Button durumunu değiştir
+      if (btnText && btnLoading) {
+        btnText.style.display = 'none';
+        btnLoading.style.display = 'flex';
+      }
+
+      const formData = new FormData(form);
+
+      // Web3Forms API'sine gönder
+      try {
+        const response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          // Başarılı
+          if (formMessage) {
+            formMessage.className = 'form-message success';
+            formMessage.textContent = 'Mesajınız başarıyla gönderildi! En kısa sürede size dönüş yapacağız.';
+          }
+          form.reset();
+        } else {
+          throw new Error(data.message || 'Bir hata oluştu');
+        }
+      } catch (error) {
+        // Hata
+        if (formMessage) {
+          formMessage.className = 'form-message error';
+          formMessage.textContent = 'Mesaj gönderilemedi. Lütfen daha sonra tekrar deneyin veya direkt iletişim bilgilerimizden ulaşın.';
+        }
+        console.error('Form gönderim hatası:', error);
+      } finally {
+        // Button durumunu eski haline getir
+        if (btnText && btnLoading) {
+          btnText.style.display = 'block';
+          btnLoading.style.display = 'none';
+        }
+
+        // Mesajı 5 saniye sonra gizle
+        setTimeout(() => {
+          if (formMessage) {
+            formMessage.style.display = 'none';
+          }
+        }, 5000);
+      }
+    });
+  }
+
+  // Telefon numarası formatı (opsiyonel)
+  const phoneInput = document.getElementById('phone') as HTMLInputElement;
+  if (phoneInput) {
+    phoneInput.addEventListener('input', (e) => {
+      let value = (e.target as HTMLInputElement).value.replace(/\D/g, '');
+      if (value.length > 0) {
+        if (value.length <= 4) {
+          value = value;
+        } else if (value.length <= 7) {
+          value = value.slice(0, 4) + ' ' + value.slice(4);
+        } else if (value.length <= 9) {
+          value = value.slice(0, 4) + ' ' + value.slice(4, 7) + ' ' + value.slice(7);
+        } else {
+          value = value.slice(0, 4) + ' ' + value.slice(4, 7) + ' ' + value.slice(7, 9) + ' ' + value.slice(9, 11);
+        }
+      }
+      (e.target as HTMLInputElement).value = value;
+    });
+  }
+</script>
