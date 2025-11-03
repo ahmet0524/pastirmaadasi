@@ -1,0 +1,657 @@
+---
+// src/pages/gizlilik-politikasi.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const lastUpdate = '05/01/2024';
+---
+
+<BaseLayout
+  title="Gizlilik Politikası - Pastırma Adası"
+  description="Pastırma Adası kişisel verilerin korunması ve gizlilik politikası. KVKK uyumlu bilgilendirme."
+>
+  <Header slot="header" />
+
+  <!-- Hero Section -->
+  <section class="privacy-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <nav class="breadcrumb">
+        <a href="/">Ana Sayfa</a>
+        <span>/</span>
+        <span>Gizlilik Politikası</span>
+      </nav>
+      <h1>Gizlilik Politikası</h1>
+      <p class="hero-subtitle">
+        Kişisel verilerinizin korunması bizim için önceliklidir. Verilerinizi nasıl işlediğimizi öğrenin.
+      </p>
+      <div class="last-update">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        Son güncellenme: {lastUpdate}
+      </div>
+    </div>
+  </section>
+
+  <!-- Content Section -->
+  <section class="privacy-content">
+    <div class="container">
+      <div class="content-wrapper">
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar-nav">
+          <div class="nav-sticky">
+            <h3>İçindekiler</h3>
+            <nav>
+              <a href="#giris" class="nav-link">Giriş</a>
+              <a href="#veri-sorumlusu" class="nav-link">Veri Sorumlusu</a>
+              <a href="#toplanan-veriler" class="nav-link">Toplanan Veriler</a>
+              <a href="#isleme-amaci" class="nav-link">İşlenme Amacı</a>
+              <a href="#haklariniz" class="nav-link">Haklarınız</a>
+              <a href="#iletisim" class="nav-link">İletişim</a>
+            </nav>
+          </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+          <!-- Giriş -->
+          <div id="giris" class="content-block intro-block">
+            <div class="icon-box">
+              <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+            </div>
+            <h2 class="intro-title">Güvenliğiniz Bizim İçin Önemli</h2>
+            <p class="intro-text">
+              Bizimle paylaşacağınız kişisel verileriniz hassasiyetle korunmaktadır.
+              Biz, <strong>Pastırma Adası</strong>, veri sorumlusu olarak, bu gizlilik ve kişisel verilerin
+              korunması politikası ile, hangi kişisel verilerinizin hangi amaçla işleneceği, işlenen
+              verilerin kimlerle ve neden paylaşılabileceği, veri işleme yöntemimiz ve hukuki sebeplerimiz ile;
+              işlenen verilerinize ilişkin haklarınızın neler olduğu hususunda sizleri aydınlatmayı amaçlıyoruz.
+            </p>
+          </div>
+
+          <!-- Veri Sorumlusu -->
+          <div id="veri-sorumlusu" class="content-block">
+            <h2>
+              <span class="section-number">01</span>
+              Veri Sorumlusu
+            </h2>
+            <p>
+              KVKK uyarınca, kişisel verilerinizin işlenmesinden sorumlu olan veri sorumlusu
+              <strong>Pastırma Adası</strong>'dır.
+            </p>
+            <div class="data-controller-box">
+              <div class="controller-icon">
+                <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+              </div>
+              <div class="controller-info">
+                <h4>İletişim Bilgileri</h4>
+                <div class="contact-item">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  </svg>
+                  <span><strong>E-posta:</strong> pastirmaadasi@gmail.com</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Toplanan Veriler -->
+          <div id="toplanan-veriler" class="content-block">
+            <h2>
+              <span class="section-number">02</span>
+              Toplanan Kişisel Verileriniz
+            </h2>
+            <p>
+              Bizimle paylaştığınız kişisel verileriniz; kimlik (isim, soy isim, doğum tarihi gibi),
+              iletişim (adres, e-posta adresi, telefon, IP, konum gibi), özlük, sosyal medya,
+              finans bilgileriniz ile görsel ve işitsel kayıtlarınız tarafımızca, çerezler (cookies)
+              vb. teknolojiler vasıtasıyla, otomatik veya otomatik olmayan yöntemlerle işlenecektir.
+            </p>
+          </div>
+
+          <!-- İşlenme Amacı -->
+          <div id="isleme-amaci" class="content-block">
+            <h2>
+              <span class="section-number">03</span>
+              Kişisel Verilerin İşlenme Amacı
+            </h2>
+            <p>
+              Bizimle paylaştığınız kişisel verileriniz; hizmetlerimizden faydalanabilmeniz,
+              sunduğumuz hizmetlerin gerekliliklerini yerine getirebilmek, ürün ve hizmetlerimizi
+              geliştirebilmek amacıyla işlenecektir.
+            </p>
+          </div>
+
+          <!-- Haklarınız -->
+          <div id="haklariniz" class="content-block">
+            <h2>
+              <span class="section-number">04</span>
+              Haklarınız
+            </h2>
+            <p>KVKK madde 11 uyarınca haklarınız:</p>
+
+            <div class="rights-list">
+              <div class="right-item">
+                <div class="right-icon">✓</div>
+                <div>
+                  <h4>Kişisel veri işlenip işlenmediğini öğrenme</h4>
+                </div>
+              </div>
+
+              <div class="right-item">
+                <div class="right-icon">✓</div>
+                <div>
+                  <h4>İşlenmişse buna ilişkin bilgi talep etme</h4>
+                </div>
+              </div>
+
+              <div class="right-item">
+                <div class="right-icon">✓</div>
+                <div>
+                  <h4>İşlenme amacını öğrenme</h4>
+                </div>
+              </div>
+
+              <div class="right-item">
+                <div class="right-icon">✓</div>
+                <div>
+                  <h4>Eksik veya yanlış işlenmiş verilerin düzeltilmesini isteme</h4>
+                </div>
+              </div>
+
+              <div class="right-item">
+                <div class="right-icon">✓</div>
+                <div>
+                  <h4>Verilerin silinmesini veya yok edilmesini isteme</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- İletişim -->
+          <div id="iletisim" class="content-block">
+            <h2>
+              <span class="section-number">05</span>
+              İletişim
+            </h2>
+            <p>
+              Yukarıdaki haklarınızı kullanmak için <strong>pastirmaadasi@gmail.com</strong>
+              üzerinden bizimle iletişime geçebilirsiniz.
+            </p>
+
+            <div class="contact-box">
+              <a href="/iletisim" class="btn btn-primary">İletişim Formu</a>
+            </div>
+          </div>
+
+        </main>
+      </div>
+    </div>
+  </section>
+
+  <!-- Related Links -->
+  <section class="related-links">
+    <div class="container">
+      <h2>İlgili Belgeler</h2>
+      <div class="links-grid">
+        <a href="/kullanim-kosullari" class="link-card">
+          <div class="link-card-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+          </div>
+          <div class="link-card-content">
+            <h3>Kullanım Koşulları</h3>
+            <p>Web sitemizi kullanma şartlarını öğrenin</p>
+          </div>
+        </a>
+
+        <a href="/iletisim" class="link-card">
+          <div class="link-card-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div class="link-card-content">
+            <h3>İletişim</h3>
+            <p>Sorularınız için bizimle iletişime geçin</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  .privacy-hero {
+    position: relative;
+    min-height: 350px;
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: white;
+    max-width: 800px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+
+  .breadcrumb a {
+    color: rgba(255, 255, 255, 0.95);
+    text-decoration: none;
+  }
+
+  .breadcrumb span {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .hero-content h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0 0 1rem 0;
+  }
+
+  .hero-subtitle {
+    font-size: 1.125rem;
+    margin: 0 0 1.5rem 0;
+  }
+
+  .last-update {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.25rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    font-size: 0.875rem;
+  }
+
+  .privacy-content {
+    padding: 4rem 1rem;
+    background: #F9FAFB;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .content-wrapper {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 3rem;
+  }
+
+  .sidebar-nav {
+    position: relative;
+  }
+
+  .nav-sticky {
+    position: sticky;
+    top: 2rem;
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .nav-sticky h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #E5E7EB;
+  }
+
+  .nav-sticky nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .nav-link {
+    padding: 0.75rem 1rem;
+    color: #6B7280;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    background: #DBEAFE;
+    color: #0891B2;
+  }
+
+  .main-content {
+    background: white;
+    border-radius: 16px;
+    padding: 3rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  .content-block {
+    margin-bottom: 4rem;
+    scroll-margin-top: 2rem;
+  }
+
+  .intro-block {
+    padding-bottom: 3rem;
+    border-bottom: 2px solid #E5E7EB;
+  }
+
+  .icon-box {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-bottom: 1.5rem;
+  }
+
+  .intro-title {
+    font-size: 2rem;
+    margin: 0 0 1rem 0;
+    font-weight: 700;
+  }
+
+  .intro-text {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #374151;
+  }
+
+  .content-block h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .section-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+    color: white;
+    border-radius: 12px;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .content-block p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #4B5563;
+    margin-bottom: 1.25rem;
+  }
+
+  .data-controller-box {
+    display: flex;
+    gap: 2rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 100%);
+    border-radius: 12px;
+    margin-top: 2rem;
+  }
+
+  .controller-icon {
+    color: #0891B2;
+  }
+
+  .controller-info h4 {
+    font-size: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 8px;
+  }
+
+  .contact-item svg {
+    color: #0891B2;
+  }
+
+  .rights-list {
+    display: grid;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .right-item {
+    display: flex;
+    align-items: start;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: #F9FAFB;
+    border-radius: 12px;
+    border-left: 4px solid #10B981;
+  }
+
+  .right-icon {
+    width: 32px;
+    height: 32px;
+    background: #10B981;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .right-item h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: #1F2937;
+  }
+
+  .contact-box {
+    text-align: center;
+    padding: 2rem;
+    background: #F9FAFB;
+    border-radius: 12px;
+    margin-top: 2rem;
+  }
+
+  .btn {
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+  }
+
+  .related-links {
+    padding: 4rem 1rem;
+    background: white;
+  }
+
+  .related-links h2 {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0 0 3rem 0;
+  }
+
+  .links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .link-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: #F9FAFB;
+    border-radius: 12px;
+    border: 2px solid #E5E7EB;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+
+  .link-card:hover {
+    border-color: #0891B2;
+    transform: translateY(-4px);
+  }
+
+  .link-card-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .link-card-content h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .link-card-content p {
+    font-size: 0.95rem;
+    color: #6B7280;
+    margin: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .content-wrapper {
+      grid-template-columns: 1fr;
+    }
+
+    .nav-sticky {
+      position: static;
+    }
+
+    .nav-sticky nav {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hero-content h1 {
+      font-size: 2rem;
+    }
+
+    .main-content {
+      padding: 2rem 1.5rem;
+    }
+
+    .data-controller-box {
+      flex-direction: column;
+    }
+
+    .links-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = link.getAttribute('href');
+      const targetElement = document.querySelector(targetId);
+
+      if (targetElement) {
+        const offset = 100;
+        const elementPosition = targetElement.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    });
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+        document.querySelectorAll('.nav-link').forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === `#${id}`) {
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+  }, {
+    rootMargin: '-100px 0px -66%'
+  });
+
+  document.querySelectorAll('.content-block[id]').forEach(section => {
+    observer.observe(section);
+  });
+</script>

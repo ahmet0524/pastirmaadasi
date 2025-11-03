@@ -19,7 +19,7 @@ function isValidEmail(email) {
   return !!email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
 
-// Müşteri Email Template - DETAYLI VE ANLAŞILIR
+// Müşteri Email Template - HAREKETE GEÇİRİCİ MESAJ EKLENDİ
 function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDate, shippingAddress, customerPhone }) {
   // Ürünleri detaylı göster
   const itemsHTML = items.map((item, index) => {
@@ -73,9 +73,14 @@ function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDa
     .total-amount { font-size: 36px; font-weight: 800; color: #c41e3a; }
     .info-box { background: #fff7ed; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 8px; }
     .info-box strong { color: #c2410c; display: block; margin-bottom: 8px; font-size: 16px; }
+    .cta-box { background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%); padding: 30px 20px; margin: 30px 0; border-radius: 12px; text-align: center; }
+    .cta-box h3 { color: white; margin: 0 0 15px 0; font-size: 22px; font-weight: 700; }
+    .cta-box p { color: rgba(255,255,255,0.95); margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; }
+    .cta-button { display: inline-block; padding: 15px 40px; background: #DC2626; color: white; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: 700; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4); }
     .footer { text-align: center; padding: 30px 20px; color: #666; font-size: 14px; background: white; border-top: 1px solid #e5e7eb; }
     .footer strong { color: #0891B2; font-size: 16px; }
     .footer .tagline { font-size: 13px; color: #999; margin-top: 10px; }
+    .footer a { color: #0891B2; text-decoration: none; font-weight: 600; }
   </style>
 </head>
 <body>
@@ -125,11 +130,21 @@ function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDa
       </div>
 
       <p style="margin-top: 30px; text-align: center; font-size: 18px; color: #059669;">Afiyet olsun! 🙏</p>
+
+      <!-- ✅ YENİ: Harekete Geçirici Mesaj -->
+      <div class="cta-box">
+        <h3>🎉 Lezzetlerimizi Sevdiniz mi?</h3>
+        <p>Kayseri'nin en taze pastırma, sucuk ve mantılarını keşfetmek için hemen alışverişe başlayın!</p>
+        <a href="https://www.pastirmaadasi.com" class="cta-button">🛒 Tekrar Alışveriş Yap</a>
+      </div>
     </div>
 
     <div class="footer">
       <p><strong>Pastırma Adası</strong></p>
       <p class="tagline">Kayseri'nin geleneksel lezzeti</p>
+      <p style="margin-top: 15px;">
+        <a href="https://www.pastirmaadasi.com">www.pastirmaadasi.com</a>
+      </p>
       <p style="margin-top: 15px; font-size: 12px; color: #999;">Bu otomatik bir e-postadır, lütfen yanıtlamayın.</p>
     </div>
   </div>

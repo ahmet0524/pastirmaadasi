@@ -1,0 +1,708 @@
+---
+// src/pages/teslimat-ve-iade.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Teslimat ve İade Koşulları - Pastırma Adası"
+  description="Pastırma Adası teslimat, kargo ve iade politikalarımız hakkında detaylı bilgi edinin."
+>
+  <Header slot="header" />
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <nav class="breadcrumb">
+        <a href="/">Ana Sayfa</a>
+        <span>/</span>
+        <span>Teslimat ve İade</span>
+      </nav>
+      <h1>Teslimat ve İade Koşulları</h1>
+      <p class="hero-subtitle">
+        Siparişlerinizin güvenli ve hızlı bir şekilde size ulaşması için çalışıyoruz
+      </p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <section class="content-section">
+    <div class="container">
+      <!-- Giriş Mesajı -->
+      <div class="intro-box">
+        <h2>Değerli Müşterilerimiz,</h2>
+        <p>
+          Pastırma Adasını tercih ettiğiniz için teşekkür ederiz. Siparişlerinizin en kısa sürede ve en güvenli şekilde elinize ulaşması için özenle çalışıyoruz.
+        </p>
+      </div>
+
+      <!-- Kargo Ücreti -->
+      <div class="info-card highlight">
+        <div class="icon-wrapper">
+          <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <h3>Kargo Ücreti</h3>
+        <p><strong>2000₺ altındaki tüm alışverişlerde kargo ücreti alıcıya aittir.</strong></p>
+      </div>
+
+      <!-- Sipariş ve Teslimat Süreci -->
+      <div class="info-card">
+        <div class="icon-wrapper">
+          <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+          </svg>
+        </div>
+        <h3>Sipariş ve Teslimat Süreci</h3>
+        <p>
+          Sanal mağazamız <strong>pastirmaadasi.com</strong> üzerinden vermiş olduğunuz siparişlerde, ödemenizin onaylanmasına müteakip tedarik, sevk ve teslimat işlemleri başlamaktadır.
+        </p>
+        <ul>
+          <li><strong>Stokta bulunan ürünler:</strong> 1-3 iş günü içerisinde kargoya verilir (havale/EFT siparişlerinde ödeme onayından sonra)</li>
+          <li><strong>Kayseri içi teslimatlar:</strong> Kargoya verildikten sonra 24-48 saat içinde</li>
+          <li><strong>Kayseri dışı teslimatlar:</strong> 2-7 iş günü içinde (kargo firmasının taahhüt süresine göre)</li>
+          <li><strong>Resmi ve idari tatillerde:</strong> Verilen siparişler tatil sonrası ilk iş gününde hazırlanmaya başlar</li>
+        </ul>
+      </div>
+
+      <!-- Tedarik Süreci -->
+      <div class="info-card">
+        <div class="icon-wrapper">
+          <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <h3>Tedarik Süreci</h3>
+        <p>
+          Stoklarımızda henüz bulunmayan siparişleriniz için tedarik süreci başlar. Sipariş ettiğiniz ürünün <strong>"tedarik sürecinde"</strong> olduğu müşteri temsilcimiz tarafından size bildirilir.
+        </p>
+        <p>
+          Tedarik süresi, ürünün özelliğine ve üretimine göre <strong>7 iş gününü</strong> bulabilir. Herhangi bir sorun yaşanırsa, müşteri temsilcimiz sizi bilgilendirir.
+        </p>
+      </div>
+
+      <!-- Kargo ve Mobil Bölge -->
+      <div class="info-card">
+        <div class="icon-wrapper">
+          <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+          </svg>
+        </div>
+        <h3>Kargo Firması ve Mobil Bölge</h3>
+        <p>
+          Anlaşmalı kargo firmamız <strong>Yurtiçi Kargo</strong>'dur. Bulunduğunuz yerde kargo şubesi yoksa, bölgeniz <strong>"mobil bölge"</strong> kapsamında değerlendirilir ve haftanın belli günlerinde ürün teslimi yapılır.
+        </p>
+        <div class="warning-box">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <p>
+            Sitemizde belirtilen ürün tedarik süreci ve kargo ücretleri <strong>il, ilçe merkezleri</strong> için geçerlidir. İl, ilçe merkezleri ve mobil bölgenin dışında kalan noktalara ürün teslimi yapılamaz; yapılsa da ekstra bir kargo ücreti talep edilir.
+          </p>
+        </div>
+      </div>
+
+      <!-- Önemli Uyarılar -->
+      <div class="info-card important">
+        <div class="icon-wrapper">
+          <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <h3>Lütfen Dikkat Ediniz!</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h4>Paket Teslimi</h4>
+              <p>
+                Sevkiyat sırasında zarar gördüğünü düşündüğünüz paketleri, <strong>teslim aldığınız kargo firma kuryesi önünde açıp kontrol ediniz.</strong>
+              </p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h4>Hasarlı Ürün</h4>
+              <p>
+                Ürün hasarlı ise, kargo firması ile <strong>tutanak düzenleyerek</strong> ürünü teslim almayınız. Ürün teslim edildikten sonra kargo firması görevini tam olarak yerine getirdiği kabul edilir.
+              </p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h4>Bildirim</h4>
+              <p>
+                Hazırlamış olduğunuz tutanağı en kısa zamanda aşağıdaki iletişim kanallarımıza iletin:
+              </p>
+              <div class="contact-info">
+                <a href="tel:05077623838" class="contact-link">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                  </svg>
+                  0507 762 38 38
+                </a>
+                <a href="mailto:pastirmaadasi@gmail.com" class="contact-link">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                  </svg>
+                  pastirmaadasi@gmail.com
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <h4>İade Açıklaması</h4>
+              <p>
+                Ürünü neden iade etmek istediğinizi belirten <strong>kısa bir açıklama</strong>, ürün ile ilgili çalışmalarımızda bize yardımcı olacaktır.
+              </p>
+            </div>
+          </div>
+        </div>
+        <p class="note">
+          Bu işlemleri gerçekleştirdiğinizde, paketinizle ilgili çalışmalara başlayarak <strong>en kısa zamanda teslimatın tekrarlanmasını</strong> sağlayacağız.
+        </p>
+      </div>
+
+      <!-- Adres Değişikliği -->
+      <div class="info-card">
+        <div class="icon-wrapper">
+          <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+        </div>
+        <h3>Teslimat Adresi</h3>
+        <p>
+          Siparişinizi oluştururken verdiğiniz <strong>teslimat adresi esas alınacaktır.</strong> Adresteki fiziki hatalar nedeniyle siparişinizin ulaşmaması durumunda, müşteri temsilcimiz sizi bilgilendirir.
+        </p>
+        <div class="address-change">
+          <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+          </svg>
+          <p>
+            <strong>Sipariş oluşturduktan sonra adres değişikliği</strong> için lütfen <a href="tel:05077623838">0507 762 38 38</a> numaralı telefon hattımıza bildiriniz.
+          </p>
+        </div>
+      </div>
+
+      <!-- İletişim CTA -->
+      <div class="cta-box">
+        <h3>Sorularınız mı var?</h3>
+        <p>Teslimat ve iade konularında detaylı bilgi almak için bizimle iletişime geçin</p>
+        <div class="cta-buttons">
+          <a href="tel:05077623838" class="btn btn-primary">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+            </svg>
+            Bizi Arayın
+          </a>
+          <a href="mailto:pastirmaadasi@gmail.com" class="btn btn-outline">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+            </svg>
+            E-posta Gönderin
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  /* Hero Section */
+  .hero {
+    position: relative;
+    min-height: 350px;
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: white;
+    max-width: 800px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+
+  .breadcrumb a {
+    color: rgba(255, 255, 255, 0.95);
+    text-decoration: none;
+    transition: opacity 0.3s;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .breadcrumb a:hover {
+    opacity: 0.8;
+  }
+
+  .breadcrumb span {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .hero-content h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0 0 1rem 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  .hero-subtitle {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.98);
+    margin: 0;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Content Section */
+  .content-section {
+    padding: 4rem 1rem;
+    background: #F9FAFB;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* Intro Box */
+  .intro-box {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+    border-left: 4px solid #0891B2;
+  }
+
+  .intro-box h2 {
+    font-size: 1.5rem;
+    color: #1F2937;
+    margin: 0 0 1rem 0;
+  }
+
+  .intro-box p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #4B5563;
+    margin: 0;
+  }
+
+  /* Info Cards */
+  .info-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+  }
+
+  .info-card.highlight {
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    border: 2px solid #F59E0B;
+  }
+
+  .info-card.important {
+    background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+    border: 2px solid #3B82F6;
+  }
+
+  .icon-wrapper {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .info-card.highlight .icon-wrapper {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  }
+
+  .info-card.important .icon-wrapper {
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  }
+
+  .icon-wrapper svg {
+    color: white;
+  }
+
+  .info-card h3 {
+    font-size: 1.5rem;
+    color: #1F2937;
+    margin: 0 0 1rem 0;
+    font-weight: 700;
+  }
+
+  .info-card p {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #4B5563;
+    margin: 0 0 1rem 0;
+  }
+
+  .info-card p:last-child {
+    margin-bottom: 0;
+  }
+
+  .info-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0 0 0;
+  }
+
+  .info-card ul li {
+    padding: 0.75rem 0;
+    padding-left: 2rem;
+    position: relative;
+    line-height: 1.7;
+    color: #4B5563;
+  }
+
+  .info-card ul li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #059669;
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+
+  /* Warning Box */
+  .warning-box {
+    background: #FEF3C7;
+    border: 2px solid #F59E0B;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .warning-box svg {
+    flex-shrink: 0;
+    color: #F59E0B;
+    margin-top: 0.25rem;
+  }
+
+  .warning-box p {
+    margin: 0;
+    color: #92400E;
+    line-height: 1.7;
+  }
+
+  /* Steps */
+  .steps {
+    margin-top: 2rem;
+  }
+
+  .step {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #E5E7EB;
+  }
+
+  .step:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .step-number {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.25rem;
+  }
+
+  .step-content h4 {
+    font-size: 1.15rem;
+    color: #1F2937;
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
+  }
+
+  .step-content p {
+    margin: 0 0 0.75rem 0;
+  }
+
+  .step-content p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Contact Info */
+  .contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .contact-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: white;
+    border: 2px solid #E5E7EB;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #1F2937;
+    font-weight: 600;
+    transition: all 0.3s;
+  }
+
+  .contact-link:hover {
+    border-color: #0891B2;
+    background: #F0FDFA;
+    color: #0891B2;
+  }
+
+  .contact-link svg {
+    color: #0891B2;
+  }
+
+  /* Address Change */
+  .address-change {
+    background: #F0FDFA;
+    border: 2px solid #0891B2;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .address-change svg {
+    flex-shrink: 0;
+    color: #0891B2;
+    margin-top: 0.25rem;
+  }
+
+  .address-change p {
+    margin: 0;
+    line-height: 1.7;
+  }
+
+  .address-change a {
+    color: #0891B2;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .address-change a:hover {
+    text-decoration: underline;
+  }
+
+  /* Note */
+  .note {
+    background: #F0FDFA;
+    border-left: 4px solid #059669;
+    padding: 1.25rem;
+    margin-top: 1.5rem;
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+  }
+
+  /* CTA Box */
+  .cta-box {
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+    color: white;
+    padding: 3rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(8, 145, 178, 0.3);
+  }
+
+  .cta-box h3 {
+    font-size: 1.75rem;
+    margin: 0 0 0.75rem 0;
+    font-weight: 700;
+  }
+
+  .cta-box p {
+    font-size: 1.05rem;
+    margin: 0 0 2rem 0;
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.75rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-primary {
+    background: white;
+    color: #0891B2;
+  }
+
+  .btn-primary:hover {
+    background: #F0FDFA;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: white;
+    border: 2px solid white;
+  }
+
+  .btn-outline:hover {
+    background: white;
+    color: #0891B2;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero {
+      min-height: 300px;
+      padding: 3rem 1rem;
+    }
+
+    .hero-content h1 {
+      font-size: 2rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1rem;
+    }
+
+    .intro-box,
+    .info-card {
+      padding: 1.5rem;
+    }
+
+    .icon-wrapper {
+      width: 56px;
+      height: 56px;
+    }
+
+    .step {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .cta-box {
+      padding: 2rem 1.5rem;
+    }
+
+    .cta-buttons {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+    justify-content: center;
+}
+.contact-info {
+  margin-top: 0.75rem;
+}
+
+.steps {
+  margin-top: 1.5rem;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  font-size: 1.1rem;
+}
+}
+@media (max-width: 480px) {
+.hero-content h1 {
+font-size: 1.75rem;
+}
+.intro-box h2 {
+  font-size: 1.25rem;
+}
+
+.info-card h3 {
+  font-size: 1.25rem;
+}
+
+.info-card p,
+.intro-box p {
+  font-size: 0.95rem;
+}
+
+.cta-box h3 {
+  font-size: 1.5rem;
+}
+
+.warning-box,
+.address-change {
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.warning-box svg,
+.address-change svg {
+  margin-top: 0;
+}
+}
+</style>
