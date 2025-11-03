@@ -1,0 +1,425 @@
+---
+// src/pages/admin/products.astro - DEBUG VERSION
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { createClient } from '@supabase/supabase-js';
+
+// Session kontrolü
+let session = null;
+let sessionError = null;
+
+try {
+  // Option 1: getSession fonksiyonu varsa
+  const { getSession } = await import('../../lib/auth');
+  session = await getSession();
+} catch (e) {
+  sessionError = 'auth.js bulunamadı veya getSession çalışmıyor';
+  console.error('Session error:', e);
+}
+
+// Eğer session yoksa login'e yönlendir
+if (!session) {
+  return Astro.redirect('/admin/login');
+}
+
+// Supabase Client - Doğrudan oluştur
+const supabase = createClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+console.log('🔍 Supabase URL:', import.meta.env.PUBLIC_SUPABASE_URL);
+console.log('🔍 Service Key var mı?', !!import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
+
+// Ürünleri çek - HER İKİ YÖNTEMİ DENE
+let products = null;
+let productsError = null;
+let debugInfo = {
+  method1: null,
+  method2: null,
+  env: {
+    hasUrl: !!import.meta.env.PUBLIC_SUPABASE_URL,
+    hasKey: !!import.meta.env.SUPABASE_SERVICE_ROLE_KEY,
+    url: import.meta.env.PUBLIC_SUPABASE_URL
+  }
+};
+
+// Method 1: Service role ile
+try {
+  const { data, error, count } = await supabase
+    .from('products')
+    .select('*', { count: 'exact' })
+    .order('sort_order', { ascending: true });
+
+  debugInfo.method1 = {
+    success: !error,
+    error: error?.message,
+    count: data?.length || 0,
+    totalCount: count
+  };
+
+  if (!error && data) {
+    products = data;
+    console.log('✅ Method 1 başarılı:', data.length, 'ürün');
+  } else {
+    console.error('❌ Method 1 hata:', error);
+    productsError = error?.message || 'Bilinmeyen hata';
+  }
+} catch (e) {
+  debugInfo.method1 = { success: false, error: e.message };
+  console.error('❌ Method 1 exception:', e);
+}
+
+// Method 2: Anon key ile (public erişim)
+try {
+  const publicSupabase = createClient(
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+  );
+
+  const { data, error } = await publicSupabase
+    .from('products')
+    .select('*')
+    .order('sort_order', { ascending: true });
+
+  debugInfo.method2 = {
+    success: !error,
+    error: error?.message,
+    count: data?.length || 0
+  };
+
+  if (!error && data && !products) {
+    products = data;
+    console.log('✅ Method 2 başarılı:', data.length, 'ürün');
+  }
+} catch (e) {
+  debugInfo.method2 = { success: false, error: e.message };
+  console.error('❌ Method 2 exception:', e);
+}
+---
+
+<BaseLayout title="Ürünler - Admin (Debug)">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <h2>Pastırma Adası</h2>
+        <p>Admin Panel (Debug Mode)</p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-item">Dashboard</a>
+        <a href="/admin/products" class="nav-item active">Ürünler</a>
+        <a href="/admin/orders" class="nav-item">Siparişler</a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="btn btn-outline btn-full">Çıkış Yap</button>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>🔍 Debug Modu - Ürünler</h1>
+      </header>
+
+      <!-- DEBUG INFO -->
+      <div class="debug-section">
+        <h3>🔧 Bağlantı Bilgileri</h3>
+        <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
+
+        <h3>📊 Sonuç</h3>
+        {products && products.length > 0 ? (
+          <div class="success-message">
+            ✅ {products.length} ürün bulundu!
+          </div>
+        ) : (
+          <div class="error-message">
+            ❌ Ürün bulunamadı
+            {productsError && <p>Hata: {productsError}</p>}
+          </div>
+        )}
+
+        <h3>🛠️ Çözüm Önerileri</h3>
+        <ul class="solution-list">
+          <li>
+            <strong>1. .env dosyasını kontrol edin:</strong>
+            <pre>PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJxxx...
+PUBLIC_SUPABASE_ANON_KEY=eyJxxx...</pre>
+          </li>
+          <li>
+            <strong>2. Supabase RLS politikalarını kontrol edin:</strong>
+            <code>Products tablosu → Authentication → RLS → "Anyone can read products" politikası aktif mi?</code>
+          </li>
+          <li>
+            <strong>3. lib/supabase.js dosyanızı kontrol edin:</strong>
+            <pre>export const supabaseAdmin = createClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+);</pre>
+          </li>
+        </ul>
+      </div>
+
+      <!-- ÜRÜNLER -->
+      {products && products.length > 0 && (
+        <div class="products-section">
+          <h2>📦 Ürünler ({products.length})</h2>
+          <div class="products-grid">
+            {products.map((product) => (
+              <div class="product-card">
+                <div class="product-image">
+                  {product.images?.[0] ? (
+                    <img src={product.images[0]} alt={product.name} />
+                  ) : (
+                    <div class="no-image">📦</div>
+                  )}
+                </div>
+                <div class="product-info">
+                  <h3>{product.name}</h3>
+                  <p class="category">{product.category}</p>
+                  <p class="price">{parseFloat(product.price).toFixed(2)}₺ / {product.unit}</p>
+                  <p class="status">{product.is_active ? '✅ Aktif' : '❌ Pasif'}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </main>
+  </div>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+
+    .admin-sidebar {
+      background: #1a1a1a;
+      color: white;
+      padding: 2rem;
+    }
+
+    .sidebar-header h2 {
+      color: #d4af37;
+      margin-bottom: 0.5rem;
+    }
+
+    .sidebar-header p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.875rem;
+    }
+
+    .sidebar-nav {
+      margin-top: 2rem;
+    }
+
+    .nav-item {
+      display: block;
+      padding: 0.75rem 1rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      margin-bottom: 0.5rem;
+      border-radius: 6px;
+    }
+
+    .nav-item.active {
+      background: rgba(212, 175, 55, 0.2);
+      color: #d4af37;
+    }
+
+    .sidebar-footer {
+      margin-top: 2rem;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: transparent;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .admin-main {
+      background: #f8f9fa;
+      padding: 2rem;
+    }
+
+    .admin-header {
+      margin-bottom: 2rem;
+    }
+
+    .debug-section {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .debug-section h3 {
+      margin-top: 1.5rem;
+      margin-bottom: 1rem;
+      color: #1f2937;
+    }
+
+    .debug-section h3:first-child {
+      margin-top: 0;
+    }
+
+    pre {
+      background: #1f2937;
+      color: #10b981;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.875rem;
+    }
+
+    .success-message {
+      background: #d1fae5;
+      color: #065f46;
+      padding: 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    .error-message {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    .solution-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .solution-list li {
+      background: #f3f4f6;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      border-left: 4px solid #3b82f6;
+    }
+
+    .solution-list strong {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #1f2937;
+    }
+
+    .solution-list code {
+      background: #1f2937;
+      color: #10b981;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+    }
+
+    .products-section {
+      margin-top: 2rem;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .product-image {
+      height: 200px;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .no-image {
+      font-size: 3rem;
+    }
+
+    .product-info {
+      padding: 1rem;
+    }
+
+    .product-info h3 {
+      font-size: 1.125rem;
+      margin-bottom: 0.5rem;
+      color: #1f2937;
+    }
+
+    .category {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .price {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #c41e3a;
+      margin: 0.5rem 0;
+    }
+
+    .status {
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+
+    @media (max-width: 1024px) {
+      .admin-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-sidebar {
+        position: relative;
+        height: auto;
+      }
+    }
+  </style>
+
+  <script>
+    // Logout
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      try {
+        const { supabase } = await import('../../lib/supabase');
+        await supabase.auth.signOut();
+        window.location.href = '/admin/login';
+      } catch (e) {
+        console.error('Logout error:', e);
+        // Manuel çıkış
+        document.cookie = 'sb-access-token=; path=/; max-age=0';
+        window.location.href = '/admin/login';
+      }
+    });
+  </script>
+</BaseLayout>

@@ -129,86 +129,80 @@ import Footer from '../components/Footer.astro';
           <h2>Bize Mesaj Gönderin</h2>
           <p class="form-intro">Aşağıdaki formu doldurarak bizimle iletişime geçebilirsiniz. En kısa sürede size geri dönüş yapacağız.</p>
 
-          <!-- Web3Forms ile entegrasyon - API key'inizi alın: https://web3forms.com -->
-          <form id="contact-form" class="contact-form">
-            <!-- Web3Forms Access Key - KENDİ KEY'İNİZİ ALIN -->
-            <input type="hidden" name="access_key" value="cd87f586-7c03-4995-aeba-8360c7eb318a">
+<!-- Web3Forms ile entegrasyon - İYİLEŞTİRİLMİŞ FORM -->
+<form id="contact-form" class="contact-form">
+  <input type="hidden" name="access_key" value="cd87f586-7c03-4995-aeba-8360c7eb318a">
+  <input type="hidden" name="redirect" value="https://successodysseyhub.com/tesekkurler">
+  <input type="hidden" name="from_name" value="Pastırma Adası İletişim Formu">
+  <input type="hidden" name="subject" value="Yeni İletişim Formu Mesajı">
+  <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
 
-            <!-- Honeypot Spam Protection -->
-            <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+  <div class="form-row">
+    <div class="form-group">
+      <label for="name">Adınız Soyadınız *</label>
+      <input type="text" id="name" name="name" required minlength="2" placeholder="Ad Soyad">
+    </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="name">Adınız Soyadınız *</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  required
-                  placeholder="Ad Soyad"
-                >
-              </div>
+    <div class="form-group">
+      <label for="email">E-posta Adresiniz *</label>
+      <input type="email" id="email" name="email" required placeholder="ornek@email.com">
+    </div>
+  </div>
 
-              <div class="form-group">
-                <label for="email">E-posta Adresiniz *</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  placeholder="ornek@email.com"
-                >
-              </div>
-            </div>
+  <div class="form-row">
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="phone">Telefon Numaranız</label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  placeholder="0555 555 55 55"
-                >
-              </div>
+    <div class="form-group">
+      <label for="phone">Telefon Numaranız *</label>
+      <input type="tel" id="phone" name="phone" required placeholder="0555 555 55 55" minlength="10">
+    </div>
 
-              <div class="form-group">
-                <label for="subject">Konu</label>
-                <select id="subject" name="subject">
-                  <option value="">Konu Seçin</option>
-                  <option value="siparis">Sipariş Bilgisi</option>
-                  <option value="urun">Ürün Sorusu</option>
-                  <option value="oneri">Öneri</option>
-                  <option value="sikayet">Şikayet</option>
-                  <option value="diger">Diğer</option>
-                </select>
-              </div>
-            </div>
+    <div class="form-group">
+      <label for="subject-select">Konu</label>
+      <select id="subject-select" name="inquiry_type">
+        <option value="">Konu Seçin</option>
+        <option value="siparis">Sipariş Bilgisi</option>
+        <option value="urun">Ürün Sorusu</option>
+        <option value="oneri">Öneri</option>
+        <option value="sikayet">Şikayet</option>
+        <option value="diger">Diğer</option>
+      </select>
+    </div>
+  </div>
 
-            <div class="form-group">
-              <label for="message">Mesajınız *</label>
-              <textarea
-                id="message"
-                name="message"
-                rows="6"
-                required
-                placeholder="Mesajınızı buraya yazın..."
-              ></textarea>
-            </div>
+  <div class="form-group">
+    <label for="message">Mesajınız *</label>
+    <textarea id="message" name="message" rows="6" required minlength="10" placeholder="Mesajınızı buraya yazın..."></textarea>
+    <small style="color:#6B7280;font-size:0.875rem;margin-top:0.25rem;">En az 10 karakter</small>
+  </div>
 
-            <button type="submit" class="btn btn-primary btn-large">
-              <span class="btn-text">Mesajı Gönder</span>
-              <span class="btn-loading" style="display: none;">
-                <svg class="spinner" width="20" height="20" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"/>
-                  <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" opacity="0.75"/>
-                </svg>
-                Gönderiliyor...
-              </span>
-            </button>
+  <div class="form-group">
+    <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+      <input type="checkbox" name="confirm" required>
+      <span style="font-size:0.9rem;">İletişim bilgilerimin işlenmesini kabul ediyorum *</span>
+    </label>
+  </div>
 
-            <div id="form-message" class="form-message"></div>
-          </form>
+  <button type="submit" class="btn btn-primary btn-large">
+    <span class="btn-text">
+      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:8px;">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+      Mesajı Gönder
+    </span>
+    <span class="btn-loading" style="display:none;">
+      <svg class="spinner" width="20" height="20" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25" />
+        <path fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          opacity="0.75" />
+      </svg>
+      Gönderiliyor...
+    </span>
+  </button>
+
+  <div id="form-message" class="form-message"></div>
+</form>
         </div>
 
       </div>
@@ -596,85 +590,30 @@ import Footer from '../components/Footer.astro';
   }
 </style>
 
-<script>
-  // Web3Forms ile form gönderimi
-  const form = document.getElementById('contact-form') as HTMLFormElement;
-  const formMessage = document.getElementById('form-message');
-  const btnText = document.querySelector('.btn-text') as HTMLElement;
-  const btnLoading = document.querySelector('.btn-loading') as HTMLElement;
-
-  if (form) {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      // Button durumunu değiştir
-      if (btnText && btnLoading) {
-        btnText.style.display = 'none';
-        btnLoading.style.display = 'flex';
-      }
-
-      const formData = new FormData(form);
-
-      // Web3Forms API'sine gönder
-      try {
-        const response = await fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          body: formData
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-          // Başarılı
-          if (formMessage) {
-            formMessage.className = 'form-message success';
-            formMessage.textContent = 'Mesajınız başarıyla gönderildi! En kısa sürede size dönüş yapacağız.';
-          }
-          form.reset();
-        } else {
-          throw new Error(data.message || 'Bir hata oluştu');
-        }
-      } catch (error) {
-        // Hata
-        if (formMessage) {
-          formMessage.className = 'form-message error';
-          formMessage.textContent = 'Mesaj gönderilemedi. Lütfen daha sonra tekrar deneyin veya direkt iletişim bilgilerimizden ulaşın.';
-        }
-        console.error('Form gönderim hatası:', error);
-      } finally {
-        // Button durumunu eski haline getir
-        if (btnText && btnLoading) {
-          btnText.style.display = 'block';
-          btnLoading.style.display = 'none';
-        }
-
-        // Mesajı 5 saniye sonra gizle
-        setTimeout(() => {
-          if (formMessage) {
-            formMessage.style.display = 'none';
-          }
-        }, 5000);
-      }
-    });
-  }
-
-  // Telefon numarası formatı (opsiyonel)
-  const phoneInput = document.getElementById('phone') as HTMLInputElement;
+<script is:inline>
+  const phoneInput = document.getElementById('phone');
   if (phoneInput) {
     phoneInput.addEventListener('input', (e) => {
-      let value = (e.target as HTMLInputElement).value.replace(/\D/g, '');
+      let value = e.target.value.replace(/\D/g, '');
+      value = value.substring(0, 11);
+
       if (value.length > 0) {
-        if (value.length <= 4) {
-          value = value;
-        } else if (value.length <= 7) {
-          value = value.slice(0, 4) + ' ' + value.slice(4);
-        } else if (value.length <= 9) {
+        if (value.length <= 4) value = value.slice(0, 4);
+        else if (value.length <= 7) value = value.slice(0, 4) + ' ' + value.slice(4);
+        else if (value.length <= 9)
           value = value.slice(0, 4) + ' ' + value.slice(4, 7) + ' ' + value.slice(7);
-        } else {
-          value = value.slice(0, 4) + ' ' + value.slice(4, 7) + ' ' + value.slice(7, 9) + ' ' + value.slice(9, 11);
-        }
+        else
+          value =
+            value.slice(0, 4) +
+            ' ' +
+            value.slice(4, 7) +
+            ' ' +
+            value.slice(7, 9) +
+            ' ' +
+            value.slice(9);
       }
-      (e.target as HTMLInputElement).value = value;
+
+      e.target.value = value;
     });
   }
 </script>
