@@ -1,114 +1,65 @@
 ---
-// src/pages/admin/products.astro - DEBUG VERSION
+// src/pages/admin/products.astro
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { createClient } from '@supabase/supabase-js';
 
 // Session kontrolü
 let session = null;
-let sessionError = null;
-
 try {
-  // Option 1: getSession fonksiyonu varsa
   const { getSession } = await import('../../lib/auth');
   session = await getSession();
 } catch (e) {
-  sessionError = 'auth.js bulunamadı veya getSession çalışmıyor';
   console.error('Session error:', e);
 }
 
-// Eğer session yoksa login'e yönlendir
 if (!session) {
   return Astro.redirect('/admin/login');
 }
 
-// Supabase Client - Doğrudan oluştur
+// Supabase Client
 const supabase = createClient(
   import.meta.env.PUBLIC_SUPABASE_URL,
   import.meta.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-console.log('🔍 Supabase URL:', import.meta.env.PUBLIC_SUPABASE_URL);
-console.log('🔍 Service Key var mı?', !!import.meta.env.SUPABASE_SERVICE_ROLE_KEY);
+// Ürünleri çek
+const { data: products, error } = await supabase
+  .from('products')
+  .select('*')
+  .order('sort_order', { ascending: true });
 
-// Ürünleri çek - HER İKİ YÖNTEMİ DENE
-let products = null;
-let productsError = null;
-let debugInfo = {
-  method1: null,
-  method2: null,
-  env: {
-    hasUrl: !!import.meta.env.PUBLIC_SUPABASE_URL,
-    hasKey: !!import.meta.env.SUPABASE_SERVICE_ROLE_KEY,
-    url: import.meta.env.PUBLIC_SUPABASE_URL
-  }
-};
-
-// Method 1: Service role ile
-try {
-  const { data, error, count } = await supabase
-    .from('products')
-    .select('*', { count: 'exact' })
-    .order('sort_order', { ascending: true });
-
-  debugInfo.method1 = {
-    success: !error,
-    error: error?.message,
-    count: data?.length || 0,
-    totalCount: count
-  };
-
-  if (!error && data) {
-    products = data;
-    console.log('✅ Method 1 başarılı:', data.length, 'ürün');
-  } else {
-    console.error('❌ Method 1 hata:', error);
-    productsError = error?.message || 'Bilinmeyen hata';
-  }
-} catch (e) {
-  debugInfo.method1 = { success: false, error: e.message };
-  console.error('❌ Method 1 exception:', e);
-}
-
-// Method 2: Anon key ile (public erişim)
-try {
-  const publicSupabase = createClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY
-  );
-
-  const { data, error } = await publicSupabase
-    .from('products')
-    .select('*')
-    .order('sort_order', { ascending: true });
-
-  debugInfo.method2 = {
-    success: !error,
-    error: error?.message,
-    count: data?.length || 0
-  };
-
-  if (!error && data && !products) {
-    products = data;
-    console.log('✅ Method 2 başarılı:', data.length, 'ürün');
-  }
-} catch (e) {
-  debugInfo.method2 = { success: false, error: e.message };
-  console.error('❌ Method 2 exception:', e);
+if (error) {
+  console.error('❌ Products fetch error:', error);
 }
 ---
 
-<BaseLayout title="Ürünler - Admin (Debug)">
+<BaseLayout title="Ürünler - Admin">
   <div class="admin-layout">
     <aside class="admin-sidebar">
       <div class="sidebar-header">
         <h2>Pastırma Adası</h2>
-        <p>Admin Panel (Debug Mode)</p>
+        <p>Admin Panel</p>
       </div>
 
       <nav class="sidebar-nav">
-        <a href="/admin/dashboard" class="nav-item">Dashboard</a>
-        <a href="/admin/products" class="nav-item active">Ürünler</a>
-        <a href="/admin/orders" class="nav-item">Siparişler</a>
+        <a href="/admin/dashboard" class="nav-item">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          Dashboard
+        </a>
+        <a href="/admin/products" class="nav-item active">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          Ürünler
+        </a>
+        <a href="/admin/orders" class="nav-item">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          Siparişler
+        </a>
       </nav>
 
       <div class="sidebar-footer">
@@ -118,74 +69,166 @@ try {
 
     <main class="admin-main">
       <header class="admin-header">
-        <h1>🔍 Debug Modu - Ürünler</h1>
+        <div>
+          <h1>🛍️ Ürünler</h1>
+          <p>{products?.length || 0} ürün listeleniyor</p>
+        </div>
+        <button id="add-product-btn" class="btn btn-primary">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Yeni Ürün Ekle
+        </button>
       </header>
 
-      <!-- DEBUG INFO -->
-      <div class="debug-section">
-        <h3>🔧 Bağlantı Bilgileri</h3>
-        <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
-
-        <h3>📊 Sonuç</h3>
+      <div class="products-grid">
         {products && products.length > 0 ? (
-          <div class="success-message">
-            ✅ {products.length} ürün bulundu!
-          </div>
-        ) : (
-          <div class="error-message">
-            ❌ Ürün bulunamadı
-            {productsError && <p>Hata: {productsError}</p>}
-          </div>
-        )}
+          products.map((product) => {
+            const firstImage = Array.isArray(product.images) && product.images.length > 0
+              ? product.images[0]
+              : null;
 
-        <h3>🛠️ Çözüm Önerileri</h3>
-        <ul class="solution-list">
-          <li>
-            <strong>1. .env dosyasını kontrol edin:</strong>
-            <pre>PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=eyJxxx...
-PUBLIC_SUPABASE_ANON_KEY=eyJxxx...</pre>
-          </li>
-          <li>
-            <strong>2. Supabase RLS politikalarını kontrol edin:</strong>
-            <code>Products tablosu → Authentication → RLS → "Anyone can read products" politikası aktif mi?</code>
-          </li>
-          <li>
-            <strong>3. lib/supabase.js dosyanızı kontrol edin:</strong>
-            <pre>export const supabaseAdmin = createClient(
-  import.meta.env.PUBLIC_SUPABASE_URL,
-  import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-);</pre>
-          </li>
-        </ul>
-      </div>
-
-      <!-- ÜRÜNLER -->
-      {products && products.length > 0 && (
-        <div class="products-section">
-          <h2>📦 Ürünler ({products.length})</h2>
-          <div class="products-grid">
-            {products.map((product) => (
-              <div class="product-card">
+            return (
+              <div class="product-card" data-product-id={product.id}>
                 <div class="product-image">
-                  {product.images?.[0] ? (
-                    <img src={product.images[0]} alt={product.name} />
-                  ) : (
-                    <div class="no-image">📦</div>
-                  )}
+                  {firstImage ? (
+                    <img src={firstImage} alt={product.name} onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" />
+                  ) : null}
+                  <div class="no-image" style={firstImage ? 'display: none' : ''}>
+                    <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <span class={`status-badge ${product.is_active ? 'active' : 'inactive'}`}>
+                    {product.is_active ? '✅ Aktif' : '❌ Pasif'}
+                  </span>
+                  <span class="category-badge">{product.category}</span>
                 </div>
+
                 <div class="product-info">
                   <h3>{product.name}</h3>
-                  <p class="category">{product.category}</p>
-                  <p class="price">{parseFloat(product.price).toFixed(2)}₺ / {product.unit}</p>
-                  <p class="status">{product.is_active ? '✅ Aktif' : '❌ Pasif'}</p>
+                  <p class="product-description">{product.description?.substring(0, 100) || 'Açıklama yok'}...</p>
+                  <div class="product-meta">
+                    <span class="price">{parseFloat(product.price).toFixed(2)}₺</span>
+                    <span class="unit">{product.unit}</span>
+                  </div>
+                  {product.variants && Array.isArray(product.variants) && product.variants.length > 0 && (
+                    <div class="variants-info">
+                      <small>🎯 {product.variants.length} varyant</small>
+                    </div>
+                  )}
+                </div>
+
+                <div class="product-actions">
+                  <button class="btn btn-sm btn-secondary edit-btn" data-product={JSON.stringify(product)}>
+                    ✏️ Düzenle
+                  </button>
+                  <button class="btn btn-sm btn-danger delete-btn" data-id={product.id} data-name={product.name}>
+                    🗑️ Sil
+                  </button>
                 </div>
               </div>
-            ))}
+            );
+          })}
+        ) : (
+          <div class="empty-state">
+            <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <h3>Henüz ürün yok</h3>
+            <p>İlk ürününüzü ekleyerek başlayın!</p>
+          </div>
+        )}
+      </div>
+    </main>
+  </div>
+
+  <!-- Ürün Ekleme/Düzenleme Modal -->
+  <div id="product-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">🆕 Yeni Ürün Ekle</h2>
+        <button class="modal-close" type="button">&times;</button>
+      </div>
+      <form id="product-form" class="modal-body">
+        <input type="hidden" id="product-id" />
+
+        <div class="form-group">
+          <label for="name">Ürün Adı *</label>
+          <input type="text" id="name" required placeholder="Ör: Kayseri Pastırması" />
+        </div>
+
+        <div class="form-group">
+          <label for="slug">URL Slug *</label>
+          <input type="text" id="slug" required placeholder="kayseri-pastirmasi" />
+          <small>URL dostu format: küçük harf, tire ile ayrılmış</small>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="category">Kategori *</label>
+            <select id="category" required>
+              <option value="Pastırma">Pastırma</option>
+              <option value="Sucuk">Sucuk</option>
+              <option value="Mantı">Mantı</option>
+              <option value="Kavurma">Kavurma</option>
+              <option value="Diğer">Diğer</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="unit">Birim *</label>
+            <select id="unit" required>
+              <option value="kg">Kilogram (kg)</option>
+              <option value="500gr">500 gram</option>
+              <option value="1000 gr">1000 gram</option>
+              <option value="adet">Adet</option>
+            </select>
           </div>
         </div>
-      )}
-    </main>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="price">Fiyat (₺) *</label>
+            <input type="number" id="price" required step="0.01" placeholder="149.99" />
+          </div>
+
+          <div class="form-group">
+            <label for="stock">Stok</label>
+            <input type="number" id="stock" value="100" min="0" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Açıklama</label>
+          <textarea id="description" rows="3" placeholder="Ürün hakkında detaylı bilgi"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="image_url">Görsel URL (virgülle ayırarak birden fazla ekleyebilirsiniz)</label>
+          <textarea id="image_url" rows="2" placeholder="/assets/image/products/urun.webp, /assets/image/products/urun-2.webp"></textarea>
+          <small>Her satıra bir görsel URL'si yazın</small>
+        </div>
+
+        <div class="form-group">
+          <label for="sort_order">Sıralama</label>
+          <input type="number" id="sort_order" value="0" />
+          <small>Düşük sayılar önce gösterilir</small>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" id="is_active" checked />
+            <span>Ürünü aktif yap</span>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary modal-close">İptal</button>
+          <button type="submit" class="btn btn-primary" id="submit-btn">💾 Kaydet</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <style>
@@ -193,6 +236,10 @@ PUBLIC_SUPABASE_ANON_KEY=eyJxxx...</pre>
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
 
     .admin-layout {
@@ -204,12 +251,22 @@ PUBLIC_SUPABASE_ANON_KEY=eyJxxx...</pre>
     .admin-sidebar {
       background: #1a1a1a;
       color: white;
-      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .sidebar-header {
+      padding: 2rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .sidebar-header h2 {
       color: #d4af37;
-      margin-bottom: 0.5rem;
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
     }
 
     .sidebar-header p {
@@ -218,124 +275,64 @@ PUBLIC_SUPABASE_ANON_KEY=eyJxxx...</pre>
     }
 
     .sidebar-nav {
-      margin-top: 2rem;
+      flex: 1;
+      padding: 1.5rem 0;
     }
 
     .nav-item {
-      display: block;
-      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1.5rem;
       color: rgba(255, 255, 255, 0.7);
       text-decoration: none;
-      margin-bottom: 0.5rem;
-      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
     }
 
     .nav-item.active {
-      background: rgba(212, 175, 55, 0.2);
+      background: rgba(212, 175, 55, 0.1);
       color: #d4af37;
+      border-left: 3px solid #d4af37;
     }
 
     .sidebar-footer {
-      margin-top: 2rem;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      background: transparent;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
+      padding: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .admin-main {
       background: #f8f9fa;
       padding: 2rem;
+      overflow-y: auto;
     }
 
     .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 2rem;
     }
 
-    .debug-section {
-      background: white;
-      border-radius: 12px;
-      padding: 2rem;
-      margin-bottom: 2rem;
+    .admin-header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.25rem;
     }
 
-    .debug-section h3 {
-      margin-top: 1.5rem;
-      margin-bottom: 1rem;
-      color: #1f2937;
-    }
-
-    .debug-section h3:first-child {
-      margin-top: 0;
-    }
-
-    pre {
-      background: #1f2937;
-      color: #10b981;
-      padding: 1rem;
-      border-radius: 8px;
-      overflow-x: auto;
+    .admin-header p {
+      color: #6b7280;
+      margin: 0;
       font-size: 0.875rem;
-    }
-
-    .success-message {
-      background: #d1fae5;
-      color: #065f46;
-      padding: 1rem;
-      border-radius: 8px;
-      font-weight: 600;
-    }
-
-    .error-message {
-      background: #fee2e2;
-      color: #991b1b;
-      padding: 1rem;
-      border-radius: 8px;
-      font-weight: 600;
-    }
-
-    .solution-list {
-      list-style: none;
-      padding: 0;
-    }
-
-    .solution-list li {
-      background: #f3f4f6;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      border-radius: 8px;
-      border-left: 4px solid #3b82f6;
-    }
-
-    .solution-list strong {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: #1f2937;
-    }
-
-    .solution-list code {
-      background: #1f2937;
-      color: #10b981;
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.875rem;
-    }
-
-    .products-section {
-      margin-top: 2rem;
     }
 
     .products-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       gap: 1.5rem;
-      margin-top: 1rem;
     }
 
     .product-card {
@@ -343,14 +340,20 @@ PUBLIC_SUPABASE_ANON_KEY=eyJxxx...</pre>
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
     }
 
     .product-image {
-      height: 200px;
+      position: relative;
+      width: 100%;
+      height: 220px;
       background: #f3f4f6;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      overflow: hidden;
     }
 
     .product-image img {
@@ -360,39 +363,310 @@ PUBLIC_SUPABASE_ANON_KEY=eyJxxx...</pre>
     }
 
     .no-image {
-      font-size: 3rem;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+    }
+
+    .status-badge, .category-badge {
+      position: absolute;
+      padding: 0.375rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-badge {
+      top: 10px;
+      right: 10px;
+    }
+
+    .status-badge.active {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-badge.inactive {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .category-badge {
+      top: 10px;
+      left: 10px;
+      background: rgba(59, 130, 246, 0.9);
+      color: white;
     }
 
     .product-info {
-      padding: 1rem;
+      padding: 1.5rem;
     }
 
     .product-info h3 {
+      margin: 0 0 0.5rem;
       font-size: 1.125rem;
-      margin-bottom: 0.5rem;
       color: #1f2937;
     }
 
-    .category {
-      display: inline-block;
-      background: #dbeafe;
-      color: #1e40af;
-      padding: 0.25rem 0.75rem;
-      border-radius: 20px;
+    .product-description {
+      color: #6b7280;
       font-size: 0.875rem;
+      margin: 0 0 1rem;
+      line-height: 1.5;
+    }
+
+    .product-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 0.5rem;
     }
 
     .price {
-      font-size: 1.25rem;
+      font-size: 1.5rem;
       font-weight: 700;
       color: #c41e3a;
-      margin: 0.5rem 0;
     }
 
-    .status {
+    .unit {
+      background: #f3f4f6;
+      padding: 0.25rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      color: #4b5563;
+    }
+
+    .variants-info {
       font-size: 0.875rem;
       color: #6b7280;
+    }
+
+    .product-actions {
+      display: flex;
+      gap: 0.5rem;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .btn {
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      font-size: 0.875rem;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      flex: 1;
+    }
+
+    .btn-primary {
+      background: #c41e3a;
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #a01729;
+    }
+
+    .btn-secondary {
+      background: #6b7280;
+      color: white;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #4b5563;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: #dc2626;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-full {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 4rem 2rem;
+      background: white;
+      border-radius: 12px;
+    }
+
+    .empty-state svg {
+      color: #9ca3af;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+      margin: 0 0 0.5rem;
+      color: #4b5563;
+    }
+
+    .empty-state p {
+      color: #9ca3af;
+      margin: 0;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 700px;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 2rem;
+      cursor: pointer;
+      color: #9ca3af;
+      line-height: 1;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+    }
+
+    .modal-close:hover {
+      color: #1f2937;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #374151;
+    }
+
+    .form-group small {
+      display: block;
+      margin-top: 0.25rem;
+      color: #6b7280;
+      font-size: 0.75rem;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #c41e3a;
+      box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.1);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-weight: normal;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e5e7eb;
     }
 
     @media (max-width: 1024px) {
@@ -405,20 +679,199 @@ PUBLIC_SUPABASE_ANON_KEY=eyJxxx...</pre>
         height: auto;
       }
     }
+
+    @media (max-width: 768px) {
+      .products-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .btn-primary {
+        width: 100%;
+      }
+    }
   </style>
 
   <script>
+    import { createClient } from '@supabase/supabase-js';
+
+    const supabase = createClient(
+      import.meta.env.PUBLIC_SUPABASE_URL,
+      import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+    );
+
+    const modal = document.getElementById('product-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const productForm = document.getElementById('product-form');
+    const addBtn = document.getElementById('add-product-btn');
+    const closeButtons = document.querySelectorAll('.modal-close');
+    const submitBtn = document.getElementById('submit-btn');
+
     // Logout
     document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = '/admin/login';
+    });
+
+    // Slug oluştur
+    function createSlug(text) {
+      return text
+        .toLowerCase()
+        .replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u')
+        .replace(/ş/g, 's')
+        .replace(/ı/g, 'i')
+        .replace(/ö/g, 'o')
+        .replace(/ç/g, 'c')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
+
+    // İsim değiştiğinde slug oluştur
+    document.getElementById('name')?.addEventListener('input', (e) => {
+      const slugInput = document.getElementById('slug');
+      if (slugInput && !slugInput.value) {
+        slugInput.value = createSlug(e.target.value);
+      }
+    });
+
+    // Modal aç/kapat
+    function openModal(product = null) {
+      modal?.classList.add('show');
+
+      if (product) {
+        modalTitle.textContent = '✏️ Ürün Düzenle';
+        document.getElementById('product-id').value = product.id;
+        document.getElementById('name').value = product.name;
+        document.getElementById('slug').value = product.slug || '';
+        document.getElementById('category').value = product.category || 'Pastırma';
+        document.getElementById('unit').value = product.unit || 'kg';
+        document.getElementById('price').value = product.price;
+        document.getElementById('stock').value = product.stock || 100;
+        document.getElementById('description').value = product.description || '';
+        document.getElementById('sort_order').value = product.sort_order || 0;
+        document.getElementById('is_active').checked = product.is_active !== false;
+
+        // Images - array olarak göster
+        if (product.images && Array.isArray(product.images)) {
+          document.getElementById('image_url').value = product.images.join('\n');
+        }
+      } else {
+        modalTitle.textContent = '🆕 Yeni Ürün Ekle';
+        productForm?.reset();
+        document.getElementById('product-id').value = '';
+        document.getElementById('is_active').checked = true;
+        document.getElementById('stock').value = '100';
+        document.getElementById('sort_order').value = '0';
+      }
+    }
+
+    function closeModal() {
+      modal?.classList.remove('show');
+      productForm?.reset();
+    }
+
+    addBtn?.addEventListener('click', () => openModal());
+    closeButtons.forEach(btn => btn.addEventListener('click', closeModal));
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    // Edit buttons
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const product = JSON.parse(e.currentTarget.dataset.product);
+        openModal(product);
+      });
+    });
+
+    // Delete buttons
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.currentTarget.dataset.id;
+        const name = e.currentTarget.dataset.name;
+
+        if (!confirm(`"${name}" ürününü silmek istediğinizden emin misiniz?`)) return;
+
+        try {
+          const { error } = await supabase
+            .from('products')
+            .delete()
+            .eq('id', id);
+
+          if (error) throw error;
+
+          alert('✅ Ürün silindi!');
+          location.reload();
+        } catch (error) {
+          console.error('Error:', error);
+          alert('❌ Hata: ' + error.message);
+        }
+      });
+    });
+
+    // Form submit
+    productForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const id = document.getElementById('product-id').value;
+
+      // Images - satır satır ayır ve array yap
+      const imageText = document.getElementById('image_url').value;
+      const images = imageText
+        .split(/[\n,]+/)
+        .map(url => url.trim())
+        .filter(url => url.length > 0);
+
+      const formData = {
+        name: document.getElementById('name').value,
+        slug: document.getElementById('slug').value,
+        category: document.getElementById('category').value,
+        unit: document.getElementById('unit').value,
+        price: parseFloat(document.getElementById('price').value),
+        stock: parseInt(document.getElementById('stock').value),
+        description: document.getElementById('description').value,
+        images: images,
+        sort_order: parseInt(document.getElementById('sort_order').value),
+        is_active: document.getElementById('is_active').checked
+      };
+
       try {
-        const { supabase } = await import('../../lib/supabase');
-        await supabase.auth.signOut();
-        window.location.href = '/admin/login';
-      } catch (e) {
-        console.error('Logout error:', e);
-        // Manuel çıkış
-        document.cookie = 'sb-access-token=; path=/; max-age=0';
-        window.location.href = '/admin/login';
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Kaydediliyor...';
+
+        let result;
+        if (id) {
+          // Update
+          result = await supabase
+            .from('products')
+            .update(formData)
+            .eq('id', id);
+        } else {
+          // Insert
+          result = await supabase
+            .from('products')
+            .insert(formData);
+        }
+
+        if (result.error) throw result.error;
+
+        alert(id ? '✅ Ürün güncellendi!' : '✅ Ürün eklendi!');
+        location.reload();
+      } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Hata: ' + error.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = '💾 Kaydet';
       }
     });
   </script>
