@@ -837,7 +837,7 @@ document.getElementById('sync-usage-btn')?.addEventListener('click', async (e) =
       Senkronize ediliyor...
     `;
 
-    const response = await fetch('/api/coupons/sync-usage', {
+    const response = await fetch('/api/sync-usage', {
       method: 'POST'
     });
 
