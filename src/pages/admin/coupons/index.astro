@@ -850,8 +850,6 @@ const totalUsage = coupons.reduce((sum, c) => sum + (c.used_count || 0), 0);
 
       console.log('✅ Sync başarılı:', result);
 
-      const detaylar = result.results?.map(r => `${r.code}: ${r.count} kullanım`).join('\n') || '';
-      alert(`✅ ${result.updated} kupon güncellendi!\n\n${detaylar}`);
 
       window.location.reload();
     } catch (error: any) {
