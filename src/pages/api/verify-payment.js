@@ -19,9 +19,8 @@ function isValidEmail(email) {
   return !!email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
 
-// Müşteri Email Template - HAREKETE GEÇİRİCİ MESAJ EKLENDİ
+// Müşteri Email Template
 function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDate, shippingAddress, customerPhone }) {
-  // Ürünleri detaylı göster
   const itemsHTML = items.map((item, index) => {
     const itemName = item.name || `Ürün ${index + 1}`;
     const quantity = item.quantity || 1;
@@ -131,7 +130,6 @@ function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDa
 
       <p style="margin-top: 30px; text-align: center; font-size: 18px; color: #059669;">Afiyet olsun! 🙏</p>
 
-      <!-- ✅ YENİ: Harekete Geçirici Mesaj -->
       <div class="cta-box">
         <h3>🎉 Lezzetlerimizi Sevdiniz mi?</h3>
         <p>Kayseri'nin en taze pastırma, sucuk ve mantılarını keşfetmek için hemen alışverişe başlayın!</p>
@@ -153,7 +151,7 @@ function getCustomerEmailHTML({ customerName, orderNumber, items, total, orderDa
 `;
 }
 
-// Admin Email Template - DETAYLI VE ANLAŞILIR
+// Admin Email Template
 function getAdminEmailHTML({
   customerName,
   customerEmail,
@@ -165,7 +163,6 @@ function getAdminEmailHTML({
   orderDate,
   shippingAddress
 }) {
-  // Ürünleri detaylı göster
   const itemsHTML = items.map((item, index) => {
     const itemName = item.name || `Ürün ${index + 1}`;
     const quantity = item.quantity || 1;
@@ -332,7 +329,8 @@ export async function POST({ request }) {
       customerAddress: frontendAddress,
       customerCity: frontendCity,
       customerZipcode: frontendZipcode,
-      cartItems: frontendCartItems
+      cartItems: frontendCartItems,
+      appliedCoupons: frontendCoupons // ✅ VIRGÜL EKLENDİ!
     } = body;
 
     console.log("📦 Frontend'den gelen bilgiler:", {
@@ -343,7 +341,8 @@ export async function POST({ request }) {
       identity: frontendIdentity,
       address: frontendAddress,
       city: frontendCity,
-      cartItemsCount: frontendCartItems?.length || 0
+      cartItemsCount: frontendCartItems?.length || 0,
+      couponsCount: frontendCoupons?.length || 0 // ✅ YENİ
     });
 
     if (!token) {
@@ -376,7 +375,7 @@ export async function POST({ request }) {
       });
     });
 
-    // ✅ ÖDEME BAŞARISIZ İSE EMAIL GÖNDERME!
+    // Ödeme başarısız ise
     if (result.status !== "success" || result.paymentStatus !== "SUCCESS") {
       console.error("❌ Ödeme başarısız:", result.errorMessage);
       return new Response(
@@ -390,10 +389,9 @@ export async function POST({ request }) {
 
     console.log("✅ Ödeme Iyzico'da doğrulandı - VERİTABANINA KAYDEDİLİYOR");
 
-    // --- Veri Hazırlığı - FRONTEND VERİSİNİ ÖNCELİKLENDİR ---
+    // --- Veri Hazırlığı ---
     const adminEmail = import.meta.env.ADMIN_EMAIL || "successodysseyhub@gmail.com";
 
-    // Email - Frontend'i önceliklendir
     let customerEmail = frontendEmail?.trim() || result.buyer?.email?.trim() || "";
     const isCustomerMailValid = isValidEmail(customerEmail);
     if (!isCustomerMailValid) {
@@ -401,20 +399,16 @@ export async function POST({ request }) {
       customerEmail = adminEmail;
     }
 
-    // Ad Soyad - Frontend'i önceliklendir
     const name = frontendName?.trim() || result.buyer?.name || "Değerli";
     const surname = frontendSurname?.trim() || result.buyer?.surname || "Müşterimiz";
     const fullName = `${name} ${surname}`.trim();
 
-    // Telefon - Frontend'i önceliklendir
     const customerPhone = frontendPhone
       ? `+90${frontendPhone}`
       : result.buyer?.gsmNumber || '';
 
-    // TC Kimlik - Frontend'i önceliklendir
     const customerIdentity = frontendIdentity || result.buyer?.identityNumber || '';
 
-    // Adres - Frontend'i önceliklendir
     let shippingAddress = '';
     if (frontendAddress && frontendCity) {
       shippingAddress = `${frontendAddress}, ${frontendCity}, Turkey`;
@@ -434,13 +428,29 @@ export async function POST({ request }) {
       minute: '2-digit'
     });
 
-    // Ürün listesi - ÖNCELİK SIRASI:
-    // 1. Frontend'den gelen sepet (en güncel)
-    // 2. İyzico'dan gelen basketItems
+    // ✅ Kupon bilgilerini hazırla
+    let couponCodes = [];
+    let couponDetails = [];
+    let totalDiscountAmount = 0;
 
+    if (frontendCoupons && Array.isArray(frontendCoupons) && frontendCoupons.length > 0) {
+      couponCodes = frontendCoupons.map(c => c.code);
+      couponDetails = frontendCoupons.map(c => ({
+        code: c.code,
+        percent: c.percent,
+        discountAmount: c.discountAmount
+      }));
+      totalDiscountAmount = frontendCoupons.reduce((sum, c) => sum + (c.discountAmount || 0), 0);
+
+      console.log("🎟️ Kuponlar işlendi:", {
+        codes: couponCodes,
+        totalDiscount: totalDiscountAmount
+      });
+    }
+
+    // Ürün listesi
     let items = [];
 
-    // Önce frontend'den gelen sepeti kontrol et
     if (frontendCartItems && Array.isArray(frontendCartItems) && frontendCartItems.length > 0) {
       console.log("✅ Frontend sepet bilgisi kullanılıyor");
       items = frontendCartItems.map((item, index) => ({
@@ -449,9 +459,7 @@ export async function POST({ request }) {
         quantity: item.quantity || 1,
         unit: item.unit || '500g'
       }));
-    }
-    // Frontend'de veri yoksa İyzico'dan al
-    else if (result.basketItems && Array.isArray(result.basketItems)) {
+    } else if (result.basketItems && Array.isArray(result.basketItems)) {
       console.log("✅ Iyzico basket bilgisi kullanılıyor");
       items = result.basketItems.map((item, index) => ({
         name: item.name || item.itemName || `Ürün ${index + 1}`,
@@ -460,7 +468,7 @@ export async function POST({ request }) {
         unit: '500g'
       }));
     } else {
-      console.error("❌ Ne frontend ne de İyzico'dan ürün bilgisi alınamadı!");
+      console.error("❌ Ne frontend ne de Iyzico'dan ürün bilgisi alınamadı!");
     }
 
     if (items.length === 0) {
@@ -469,12 +477,11 @@ export async function POST({ request }) {
       console.log(`✅ ${items.length} adet ürün işlendi`);
     }
 
-    // 🚀 KRİTİK: Tüm email ve DB işlemlerini PARALEL çalıştır
-    // Promise.allSettled kullanarak hiçbiri diğerini bloklamaz
     const orderNumber = `ORD-${Date.now()}`;
 
+    // ✅ PARALEL İŞLEMLER
     const [dbResult, customerEmailResult, adminEmailResult] = await Promise.allSettled([
-      // 1. Veritabanına kaydet
+      // 1. Veritabanına kaydet - ÇOKLU KUPON İLE
       supabase
         .from('orders')
         .insert({
@@ -487,11 +494,14 @@ export async function POST({ request }) {
           items: items,
           subtotal: paidPrice,
           shipping_cost: 0,
-          shipping: 0,
-          discount_amount: 0,
-          discount: 0,
+          discount_amount: totalDiscountAmount,
           total: paidPrice,
-          coupon_code: null,
+          // ✅ ÇOKLU KUPON ALANLARI
+          coupon_codes: couponCodes.length > 0 ? couponCodes : null,
+          coupon_details: couponDetails.length > 0 ? couponDetails : null,
+          total_discount: totalDiscountAmount,
+          // Geriye uyumluluk için ilk kupon
+          coupon_code: couponCodes.length > 0 ? couponCodes[0] : null,
           status: 'pending',
           payment_status: 'completed',
           notes: customerIdentity ? `TC: ${customerIdentity}` : null,
@@ -500,7 +510,7 @@ export async function POST({ request }) {
         .select()
         .single(),
 
-      // 2. Müşteriye email gönder (sadece geçerli email varsa)
+      // 2. Müşteriye email gönder
       isCustomerMailValid
         ? resend.emails.send({
             from: "Pastırma Adası <siparis@successodysseyhub.com>",
@@ -538,7 +548,7 @@ export async function POST({ request }) {
       })
     ]);
 
-    // Sonuçları logla (opsiyonel)
+    // Sonuçları logla
     if (dbResult.status === 'fulfilled') {
       console.log("✅ Sipariş veritabanına kaydedildi");
     } else {
@@ -558,13 +568,13 @@ export async function POST({ request }) {
     }
 
     // Kullanıcıya her durumda başarılı yanıt dön
-    // (Email/DB hataları arka planda loglanır, ödeme başarılı)
     return new Response(
       JSON.stringify({
         status: "success",
         emailSent: customerEmailResult.status === 'fulfilled' && !customerEmailResult.value?.skipped,
         paymentId,
         paidPrice,
+        couponsApplied: couponCodes.length
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );

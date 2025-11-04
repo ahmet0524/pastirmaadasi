@@ -289,6 +289,8 @@ const paidPrice = paymentResult?.paidPrice || '0';
 }
 </style>
 
+// odeme-sonuc.astro içindeki kısmını güncelleyin
+
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -314,7 +316,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           zipcode: localStorage.getItem('lastOrderZipcode')
         };
 
-        // 🛒 SEPET BİLGİLERİ
+        // 🛒 Sepet bilgileri
         const cartData = localStorage.getItem('lastOrderCart');
         let cartItems = [];
 
@@ -325,12 +327,26 @@ document.addEventListener('DOMContentLoaded', async () => {
           } catch (e) {
             console.error('❌ Sepet parse hatası:', e);
           }
-        } else {
-          console.warn('⚠️ lastOrderCart bulunamadı!');
         }
 
-        console.log('📦 API\'ye gönderilecek müşteri bilgileri:', customerData);
-        console.log('🛍️ API\'ye gönderilecek sepet:', cartItems);
+        // ✅ YENİ: Kupon bilgileri
+        const couponsData = localStorage.getItem('lastOrderCoupons');
+        let appliedCoupons = [];
+
+        if (couponsData) {
+          try {
+            appliedCoupons = JSON.parse(couponsData);
+            console.log('🎟️ Kuponlar localStorage\'dan alındı:', appliedCoupons);
+          } catch (e) {
+            console.error('❌ Kupon parse hatası:', e);
+          }
+        }
+
+        console.log('📦 API\'ye gönderilecek veriler:', {
+          customer: customerData,
+          cartItems: cartItems.length,
+          coupons: appliedCoupons.length
+        });
 
         const response = await fetch('/api/verify-payment', {
           method: 'POST',
@@ -345,7 +361,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             customerAddress: customerData.address,
             customerCity: customerData.city,
             customerZipcode: customerData.zipcode,
-            cartItems: cartItems // 🛒 ÖNEMLİ!
+            cartItems: cartItems,
+            appliedCoupons: appliedCoupons // ✅ Çoklu kupon
           })
         });
 
@@ -356,7 +373,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
           // Temizlik
           localStorage.removeItem('cart');
+          localStorage.removeItem('appliedCoupons'); // ✅ YENİ
           localStorage.removeItem('lastOrderCart');
+          localStorage.removeItem('lastOrderCoupons'); // ✅ YENİ
           localStorage.removeItem('lastOrderEmail');
           localStorage.removeItem('lastOrderName');
           localStorage.removeItem('lastOrderSurname');
@@ -367,7 +386,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           localStorage.removeItem('lastOrderZipcode');
 
           window.dispatchEvent(new Event('cartUpdated'));
-          console.log('🗑️ Temizlendi');
+          console.log('🗑️ LocalStorage temizlendi');
         } else {
           console.warn('⚠️ Email hatası:', data.errorMessage);
         }

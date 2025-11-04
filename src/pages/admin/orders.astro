@@ -85,29 +85,57 @@ if (error) {
                 </div>
               </div>
 
-              <div class="order-details">
-                <div class="detail-row">
-                  <strong>Müşteri:</strong>
-                  <span>{order.customer_name}</span>
-                </div>
-                <div class="detail-row">
-                  <strong>Email:</strong>
-                  <span>{order.customer_email}</span>
-                </div>
-                {order.customer_phone && (
-                  <div class="detail-row">
-                    <strong>Telefon:</strong>
-                    <span>{order.customer_phone}</span>
-                  </div>
-                )}
-                <div class="detail-row">
-                  <strong>Adres:</strong>
-                  <span>{order.customer_address || order.shipping_address}</span>
-                </div>
-                <div class="detail-row">
-                  <strong>Toplam:</strong>
-                  <span class="price">{order.total}₺</span>
-                </div>
+ <div class="order-details">
+  <div class="detail-row">
+    <strong>Müşteri:</strong>
+    <span>{order.customer_name}</span>
+  </div>
+  <div class="detail-row">
+    <strong>Email:</strong>
+    <span>{order.customer_email}</span>
+  </div>
+  {order.customer_phone && (
+    <div class="detail-row">
+      <strong>Telefon:</strong>
+      <span>{order.customer_phone}</span>
+    </div>
+  )}
+  <div class="detail-row">
+    <strong>Adres:</strong>
+    <span>{order.customer_address || order.shipping_address}</span>
+  </div>
+
+  <!-- ✅ YENİ: Çoklu Kupon Gösterimi -->
+  {order.coupon_codes && order.coupon_codes.length > 0 && (
+    <div class="detail-row">
+      <strong>🎟️ Kuponlar:</strong>
+      <div class="coupon-tags">
+        {order.coupon_codes.map((code, index) => {
+          const detail = order.coupon_details?.[index];
+          return (
+            <span class="coupon-tag">
+              {code}
+              {detail && <small>-%{detail.percent}</small>}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  )}
+
+  {order.total_discount && order.total_discount > 0 && (
+    <div class="detail-row">
+      <strong>💰 Toplam İndirim:</strong>
+      <span class="discount-amount">-{order.total_discount}₺</span>
+    </div>
+  )}
+
+  <div class="detail-row">
+    <strong>Toplam:</strong>
+    <span class="price">{order.total}₺</span>
+  </div>
+</div>
+
                 {order.tracking_number && (
                   <div class="detail-row">
                     <strong>Kargo Takip:</strong>
@@ -527,6 +555,38 @@ if (error) {
       .detail-row span {
         text-align: left;
       }
+      .coupon-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.coupon-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border: 2px solid #10b981;
+  color: #065f46;
+  padding: 0.375rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.coupon-tag small {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.125rem 0.5rem;
+  border-radius: 10px;
+  color: #059669;
+  font-weight: 700;
+}
+
+.discount-amount {
+  color: #059669;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
     }
   </style>
 
@@ -644,6 +704,7 @@ if (error) {
       if (e.target === modal) {
         modal.classList.remove('show');
       }
+
     });
   </script>
 </BaseLayout>
