@@ -12,8 +12,28 @@ if (!session) {
 
 // İstatistikleri çek
 const { data: products } = await supabaseAdmin.from('products').select('id, is_active');
-const { data: orders } = await supabaseAdmin.from('orders').select('total, status');
-const { data: coupons } = await supabaseAdmin.from('coupons').select('id, is_active');
+const { data: orders } = await supabaseAdmin.from('orders').select('total, status, coupon_code');
+const { data: coupons } = await supabaseAdmin.from('coupons').select('*');
+
+// Kupon kullanım sayılarını hesapla
+const couponUsageMap = new Map();
+orders?.forEach(order => {
+  if (order.coupon_code) {
+    couponUsageMap.set(
+      order.coupon_code,
+      (couponUsageMap.get(order.coupon_code) || 0) + 1
+    );
+  }
+});
+
+// Aktif kupon sayısı (geçerli ve kullanılabilir)
+const now = new Date();
+const activeCouponsCount = coupons?.filter(c => {
+  const validUntil = c.valid_until ? new Date(c.valid_until) : null;
+  const isExpired = validUntil && now > validUntil;
+  const isLimitReached = c.usage_limit && c.used_count >= c.usage_limit;
+  return c.is_active && !isExpired && !isLimitReached;
+}).length || 0;
 
 const stats = {
   totalProducts: products?.length || 0,
@@ -21,7 +41,10 @@ const stats = {
   totalOrders: orders?.length || 0,
   pendingOrders: orders?.filter(o => o.status === 'pending').length || 0,
   totalRevenue: orders?.reduce((sum, o) => sum + parseFloat(o.total), 0) || 0,
-  activeCoupons: coupons?.filter(c => c.is_active).length || 0
+  totalCoupons: coupons?.length || 0,
+  activeCoupons: activeCouponsCount,
+  couponUsage: coupons?.reduce((sum, c) => sum + (c.used_count || 0), 0) || 0,
+  ordersWithCoupon: orders?.filter(o => o.coupon_code).length || 0
 };
 ---
 
@@ -119,18 +142,33 @@ const stats = {
           </div>
         </div>
 
-        <div class="stat-card">
-          <div class="stat-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-            </svg>
-          </div>
-          <div class="stat-content">
-            <p class="stat-label">Kuponlar</p>
-            <p class="stat-value">{stats.activeCoupons}</p>
-            <p class="stat-detail">aktif kupon</p>
-          </div>
-        </div>
+       <div class="stat-card">
+  <div class="stat-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">
+    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+    </svg>
+  </div>
+  <div class="stat-content">
+    <p class="stat-label">Kuponlar</p>
+    <p class="stat-value">{stats.activeCoupons}</p>
+    <p class="stat-detail">{stats.totalCoupons} toplam · {stats.couponUsage} kullanım</p>
+  </div>
+</div>
+
+<div class="stat-card">
+  <div class="stat-icon" style="background: rgba(236, 72, 153, 0.1); color: #ec4899;">
+    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+    </svg>
+  </div>
+  <div class="stat-content">
+    <p class="stat-label">Kuponlu Siparişler</p>
+    <p class="stat-value">{stats.ordersWithCoupon}</p>
+    <p class="stat-detail">%{stats.totalOrders > 0 ? Math.round((stats.ordersWithCoupon / stats.totalOrders) * 100) : 0} oran</p>
+  </div>
+</div>
+
+
       </div>
 
       <div class="quick-actions">

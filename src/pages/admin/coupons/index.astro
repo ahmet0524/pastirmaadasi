@@ -63,18 +63,26 @@ const totalUsage = coupons.reduce((sum, c) => sum + (c.used_count || 0), 0);
     </aside>
 
     <main class="admin-main">
-      <header class="admin-header">
-        <div>
-          <h1>🎟️ Kupon Yönetimi</h1>
-          <p>İndirim kuponlarını oluşturun ve yönetin</p>
-        </div>
-        <a href="/admin/coupons/new" class="btn btn-primary">
-          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-          Yeni Kupon Oluştur
-        </a>
-      </header>
+  <header class="admin-header">
+  <div>
+    <h1>🎟️ Kupon Yönetimi</h1>
+    <p>İndirim kuponlarını oluşturun ve yönetin</p>
+  </div>
+  <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+    <button id="sync-usage-btn" class="btn btn-secondary">
+      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+      Kullanımları Senkronize Et
+    </button>
+    <a href="/admin/coupons/new" class="btn btn-primary">
+      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Yeni Kupon Oluştur
+    </a>
+  </div>
+</header>
 
       <!-- İstatistikler -->
       <div class="stats-row">
@@ -363,7 +371,25 @@ const totalUsage = coupons.reduce((sum, c) => sum + (c.used_count || 0), 0);
       background: #c41e3a;
       color: white;
     }
+.btn-secondary {
+  background: #6b7280;
+  color: white;
+}
 
+.btn-secondary:hover {
+  background: #4b5563;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
     .btn-primary:hover {
       background: #a01729;
       transform: translateY(-2px);
@@ -792,5 +818,40 @@ const totalUsage = coupons.reduce((sum, c) => sum + (c.used_count || 0), 0);
         }
       });
     });
+
+    // Kullanımları senkronize et
+document.getElementById('sync-usage-btn')?.addEventListener('click', async (e) => {
+  const btn = e.currentTarget as HTMLButtonElement;
+  const originalText = btn.innerHTML;
+
+  if (!confirm('Tüm kupon kullanımları siparişlerden yeniden hesaplanacak. Devam edilsin mi?')) {
+    return;
+  }
+
+  try {
+    btn.disabled = true;
+    btn.innerHTML = `
+      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="animation: spin 1s linear infinite;">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+      Senkronize ediliyor...
+    `;
+
+    const response = await fetch('/api/coupons/sync-usage', {
+      method: 'POST'
+    });
+
+    if (!response.ok) throw new Error('Senkronizasyon başarısız');
+
+    const result = await response.json();
+    alert(`✅ ${result.totalCoupons} kupon senkronize edildi!`);
+    location.reload();
+  } catch (error: any) {
+    console.error('Sync error:', error);
+    alert('❌ Senkronizasyon hatası: ' + error.message);
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+  }
+});
   </script>
 </BaseLayout>
