@@ -722,142 +722,145 @@ const totalUsage = coupons.reduce((sum, c) => sum + (c.used_count || 0), 0);
   </style>
 
   <script>
-    import { supabase } from '../../../lib/supabase';
 
-    // Logout
-    document.getElementById('logout-btn')?.addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      window.location.href = '/admin/login';
+  import { supabase } from '../../../lib/supabase';
+
+  // Logout
+  document.getElementById('logout-btn')?.addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    window.location.href = '/admin/login';
+  });
+
+  // Kopyalama fonksiyonu
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const code = (e.currentTarget as HTMLElement).dataset.code;
+      if (!code) return;
+
+      try {
+        await navigator.clipboard.writeText(code);
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = `
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+        `;
+
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+        }, 2000);
+      } catch (err) {
+        alert('❌ Kopyalama başarısız!');
+      }
     });
+  });
 
-    // Kopyalama fonksiyonu
-    document.querySelectorAll('.copy-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        const code = (e.currentTarget as HTMLElement).dataset.code;
-        if (!code) return;
+  // Toggle aktif/pasif
+  document.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const target = e.currentTarget as HTMLElement;
+      const id = target.dataset.id;
+      const isActive = target.dataset.active === 'true';
 
-        try {
-          await navigator.clipboard.writeText(code);
-          const originalHTML = btn.innerHTML;
-          btn.innerHTML = `
-            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-          `;
+      if (!id) return;
 
-          setTimeout(() => {
-            btn.innerHTML = originalHTML;
-          }, 2000);
-        } catch (err) {
-          alert('❌ Kopyalama başarısız!');
-        }
-      });
+      try {
+        target.style.opacity = '0.5';
+        target.style.pointerEvents = 'none';
+
+        const { error } = await supabase
+          .from('coupons')
+          .update({ is_active: !isActive })
+          .eq('id', id);
+
+        if (error) throw error;
+
+        location.reload();
+      } catch (error: any) {
+        console.error('Error:', error);
+        alert('❌ Hata: ' + error.message);
+        target.style.opacity = '1';
+        target.style.pointerEvents = 'auto';
+      }
     });
+  });
 
-    // Toggle aktif/pasif
-    document.querySelectorAll('.toggle-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        const target = e.currentTarget as HTMLElement;
-        const id = target.dataset.id;
-        const isActive = target.dataset.active === 'true';
+  // Silme
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const target = e.currentTarget as HTMLElement;
+      const id = target.dataset.id;
+      const code = target.dataset.code;
 
-        if (!id) return;
+      if (!id || !code) return;
 
-        try {
-          target.style.opacity = '0.5';
-          target.style.pointerEvents = 'none';
+      if (!confirm(`"${code}" kuponunu silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz!`)) {
+        return;
+      }
 
-          const { error } = await supabase
-            .from('coupons')
-            .update({ is_active: !isActive })
-            .eq('id', id);
+      try {
+        target.style.opacity = '0.5';
+        target.style.pointerEvents = 'none';
 
-          if (error) throw error;
+        const { error } = await supabase
+          .from('coupons')
+          .delete()
+          .eq('id', id);
 
-          location.reload();
-        } catch (error: any) {
-          console.error('Error:', error);
-          alert('❌ Hata: ' + error.message);
-          target.style.opacity = '1';
-          target.style.pointerEvents = 'auto';
-        }
-      });
+        if (error) throw error;
+
+        alert('✅ Kupon başarıyla silindi!');
+        location.reload();
+      } catch (error: any) {
+        console.error('Error:', error);
+        alert('❌ Hata: ' + error.message);
+        target.style.opacity = '1';
+        target.style.pointerEvents = 'auto';
+      }
     });
-
-    // Silme
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        const target = e.currentTarget as HTMLElement;
-        const id = target.dataset.id;
-        const code = target.dataset.code;
-
-        if (!id || !code) return;
-
-        if (!confirm(`"${code}" kuponunu silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz!`)) {
-          return;
-        }
-
-        try {
-          target.style.opacity = '0.5';
-          target.style.pointerEvents = 'none';
-
-          const { error } = await supabase
-            .from('coupons')
-            .delete()
-            .eq('id', id);
-
-          if (error) throw error;
-
-          alert('✅ Kupon başarıyla silindi!');
-          location.reload();
-        } catch (error: any) {
-          console.error('Error:', error);
-          alert('❌ Hata: ' + error.message);
-          target.style.opacity = '1';
-          target.style.pointerEvents = 'auto';
-        }
-      });
-    });
+  });
 
   // Kullanımları senkronize et
-document.getElementById('sync-usage-btn')?.addEventListener('click', async (e) => {
-  const btn = e.currentTarget as HTMLButtonElement;
-  const originalText = btn.innerHTML;
+  document.getElementById('sync-usage-btn')?.addEventListener('click', async (e) => {
+    const btn = e.currentTarget as HTMLButtonElement;
+    const originalHTML = btn.innerHTML;
 
-  if (!confirm('Tüm kupon kullanımları siparişlerden yeniden hesaplanacak. Devam edilsin mi?')) {
-    return;
-  }
-
-  try {
-    btn.disabled = true;
-    btn.innerHTML = `
-      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="animation: spin 1s linear infinite;">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-      </svg>
-      Senkronize ediliyor...
-    `;
-
-    const response = await fetch('/api/sync-usage', {
-      method: 'POST'
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(result.error || 'Senkronizasyon başarısız');
+    if (!confirm('Tüm kupon kullanımları siparişlerden yeniden hesaplanacak. Devam edilsin mi?')) {
+      return;
     }
 
-    console.log('Sync result:', result);
-    alert(`✅ ${result.updated} kupon güncellendi!\n\nDetaylar:\n${result.results?.map(r => `${r.code}: ${r.count} kullanım`).join('\n') || ''}`);
+    try {
+      btn.disabled = true;
+      btn.innerHTML = `
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="animation: spin 1s linear infinite;">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Senkronize ediliyor...
+      `;
 
-    // Sayfayı yenile
-    window.location.reload();
-  } catch (error: any) {
-    console.error('Sync error:', error);
-    alert('❌ Senkronizasyon hatası: ' + error.message);
-    btn.disabled = false;
-    btn.innerHTML = originalText;
-  }
-});
+      const response = await fetch('/api/sync-usage', {
+        method: 'POST'
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Senkronizasyon başarısız');
+      }
+
+      console.log('✅ Sync başarılı:', result);
+
+      const detaylar = result.results?.map(r => `${r.code}: ${r.count} kullanım`).join('\n') || '';
+      alert(`✅ ${result.updated} kupon güncellendi!\n\n${detaylar}`);
+
+      window.location.reload();
+    } catch (error: any) {
+      console.error('❌ Sync error:', error);
+      alert('❌ Senkronizasyon hatası: ' + error.message);
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+    }
+  });
+
   </script>
 </BaseLayout>
