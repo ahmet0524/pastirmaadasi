@@ -1,30 +1,598 @@
 ---
+// src/pages/admin/coupons/new.astro
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getSession } from '../../../lib/auth';
 
 const session = await getSession();
 if (!session) {
-  throw Astro.redirect('/admin/login');
+  return Astro.redirect('/admin/login');
 }
 ---
 
 <BaseLayout title="Yeni Kupon Oluştur">
   <div class="admin-layout">
     <aside class="admin-sidebar">
-      <!-- Sidebar -->
+      <div class="sidebar-header">
+        <h2>Pastırma Adası</h2>
+        <p>Admin Panel</p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-item">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          Dashboard
+        </a>
+        <a href="/admin/products" class="nav-item">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          Ürünler
+        </a>
+        <a href="/admin/orders" class="nav-item">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          Siparişler
+        </a>
+        <a href="/admin/coupons" class="nav-item active">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+          </svg>
+          Kuponlar
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="btn btn-outline btn-full">Çıkış Yap</button>
+      </div>
     </aside>
 
     <main class="admin-main">
       <header class="admin-header">
-        <h1>Yeni Kupon Oluştur</h1>
-        <p>İndirim kuponu tanımlayın</p>
+        <div>
+          <h1>🎟️ Yeni Kupon Oluştur</h1>
+          <p>İndirim kuponu tanımlayın</p>
+        </div>
+        <a href="/admin/coupons" class="btn btn-secondary">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Geri Dön
+        </a>
       </header>
 
       <div class="form-container">
-        <form id="coupon-form" class="product-form">
-          <!-- form alanları burada -->
+        <form id="coupon-form" class="coupon-form">
+          <div class="form-section">
+            <h3>Temel Bilgiler</h3>
+
+            <div class="form-group">
+              <label for="code">Kupon Kodu *</label>
+              <input
+                type="text"
+                id="code"
+                name="code"
+                required
+                placeholder="YILBASI2024"
+                pattern="[A-Z0-9]+"
+                style="text-transform: uppercase"
+              />
+              <small>Sadece büyük harf ve rakam kullanın</small>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="discount_percent">İndirim Oranı (%) *</label>
+                <input
+                  type="number"
+                  id="discount_percent"
+                  name="discount_percent"
+                  required
+                  min="1"
+                  max="100"
+                  step="1"
+                  placeholder="10"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="min_order_amount">Minimum Sipariş Tutarı (₺)</label>
+                <input
+                  type="number"
+                  id="min_order_amount"
+                  name="min_order_amount"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+                <small>Boş bırakılırsa minimum tutar olmaz</small>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="max_discount_amount">Maksimum İndirim Tutarı (₺)</label>
+                <input
+                  type="number"
+                  id="max_discount_amount"
+                  name="max_discount_amount"
+                  min="0"
+                  step="0.01"
+                  placeholder="50.00"
+                />
+                <small>Boş bırakılırsa limit olmaz</small>
+              </div>
+
+              <div class="form-group">
+                <label for="usage_limit">Kullanım Limiti</label>
+                <input
+                  type="number"
+                  id="usage_limit"
+                  name="usage_limit"
+                  min="1"
+                  step="1"
+                  placeholder="100"
+                />
+                <small>Boş bırakılırsa limit olmaz</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>Geçerlilik Süresi</h3>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="valid_from">Başlangıç Tarihi</label>
+                <input
+                  type="datetime-local"
+                  id="valid_from"
+                  name="valid_from"
+                />
+                <small>Boş bırakılırsa hemen aktif olur</small>
+              </div>
+
+              <div class="form-group">
+                <label for="valid_until">Bitiş Tarihi</label>
+                <input
+                  type="datetime-local"
+                  id="valid_until"
+                  name="valid_until"
+                />
+                <small>Boş bırakılırsa süresiz olur</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>Durum</h3>
+
+            <div class="form-group checkbox-group">
+              <label>
+                <input type="checkbox" id="is_active" name="is_active" checked />
+                <span>Kuponu aktif yap</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <a href="/admin/coupons" class="btn btn-secondary">İptal</a>
+            <button type="submit" class="btn btn-primary" id="submit-btn">
+              💾 Kuponu Kaydet
+            </button>
+          </div>
         </form>
+
+        <div class="info-panel">
+          <h4>💡 İpuçları</h4>
+          <ul>
+            <li><strong>Kupon Kodu:</strong> Kolay hatırlanabilir ve benzersiz olmalı (ör: YILBASI2024, HOSGELDIN)</li>
+            <li><strong>İndirim Oranı:</strong> 1-100 arası bir değer girin</li>
+            <li><strong>Min. Sipariş:</strong> Kuponu kullanabilmek için gereken minimum sepet tutarı</li>
+            <li><strong>Max. İndirim:</strong> İndirim tutarının üst sınırı (ör: %50 indirimde max 100₺)</li>
+            <li><strong>Kullanım Limiti:</strong> Kuponun kaç kez kullanılabileceği</li>
+            <li><strong>Geçerlilik:</strong> Kuponun aktif olacağı tarih aralığı</li>
+          </ul>
+        </div>
       </div>
     </main>
   </div>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+
+    .admin-sidebar {
+      background: #1a1a1a;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .sidebar-header {
+      padding: 2rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-header h2 {
+      color: #d4af37;
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .sidebar-header p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.875rem;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 1.5rem 0;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1.5rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+
+    .nav-item.active {
+      background: rgba(212, 175, 55, 0.1);
+      color: #d4af37;
+      border-left: 3px solid #d4af37;
+    }
+
+    .sidebar-footer {
+      padding: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .admin-main {
+      background: #f8f9fa;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .admin-header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .admin-header p {
+      color: #6b7280;
+      margin: 0;
+    }
+
+    .form-container {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 2rem;
+      max-width: 1400px;
+    }
+
+    .coupon-form {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .form-section {
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .form-section:last-of-type {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .form-section h3 {
+      font-size: 1.25rem;
+      margin-bottom: 1.5rem;
+      color: #1f2937;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #374151;
+    }
+
+    .form-group small {
+      display: block;
+      margin-top: 0.25rem;
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #c41e3a;
+      box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.1);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-weight: normal;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      font-size: 1rem;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: #c41e3a;
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #a01729;
+    }
+
+    .btn-secondary {
+      background: #6b7280;
+      color: white;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #4b5563;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-full {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .info-panel {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      height: fit-content;
+      position: sticky;
+      top: 2rem;
+    }
+
+    .info-panel h4 {
+      font-size: 1.125rem;
+      margin-bottom: 1rem;
+      color: #1f2937;
+    }
+
+    .info-panel ul {
+      list-style: none;
+    }
+
+    .info-panel li {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: #4b5563;
+    }
+
+    .info-panel li:last-child {
+      border-bottom: none;
+    }
+
+    .info-panel strong {
+      color: #1f2937;
+    }
+
+    @media (max-width: 1024px) {
+      .admin-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-sidebar {
+        position: relative;
+        height: auto;
+      }
+
+      .form-container {
+        grid-template-columns: 1fr;
+      }
+
+      .info-panel {
+        position: static;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .form-actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+
+  <script>
+    import { supabase } from '../../../lib/supabase';
+
+    // Logout
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = '/admin/login';
+    });
+
+    // Kupon kodunu otomatik büyük harfe çevir
+    const codeInput = document.getElementById('code') as HTMLInputElement;
+    codeInput?.addEventListener('input', (e) => {
+      const target = e.target as HTMLInputElement;
+      target.value = target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    });
+
+    // Form submit
+    const form = document.getElementById('coupon-form') as HTMLFormElement;
+    const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = {
+        code: (document.getElementById('code') as HTMLInputElement).value.toUpperCase(),
+        discount_percent: parseInt((document.getElementById('discount_percent') as HTMLInputElement).value),
+        min_order_amount: parseFloat((document.getElementById('min_order_amount') as HTMLInputElement).value) || null,
+        max_discount_amount: parseFloat((document.getElementById('max_discount_amount') as HTMLInputElement).value) || null,
+        usage_limit: parseInt((document.getElementById('usage_limit') as HTMLInputElement).value) || null,
+        valid_from: (document.getElementById('valid_from') as HTMLInputElement).value || null,
+        valid_until: (document.getElementById('valid_until') as HTMLInputElement).value || null,
+        is_active: (document.getElementById('is_active') as HTMLInputElement).checked,
+        used_count: 0
+      };
+
+      // Validasyon
+      if (!formData.code || formData.code.length < 3) {
+        alert('❌ Kupon kodu en az 3 karakter olmalıdır!');
+        return;
+      }
+
+      if (formData.discount_percent < 1 || formData.discount_percent > 100) {
+        alert('❌ İndirim oranı 1-100 arasında olmalıdır!');
+        return;
+      }
+
+      try {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Kaydediliyor...';
+
+        const { data, error } = await supabase
+          .from('coupons')
+          .insert(formData)
+          .select()
+          .single();
+
+        if (error) {
+          if (error.code === '23505') {
+            throw new Error('Bu kupon kodu zaten kullanılıyor!');
+          }
+          throw error;
+        }
+
+        alert('✅ Kupon başarıyla oluşturuldu!');
+        window.location.href = '/admin/coupons';
+      } catch (error: any) {
+        console.error('Error:', error);
+        alert('❌ Hata: ' + error.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = '💾 Kuponu Kaydet';
+      }
+    });
+  </script>
 </BaseLayout>
