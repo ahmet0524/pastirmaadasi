@@ -3,6 +3,8 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+
+const publicWeb3formsKey = import.meta.env.PUBLIC_WEB3FORMS_KEY;
 ---
 
 <BaseLayout
@@ -129,80 +131,60 @@ import Footer from '../components/Footer.astro';
           <h2>Bize Mesaj Gönderin</h2>
           <p class="form-intro">Aşağıdaki formu doldurarak bizimle iletişime geçebilirsiniz. En kısa sürede size geri dönüş yapacağız.</p>
 
-<!-- Web3Forms ile entegrasyon - İYİLEŞTİRİLMİŞ FORM -->
-<form id="contact-form" class="contact-form">
-  <input type="hidden" name="access_key" value="cd87f586-7c03-4995-aeba-8360c7eb318a">
-  <input type="hidden" name="redirect" value="https://successodysseyhub.com/tesekkurler">
-  <input type="hidden" name="from_name" value="Pastırma Adası İletişim Formu">
-  <input type="hidden" name="subject" value="Yeni İletişim Formu Mesajı">
-  <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+          <form id="contact-form" class="contact-form" novalidate>
+            <input type="text" name="honeypot" style="display:none" tabindex="-1" autocomplete="off">
 
-  <div class="form-row">
-    <div class="form-group">
-      <label for="name">Adınız Soyadınız *</label>
-      <input type="text" id="name" name="name" required minlength="2" placeholder="Ad Soyad">
-    </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="name">Adınız Soyadınız *</label>
+                <input type="text" id="name" name="name" required minlength="2" placeholder="Ad Soyad">
+                <span id="name-error" class="error-message"></span>
+              </div>
 
-    <div class="form-group">
-      <label for="email">E-posta Adresiniz *</label>
-      <input type="email" id="email" name="email" required placeholder="ornek@email.com">
-    </div>
-  </div>
+              <div class="form-group">
+                <label for="email">E-posta Adresiniz *</label>
+                <input type="email" id="email" name="email" required placeholder="ornek@email.com">
+                <span id="email-error" class="error-message"></span>
+              </div>
+            </div>
 
-  <div class="form-row">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="phone">Telefon Numaranız *</label>
+                <input type="tel" id="phone" name="phone" required placeholder="0555 555 55 55">
+                <span id="phone-error" class="error-message"></span>
+              </div>
 
-    <div class="form-group">
-      <label for="phone">Telefon Numaranız *</label>
-      <input type="tel" id="phone" name="phone" required placeholder="0555 555 55 55" minlength="10">
-    </div>
+              <div class="form-group">
+                <label for="subject-select">Konu</label>
+                <select id="subject-select" name="inquiry_type">
+                  <option value="">Konu Seçin</option>
+                  <option value="siparis">Sipariş Bilgisi</option>
+                  <option value="urun">Ürün Sorusu</option>
+                  <option value="oneri">Öneri</option>
+                  <option value="sikayet">Şikayet</option>
+                  <option value="diger">Diğer</option>
+                </select>
+              </div>
+            </div>
 
-    <div class="form-group">
-      <label for="subject-select">Konu</label>
-      <select id="subject-select" name="inquiry_type">
-        <option value="">Konu Seçin</option>
-        <option value="siparis">Sipariş Bilgisi</option>
-        <option value="urun">Ürün Sorusu</option>
-        <option value="oneri">Öneri</option>
-        <option value="sikayet">Şikayet</option>
-        <option value="diger">Diğer</option>
-      </select>
-    </div>
-  </div>
+            <div class="form-group">
+              <label for="message">Mesajınız *</label>
+              <textarea id="message" name="message" rows="6" required minlength="10" placeholder="Mesajınızı buraya yazın..."></textarea>
+              <span id="message-error" class="error-message"></span>
+              <small style="color:#6B7280;font-size:0.875rem;margin-top:0.25rem;">En az 10 karakter</small>
+            </div>
 
-  <div class="form-group">
-    <label for="message">Mesajınız *</label>
-    <textarea id="message" name="message" rows="6" required minlength="10" placeholder="Mesajınızı buraya yazın..."></textarea>
-    <small style="color:#6B7280;font-size:0.875rem;margin-top:0.25rem;">En az 10 karakter</small>
-  </div>
-
-  <div class="form-group">
-    <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
-      <input type="checkbox" name="confirm" required>
-      <span style="font-size:0.9rem;">İletişim bilgilerimin işlenmesini kabul ediyorum *</span>
-    </label>
-  </div>
-
-  <button type="submit" class="btn btn-primary btn-large">
-    <span class="btn-text">
-      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:8px;">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-      Mesajı Gönder
-    </span>
-    <span class="btn-loading" style="display:none;">
-      <svg class="spinner" width="20" height="20" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25" />
-        <path fill="currentColor"
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          opacity="0.75" />
-      </svg>
-      Gönderiliyor...
-    </span>
-  </button>
-
-  <div id="form-message" class="form-message"></div>
-</form>
+            <button type="submit" class="btn btn-primary btn-large">
+              <span class="btn-text">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:8px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Mesajı Gönder
+              </span>
+            </button>
+          </form>
         </div>
 
       </div>
@@ -470,45 +452,22 @@ import Footer from '../components/Footer.astro';
     box-shadow: 0 0 0 3px var(--color-primary-bg);
   }
 
+  .form-group input.error,
+  .form-group textarea.error {
+    border-color: #DC2626;
+  }
+
+  .error-message {
+    color: #DC2626;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    min-height: 1rem;
+    display: block;
+  }
+
   .form-group textarea {
     resize: vertical;
     min-height: 120px;
-  }
-
-  .btn-loading {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .spinner {
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  .form-message {
-    padding: 1rem;
-    border-radius: var(--radius-md);
-    display: none;
-    font-weight: 500;
-  }
-
-  .form-message.success {
-    display: block;
-    background: #D1FAE5;
-    color: #065F46;
-    border: 2px solid #10B981;
-  }
-
-  .form-message.error {
-    display: block;
-    background: #FEE2E2;
-    color: #991B1B;
-    border: 2px solid #DC2626;
   }
 
   .map-section {
@@ -591,6 +550,214 @@ import Footer from '../components/Footer.astro';
 </style>
 
 <script is:inline>
+document.addEventListener('DOMContentLoaded', function() {
+  const accessKey = 'cd87f586-7c03-4995-aeba-8360c7eb318a';
+
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  function isValidPhone(phone) {
+    const cleaned = phone.replace(/\D/g, '');
+    return cleaned.length >= 10;
+  }
+
+  function isValidName(name) {
+    return name.trim().length >= 2;
+  }
+
+  function isValidMessage(message) {
+    return message.trim().length >= 10;
+  }
+
+  function showError(field, message) {
+    const errorSpan = document.getElementById(`${field.id}-error`);
+    if (errorSpan) {
+      errorSpan.textContent = message;
+      field.classList.add('error');
+    }
+  }
+
+  function clearError(field) {
+    const errorSpan = document.getElementById(`${field.id}-error`);
+    if (errorSpan) {
+      errorSpan.textContent = '';
+      field.classList.remove('error');
+    }
+  }
+
+  function validateField(field) {
+    clearError(field);
+
+    if (field.hasAttribute('required') && !field.value.trim()) {
+      showError(field, 'Bu alan zorunludur.');
+      return false;
+    }
+
+    if (field.type === 'email' && field.value) {
+      if (!isValidEmail(field.value)) {
+        showError(field, 'Geçerli bir e-posta adresi girin.');
+        return false;
+      }
+    }
+
+    if (field.type === 'tel' && field.value) {
+      if (!isValidPhone(field.value)) {
+        showError(field, 'Geçerli bir telefon numarası girin (en az 10 rakam).');
+        return false;
+      }
+    }
+
+    if (field.id === 'name' && field.value) {
+      if (!isValidName(field.value)) {
+        showError(field, 'Adınız en az 2 karakter olmalıdır.');
+        return false;
+      }
+    }
+
+    if (field.id === 'message' && field.value) {
+      if (!isValidMessage(field.value)) {
+        showError(field, 'Mesajınız en az 10 karakter olmalıdır.');
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  function setButtonLoading(button, isLoading) {
+    const btnText = button.querySelector('.btn-text');
+    if (isLoading) {
+      button.dataset.originalText = btnText.innerHTML;
+      btnText.innerHTML = `
+        <svg class="spinner" width="20" height="20" viewBox="0 0 24 24" style="margin-right:8px;animation:spin 1s linear infinite;">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25" />
+          <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" opacity="0.75" />
+        </svg>
+        Gönderiliyor...
+      `;
+      button.disabled = true;
+    } else {
+      btnText.innerHTML = button.dataset.originalText || 'Mesajı Gönder';
+      button.disabled = false;
+    }
+  }
+
+  function showNotification(type, title, text) {
+    const oldNotif = document.getElementById('customNotification');
+    if (oldNotif) oldNotif.remove();
+
+    const notif = document.createElement('div');
+    notif.id = 'customNotification';
+    notif.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      min-width: 350px;
+      max-width: 450px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      z-index: 999999;
+      animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      overflow: hidden;
+    `;
+
+    let bgColor = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6';
+    let icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+
+    notif.innerHTML = `
+      <style>
+        @keyframes slideIn {
+          from { transform: translateX(120%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+          from { transform: translateX(0); opacity: 1; }
+          to { transform: translateX(120%); opacity: 0; }
+        }
+        @keyframes progressBar {
+          from { width: 100%; }
+          to { width: 0%; }
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @media (max-width: 768px) {
+          #customNotification {
+            top: 10px !important;
+            right: 10px !important;
+            left: 10px !important;
+            min-width: auto !important;
+            max-width: none !important;
+          }
+        }
+      </style>
+      <div style="display: flex; align-items: flex-start; padding: 20px; gap: 15px;">
+        <div style="
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background: ${bgColor};
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 24px;
+          font-weight: bold;
+          color: white;
+          flex-shrink: 0;
+        ">${icon}</div>
+        <div style="flex: 1; padding-top: 4px;">
+          <div style="
+            font-size: 17px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 6px;
+          ">${title}</div>
+          <div style="
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.5;
+          ">${text}</div>
+        </div>
+        <button onclick="this.closest('#customNotification').remove()" style="
+          background: transparent;
+          border: none;
+          color: #9ca3af;
+          font-size: 28px;
+          cursor: pointer;
+          padding: 0;
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 6px;
+          transition: all 0.2s;
+          line-height: 1;
+          margin-top: -4px;
+        " onmouseover="this.style.background='#f3f4f6'; this.style.color='#374151';" onmouseout="this.style.background='transparent'; this.style.color='#9ca3af';">&times;</button>
+      </div>
+      <div style="height: 4px; background: #e5e7eb; position: relative; overflow: hidden;">
+        <div style="
+          height: 100%;
+          background: ${bgColor};
+          animation: progressBar 5s linear forwards;
+        "></div>
+      </div>
+    `;
+
+    document.body.appendChild(notif);
+
+    setTimeout(() => {
+      if (notif && notif.parentNode) {
+        notif.style.animation = 'slideOut 0.3s ease forwards';
+        setTimeout(() => notif.remove(), 300);
+      }
+    }, 5000);
+  }
+
   const phoneInput = document.getElementById('phone');
   if (phoneInput) {
     phoneInput.addEventListener('input', (e) => {
@@ -616,4 +783,113 @@ import Footer from '../components/Footer.astro';
       e.target.value = value;
     });
   }
+
+  const contactForm = document.getElementById('contact-form');
+  if (!contactForm) return;
+
+  let isSubmitting = false;
+  let lastSubmitTime = 0;
+  const SUBMIT_COOLDOWN = 3000;
+
+  contactForm.addEventListener('blur', function(e) {
+    if (e.target.matches('input, textarea, select')) {
+      validateField(e.target);
+    }
+  }, true);
+
+  contactForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const now = Date.now();
+    if (now - lastSubmitTime < SUBMIT_COOLDOWN) {
+      showNotification('error', 'Çok Hızlı!', 'Lütfen birkaç saniye bekleyip tekrar deneyin.');
+      return;
+    }
+
+    if (isSubmitting) {
+      return;
+    }
+
+    let isValid = true;
+    const fields = contactForm.querySelectorAll('input, textarea, select');
+    fields.forEach(field => {
+      if (field.name !== 'honeypot' && !validateField(field)) {
+        isValid = false;
+      }
+    });
+
+    if (!isValid) {
+      showNotification('error', 'Form Hatası', 'Lütfen tüm zorunlu alanları doğru şekilde doldurun.');
+      return;
+    }
+
+    const honeypot = contactForm.querySelector('input[name="honeypot"]');
+    if (honeypot && honeypot.value) {
+      console.log('Bot detected via honeypot');
+      showNotification('error', 'Hata', 'Form gönderilemedi. Lütfen sayfayı yenileyip tekrar deneyin.');
+      return;
+    }
+
+    const submitBtn = contactForm.querySelector('.btn-primary');
+
+    isSubmitting = true;
+    lastSubmitTime = now;
+    setButtonLoading(submitBtn, true);
+
+    try {
+      const formData = new FormData(contactForm);
+      const data = {
+        access_key: accessKey,
+        name: formData.get('name'),
+        email: formData.get('email'),
+        phone: formData.get('phone') || 'Belirtilmedi',
+        inquiry_type: formData.get('inquiry_type') || 'Belirtilmedi',
+        message: formData.get('message'),
+        from_name: 'Pastırma Adası Website',
+        subject: 'Yeni İletişim Formu - Pastırma Adası',
+        replyto: formData.get('email')
+      };
+
+      console.log('📤 Gönderilen data:', data);
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(data),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+      const result = await response.json();
+
+      if (result.success) {
+        showNotification('success', 'Başarıyla Gönderildi!', 'Mesajınız başarıyla alınmıştır. En geç 24 saat içinde size email ile dönüş yapacağız. Acil durumlar için +90 507 762 38 38 numaralı telefonu arayabilirsiniz.');
+        contactForm.reset();
+      } else {
+        throw new Error(result.message || 'Form gönderilemedi');
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+
+      let errorMessage = 'Bir hata oluştu. Lütfen tekrar deneyin.';
+
+      if (error.name === 'AbortError') {
+        errorMessage = 'İstek zaman aşımına uğradı. İnternet bağlantınızı kontrol edip tekrar deneyin.';
+      } else if (error.message.includes('fetch') || error.message.includes('network')) {
+        errorMessage = 'Bağlantı hatası. İnternet bağlantınızı kontrol edin.';
+      }
+
+      showNotification('error', 'Gönderim Başarısız', errorMessage + '\n\nAlternatif olarak telefon veya e-posta ile iletişime geçebilirsiniz.');
+    } finally {
+      isSubmitting = false;
+      setButtonLoading(submitBtn, false);
+    }
+  });
+});
 </script>
