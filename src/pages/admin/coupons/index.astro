@@ -819,7 +819,7 @@ const totalUsage = coupons.reduce((sum, c) => sum + (c.used_count || 0), 0);
       });
     });
 
-    // Kullanımları senkronize et
+  // Kullanımları senkronize et
 document.getElementById('sync-usage-btn')?.addEventListener('click', async (e) => {
   const btn = e.currentTarget as HTMLButtonElement;
   const originalText = btn.innerHTML;
@@ -841,11 +841,17 @@ document.getElementById('sync-usage-btn')?.addEventListener('click', async (e) =
       method: 'POST'
     });
 
-    if (!response.ok) throw new Error('Senkronizasyon başarısız');
-
     const result = await response.json();
-    alert(`✅ ${result.totalCoupons} kupon senkronize edildi!`);
-    location.reload();
+
+    if (!response.ok) {
+      throw new Error(result.error || 'Senkronizasyon başarısız');
+    }
+
+    console.log('Sync result:', result);
+    alert(`✅ ${result.updated} kupon güncellendi!\n\nDetaylar:\n${result.results?.map(r => `${r.code}: ${r.count} kullanım`).join('\n') || ''}`);
+
+    // Sayfayı yenile
+    window.location.reload();
   } catch (error: any) {
     console.error('Sync error:', error);
     alert('❌ Senkronizasyon hatası: ' + error.message);
