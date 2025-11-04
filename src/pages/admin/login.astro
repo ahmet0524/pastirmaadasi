@@ -1,6 +1,13 @@
 ---
 // src/pages/admin/login.astro
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getSession } from '../../lib/auth';
+
+// Oturum kontrolü - eğer zaten giriş yapılmışsa dashboard'a yönlendir
+const session = await getSession();
+if (session) {
+  return Astro.redirect('/admin/dashboard');
+}
 ---
 
 <BaseLayout title="Admin Girişi">
@@ -18,7 +25,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
               id="email"
               name="email"
               required
-              placeholder="pastirmaadasi@gmail.com"
+              placeholder="admin@pastirmaadasi.com"
+              autocomplete="email"
             />
           </div>
 
@@ -30,12 +38,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
               name="password"
               required
               placeholder="••••••••"
+              autocomplete="current-password"
             />
           </div>
 
           <div id="error-message" class="error-message hidden"></div>
 
-          <button type="submit" class="btn btn-primary btn-full btn-large">
+          <button type="submit" class="btn btn-primary btn-full btn-large" id="login-btn">
             Giriş Yap
           </button>
         </form>
@@ -54,7 +63,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    background: linear-gradient(135deg, #c41e3a 0%, #d4af37 100%);
     padding: 2rem;
   }
 
@@ -65,7 +74,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
   .login-card {
     background: white;
-    border-radius: var(--radius-lg);
+    border-radius: 16px;
     padding: 3rem;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   }
@@ -73,12 +82,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   .login-card h1 {
     text-align: center;
     margin-bottom: 0.5rem;
+    color: #1f2937;
+    font-size: 2rem;
   }
 
   .login-subtitle {
     text-align: center;
-    color: var(--text-gray);
+    color: #6b7280;
     margin-bottom: 2rem;
+    font-size: 0.95rem;
   }
 
   .login-form {
@@ -91,18 +103,73 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
   .form-group label {
     display: block;
-    font-weight: bold;
+    font-weight: 600;
     margin-bottom: 0.5rem;
-    color: var(--text-dark);
+    color: #374151;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 0.875rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+
+  .form-group input:focus {
+    outline: none;
+    border-color: #c41e3a;
+    box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.1);
   }
 
   .error-message {
-    background: #fee;
-    color: #c33;
+    background: #fee2e2;
+    color: #991b1b;
     padding: 1rem;
-    border-radius: var(--radius-sm);
+    border-radius: 8px;
     margin-bottom: 1rem;
     font-size: 0.875rem;
+    border: 1px solid #fecaca;
+  }
+
+  .error-message.hidden {
+    display: none;
+  }
+
+  .btn {
+    padding: 0.875rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1rem;
+  }
+
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background: #c41e3a;
+    color: white;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: #a01729;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(196, 30, 58, 0.3);
+  }
+
+  .btn-full {
+    width: 100%;
+  }
+
+  .btn-large {
+    padding: 1rem 1.5rem;
+    font-size: 1.05rem;
   }
 
   .login-footer {
@@ -111,41 +178,46 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   .login-footer a {
-    color: var(--primary);
+    color: #c41e3a;
     font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s;
   }
 
   .login-footer a:hover {
-    color: var(--secondary);
+    color: #d4af37;
+  }
+
+  @media (max-width: 480px) {
+    .login-card {
+      padding: 2rem;
+    }
+
+    .login-card h1 {
+      font-size: 1.75rem;
+    }
   }
 </style>
 
 <script>
   import { supabase } from '../../lib/supabase';
 
-  // Sayfa yüklendiğinde oturum kontrolü yap
-  async function checkSession() {
-    const { data: { session } } = await supabase.auth.getSession();
+  const form = document.getElementById('login-form') as HTMLFormElement;
+  const loginBtn = document.getElementById('login-btn') as HTMLButtonElement;
+  const errorDiv = document.getElementById('error-message') as HTMLElement;
 
-    if (session) {
-      // Zaten giriş yapmışsa dashboard'a yönlendir
-      window.location.href = '/admin/dashboard';
-    }
-  }
-
-  checkSession();
-
-  document.getElementById('login-form')?.addEventListener('submit', async (e) => {
+  form?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const form = e.target as HTMLFormElement;
-    const email = (form.querySelector('#email') as HTMLInputElement).value;
-    const password = (form.querySelector('#password') as HTMLInputElement).value;
-    const errorDiv = document.getElementById('error-message');
+    const email = (document.getElementById('email') as HTMLInputElement).value;
+    const password = (document.getElementById('password') as HTMLInputElement).value;
 
-    if (!errorDiv) return;
-
+    // Hata mesajını gizle
     errorDiv.classList.add('hidden');
+
+    // Butonu devre dışı bırak
+    loginBtn.disabled = true;
+    loginBtn.textContent = '⏳ Giriş yapılıyor...';
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -155,12 +227,39 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
       if (error) throw error;
 
-      // Supabase otomatik olarak session'ı localStorage'a kaydeder
-      // Dashboard'a yönlendir
+      if (!data.session) {
+        throw new Error('Oturum oluşturulamadı');
+      }
+
+      // Başarılı giriş - dashboard'a yönlendir
       window.location.href = '/admin/dashboard';
     } catch (error: any) {
-      errorDiv.textContent = error.message || 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.';
+      console.error('Login error:', error);
+
+      // Hata mesajını göster
+      let errorMessage = 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.';
+
+      if (error.message.includes('Invalid login credentials')) {
+        errorMessage = 'E-posta veya şifre hatalı!';
+      } else if (error.message.includes('Email not confirmed')) {
+        errorMessage = 'E-posta adresiniz onaylanmamış!';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      errorDiv.textContent = errorMessage;
       errorDiv.classList.remove('hidden');
+
+      // Butonu tekrar aktif et
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Giriş Yap';
+    }
+  });
+
+  // Enter tuşu ile form gönderimi
+  document.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !loginBtn.disabled) {
+      form?.requestSubmit();
     }
   });
 </script>
