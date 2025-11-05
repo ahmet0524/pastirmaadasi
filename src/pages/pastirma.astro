@@ -222,10 +222,9 @@ function getImageUrl(imgs: any): string {
     </div>
   </div>
 
-  <!-- Cart Success Modal - ✅ X BUTONU EKLENDİ -->
+  <!-- Cart Success Modal -->
   <div id="success-modal" class="cart-modal">
     <div class="modal-content success-content">
-      <!-- ✅ YENİ: X Butonu -->
       <button class="modal-close success-close" aria-label="Kapat">
         <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -249,7 +248,7 @@ function getImageUrl(imgs: any): string {
 </BaseLayout>
 
 <style>
-  /* Hero Section - TURKUAZ (Marka Kimliği) */
+  /* Hero Section */
   .pastirma-hero {
     position: relative;
     min-height: 400px;
@@ -582,29 +581,30 @@ function getImageUrl(imgs: any): string {
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   }
 
+  /* Modal X Butonu - Her İki Modal İçin Ortak Stil */
   .modal-close {
     position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.05);
     border: none;
     cursor: pointer;
-    color: #666;
+    color: #999;
     z-index: 10;
-    transition: color 0.3s;
+    transition: all 0.3s ease;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
   }
 
   .modal-close:hover {
-    color: #333;
-  }
-
-  /* ✅ YENİ: Success Modal X Butonu Özel Stil */
-  .success-close {
-    color: #999;
-  }
-
-  .success-close:hover {
-    color: #DC2626;
+    color: white;
+    background: #DC2626;
+    transform: rotate(90deg);
   }
 
   .modal-body {
@@ -962,7 +962,7 @@ function getImageUrl(imgs: any): string {
     }
   });
 
-  // Sepete ekle butonu - ✅ EN ÖNEMLİ KISIM
+  // Sepete ekle butonu
   document.getElementById('confirm-add-cart')?.addEventListener('click', () => {
     const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
     const quantity = parseInt(qtyInput?.value) || 1;
@@ -1013,7 +1013,6 @@ function getImageUrl(imgs: any): string {
       cartModal?.classList.remove('active');
       successModal?.classList.add('active');
 
-      // ✅ 5 SANİYE SONRA OTOMATİK KAPAT
       setTimeout(() => {
         successModal?.classList.remove('active');
         document.body.style.overflow = '';
@@ -1034,13 +1033,13 @@ function getImageUrl(imgs: any): string {
     document.body.style.overflow = '';
   });
 
-  // ✅ YENİ: SUCCESS MODAL X BUTONU
+  // Success Modal X Butonu
   document.querySelector('.success-close')?.addEventListener('click', () => {
     successModal?.classList.remove('active');
     document.body.style.overflow = '';
   });
 
-  // ✅ YENİ: SUCCESS MODAL DIŞINA TIKLANINCA KAPAT
+  // Success Modal dışına tıklayınca kapat
   successModal?.addEventListener('click', (e) => {
     if (e.target === successModal) {
       successModal.classList.remove('active');

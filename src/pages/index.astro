@@ -258,9 +258,14 @@ const featuredProducts = [
     </div>
   </div>
 
-  <!-- Cart Success Modal -->
+ <!-- Cart Success Modal -->
   <div id="success-modal" class="cart-modal">
     <div class="modal-content success-content">
+      <button class="modal-close success-close" aria-label="Kapat">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
       <div class="success-icon">
         <svg width="60" height="60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -829,10 +834,32 @@ const featuredProducts = [
     color: #666;
     z-index: 10;
     transition: color 0.3s;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .modal-close:hover {
     color: #333;
+  }
+
+  /* Success Modal X Butonu Özel Stil */
+  .success-close {
+    top: 20px;
+    right: 20px;
+    color: #999;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    transition: all 0.3s;
+  }
+
+  .success-close:hover {
+    color: white;
+    background: #DC2626;
+    transform: rotate(90deg);
   }
 
   .modal-body {

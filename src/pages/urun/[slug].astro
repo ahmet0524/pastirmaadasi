@@ -171,7 +171,7 @@ const { data: relatedProducts } = await supabaseAdmin
               </svg>
               <div>
                 <h4>Ücretsiz Kargo</h4>
-                <p>1000₺ üzeri siparişlerde</p>
+                <p>2000₺ üzeri siparişlerde</p>
               </div>
             </div>
             <div class="info-card">
@@ -213,10 +213,9 @@ const { data: relatedProducts } = await supabaseAdmin
 
   <Footer slot="footer" />
 
-  <!-- Success Modal - ✅ X BUTONU EKLENDİ -->
+  <!-- Success Modal -->
   <div id="success-modal" class="success-modal">
     <div class="success-modal-content">
-      <!-- ✅ YENİ: X Butonu -->
       <button class="modal-close success-close" aria-label="Kapat">
         <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -702,7 +701,6 @@ const { data: relatedProducts } = await supabaseAdmin
     margin: 0 1rem 1rem;
   }
 
-  /* Success Modal */
   .success-modal {
     display: none;
     position: fixed;
@@ -733,7 +731,6 @@ const { data: relatedProducts } = await supabaseAdmin
     position: relative;
   }
 
-  /* ✅ YENİ: X Butonu Stili */
   .modal-close {
     position: absolute;
     top: 15px;
@@ -851,7 +848,6 @@ const { data: relatedProducts } = await supabaseAdmin
 </style>
 
 <script>
-  // Thumbnail click events
   const thumbnailBtns = document.querySelectorAll('.thumbnail-btn');
 
   thumbnailBtns.forEach((btn) => {
@@ -913,31 +909,44 @@ const { data: relatedProducts } = await supabaseAdmin
     document.getElementById('total-price').textContent = total.toFixed(2) + '₺';
   }
 
-  // Add to cart
+  // ✅ DÜZELTME: Sepete ekleme mantığı pastirma.astro ile uyumlu hale getirildi
   document.getElementById('add-to-cart-btn')?.addEventListener('click', () => {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
+    // ✅ pastirma.astro ile aynı yapı kullanılıyor
     const cartItem = {
-      id: product.id,
-      name: `${product.name} - ${selectedVariant ? selectedVariant.label : product.unit}`,
+      id: `${product.id}_${selectedVariant ? selectedVariant.label : product.unit}`,
+      productId: product.id,
+      name: product.name,
       price: selectedVariant ? selectedVariant.price : product.price,
       image: productImages[0],
       unit: selectedVariant ? selectedVariant.label : product.unit,
-      quantity: quantity
+      quantity: quantity,
+      availableVariants: product.variants || [] // ✅ Sepet sayfası için gerekli
     };
 
-    const existingIndex = cart.findIndex(item =>
-      item.id === product.id && item.unit === cartItem.unit
+    console.log('🛒 Sepete eklenecek ürün:', cartItem);
+
+    // Aynı ürün ve aynı gramaj var mı kontrol et
+    const existingItemIndex = cart.findIndex(
+      (item) => item.productId === cartItem.productId && item.unit === cartItem.unit
     );
 
-    if (existingIndex >= 0) {
-      cart[existingIndex].quantity += quantity;
+    if (existingItemIndex > -1) {
+      // Mevcut ürünün miktarını artır
+      cart[existingItemIndex].quantity += quantity;
+      cart[existingItemIndex].availableVariants = cartItem.availableVariants; // Varyantları güncelle
+      console.log('✅ Miktar artırıldı');
     } else {
+      // Yeni ürün ekle
       cart.push(cartItem);
+      console.log('✅ Yeni ürün eklendi');
     }
 
     localStorage.setItem('cart', JSON.stringify(cart));
     window.dispatchEvent(new Event('cartUpdated'));
+
+    console.log('✅ Sepet güncellendi:', cart);
 
     // Buton animasyonu
     const btn = document.getElementById('add-to-cart-btn');
@@ -949,7 +958,7 @@ const { data: relatedProducts } = await supabaseAdmin
       document.getElementById('success-modal')?.classList.add('active');
       document.body.style.overflow = 'hidden';
 
-      // ✅ 5 SANİYE SONRA OTOMATİK KAPAT
+      // 5 saniye sonra otomatik kapat
       setTimeout(() => {
         const modal = document.getElementById('success-modal');
         if (modal?.classList.contains('active')) {
@@ -980,7 +989,7 @@ const { data: relatedProducts } = await supabaseAdmin
     updateDisplay();
   });
 
-  // ✅ YENİ: X BUTONU
+  // X butonu
   document.querySelector('.success-close')?.addEventListener('click', () => {
     document.getElementById('continue-shopping')?.click();
   });
