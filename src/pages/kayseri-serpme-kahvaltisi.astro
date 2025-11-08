@@ -1,320 +1,620 @@
 ---
 // src/pages/kayseri-serpme-kahvaltisi.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
 ---
 
-<BaseLayout title="Kayseri Serpme Kahvaltı - Pastırma Adası">
-  <div class="container">
-    <div class="hero-section">
-      <h1>Pastırma Adası - Kayseri Serpme Kahvaltı</h1>
-      <p>Kayseri'nin en özel serpme kahvaltı menülerini keşfedin</p>
-    </div>
+<BaseLayout
+  title="Kayseri Serpme Kahvaltısı - Pastırma Adası"
+  description="Kayseri'nin en özel serpme kahvaltı menüleri. Zengin çeşitlerle dolu geleneksel kahvaltı keyfini yaşayın."
+>
+  <Header slot="header" />
 
-    <div class="menu-grid">
-      <!-- Kayseri Serpme Kahvaltı -->
-      <div class="menu-card">
-        <div class="menu-header">
-          <h2 class="menu-title">Kayseri Serpme Kahvaltı</h2>
-          <div class="price-badge">575₺ / Kişi</div>
+  <!-- Hero Section -->
+  <section class="kahvalti-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <nav class="breadcrumb">
+        <a href="/">Ana Sayfa</a>
+        <span>/</span>
+        <span>Serpme Kahvaltı</span>
+      </nav>
+      <h1>Kayseri Serpme Kahvaltısı</h1>
+      <p class="hero-subtitle">
+        Kayseri'nin en zengin serpme kahvaltı menüleriyle sabahlarınıza lezzet katın
+      </p>
+      <div class="hero-features">
+        <div class="feature-badge">
+          <svg width="20" height="20" fill="#059669" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          Zengin Çeşitler
         </div>
-
-        <div class="serving-info">
-          • En az iki kişilik servis edilir.<br>
-          • Ekstra servis ücreti yoktur.
+        <div class="feature-badge">
+          <svg width="20" height="20" fill="#059669" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          Taze Malzemeler
         </div>
-
-        <div class="menu-section">
-          <div class="section-title">Özel Kayseri Tabağı</div>
-          <div class="items-list">Pastırma, Füme Et, Dana Salam, Çubuk Sucuk / Varyanta Sucuk</div>
+        <div class="feature-badge">
+          <svg width="20" height="20" fill="#059669" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          Özel Tarifler
         </div>
-
-        <div class="menu-section">
-          <div class="section-title">Peynir Tabağı</div>
-          <div class="items-list">
-            Kars Eski Kaşar / Uzunyayla Çerkez Peyniri
-            Erzincan Tulum Peyniri / Ezine Beyaz Peynir
-            Hatay Lavaş Peyniri, Çöreotlu Lavaş Peyniri, Çeçil Peyniri
-          </div>
-        </div>
-
-        <div class="menu-section">
-          <div class="section-title">Zeytin Tabağı</div>
-          <div class="items-list">Gemlik Siyah, Edremit Yeşil, Hatay Kırma</div>
-        </div>
-
-        <div class="menu-section">
-          <div class="section-title">Hamur İşleri</div>
-          <div class="items-list">Çerkez mutfağından Gubate, Velibah ve Pastırmalı Pişi</div>
-        </div>
-
-        <div class="menu-section">
-          <div class="section-title">Diğer Lezzetler</div>
-          <div class="items-list">
-            Doğal üretim Reçeller, Süzme Bal, Taze Kaymak, Tereyağı, Fındık Ezmesi / Helva
-            Mevsim Yeşillikleri ve Patates Kızartması
-          </div>
-        </div>
-
-        <div class="menu-section">
-          <div class="section-title">Sahanda Yumurta</div>
-          <div class="items-list">
-            Pastırmalı, Sucuklu, Kavurmalı, Tereyağlı, Menemen çeşitlerinden seçeceğiniz 2 sahan
-          </div>
-        </div>
-
-        <img
-          class="menu-image-inner"
-          src="https://pastirmaadasi.com/wp-content/uploads/2025/08/serpme-kahvalti.webp"
-          alt="Serpme Kahvaltı Görseli"
-          loading="lazy"
-        />
       </div>
     </div>
+  </section>
 
-    <!-- CTA Butonlar -->
-    <div class="cta-buttons">
-      <a
-        class="cta-btn location-btn"
-        href="https://maps.google.com/?q=Pastırma+Adası+Kayseri"
-        target="_blank"
-        rel="noopener"
-      >
-        📍 Konum Al
-      </a>
-      <a class="cta-btn call-btn" href="tel:+905077623838">
-        📞 Ara
-      </a>
+  <!-- Menu Grid Section -->
+  <section class="menu-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Kahvaltı Menülerimiz</h2>
+        <p>En az iki kişilik servis edilir • Ekstra servis ücreti yoktur</p>
+      </div>
+
+      <div class="menu-grid">
+        <!-- Kayseri Serpme Kahvaltı -->
+        <div class="menu-card premium">
+          <div class="menu-badge">ÖZEL</div>
+          <div class="menu-image-wrapper">
+            <img
+              src="https://pastirmaadasi.com/wp-content/uploads/2025/08/Kayseri-Serpme-Kahvalti.webp"
+              alt="Kayseri Serpme Kahvaltı"
+              class="menu-image"
+              loading="eager"
+              onerror="this.onerror=null; this.src='/assets/image/placeholder.jpg';"
+            />
+            <div class="image-overlay">
+              <div class="price-tag">575₺ / Kişi</div>
+            </div>
+          </div>
+
+          <div class="menu-content">
+            <h3>Kayseri Serpme Kahvaltı</h3>
+
+            <div class="menu-items">
+              <div class="item-group">
+                <h4>🥩 Özel Kayseri Tabağı</h4>
+                <p>Pastırma, Füme Et, Dana Salam, Çubuk Sucuk / Varyanta Sucuk</p>
+              </div>
+
+              <div class="item-group">
+                <h4>🧀 Peynir Tabağı</h4>
+                <p>Kars Eski Kaşar, Uzunyayla Çerkez Peyniri, Erzincan Tulum Peyniri, Ezine Beyaz Peynir, Hatay Lavaş Peyniri, Çöreotlu Lavaş Peyniri, Çeçil Peyniri</p>
+              </div>
+
+              <div class="item-group">
+                <h4>🫒 Zeytin Tabağı</h4>
+                <p>Gemlik Siyah, Edremit Yeşil, Hatay Kırma</p>
+              </div>
+
+              <div class="item-group">
+                <h4>🥐 Hamur İşleri</h4>
+                <p>Çerkez mutfağından Gubate, Velibah ve Pastırmalı Pişi</p>
+              </div>
+
+              <div class="item-group">
+                <h4>🍯 Diğer Lezzetler</h4>
+                <p>Doğal üretim Reçeller, Süzme Bal, Taze Kaymak, Tereyağı, Fındık Ezmesi/Helva, Mevsim Yeşillikleri ve Patates Kızartması</p>
+              </div>
+
+              <div class="item-group">
+                <h4>🍳 Sahanda Yumurta (2 Sahan)</h4>
+                <p>Pastırmalı, Sucuklu, Kavurmalı, Tereyağlı, Menemen çeşitlerinden seçeceğiniz 2 sahan</p>
+              </div>
+            </div>
+
+            <div class="action-buttons">
+              <a href="https://maps.google.com/?q=Pastırma+Adası+Kayseri" target="_blank" class="btn btn-location">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Konum Al
+              </a>
+              <a href="tel:+905077623838" class="btn btn-call">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                </svg>
+                Rezervasyon
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Serpme Kahvaltı -->
+        <div class="menu-card">
+          <div class="menu-image-wrapper">
+            <img
+              src="https://pastirmaadasi.com/wp-content/uploads/2025/08/serpme-kahvalti.webp"
+              alt="Serpme Kahvaltı"
+              class="menu-image"
+              loading="lazy"
+              onerror="this.onerror=null; this.src='/assets/image/placeholder.jpg';"
+            />
+            <div class="image-overlay">
+              <div class="price-tag">450₺ / Kişi</div>
+            </div>
+          </div>
+
+          <div class="menu-content">
+            <h3>Serpme Kahvaltı</h3>
+
+            <div class="menu-items">
+              <div class="item-group">
+                <h4>🧀 Peynir Tabağı</h4>
+                <p>Kars Eski Kaşar, Uzunyayla Çerkez Peyniri, Erzincan Tulum Peyniri, Ezine Beyaz Peynir, Hatay Lavaş Peyniri, Çöreotlu Lavaş Peyniri, Çeçil Peyniri</p>
+              </div>
+
+              <div class="item-group">
+                <h4>🫒 Zeytin Tabağı</h4>
+                <p>Gemlik Siyah, Edremit Yeşil, Hatay Kırma</p>
+              </div>
+
+              <div class="item-group">
+                <h4>🥐 Hamur İşleri</h4>
+                <p>Çerkez mutfağından Gubate, Velibah ve Pastırmalı Pişi</p>
+              </div>
+
+              <div class="item-group">
+                <h4>🍯 Diğer Lezzetler</h4>
+                <p>Doğal üretim Reçeller, Süzme Bal, Taze Kaymak, Tereyağı, Fındık Ezmesi/Helva, Mevsim Yeşillikleri ve Patates Kızartması</p>
+              </div>
+
+              <div class="item-group">
+                <h4>🍳 Sahanda Yumurta (2 Sahan)</h4>
+                <p>Pastırmalı, Sucuklu, Kavurmalı, Tereyağlı, Menemen çeşitlerinden seçeceğiniz 2 sahan</p>
+              </div>
+            </div>
+
+            <div class="action-buttons">
+              <a href="https://maps.google.com/?q=Pastırma+Adası+Kayseri" target="_blank" class="btn btn-location">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Konum Al
+              </a>
+              <a href="tel:+905077623838" class="btn btn-call">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                </svg>
+                Rezervasyon
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+  <!-- Info Section -->
+  <section class="info-section">
+    <div class="container">
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3>Açılış Saatleri</h3>
+          <p>Her gün 08:00 - 22:00 arası hizmetinizdeyiz</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+          </div>
+          <h3>Konum</h3>
+          <p>Kayseri merkez, kolayca ulaşım imkanı</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3>Rezervasyon</h3>
+          <p>Rezervasyon yaptırmak için bizi arayın</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  /* Hero Section */
+  .kahvalti-hero {
+    position: relative;
+    min-height: 400px;
+    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: white;
+    max-width: 1000px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    font-size: 0.875rem;
+  }
+
+  .breadcrumb a {
+    color: rgba(255, 255, 255, 0.95);
+    opacity: 1;
+    transition: opacity 0.3s;
+    text-decoration: none;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .breadcrumb a:hover {
+    opacity: 0.8;
+  }
+
+  .breadcrumb span {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .hero-content h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin: 0 0 1.5rem 0;
+    color: white;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    margin: 0 0 2rem 0;
+    color: rgba(255, 255, 255, 0.98);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  }
+
+  .hero-features {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .feature-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 50px;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .feature-badge svg {
+    fill: #10b981;
+  }
+
+  /* Menu Section */
+  .menu-section {
+    padding: 4rem 1rem;
+    background: #F3F4F6;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .section-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin-bottom: 1rem;
+  }
+
+  .section-header p {
+    font-size: 1.125rem;
+    color: #6B7280;
+  }
+
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 2.5rem;
+  }
+
+  .menu-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .menu-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .menu-card.premium {
+    border: 3px solid #f59e0b;
+  }
+
+  .menu-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.875rem;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+  }
+
+  .menu-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    overflow: hidden;
+  }
+
+  .menu-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .menu-card:hover .menu-image {
+    transform: scale(1.1);
+  }
+
+  .image-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+  }
+
+  .price-tag {
+    background: white;
+    color: #DC2626;
+    padding: 0.75rem 2rem;
+    border-radius: 50px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .menu-content {
+    padding: 2rem;
+  }
+
+  .menu-content h3 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .menu-items {
+    margin-bottom: 2rem;
+  }
+
+  .item-group {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #F9FAFB;
+    border-radius: 10px;
+    border-left: 4px solid #f59e0b;
+  }
+
+  .item-group h4 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 0.5rem;
+  }
+
+  .item-group p {
+    font-size: 0.9375rem;
+    color: #6B7280;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .btn-location {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+
+  .btn-location:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  }
+
+  .btn-call {
+    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+  }
+
+  .btn-call:hover {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+  }
+
+  /* Info Section */
+  .info-section {
+    padding: 4rem 1rem;
+    background: white;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .info-card {
+    text-align: center;
+    padding: 2rem;
+    background: #F3F4F6;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+  }
+
+  .info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(245, 158, 11, 0.15);
+  }
+
+  .info-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .info-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 0.75rem 0;
+  }
+
+  .info-card p {
+    font-size: 1rem;
+    color: #6B7280;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .kahvalti-hero {
+      min-height: 300px;
+      padding: 3rem 1rem;
     }
 
-    body {
-      font-family: 'Georgia', serif;
-      line-height: 1.6;
-      color: #333;
-      background: #faf9f7;
+    .hero-content h1 {
+      font-size: 2.5rem;
     }
 
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
+    .hero-subtitle {
+      font-size: 1rem;
     }
 
-    .hero-section {
-      text-align: center;
-      margin-bottom: 40px;
-      padding: 40px 20px;
-      background: white;
-      border-radius: 20px;
-      border: 2px solid #f2e6c9;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.05);
-    }
-
-    .hero-section h1 {
-      font-size: 2.6rem;
-      margin-bottom: 15px;
-      color: #444;
-      font-weight: bold;
-    }
-
-    .hero-section p {
-      font-size: 1.2rem;
-      color: #7a6a35;
+    .hero-features {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: center;
     }
 
     .menu-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 25px;
-      margin-bottom: 40px;
+      grid-template-columns: 1fr;
     }
 
-    .menu-card {
-      background: white;
-      border-radius: 20px;
-      padding: 25px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-      border: 2px solid #f2e6c9;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
+    .action-buttons {
+      flex-direction: column;
     }
 
-    .menu-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 25px 50px rgba(0,0,0,0.12);
-    }
-
-    .menu-header {
-      text-align: center;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid #f5f5f5;
-    }
-
-    .menu-title {
-      font-size: 1.8rem;
-      color: #7a6a35;
-      margin-bottom: 10px;
-      font-weight: bold;
-    }
-
-    .price-badge {
-      display: inline-block;
-      background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
-      color: #333;
-      padding: 10px 20px;
-      border-radius: 25px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin: 10px 0;
-      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
-    }
-
-    .serving-info {
-      background: #faf8f2;
-      padding: 10px;
-      border-radius: 10px;
-      margin: 10px 0;
-      border-left: 4px solid #d4af37;
-      font-size: 0.95rem;
-      color: #555;
-    }
-
-    .menu-section {
-      margin: 12px 0;
-    }
-
-    .section-title {
-      font-size: 1.1rem;
-      color: #7a6a35;
-      margin-bottom: 8px;
-      font-weight: bold;
-    }
-
-    .items-list {
-      color: #555;
-      line-height: 1.4;
-      white-space: pre-line;
-    }
-
-    .menu-image-inner {
+    .btn {
       width: 100%;
-      height: auto;
-      margin-top: 20px;
-      border-radius: 15px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-      display: block;
     }
 
-    .cta-buttons {
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-      margin-top: 40px;
-      flex-wrap: wrap;
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .section-header h2 {
+      font-size: 2rem;
     }
 
-    .cta-btn {
-      display: inline-block;
-      padding: 15px 30px;
-      border-radius: 50px;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 1.1rem;
-      transition: all 0.3s ease;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-      text-transform: uppercase;
-      color: white;
+    .menu-content h3 {
+      font-size: 1.5rem;
     }
 
-    .cta-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+    .price-tag {
+      font-size: 1.25rem;
+      padding: 0.5rem 1.5rem;
     }
-
-    .location-btn {
-      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-    }
-
-    .call-btn {
-      background: linear-gradient(135deg, #ff6b35 0%, #ff5722 100%);
-    }
-
-    @media (max-width: 768px) {
-      .hero-section h1 {
-        font-size: 2rem;
-      }
-
-      .cta-buttons {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .cta-btn {
-        width: 220px;
-        text-align: center;
-      }
-    }
-  </style>
-</BaseLayout>Kars Eski Kaşar / Uzunyayla Çerkez Peyniri
-            Erzincan Tulum Peyniri / Ezine Beyaz Peynir
-            Hatay Lavaş Peyniri, Çöreotlu Lavaş Peyniri, Çeçil Peyniri
-          </div>
-        </div>
-
-        <div class="menu-section">
-          <div class="section-title">Zeytin Tabağı</div>
-          <div class="items-list">Gemlik Siyah, Edremit Yeşil, Hatay Kırma</div>
-        </div>
-
-        <div class="menu-section">
-          <div class="section-title">Hamur İşleri</div>
-          <div class="items-list">Çerkez mutfağından Gubate, Velibah ve Pastırmalı Pişi</div>
-        </div>
-
-        <div class="menu-section">
-          <div class="section-title">Diğer Lezzetler</div>
-          <div class="items-list">
-            Doğal üretim Reçeller, Süzme Bal, Taze Kaymak, Tereyağı, Fındık Ezmesi / Helva
-            Mevsim Yeşillikleri ve Patates Kızartması
-          </div>
-        </div>
-
-        <div class="menu-section">
-          <div class="section-title">Sahanda Yumurta</div>
-          <div class="items-list">
-            Pastırmalı, Sucuklu, Kavurmalı, Tereyağlı, Menemen çeşitlerinden seçeceğiniz 2 sahan
-          </div>
-        </div>
-
-        <img
-          class="menu-image-inner"
-          src="https://pastirmaadasi.com/wp-content/uploads/2025/08/Kayseri-Serpme-Kahvalti.webp"
-          alt="Kayseri Serpme Kahvaltı Görseli"
-          loading="lazy"
-        />
-      </div>
-
-      <!-- Serpme Kahvaltı -->
-      <div class="menu-card">
-        <div class="menu-header">
-          <h2 class="menu-title">Serpme Kahvaltı</h2>
-          <div class="price-badge">450₺ / Kişi</div>
-        </div>
-
-        <div class="serving-info">
-          • En az iki kişilik servis edilir.<br>
-          • Ekstra servis ücreti yoktur.
-        </div>
-
-        <div class="menu-section">
-          <div class="section-title">Peynir Tabağı</div>
-          <div class="items-list">
+  }
+</style>
