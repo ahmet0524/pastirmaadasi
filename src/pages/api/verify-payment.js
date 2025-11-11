@@ -123,7 +123,7 @@ function adminItemsTable(items) {
       <tr style="background:${i % 2 ? '#fffbeb' : '#ffffff'};border-bottom:1px solid #fde68a;">
         <td style="padding:18px 16px;font-weight:800;color:#0f172a;font-size:16px;border-right:1px solid #fde68a;">
           <div style="display:flex;align-items:center;gap:8px;">
-            <span style="background:#f59e0b;color:#fff;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:900;">#{i + 1}</span>
+            <span style="background:#f59e0b;color:#fff;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:900;">${i + 1}</span>
             <span>${name}</span>
           </div>
         </td>
