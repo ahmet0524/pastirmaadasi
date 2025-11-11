@@ -43,12 +43,32 @@ export const POST = async ({ request }) => {
       );
     }
 
-    const { items, buyer, shippingAddress, billingAddress } = body;
+    const {
+      items,
+      buyer,
+      shippingAddress,
+      billingAddress,
+      // ✅ YENİ ALANLAR
+      addressTitle,
+      invoiceType,
+      companyName,
+      taxOffice,
+      taxNumber,
+      orderNote,
+      appliedCoupons,
+      isDifferentBilling
+    } = body;
 
     console.log("📦 Gelen veri:", {
       itemCount: items?.length,
       buyerEmail: buyer?.email,
       buyerName: buyer?.name,
+      addressTitle,
+      invoiceType,
+      companyName,
+      orderNote,
+      couponsCount: appliedCoupons?.length || 0,
+      isDifferentBilling
     });
 
     // Validasyon
@@ -114,7 +134,10 @@ export const POST = async ({ request }) => {
         zipCode: shippingAddress?.zipCode || "38000",
       },
       billingAddress: {
-        contactName: billingAddress?.contactName || `${buyer.name} ${buyer.surname}`,
+        // ✅ Kurumsal ise şirket adı, değilse kişi adı
+        contactName: invoiceType === 'corporate' && companyName
+          ? companyName
+          : (billingAddress?.contactName || `${buyer.name} ${buyer.surname}`),
         city: billingAddress?.city || "Kayseri",
         country: billingAddress?.country || "Turkey",
         address: billingAddress?.address || "Kayseri, Türkiye",

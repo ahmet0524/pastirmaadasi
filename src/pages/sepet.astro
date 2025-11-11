@@ -48,7 +48,7 @@ const cities = [
           <div class="summary-card">
             <h2 class="summary-title">📋 Sipariş Özeti</h2>
 
-            <!-- Müşteri Bilgileri -->
+            <!-- Kişisel Bilgiler -->
             <div class="customer-info-section">
               <h3 class="section-title">
                 <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
@@ -113,28 +113,178 @@ const cities = [
                   <input type="text" id="buyer-zipcode" placeholder="38000" />
                 </div>
               </div>
+
+              <!-- ✅ Fatura Adresi Farklı Checkbox -->
+              <div class="form-group" style="margin-top: 1rem;">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="different-billing-address" />
+                  <span>📄 Fatura adresim farklı</span>
+                </label>
+              </div>
+
+              <!-- ✅ Fatura Adresi Alanları (Hidden) -->
+              <div id="billing-address-fields" class="billing-address-fields hidden">
+                <div class="billing-address-header">
+                  <h4>📄 Fatura Adresi</h4>
+                </div>
+                <div class="form-group">
+                  <label for="billing-address">Fatura Adresi *</label>
+                  <textarea id="billing-address" placeholder="Fatura adresinizi giriniz" rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="billing-city">Şehir *</label>
+                    <select id="billing-city">
+                      <option value="">Şehir Seçin</option>
+                      {cities.map(city => (
+                        <option value={city} selected={city === 'Kayseri'}>{city}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="billing-zipcode">Posta Kodu</label>
+                    <input type="text" id="billing-zipcode" placeholder="38000" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ✅ YENİ: Fatura Tipi -->
+            <div class="customer-info-section">
+              <h3 class="section-title">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                  <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                </svg>
+                Fatura Tipi
+              </h3>
+              <div class="invoice-type-options">
+                <label class="invoice-type-label">
+                  <input type="radio" name="invoice-type" value="individual" checked />
+                  <span class="invoice-type-card">
+                    <strong>👤 Bireysel</strong>
+                    <small>Bireysel fatura</small>
+                  </span>
+                </label>
+                <label class="invoice-type-label">
+                  <input type="radio" name="invoice-type" value="corporate" />
+                  <span class="invoice-type-card">
+                    <strong>🏢 Kurumsal</strong>
+                    <small>Şirket faturası</small>
+                  </span>
+                </label>
+              </div>
+
+              <!-- Kurumsal Bilgileri -->
+              <div id="corporate-fields" class="corporate-fields hidden">
+                <div class="form-group">
+                  <label for="company-name">Şirket Adı *</label>
+                  <input type="text" id="company-name" placeholder="ABC Ltd. Şti." />
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="tax-office">Vergi Dairesi *</label>
+                    <input type="text" id="tax-office" placeholder="Kocasinan" />
+                  </div>
+                  <div class="form-group">
+                    <label for="tax-number">Vergi No *</label>
+                    <input type="text" id="tax-number" placeholder="1234567890" maxlength="10" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ✅ YENİ: Ödeme Yöntemi Seçimi -->
+            <div class="customer-info-section">
+              <h3 class="section-title">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
+                  <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/>
+                </svg>
+                Ödeme Yöntemi
+              </h3>
+              <div class="payment-method-options">
+                <label class="payment-method-label">
+                  <input type="radio" name="payment-method" value="online" checked />
+                  <span class="payment-method-card">
+                    <strong>💳 Online Ödeme</strong>
+                    <small>Kredi/Banka Kartı ile güvenli ödeme</small>
+                  </span>
+                </label>
+                <label class="payment-method-label">
+                  <input type="radio" name="payment-method" value="bank-transfer" />
+                  <span class="payment-method-card">
+                    <strong>🏦 Havale/EFT</strong>
+                    <small>Banka hesabına havale ile öde</small>
+                  </span>
+                </label>
+                <label class="payment-method-label">
+                  <input type="radio" name="payment-method" value="cash-on-delivery" />
+                  <span class="payment-method-card">
+                    <strong>💵 Kapıda Ödeme</strong>
+                    <small>Nakit veya Kart ile kapıda öde</small>
+                  </span>
+                </label>
+              </div>
+
+              <!-- Havale Bilgileri -->
+              <div id="bank-info" class="bank-info hidden">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                <div>
+                  <strong>🏦 Havale Bilgileri</strong>
+                  <p><strong>Banka:</strong> Türkiye İş Bankası</p>
+                  <p><strong>Hesap Sahibi:</strong> PASTIRMA ADASI GIDA SAN. TİC. LTD. ŞTİ.</p>
+                  <p><strong>IBAN:</strong> TR33 0006 4000 0011 2345 6789 01</p>
+                  <p class="warning-text">⚠️ Havale açıklamasına sipariş numaranızı yazınız!</p>
+                  <p class="info-text">Ödemeniz onaylandıktan sonra siparişiniz kargoya verilecektir.</p>
+                </div>
+              </div>
+
+              <!-- Kapıda Ödeme Uyarısı -->
+              <div id="cash-warning" class="cash-warning hidden">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                <div>
+                  <strong>Kapıda Ödeme Bilgilendirmesi</strong>
+                  <p>Siparişiniz onaylandıktan sonra kargoya verilecektir. Ödemeyi teslimat sırasında nakit veya kredi kartı ile yapabilirsiniz.</p>
+                </div>
+              </div>
             </div>
 
             <!-- Kupon -->
+            <div class="coupon-section">
+              <label for="coupon-input" class="section-title">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z"/>
+                </svg>
+                İndirim Kuponu
+              </label>
 
-<div class="coupon-section">
-  <label for="coupon-input" class="section-title">
-    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-      <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z"/>
-    </svg>
-    İndirim Kuponu
-  </label>
+              <div id="applied-coupons-list" class="applied-coupons-list"></div>
 
-  <!-- ✅ YENİ: Uygulanan Kuponlar -->
-  <div id="applied-coupons-list" class="applied-coupons-list"></div>
+              <div class="coupon-input-group">
+                <input type="text" id="coupon-input" placeholder="Kupon kodunuz" />
+                <button id="apply-coupon" class="btn btn-secondary">Uygula</button>
+              </div>
+              <p id="coupon-message" class="coupon-message hidden"></p>
+            </div>
 
-  <div class="coupon-input-group">
-    <input type="text" id="coupon-input" placeholder="Kupon kodunuz" />
-    <button id="apply-coupon" class="btn btn-secondary">Uygula</button>
-  </div>
-  <p id="coupon-message" class="coupon-message hidden"></p>
-</div>
-
+            <!-- ✅ YENİ: Sipariş Notu -->
+            <div class="customer-info-section">
+              <h3 class="section-title">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                </svg>
+                Sipariş Notu (Opsiyonel)
+              </h3>
+              <div class="form-group">
+                <textarea id="order-note" placeholder="Siparişiniz hakkında eklemek istediğiniz notlar..." rows="3"></textarea>
+                <small>Örnek: Kapı zilim çalışmıyor, lütfen arayın</small>
+              </div>
+            </div>
 
             <!-- Toplam -->
             <div class="summary-details">
@@ -347,6 +497,237 @@ const cities = [
   gap: 1rem;
 }
 
+.corporate-fields {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--teal-50);
+}
+
+/* ✅ Checkbox Label */
+.invoice-type-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 0;
+}
+
+.invoice-type-label {
+  cursor: pointer;
+}
+
+.invoice-type-label input[type="radio"] {
+  display: none;
+}
+
+.invoice-type-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem;
+  background: white;
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: var(--radius-md, 10px);
+  transition: all 0.3s;
+  text-align: center;
+}
+
+.invoice-type-card strong {
+  font-size: 1rem;
+}
+
+.invoice-type-card small {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.invoice-type-label input:checked + .invoice-type-card {
+  background: linear-gradient(135deg, var(--teal-50), var(--teal-100));
+  border-color: var(--primary, #0891b2);
+  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+}
+
+.corporate-fields {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--teal-50);
+}
+
+/* ✅ Ödeme Yöntemi */
+.payment-method-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 0;
+}
+
+.payment-method-label {
+  cursor: pointer;
+}
+
+.payment-method-label input[type="radio"] {
+  display: none;
+}
+
+.payment-method-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem;
+  background: white;
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: var(--radius-md, 10px);
+  transition: all 0.3s;
+  text-align: center;
+}
+
+.payment-method-card strong {
+  font-size: 0.95rem;
+}
+
+.payment-method-card small {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+.payment-method-label input:checked + .payment-method-card {
+  background: linear-gradient(135deg, var(--teal-50), var(--teal-100));
+  border-color: var(--primary, #0891b2);
+  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+}
+
+/* ✅ Havale Bilgileri */
+.bank-info {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #fffbeb;
+  border: 2px solid #f59e0b;
+  border-radius: var(--radius-md, 10px);
+  display: flex;
+  gap: 0.75rem;
+  animation: slideDown 0.3s ease-out;
+}
+
+.bank-info svg {
+  flex-shrink: 0;
+  color: #f59e0b;
+  margin-top: 0.25rem;
+}
+
+.bank-info strong {
+  display: block;
+  color: #92400e;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.bank-info p {
+  margin: 0.25rem 0;
+  color: #78350f;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.bank-info .warning-text {
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  background: rgba(245, 158, 11, 0.1);
+  border-radius: 6px;
+  font-weight: 600;
+  color: #92400e;
+}
+
+.bank-info .info-text {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #a16207;
+  font-style: italic;
+}
+
+/* ✅ Kapıda Ödeme Uyarısı */
+.cash-warning {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #fffbeb;
+  border: 2px solid #f59e0b;
+  border-radius: var(--radius-md, 10px);
+  display: flex;
+  gap: 0.75rem;
+  animation: slideDown 0.3s ease-out;
+}
+
+.cash-warning svg {
+  flex-shrink: 0;
+  color: #f59e0b;
+}
+
+.cash-warning strong {
+  display: block;
+  color: #92400e;
+  margin-bottom: 0.25rem;
+}
+
+.cash-warning p {
+  margin: 0;
+  color: #78350f;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* ✅ Checkbox Label */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--teal-900, #134e4a);
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--primary, #0891b2);
+}
+
+.checkbox-label span {
+  user-select: none;
+}
+
+/* ✅ Fatura Adresi Alanları */
+.billing-address-fields {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: var(--teal-50, #f0fdfa);
+  border-radius: var(--radius-md, 10px);
+  border: 2px solid var(--primary, #0891b2);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.billing-address-header {
+  margin-bottom: 1rem;
+}
+
+.billing-address-header h4 {
+  margin: 0;
+  color: var(--teal-900, #134e4a);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* Kupon */
 .coupon-input-group {
   display: flex;
   gap: 0.75rem;
@@ -358,6 +739,7 @@ const cities = [
   border: 2px solid var(--border-color, #e5e7eb);
   border-radius: var(--radius-md, 10px);
   font-size: 1rem;
+  text-transform: uppercase;
 }
 
 .coupon-input-group input:focus {
@@ -399,6 +781,74 @@ const cities = [
 .coupon-message.error {
   background: var(--red-100, #fee2e2);
   color: var(--red-800, #991b1b);
+}
+
+.applied-coupons-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  min-height: 0;
+}
+
+.applied-coupon-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border: 2px solid #10b981;
+  border-radius: 50px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.applied-coupon-tag .coupon-code {
+  color: #065f46;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.applied-coupon-tag .coupon-discount {
+  color: #059669;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 0.125rem 0.5rem;
+  border-radius: 20px;
+}
+
+.remove-coupon-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: all 0.2s;
+  font-weight: bold;
+}
+
+.remove-coupon-btn:hover {
+  background: #dc2626;
+  transform: scale(1.1);
 }
 
 .summary-details {
@@ -541,87 +991,14 @@ const cities = [
   .btn-secondary {
     width: 100%;
   }
-  .applied-coupons-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  min-height: 0; /* Boşken yer kaplamasın */
-}
-
-.applied-coupon-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  border: 2px solid #10b981;
-  border-radius: 50px;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
+  .invoice-type-options {
+    grid-template-columns: 1fr;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  .payment-method-options {
+    grid-template-columns: 1fr;
   }
-}
-
-.applied-coupon-tag .coupon-code {
-  color: #065f46;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-.applied-coupon-tag .coupon-discount {
-  color: #059669;
-  font-weight: 800;
-  background: rgba(255, 255, 255, 0.7);
-  padding: 0.125rem 0.5rem;
-  border-radius: 20px;
-}
-
-.remove-coupon-btn {
-  background: #ef4444;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 18px;
-  line-height: 1;
-  transition: all 0.2s;
-  font-weight: bold;
-}
-
-.remove-coupon-btn:hover {
-  background: #dc2626;
-  transform: scale(1.1);
-}
-
-.coupon-input-group {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.coupon-input-group input {
-  flex: 1;
-  text-transform: uppercase; /* Otomatik büyük harf */
-}
 }
 </style>
-
-// SEPET.ASTRO SCRIPT BÖLÜMÜ - Mevcut script tagını bununla değiştirin
 
 <script>
 import { supabase } from '../lib/supabase';
@@ -644,7 +1021,7 @@ interface AppliedCoupon {
 }
 
 let cart: CartItem[] = [];
-let appliedCoupons: AppliedCoupon[] = []; // Birden fazla kupon
+let appliedCoupons: AppliedCoupon[] = [];
 
 (window as any).renderCart = function renderCart() {
   const cartContainer = document.getElementById('cart-items');
@@ -792,7 +1169,6 @@ function calculateSubtotal(): number {
 }
 
 function calculateTotalDiscount(subtotal: number): number {
-  // Tüm kuponların indirimlerini topla
   return appliedCoupons.reduce((total, coupon) => {
     return total + ((subtotal * coupon.percent) / 100);
   }, 0);
@@ -817,7 +1193,6 @@ function updateSummary() {
   if (totalEl) totalEl.textContent = `${total.toFixed(2)}₺`;
 }
 
-// Uygulanan kuponları göster
 function renderAppliedCoupons() {
   const container = document.getElementById('applied-coupons-list');
   if (!container) return;
@@ -835,7 +1210,6 @@ function renderAppliedCoupons() {
     </div>
   `).join('');
 
-  // Kupon kaldırma event listener'ları
   document.querySelectorAll('.remove-coupon-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const code = (e.currentTarget as HTMLElement).dataset.code;
@@ -869,7 +1243,6 @@ async function applyCoupon() {
 
   if (!couponCode || !couponMessage) return;
 
-  // Aynı kupon zaten uygulanmış mı?
   if (appliedCoupons.some(c => c.code === couponCode)) {
     couponMessage.textContent = '⚠️ Bu kupon zaten uygulanmış!';
     couponMessage.className = 'coupon-message error';
@@ -878,14 +1251,12 @@ async function applyCoupon() {
     return;
   }
 
-  // Loading durumu
   if (applyBtn) {
     applyBtn.disabled = true;
     applyBtn.textContent = '⏳ Kontrol ediliyor...';
   }
 
   try {
-    // Supabase'den kuponu kontrol et
     const { data: coupon, error } = await supabase
       .from('coupons')
       .select('*')
@@ -897,10 +1268,8 @@ async function applyCoupon() {
       throw new Error('Geçersiz kupon kodu!');
     }
 
-    // Kupon geçerlilik kontrolü
     const now = new Date();
 
-    // Başlangıç tarihi kontrolü
     if (coupon.valid_from) {
       const validFrom = new Date(coupon.valid_from);
       if (now < validFrom) {
@@ -908,7 +1277,6 @@ async function applyCoupon() {
       }
     }
 
-    // Bitiş tarihi kontrolü
     if (coupon.valid_until) {
       const validUntil = new Date(coupon.valid_until);
       if (now > validUntil) {
@@ -916,18 +1284,15 @@ async function applyCoupon() {
       }
     }
 
-    // Kullanım limiti kontrolü
     if (coupon.usage_limit && coupon.used_count >= coupon.usage_limit) {
       throw new Error('Bu kuponun kullanım limiti dolmuş!');
     }
 
-    // Minimum sipariş tutarı kontrolü
     const subtotal = calculateSubtotal();
     if (coupon.min_order_amount && subtotal < coupon.min_order_amount) {
       throw new Error(`Bu kupon için minimum sipariş tutarı ${coupon.min_order_amount}₺`);
     }
 
-    // Kuponu uygula
     const discountAmount = (subtotal * coupon.discount_percent) / 100;
 
     appliedCoupons.push({
@@ -943,7 +1308,6 @@ async function applyCoupon() {
     couponMessage.className = 'coupon-message success';
     couponMessage.classList.remove('hidden');
 
-    // Input'u temizle
     if (couponInput) couponInput.value = '';
 
     setTimeout(() => couponMessage.classList.add('hidden'), 5000);
@@ -975,6 +1339,10 @@ async function handleCheckout() {
     return;
   }
 
+  // ✅ Ödeme yöntemi kontrolü
+  const paymentMethodRadio = document.querySelector('input[name="payment-method"]:checked') as HTMLInputElement;
+  const paymentMethod = paymentMethodRadio?.value || 'online';
+
   const emailInput = document.getElementById('buyer-email') as HTMLInputElement;
   const nameInput = document.getElementById('buyer-name') as HTMLInputElement;
   const surnameInput = document.getElementById('buyer-surname') as HTMLInputElement;
@@ -992,6 +1360,61 @@ async function handleCheckout() {
   const address = addressInput?.value.trim();
   const city = citySelect?.value.trim();
   const zipcode = zipcodeInput?.value.trim() || '38000';
+
+  // ✅ YENİ: Fatura tipi
+  const invoiceTypeRadio = document.querySelector('input[name="invoice-type"]:checked') as HTMLInputElement;
+  const invoiceType = invoiceTypeRadio?.value || 'individual';
+
+  let companyName = '';
+  let taxOffice = '';
+  let taxNumber = '';
+
+  if (invoiceType === 'corporate') {
+    const companyNameInput = document.getElementById('company-name') as HTMLInputElement;
+    const taxOfficeInput = document.getElementById('tax-office') as HTMLInputElement;
+    const taxNumberInput = document.getElementById('tax-number') as HTMLInputElement;
+
+    companyName = companyNameInput?.value.trim() || '';
+    taxOffice = taxOfficeInput?.value.trim() || '';
+    taxNumber = taxNumberInput?.value.trim() || '';
+
+    if (!companyName || !taxOffice || !taxNumber) {
+      alert('Lütfen tüm kurumsal fatura bilgilerini doldurun!');
+      return;
+    }
+
+    if (taxNumber.length !== 10 || !/^\d{10}$/.test(taxNumber)) {
+      alert('Vergi numarası 10 haneli olmalıdır!');
+      return;
+    }
+  }
+
+  // ✅ YENİ: Fatura adresi kontrolü
+  const differentBillingCheckbox = document.getElementById('different-billing-address') as HTMLInputElement;
+  const isDifferentBilling = differentBillingCheckbox?.checked || false;
+
+  let billingAddress = address;
+  let billingCity = city;
+  let billingZipcode = zipcode;
+
+  if (isDifferentBilling) {
+    const billingAddressInput = document.getElementById('billing-address') as HTMLTextAreaElement;
+    const billingCitySelect = document.getElementById('billing-city') as HTMLSelectElement;
+    const billingZipcodeInput = document.getElementById('billing-zipcode') as HTMLInputElement;
+
+    billingAddress = billingAddressInput?.value.trim() || '';
+    billingCity = billingCitySelect?.value.trim() || '';
+    billingZipcode = billingZipcodeInput?.value.trim() || '38000';
+
+    if (!billingAddress || !billingCity) {
+      alert('Lütfen fatura adres bilgilerini doldurun!');
+      return;
+    }
+  }
+
+  // ✅ YENİ: Sipariş notu
+  const orderNoteInput = document.getElementById('order-note') as HTMLTextAreaElement;
+  const orderNote = orderNoteInput?.value.trim() || '';
 
   if (!email || !name || !surname || !phone || !identity || !address || !city) {
     alert('Lütfen tüm zorunlu alanları doldurun!');
@@ -1025,9 +1448,24 @@ async function handleCheckout() {
   localStorage.setItem('lastOrderCity', city);
   localStorage.setItem('lastOrderZipcode', zipcode);
   localStorage.setItem('lastOrderCart', JSON.stringify(cart));
-
-  // ✅ ÇOKLU KUPON BİLGİSİNİ KAYDET
   localStorage.setItem('lastOrderCoupons', JSON.stringify(appliedCoupons));
+
+  // ✅ YENİ ALANLAR - Adres başlığı kaldırıldı
+  localStorage.setItem('lastOrderInvoiceType', invoiceType);
+  if (invoiceType === 'corporate') {
+    localStorage.setItem('lastOrderCompanyName', companyName);
+    localStorage.setItem('lastOrderTaxOffice', taxOffice);
+    localStorage.setItem('lastOrderTaxNumber', taxNumber);
+  }
+  localStorage.setItem('lastOrderNote', orderNote);
+
+  // ✅ Fatura adresi
+  localStorage.setItem('lastOrderDifferentBilling', isDifferentBilling.toString());
+  if (isDifferentBilling) {
+    localStorage.setItem('lastOrderBillingAddress', billingAddress);
+    localStorage.setItem('lastOrderBillingCity', billingCity);
+    localStorage.setItem('lastOrderBillingZipcode', billingZipcode);
+  }
 
   const btn = document.getElementById('checkout-btn') as HTMLButtonElement;
   const btnText = document.getElementById('checkout-btn-text');
@@ -1071,14 +1509,78 @@ async function handleCheckout() {
     zipCode: zipcode,
   };
 
-  const billingAddress = {
-    contactName: `${name} ${surname}`,
-    city: city,
+  const billingAddressObj = {
+    contactName: invoiceType === 'corporate' ? companyName : `${name} ${surname}`,
+    city: billingCity,
     country: 'Turkey',
-    address: `${address}, ${city}`,
-    zipCode: zipcode,
+    address: `${billingAddress}, ${billingCity}`,
+    zipCode: billingZipcode,
   };
 
+  // ✅ KAPIDA ÖDEME veya HAVALE - Direkt sipariş oluştur
+  if (paymentMethod === 'cash-on-delivery' || paymentMethod === 'bank-transfer') {
+    try {
+      const response = await fetch('/api/create-cash-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerName: `${name} ${surname}`,
+          customerEmail: email,
+          customerPhone: cleanedPhone,
+          customerIdentity: identity,
+          customerAddress: address,
+          customerCity: city,
+          customerZipcode: zipcode,
+          items: cart,
+          subtotal,
+          shipping,
+          total: subtotal + shipping - totalDiscount,
+          invoiceType,
+          companyName,
+          taxOffice,
+          taxNumber,
+          orderNote,
+          appliedCoupons,
+          billingAddress: isDifferentBilling ? billingAddress : address,
+          billingCity: isDifferentBilling ? billingCity : city,
+          billingZipcode: isDifferentBilling ? billingZipcode : zipcode,
+          isDifferentBilling,
+          paymentMethod
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Sipariş oluşturulamadı');
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Sepeti temizle
+        localStorage.removeItem('cart');
+        localStorage.removeItem('appliedCoupons');
+
+        // Başarı sayfasına yönlendir
+        const successPage = paymentMethod === 'bank-transfer'
+          ? `/odeme-basarili-havale?orderNumber=${data.orderNumber}`
+          : `/odeme-basarili-kapida?orderNumber=${data.orderNumber}`;
+        window.location.href = successPage;
+      } else {
+        throw new Error(data.error || 'Sipariş oluşturulamadı!');
+      }
+    } catch (err) {
+      console.error('❌ Sipariş hatası:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Bilinmeyen bir hata oluştu';
+      alert('Sipariş Hatası: ' + errorMessage);
+
+      btn.disabled = false;
+      btnText.textContent = paymentMethod === 'bank-transfer' ? '🏦 Siparişi Tamamla' : '📦 Siparişi Tamamla';
+      return;
+    }
+  }
+
+  // ✅ ONLİNE ÖDEME - İyzico'ya yönlendir
   try {
     const response = await fetch('/api/create-payment', {
       method: 'POST',
@@ -1087,7 +1589,15 @@ async function handleCheckout() {
         items,
         buyer,
         shippingAddress,
-        billingAddress,
+        billingAddress: billingAddressObj,
+        // ✅ YENİ ALANLAR (addressTitle kaldırıldı)
+        invoiceType,
+        companyName,
+        taxOffice,
+        taxNumber,
+        orderNote,
+        appliedCoupons,
+        isDifferentBilling,
       }),
     });
 
@@ -1134,18 +1644,119 @@ document.addEventListener('DOMContentLoaded', () => {
     input.value = input.value.replace(/\D/g, '').substring(0, 11);
   });
 
+  const taxNumberInput = document.getElementById('tax-number');
+  taxNumberInput?.addEventListener('input', (e) => {
+    const input = e.target as HTMLInputElement;
+    input.value = input.value.replace(/\D/g, '').substring(0, 10);
+  });
+
   const applyCouponBtn = document.getElementById('apply-coupon');
   if (applyCouponBtn) {
     applyCouponBtn.addEventListener('click', applyCoupon);
   }
 
-  // Enter tuşu ile kupon uygula
   const couponInput = document.getElementById('coupon-input');
   couponInput?.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       applyCoupon();
     }
+  });
+
+  // ✅ Adres başlığı seçimi
+  document.querySelectorAll('.address-title-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const target = e.currentTarget as HTMLElement;
+      const title = target.dataset.title || '';
+
+      document.querySelectorAll('.address-title-btn').forEach(b => b.classList.remove('active'));
+      target.classList.add('active');
+
+      const customInput = document.getElementById('custom-address-title') as HTMLInputElement;
+      const hiddenInput = document.getElementById('selected-address-title') as HTMLInputElement;
+
+      if (title === 'Diğer') {
+        customInput.classList.remove('hidden');
+        customInput.required = true;
+        hiddenInput.value = '';
+      } else {
+        customInput.classList.add('hidden');
+        customInput.required = false;
+        hiddenInput.value = title;
+      }
+    });
+  });
+
+  // ✅ Fatura tipi değişimi
+  document.querySelectorAll('input[name="invoice-type"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const target = e.target as HTMLInputElement;
+      const corporateFields = document.getElementById('corporate-fields');
+      const companyName = document.getElementById('company-name') as HTMLInputElement;
+      const taxOffice = document.getElementById('tax-office') as HTMLInputElement;
+      const taxNumber = document.getElementById('tax-number') as HTMLInputElement;
+
+      if (target.value === 'corporate') {
+        corporateFields?.classList.remove('hidden');
+        if (companyName) companyName.required = true;
+        if (taxOffice) taxOffice.required = true;
+        if (taxNumber) taxNumber.required = true;
+      } else {
+        corporateFields?.classList.add('hidden');
+        if (companyName) companyName.required = false;
+        if (taxOffice) taxOffice.required = false;
+        if (taxNumber) taxNumber.required = false;
+      }
+    });
+  });
+
+  // ✅ Fatura adresi farklı checkbox
+  const differentBillingCheckbox = document.getElementById('different-billing-address') as HTMLInputElement;
+  differentBillingCheckbox?.addEventListener('change', (e) => {
+    const target = e.target as HTMLInputElement;
+    const billingFields = document.getElementById('billing-address-fields');
+    const billingAddressInput = document.getElementById('billing-address') as HTMLTextAreaElement;
+    const billingCitySelect = document.getElementById('billing-city') as HTMLSelectElement;
+
+    if (target.checked) {
+      billingFields?.classList.remove('hidden');
+      if (billingAddressInput) billingAddressInput.required = true;
+      if (billingCitySelect) billingCitySelect.required = true;
+    } else {
+      billingFields?.classList.add('hidden');
+      if (billingAddressInput) billingAddressInput.required = false;
+      if (billingCitySelect) billingCitySelect.required = false;
+    }
+  });
+
+  // ✅ Ödeme yöntemi değişimi
+  document.querySelectorAll('input[name="payment-method"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const target = e.target as HTMLInputElement;
+      const cashWarning = document.getElementById('cash-warning');
+      const bankInfo = document.getElementById('bank-info');
+      const checkoutBtn = document.getElementById('checkout-btn-text');
+
+      // Tüm uyarıları gizle
+      cashWarning?.classList.add('hidden');
+      bankInfo?.classList.add('hidden');
+
+      if (target.value === 'cash-on-delivery') {
+        cashWarning?.classList.remove('hidden');
+        if (checkoutBtn) {
+          checkoutBtn.textContent = '📦 Siparişi Tamamla';
+        }
+      } else if (target.value === 'bank-transfer') {
+        bankInfo?.classList.remove('hidden');
+        if (checkoutBtn) {
+          checkoutBtn.textContent = '🏦 Siparişi Tamamla';
+        }
+      } else {
+        if (checkoutBtn) {
+          checkoutBtn.textContent = '💳 Ödemeye Geç';
+        }
+      }
+    });
   });
 });
 </script>

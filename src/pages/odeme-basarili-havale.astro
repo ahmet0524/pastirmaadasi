@@ -1,0 +1,480 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const orderNumber = Astro.url.searchParams.get('orderNumber') || 'N/A';
+---
+
+<BaseLayout title="Sipariş Alındı - Havale/EFT" description="Siparişiniz başarıyla alındı">
+  <Header slot="header" />
+
+  <section class="result-page">
+    <div class="container">
+      <div class="result-card success-card">
+        <div class="success-icon">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+
+        <h1>🎉 Siparişiniz Alındı!</h1>
+        <p class="success-message">Havale/EFT ile verdiğiniz sipariş başarıyla kaydedildi. Ödemeniz onaylandıktan sonra siparişiniz kargoya verilecektir.</p>
+
+        <div class="order-info">
+          <div class="info-item">
+            <span class="label">Sipariş No:</span>
+            <span class="value">{orderNumber}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Ödeme Yöntemi:</span>
+            <span class="value bank-badge">🏦 Havale/EFT</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Durum:</span>
+            <span class="value status-pending">⏳ Ödeme Bekleniyor</span>
+          </div>
+        </div>
+
+        <div class="bank-details-box">
+          <div class="bank-details-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+          </div>
+          <div>
+            <h3>🏦 Havale Bilgileri</h3>
+            <div class="bank-info-grid">
+              <div class="bank-info-item">
+                <strong>Banka:</strong>
+                <span>Türkiye İş Bankası</span>
+              </div>
+              <div class="bank-info-item">
+                <strong>Hesap Sahibi:</strong>
+                <span>PASTIRMA ADASI GIDA SAN. TİC. LTD. ŞTİ.</span>
+              </div>
+              <div class="bank-info-item copy-item">
+                <strong>IBAN:</strong>
+                <div class="copy-container">
+                  <span id="iban-text">TR33 0006 4000 0011 2345 6789 01</span>
+                  <button class="copy-btn" onclick="copyIban()">📋 Kopyala</button>
+                </div>
+              </div>
+              <div class="bank-info-item important-item">
+                <strong>⚠️ Havale Açıklaması:</strong>
+                <span class="order-number-highlight">{orderNumber}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="payment-warning-box">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <div>
+            <h4>Önemli Bilgilendirme</h4>
+            <ul>
+              <li>Havale/EFT yaparken açıklama kısmına <strong>mutlaka sipariş numaranızı ({orderNumber})</strong> yazınız.</li>
+              <li>Ödemeniz onaylandıktan sonra size email ile bilgi verilecek ve siparişiniz kargoya verilecektir.</li>
+              <li>Ödeme onayı genellikle 1-2 iş günü sürmektedir.</li>
+              <li>Herhangi bir sorunuz varsa bizimle iletişime geçebilirsiniz.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="success-actions">
+          <a href="/" class="btn btn-primary">Ana Sayfaya Dön</a>
+          <a href="/online-alisveris" class="btn btn-secondary">Alışverişe Devam Et</a>
+        </div>
+
+        <div class="next-steps">
+          <h3>📦 Sonraki Adımlar</h3>
+          <ul>
+            <li>Sipariş onay e-postası gönderildi</li>
+            <li>Havale/EFT işleminizi yapın</li>
+            <li>Ödemeniz onaylandığında bilgilendirileceksiniz</li>
+            <li>Siparişiniz kargoya verilecek</li>
+            <li>Kargo takip numaranız tarafınıza iletilecek</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+.result-page {
+  padding: 4rem 0;
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.result-card {
+  background: white;
+  border-radius: 20px;
+  padding: 3rem;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+}
+
+.success-card {
+  border-top: 5px solid #f59e0b;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 2rem;
+  border-radius: 50%;
+  background: #f59e0b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: scaleIn 0.5s ease-out;
+}
+
+.success-icon svg {
+  color: white;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+.result-card h1 {
+  color: #1f2937;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+}
+
+.success-message {
+  color: #6b7280;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.order-info {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.value {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.bank-badge {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  color: #92400e;
+  font-weight: 700;
+}
+
+.status-pending {
+  color: #f59e0b;
+}
+
+.bank-details-box {
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border: 3px solid #f59e0b;
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 2rem 0;
+  text-align: left;
+}
+
+.bank-details-icon {
+  text-align: center;
+  color: #f59e0b;
+  margin-bottom: 1rem;
+}
+
+.bank-details-box h3 {
+  text-align: center;
+  margin: 0 0 1.5rem;
+  color: #92400e;
+  font-size: 1.3rem;
+}
+
+.bank-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bank-info-item {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bank-info-item strong {
+  color: #78350f;
+  min-width: 140px;
+}
+
+.bank-info-item span {
+  color: #1f2937;
+  font-weight: 500;
+  text-align: right;
+  flex: 1;
+}
+
+.copy-item {
+  background: #fef3c7;
+  border: 2px dashed #f59e0b;
+}
+
+.copy-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.copy-btn {
+  padding: 0.5rem 1rem;
+  background: #f59e0b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.copy-btn:hover {
+  background: #d97706;
+  transform: translateY(-2px);
+}
+
+.important-item {
+  background: #fee2e2;
+  border: 2px solid #ef4444;
+}
+
+.order-number-highlight {
+  background: #dc2626;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  font-family: monospace;
+}
+
+.payment-warning-box {
+  background: #fff7ed;
+  border: 2px solid #f97316;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  display: flex;
+  gap: 1rem;
+  text-align: left;
+}
+
+.payment-warning-box svg {
+  flex-shrink: 0;
+  color: #f97316;
+}
+
+.payment-warning-box h4 {
+  margin: 0 0 1rem;
+  color: #9a3412;
+}
+
+.payment-warning-box ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #c2410c;
+}
+
+.payment-warning-box li {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+}
+
+.success-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.btn {
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background: #f59e0b;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #d97706;
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: white;
+  color: #f59e0b;
+  border: 2px solid #f59e0b;
+}
+
+.btn-secondary:hover {
+  background: #f59e0b;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.next-steps {
+  text-align: left;
+  background: #f0fdf4;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 2px solid #10b981;
+}
+
+.next-steps h3 {
+  margin-top: 0;
+  color: #065f46;
+  font-size: 1.1rem;
+}
+
+.next-steps ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #047857;
+}
+
+.next-steps li {
+  margin: 0.5rem 0;
+}
+
+@media (max-width: 768px) {
+  .result-card {
+    padding: 2rem;
+  }
+
+  .success-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .bank-info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .bank-info-item span {
+    text-align: left;
+  }
+
+  .copy-container {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .copy-btn {
+    width: 100%;
+  }
+}
+</style>
+
+<script>
+  function copyIban() {
+    const ibanText = document.getElementById('iban-text')?.textContent || '';
+    const cleanIban = ibanText.replace(/\s/g, '');
+
+    navigator.clipboard.writeText(cleanIban).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      const originalText = btn?.textContent;
+      if (btn) {
+        btn.textContent = '✅ Kopyalandı!';
+        btn.style.background = '#10b981';
+        setTimeout(() => {
+          btn.textContent = originalText || '';
+          btn.style.background = '';
+        }, 2000);
+      }
+    }).catch(err => {
+      alert('IBAN kopyalanamadı. Lütfen manuel olarak kopyalayın.');
+      console.error('Copy error:', err);
+    });
+  }
+
+  // Global scope'a ekle
+  (window as any).copyIban = copyIban;
+
+  // LocalStorage temizliği
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('cart');
+    localStorage.removeItem('appliedCoupons');
+    localStorage.removeItem('lastOrderCart');
+    localStorage.removeItem('lastOrderCoupons');
+    localStorage.removeItem('lastOrderEmail');
+    localStorage.removeItem('lastOrderName');
+    localStorage.removeItem('lastOrderSurname');
+    localStorage.removeItem('lastOrderPhone');
+    localStorage.removeItem('lastOrderIdentity');
+    localStorage.removeItem('lastOrderAddress');
+    localStorage.removeItem('lastOrderCity');
+    localStorage.removeItem('lastOrderZipcode');
+    localStorage.removeItem('lastOrderInvoiceType');
+    localStorage.removeItem('lastOrderCompanyName');
+    localStorage.removeItem('lastOrderTaxOffice');
+    localStorage.removeItem('lastOrderTaxNumber');
+    localStorage.removeItem('lastOrderNote');
+    localStorage.removeItem('lastOrderDifferentBilling');
+    localStorage.removeItem('lastOrderBillingAddress');
+    localStorage.removeItem('lastOrderBillingCity');
+    localStorage.removeItem('lastOrderBillingZipcode');
+
+    window.dispatchEvent(new Event('cartUpdated'));
+  }
+</script>
