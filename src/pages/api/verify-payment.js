@@ -35,7 +35,7 @@ function badge({ text, bg, color }) {
 function headerBlock({ title, icon, gradient }) {
   return `
     <div style="background:${gradient};padding:40px 20px;text-align:center;position:relative;overflow:hidden;">
-      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.05)"/></svg>');opacity:0.1;"></div>
+
       <img src="${LOGO_URL}" width="140" height="auto" alt="Pastırma Adası" style="display:block;margin:0 auto 16px auto;border-radius:16px;background:#fff;padding:12px;box-shadow:0 8px 24px rgba(0,0,0,0.15);position:relative;"/>
       <div style="font-size:64px;line-height:1;margin-bottom:12px;position:relative;">${icon}</div>
       <h1 style="margin:0;color:#fff;font-size:28px;font-weight:900;letter-spacing:0.5px;text-shadow:0 2px 8px rgba(0,0,0,0.2);position:relative;">${title}</h1>
@@ -128,7 +128,7 @@ function adminItemsTable(items) {
           </div>
         </td>
         <td style="padding:18px 16px;text-align:center;color:#0f172a;font-weight:700;font-size:18px;border-right:1px solid #fde68a;">
-          <span style="background:#fef3c7;padding:6px 12px;border-radius:8px;display:inline-block;">${qty}</span>
+          <span style="background:#f59e0b;color:#fff;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:900;">${i + 1}</span>
         </td>
         <td style="padding:18px 16px;text-align:center;color:#78716c;font-size:14px;font-weight:600;border-right:1px solid #fde68a;">${unit}</td>
         <td style="padding:18px 16px;text-align:right;color:#0f172a;font-weight:700;font-size:16px;border-right:1px solid #fde68a;">${currencyTRY(price)}</td>
