@@ -66,6 +66,46 @@ function keyValueRow(label, value, last = false) {
   `;
 }
 
+function itemsTable(items) {
+  if (!items || !items.length) {
+    return `<div style="padding:32px;text-align:center;color:#94a3b8;background:#f8fafc;border-radius:12px;font-weight:600;">Ürün detayları bulunamadı</div>`;
+  }
+  const rows = items.map((it, i) => {
+    const name = it.name ?? `Ürün ${i + 1}`;
+    const qty = it.quantity ?? 1;
+    const unit = it.unit ?? '500g';
+    const price = Number(it.price || 0);
+    const total = price * qty;
+    return `
+      <tr style="background:${i % 2 ? '#f8fafc' : '#ffffff'};transition:background 0.2s ease;">
+        <td style="padding:16px 14px;font-weight:700;color:#0f172a;font-size:15px;">${name}</td>
+        <td style="padding:16px 14px;text-align:center;color:#0f172a;font-weight:600;font-size:15px;">${qty}</td>
+        <td style="padding:16px 14px;text-align:center;color:#64748b;font-size:14px;">${unit}</td>
+        <td style="padding:16px 14px;text-align:right;color:#0f172a;font-weight:600;font-size:15px;">${currencyTRY(price)}</td>
+        <td style="padding:16px 14px;text-align:right;font-weight:900;color:#0f172a;font-size:16px;">${currencyTRY(total)}</td>
+      </tr>
+    `;
+  }).join('');
+  return `
+    <div style="overflow:auto;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;border:2px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+        <thead>
+          <tr style="background:linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);">
+            <th style="text-align:left;padding:16px 14px;color:#ffffff;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:0.5px;">Ürün</th>
+            <th style="text-align:center;padding:16px 14px;color:#ffffff;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:0.5px;">Adet</th>
+            <th style="text-align:center;padding:16px 14px;color:#ffffff;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:0.5px;">Birim</th>
+            <th style="text-align:right;padding:16px 14px;color:#ffffff;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:0.5px;">Birim Fiyat</th>
+            <th style="text-align:right;padding:16px 14px;color:#ffffff;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:0.5px;">Tutar</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
 function adminItemsTable(items) {
   if (!items || !items.length) {
     return `<div style="padding:32px;text-align:center;color:#94a3b8;background:#fef2f2;border-radius:12px;font-weight:600;border:2px dashed #fca5a5;">⚠️ ÜRÜN BİLGİSİ YOK!</div>`;
