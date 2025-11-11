@@ -13,7 +13,7 @@ const supabase = createClient(
   import.meta.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-const SITE_ORIGIN = 'https://pastirmaadasi.com';
+const SITE_ORIGIN = 'https://pastirmaadasi.vercel.app';
 const LOGO_URL = `${SITE_ORIGIN}/assets/image/logo/Pastirma-Adasi-logo.webp`; // e-posta için mutlak URL
 const FROM_EMAIL = "Pastırma Adası <siparis@successodysseyhub.com>";
 const ADMIN_EMAIL = import.meta.env.ADMIN_EMAIL || "successodysseyhub@gmail.com";
