@@ -1,0 +1,1432 @@
+---
+// src/pages/sarkuteri.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+);
+
+// Şarküteri kategorisindeki tüm ürünleri çek (ü harfi ile!)
+const { data: products, error } = await supabase
+  .from('products')
+  .select('*')
+  .eq('category', 'Şarküteri')
+  .eq('is_active', true)
+  .order('sort_order', { ascending: true });
+
+if (error) {
+  console.error('❌ Supabase Hatası:', error);
+  console.error('Error details:', JSON.stringify(error, null, 2));
+}
+
+console.log('📦 Toplam Şarküteri Ürünü:', products?.length || 0);
+console.log('🔍 Ürünler:', products);
+
+const categories = [
+  {
+    name: 'Peynir Çeşitlerimiz',
+    slug: 'peynir',
+    description: 'Doğal ve lezzetli peynir çeşitlerimiz',
+    icon: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+      <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+    </svg>`
+  },
+  {
+    name: 'Zeytin Çeşitlerimiz',
+    slug: 'zeytin',
+    description: 'Özenle seçilmiş zeytin çeşitleri',
+    icon: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M12 2a7 7 0 0 0 0 14 7 7 0 0 0 0-14"/>
+    </svg>`
+  },
+  {
+    name: 'Bal Çeşitlerimiz',
+    slug: 'bal',
+    description: 'Doğal ve saf bal çeşitlerimiz',
+    icon: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M17.8 19.2L16 11l3.5-3.5C21 6 21 5 20.5 4.5S19 4 17.5 5.5L14 9l-8.2 1.8c-.5.1-.8.6-.8 1.1s.3 1 .8 1.1L10 13.5l2.5 4.2c.1.5.6.8 1.1.8s1-.3 1.1-.8z"/>
+    </svg>`
+  },
+  {
+    name: 'Baharat Çeşitlerimiz',
+    slug: 'baharat',
+    description: 'Özel baharat karışımlarımız',
+    icon: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M12 2v20M17 7l-5 5-5-5M17 17l-5-5-5 5"/>
+    </svg>`
+  }
+];
+
+// Ürünleri kategorilere göre grupla
+const groupedProducts = categories.map(cat => ({
+  ...cat,
+  products: products?.filter(p => p.slug.includes(cat.slug)) || []
+}));
+
+// Resim URL'sini al
+function getImageUrl(imgs: any): string {
+  const placeholder = '/assets/image/placeholder.jpg';
+  if (!imgs) return placeholder;
+
+  if (Array.isArray(imgs)) {
+    if (imgs.length === 0) return placeholder;
+    const firstImage = String(imgs[0]).replace(/^"|"$/g, '').replace(/""/g, '').trim();
+    return firstImage || placeholder;
+  }
+
+  if (typeof imgs === 'string') {
+    if (imgs.startsWith('{') && imgs.endsWith('}')) {
+      const paths = imgs.slice(1, -1).split(',').map(p => p.trim().replace(/^"|"$/g, ''));
+      if (paths.length > 0 && paths[0]) return paths[0];
+    }
+
+    if (imgs.startsWith('[')) {
+      try {
+        const cleaned = imgs.replace(/""/g, '"').replace(/\\"/g, '"');
+        const parsed = JSON.parse(cleaned);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return String(parsed[0]).replace(/^"|"$/g, '').trim() || placeholder;
+        }
+      } catch (e) {
+        console.error('Image parse error:', e);
+      }
+    }
+
+    const cleaned = imgs.replace(/^"|"$/g, '').trim();
+    if (cleaned.startsWith('/') || cleaned.startsWith('http')) return cleaned;
+  }
+
+  return placeholder;
+}
+---
+
+<BaseLayout
+  title="Şarküteri Ürünlerimiz - Pastırma Adası"
+  description="Peynir, zeytin, bal ve baharat çeşitlerimiz. Doğal ve lezzetli şarküteri ürünleri Pastırma Adası'nda."
+>
+  <Header slot="header" />
+
+  <!-- Hero Section -->
+  <section class="pastirma-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <nav class="breadcrumb">
+        <a href="/">Ana Sayfa</a>
+        <span>/</span>
+        <span>Şarküteri Ürünleri</span>
+      </nav>
+      <h1>Şarküteri Ürünlerimiz</h1>
+      <p class="hero-subtitle">
+        Doğal ve lezzetli peynir, zeytin, bal ve baharat çeşitlerimizle sofralarınızı zenginleştirin
+      </p>
+      <div class="hero-features">
+        <div class="feature-badge">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Doğal Ürünler
+        </div>
+        <div class="feature-badge">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
+          Kalite Garantisi
+        </div>
+        <div class="feature-badge">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Özenle Seçilmiş
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Kategori Navigasyonu -->
+  <section class="category-nav-section">
+    <div class="container">
+      <nav class="category-nav">
+        {categories.map(cat => (
+          <a href={`#${cat.slug}`} class="category-link">
+            <span class="category-icon" set:html={cat.icon}></span>
+            <span>{cat.name}</span>
+          </a>
+        ))}
+      </nav>
+    </div>
+  </section>
+
+  <!-- Kategori Bölümleri -->
+  <section class="products-section">
+    <div class="container">
+      {groupedProducts.map(category => (
+        <div id={category.slug} class="category-section">
+          <div class="section-header">
+            <span class="section-icon" set:html={category.icon}></span>
+            <div>
+              <h2 class="section-title">{category.name}</h2>
+              <p class="section-description">{category.description}</p>
+            </div>
+          </div>
+
+          {category.products.length > 0 ? (
+            <div class="products-grid">
+              {category.products.map((product: any, index: number) => (
+                <div class="product-card">
+                  <div class="product-image-wrapper">
+                    <a href={`/urun/${product.slug}`} class="product-image-link">
+                      <img
+                        src={getImageUrl(product.images)}
+                        alt={product.name}
+                        class="product-image"
+                        loading={index < 4 ? "eager" : "lazy"}
+                        fetchpriority={index < 2 ? "high" : "auto"}
+                        onError="this.onerror=null; this.src='/assets/image/placeholder.jpg';"
+                      />
+                      <div class="product-overlay">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        <span class="btn-view-product">Ürünü İncele</span>
+                      </div>
+                      {product.features && product.features.length > 0 && (
+                        <span class="product-badge">{product.features[0]}</span>
+                      )}
+                      <h3 class="product-name-overlay">{product.name}</h3>
+                    </a>
+                  </div>
+                  <div class="product-info">
+                    {product.description && (
+                      <p class="product-description">{product.description}</p>
+                    )}
+                    <div class="product-footer">
+                      <p class="product-price">
+                        {product.price}₺
+                        <span class="price-unit">/{product.unit}</span>
+                      </p>
+                      <button
+                        class="btn-add-cart"
+                        data-product={JSON.stringify({
+                          id: product.id,
+                          name: product.name,
+                          image: getImageUrl(product.images),
+                          variants: product.variants,
+                          slug: product.slug
+                        })}
+                      >
+                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        Sepete Ekle
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div class="no-products">
+              <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+              </svg>
+              <p>Bu kategoride henüz ürün bulunmamaktadır.</p>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Bilgi Bölümü -->
+  <section class="info-section">
+    <div class="container">
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3>Doğal Peynirler</h3>
+          <p>Katkısız ve doğal yöntemlerle üretilmiş peynir çeşitlerimiz</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3>Özel Zeytinler</h3>
+          <p>Özenle seçilmiş, taze ve lezzetli zeytin çeşitleri</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+          </div>
+          <h3>Saf Ballar</h3>
+          <p>%100 doğal ve katkısız bal ürünlerimiz</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Add to Cart Modal -->
+  <div id="cart-modal" class="cart-modal">
+    <div class="modal-content">
+      <button class="modal-close" aria-label="Kapat">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <div class="modal-body">
+        <img id="modal-product-image" src="" alt="" class="modal-product-image" />
+        <h3 id="modal-product-name"></h3>
+
+        <div class="variant-selector">
+          <label>Gramaj Seçin:</label>
+          <div id="variant-options" class="variant-options"></div>
+        </div>
+
+        <div class="quantity-selector">
+          <label>Adet:</label>
+          <div class="quantity-controls">
+            <button class="qty-btn qty-minus">
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/>
+              </svg>
+            </button>
+            <input type="number" class="qty-input" value="1" min="1" />
+            <button class="qty-btn qty-plus">
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-price">
+          <span class="price-label">Toplam Tutar</span>
+          <span id="modal-total-price" class="total-price">0₺</span>
+        </div>
+
+        <button id="confirm-add-cart" class="btn btn-primary btn-large">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+          Sepete Ekle
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Success Modal -->
+  <div id="success-modal" class="cart-modal">
+    <div class="modal-content success-content">
+      <button class="modal-close success-close" aria-label="Kapat">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <div class="success-icon">
+        <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h3>Ürün Sepete Eklendi</h3>
+      <p class="success-message">Ürününüz başarıyla sepetinize eklenmiştir.</p>
+      <div class="success-buttons">
+        <button id="go-to-cart" class="btn btn-primary">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+          </svg>
+          Sepete Git
+        </button>
+        <button id="continue-shopping" class="btn btn-outline">Alışverişe Devam</button>
+      </div>
+    </div>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  /* Hero Section */
+  .pastirma-hero {
+    position: relative;
+    min-height: 420px;
+    background: linear-gradient(135deg, #0891B2 0%, #0E7490 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(8, 145, 178, 0.95), rgba(14, 116, 144, 0.98));
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: white;
+    max-width: 1000px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+
+  .breadcrumb a {
+    color: white;
+    opacity: 0.9;
+    transition: opacity 0.3s;
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    opacity: 1;
+  }
+
+  .breadcrumb span {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .hero-content h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin: 0 0 1.5rem 0;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    margin: 0 0 2.5rem 0;
+    opacity: 0.95;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    font-weight: 400;
+  }
+
+  .hero-features {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .feature-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.875rem 1.75rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 100px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+
+  .feature-badge svg {
+    flex-shrink: 0;
+  }
+
+  .category-nav-section {
+    background: #F9FAFB;
+    padding: 2.5rem 1rem;
+    border-bottom: 1px solid #E5E7EB;
+  }
+
+  .category-nav {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .category-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.125rem 2rem;
+    background: white;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: #1F2937;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #E5E7EB;
+  }
+
+  .category-link:hover {
+    background: linear-gradient(135deg, #0891B2, #0E7490);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.25);
+    border-color: transparent;
+  }
+
+  .category-icon {
+    flex-shrink: 0;
+    color: #0891B2;
+    transition: color 0.3s;
+  }
+
+  .category-link:hover .category-icon {
+    color: white;
+  }
+
+  .products-section {
+    padding: 4rem 1rem;
+    background: white;
+  }
+
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .category-section {
+    margin-bottom: 5rem;
+    scroll-margin-top: 100px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #E5E7EB;
+  }
+
+  .section-icon {
+    flex-shrink: 0;
+    color: #0891B2;
+    background: #F0F9FF;
+    padding: 1.25rem;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .section-description {
+    font-size: 1rem;
+    color: #6B7280;
+    margin: 0.5rem 0 0;
+    font-weight: 400;
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .product-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 1px solid #F3F4F6;
+  }
+
+  .product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    border-color: #E5E7EB;
+  }
+
+  .product-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    overflow: hidden;
+    background: #F9FAFB;
+  }
+
+  .product-image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+  }
+
+  .product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+
+  .product-card:hover .product-image {
+    transform: scale(1.08);
+  }
+
+  .product-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(8, 145, 178, 0.95), rgba(8, 145, 178, 0.85));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease;
+  }
+
+  .product-card:hover .product-overlay {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .product-overlay svg {
+    color: white;
+  }
+
+  .btn-view-product {
+    padding: 0.875rem 2rem;
+    background: white;
+    color: #0891B2;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    transition: all 0.3s ease;
+  }
+
+  .product-overlay:hover .btn-view-product {
+    background: #F0F9FF;
+    transform: translateY(-2px);
+  }
+
+  .product-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #DC2626;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    z-index: 1;
+  }
+
+  .product-name-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.25rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+    color: white;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .product-info {
+    padding: 1.5rem;
+  }
+
+  .product-description {
+    font-size: 0.9375rem;
+    color: #6B7280;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .product-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #F3F4F6;
+  }
+
+  .product-price {
+    font-size: 1.625rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+  }
+
+  .price-unit {
+    font-size: 0.9375rem;
+    color: #9CA3AF;
+    font-weight: 500;
+  }
+
+  .btn-add-cart {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #0891B2, #0E7490);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .btn-add-cart:hover {
+    background: linear-gradient(135deg, #0E7490, #155E75);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+  }
+
+  .no-products {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: #9CA3AF;
+    background: #F9FAFB;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .no-products svg {
+    color: #D1D5DB;
+  }
+
+  .no-products p {
+    font-size: 1.125rem;
+    font-weight: 500;
+  }
+
+  .info-section {
+    padding: 5rem 1rem;
+    background: #F9FAFB;
+    border-top: 1px solid #E5E7EB;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .info-card {
+    text-align: center;
+    padding: 2.5rem;
+    background: white;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    border: 1px solid #E5E7EB;
+  }
+
+  .info-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    border-color: #D1D5DB;
+  }
+
+  .info-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #F0F9FF, #E0F2FE);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0891B2;
+  }
+
+  .info-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.75rem 0;
+    letter-spacing: -0.01em;
+  }
+
+  .info-card p {
+    font-size: 0.9375rem;
+    color: #6B7280;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Modal Styles */
+  .cart-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .cart-modal.active {
+    display: flex;
+  }
+
+  .modal-content {
+    background: white;
+    border-radius: 20px;
+    max-width: 540px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease;
+  }
+
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 40px;
+    height: 40px;
+    background: #F3F4F6;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #6B7280;
+    z-index: 10;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-close:hover {
+    background: #DC2626;
+    color: white;
+    transform: rotate(90deg);
+  }
+
+  .modal-body {
+    padding: 2rem;
+  }
+
+  .modal-product-image {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .modal-body h3 {
+    font-size: 1.625rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #111827;
+    letter-spacing: -0.01em;
+  }
+
+  .variant-selector,
+  .quantity-selector {
+    margin-bottom: 2rem;
+  }
+
+  .variant-selector label,
+  .quantity-selector label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    margin-bottom: 0.875rem;
+    color: #374151;
+  }
+
+  .variant-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .variant-btn {
+    padding: 0.875rem 1.5rem;
+    border: 2px solid #E5E7EB;
+    background: white;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: #374151;
+  }
+
+  .variant-btn:hover {
+    border-color: #0891B2;
+    background: #F0F9FF;
+    color: #0891B2;
+  }
+
+  .variant-btn.active {
+    background: linear-gradient(135deg, #0891B2, #0E7490);
+    color: white;
+    border-color: #0891B2;
+    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.25);
+  }
+
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .qty-btn {
+    width: 44px;
+    height: 44px;
+    border: 2px solid #E5E7EB;
+    background: white;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .qty-btn:hover {
+    background: #0891B2;
+    border-color: #0891B2;
+    color: white;
+  }
+
+  .qty-input {
+    width: 80px;
+    height: 44px;
+    text-align: center;
+    border: 2px solid #E5E7EB;
+    border-radius: 10px;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #111827;
+    background: #F9FAFB;
+  }
+
+  .qty-input:focus {
+    outline: none;
+    border-color: #0891B2;
+    background: white;
+  }
+
+  .modal-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #F0F9FF, #E0F2FE);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border: 2px solid #BAE6FD;
+  }
+
+  .price-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .total-price {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: #0891B2;
+  }
+
+  .btn {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #0891B2, #0E7490);
+    color: white;
+    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #0E7490, #155E75);
+    box-shadow: 0 6px 16px rgba(8, 145, 178, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .btn-outline {
+    background: white;
+    color: #0891B2;
+    border: 2px solid #0891B2;
+  }
+
+  .btn-outline:hover {
+    background: #F0F9FF;
+    border-color: #0E7490;
+    color: #0E7490;
+  }
+
+  .btn-large {
+    width: 100%;
+    font-size: 1.0625rem;
+  }
+
+  .success-content {
+    padding: 3rem 2rem;
+    text-align: center;
+  }
+
+  .success-icon {
+    width: 88px;
+    height: 88px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #10B981, #059669);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: successPulse 0.6s ease;
+  }
+
+  @keyframes successPulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  .success-icon svg {
+    stroke: white;
+  }
+
+  .success-content h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: #111827;
+  }
+
+  .success-message {
+    font-size: 1rem;
+    color: #6B7280;
+    margin-bottom: 2rem;
+  }
+
+  .success-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .success-buttons .btn {
+    flex: 1;
+    min-width: 180px;
+  }
+
+  @media (max-width: 768px) {
+    .pastirma-hero {
+      min-height: 360px;
+      padding: 3rem 1rem;
+    }
+
+    .hero-content h1 {
+      font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1.0625rem;
+    }
+
+    .hero-features {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .category-nav {
+      flex-direction: column;
+    }
+
+    .category-link {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .section-header {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .section-title {
+      font-size: 1.75rem;
+    }
+
+    .products-grid {
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .product-footer {
+      flex-direction: column;
+    }
+
+    .btn-add-cart {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .success-buttons {
+      flex-direction: column;
+    }
+
+    .success-buttons .btn {
+      width: 100%;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero-content h1 {
+      font-size: 2rem;
+    }
+
+    .products-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .product-image-wrapper {
+      height: 280px;
+    }
+  }
+</style>
+
+<script>
+  const cartModal = document.getElementById('cart-modal');
+  const successModal = document.getElementById('success-modal');
+
+  (window as any).selectedProduct = null;
+  (window as any).selectedVariant = null;
+
+  let successModalTimeout: number | null = null;
+
+  document.querySelectorAll('.btn-add-cart').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const productData = btn.getAttribute('data-product');
+      if (productData) {
+        try {
+          const product = JSON.parse(productData);
+          (window as any).selectedProduct = product;
+          console.log('✅ Ürün yüklendi:', product);
+          openCartModal(product);
+        } catch (error) {
+          console.error('❌ Ürün parse hatası:', error);
+        }
+      }
+    });
+  });
+
+  function openCartModal(product: any) {
+    cartModal?.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    const modalImage = document.getElementById('modal-product-image') as HTMLImageElement;
+    const modalName = document.getElementById('modal-product-name');
+    const variantOptions = document.getElementById('variant-options');
+
+    if (modalImage) modalImage.src = product.image;
+    if (modalName) modalName.textContent = product.name;
+
+    if (variantOptions && product.variants && Array.isArray(product.variants)) {
+      variantOptions.innerHTML = '';
+      console.log('📦 Varyantlar:', product.variants);
+
+      product.variants.forEach((variant: any, index: number) => {
+        const btn = document.createElement('button');
+        btn.className = `variant-btn ${index === 0 ? 'active' : ''}`;
+        btn.textContent = `${variant.label} - ${variant.price}₺`;
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          (window as any).selectedVariant = variant;
+          updateTotalPrice();
+        });
+        variantOptions.appendChild(btn);
+      });
+
+      (window as any).selectedVariant = product.variants[0];
+      updateTotalPrice();
+    } else {
+      console.error('❌ Varyant bulunamadı!');
+    }
+
+    const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
+    if (qtyInput) qtyInput.value = '1';
+  }
+
+  function updateTotalPrice() {
+    const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
+    const totalPriceEl = document.getElementById('modal-total-price');
+    const selectedVariant = (window as any).selectedVariant;
+
+    if (qtyInput && totalPriceEl && selectedVariant) {
+      const quantity = parseInt(qtyInput.value) || 1;
+      const total = selectedVariant.price * quantity;
+      totalPriceEl.textContent = `${total}₺`;
+    }
+  }
+
+  document.querySelector('.qty-minus')?.addEventListener('click', () => {
+    const input = document.querySelector('.qty-input') as HTMLInputElement;
+    if (input) {
+      const currentValue = parseInt(input.value) || 1;
+      if (currentValue > 1) {
+        input.value = (currentValue - 1).toString();
+        updateTotalPrice();
+      }
+    }
+  });
+
+  document.querySelector('.qty-plus')?.addEventListener('click', () => {
+    const input = document.querySelector('.qty-input') as HTMLInputElement;
+    if (input) {
+      const currentValue = parseInt(input.value) || 1;
+      input.value = (currentValue + 1).toString();
+      updateTotalPrice();
+    }
+  });
+
+  document.querySelector('.qty-input')?.addEventListener('input', updateTotalPrice);
+
+  document.querySelector('.modal-close')?.addEventListener('click', () => {
+    cartModal?.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  cartModal?.addEventListener('click', (e) => {
+    if (e.target === cartModal) {
+      cartModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+
+  document.getElementById('confirm-add-cart')?.addEventListener('click', () => {
+    const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
+    const quantity = parseInt(qtyInput?.value) || 1;
+    const selectedProduct = (window as any).selectedProduct;
+    const selectedVariant = (window as any).selectedVariant;
+
+    if (selectedProduct && selectedVariant) {
+      const cartItem = {
+        id: `${selectedProduct.id}_${selectedVariant.label}`,
+        productId: selectedProduct.id,
+        name: selectedProduct.name,
+        price: selectedVariant.price,
+        image: selectedProduct.image,
+        unit: selectedVariant.label,
+        quantity: quantity,
+        availableVariants: selectedProduct.variants || []
+      };
+
+      console.log('🛒 Sepete eklenecek ürün:', cartItem);
+
+      let cart = [];
+      try {
+        const cartData = localStorage.getItem('cart');
+        cart = cartData ? JSON.parse(cartData) : [];
+      } catch (e) {
+        console.error('Sepet yüklenemedi:', e);
+        cart = [];
+      }
+
+      const existingItemIndex = cart.findIndex(
+        (item: any) => item.productId === cartItem.productId && item.unit === cartItem.unit
+      );
+
+      if (existingItemIndex > -1) {
+        cart[existingItemIndex].quantity += quantity;
+        cart[existingItemIndex].availableVariants = cartItem.availableVariants;
+        console.log('✅ Miktar artırıldı');
+      } else {
+        cart.push(cartItem);
+        console.log('✅ Yeni ürün eklendi');
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+      window.dispatchEvent(new Event('cartUpdated'));
+
+      console.log('✅ Sepet güncellendi:', cart);
+
+      cartModal?.classList.remove('active');
+      successModal?.classList.add('active');
+
+      if (successModalTimeout) {
+        clearTimeout(successModalTimeout);
+      }
+
+      successModalTimeout = window.setTimeout(() => {
+        if (successModal?.classList.contains('active')) {
+          successModal.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+        successModalTimeout = null;
+      }, 5000);
+
+    } else {
+      console.error('❌ Ürün veya varyant seçilmedi!');
+      alert('Lütfen bir gramaj seçin!');
+    }
+  });
+
+  document.getElementById('go-to-cart')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (successModalTimeout) {
+      clearTimeout(successModalTimeout);
+      successModalTimeout = null;
+    }
+
+    window.location.href = '/sepet';
+  });
+
+  document.getElementById('continue-shopping')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (successModalTimeout) {
+      clearTimeout(successModalTimeout);
+      successModalTimeout = null;
+    }
+
+    successModal?.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  document.querySelector('.success-close')?.addEventListener('click', () => {
+    if (successModalTimeout) {
+      clearTimeout(successModalTimeout);
+      successModalTimeout = null;
+    }
+
+    successModal?.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  successModal?.addEventListener('click', (e) => {
+    if (e.target === successModal) {
+      if (successModalTimeout) {
+        clearTimeout(successModalTimeout);
+        successModalTimeout = null;
+      }
+
+      successModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (cartModal?.classList.contains('active')) {
+        cartModal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+      if (successModal?.classList.contains('active')) {
+        if (successModalTimeout) {
+          clearTimeout(successModalTimeout);
+          successModalTimeout = null;
+        }
+
+        successModal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
+  });
+
+  document.querySelectorAll('.category-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = link.getAttribute('href');
+      if (target) {
+        const element = document.querySelector(target);
+        element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+</script>

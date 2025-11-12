@@ -1,6 +1,5 @@
 ---
-// src/components/Header.astro
-import CategoryMenu from './CategoryMenu.astro';
+// Header.astro - GÜNCELLENMIŞ VERSİYON
 ---
 
 <div class="header-container">
@@ -15,17 +14,17 @@ import CategoryMenu from './CategoryMenu.astro';
       <a href="/kavurma">Kavurma</a>
       <a href="/manti">Mantı</a>
       <div class="dropdown">
-        <button class="dropdown-btn">
+        <a href="/sarkuteri" class="dropdown-btn">
           Şarküteri
           <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
           </svg>
-        </button>
+        </a>
         <div class="dropdown-content">
-          <a href="/kategori/peynir">Peynir Çeşitlerimiz</a>
-          <a href="/kategori/zeytin">Zeytin Çeşitlerimiz</a>
-          <a href="/kategori/bal">Bal Çeşitlerimiz</a>
-          <a href="/kategori/baharat">Baharat Çeşitlerimiz</a>
+          <a href="/sarkuteri#peynir">Peynir Çeşitlerimiz</a>
+          <a href="/sarkuteri#zeytin">Zeytin Çeşitlerimiz</a>
+          <a href="/sarkuteri#bal">Bal Çeşitlerimiz</a>
+          <a href="/sarkuteri#baharat">Baharat Çeşitlerimiz</a>
         </div>
       </div>
       <a href="/kayseri-serpme-kahvaltisi">Kayseri Kahvaltısı</a>
@@ -70,10 +69,11 @@ import CategoryMenu from './CategoryMenu.astro';
         <a href="/sucuk">Sucuk</a>
         <a href="/kavurma">Kavurma</a>
         <a href="/manti">Mantı</a>
-        <a href="/kategori/peynir">Peynir Çeşitlerimiz</a>
-        <a href="/kategori/baharat">Baharat Çeşitlerimiz</a>
-        <a href="/kategori/zeytin">Zeytin Çeşitlerimiz</a>
-        <a href="/kategori/bal">Bal Çeşitlerimiz</a>
+        <a href="/sarkuteri">Şarküteri</a>
+        <a href="/sarkuteri#peynir">→ Peynir Çeşitlerimiz</a>
+        <a href="/sarkuteri#zeytin">→ Zeytin Çeşitlerimiz</a>
+        <a href="/sarkuteri#bal">→ Bal Çeşitlerimiz</a>
+        <a href="/sarkuteri#baharat">→ Baharat Çeşitlerimiz</a>
         <a href="/kayseri-serpme-kahvaltisi">Kayseri Kahvaltısı</a>
         <a href="/kayseri-sofrasi">Kayseri Sofrası</a>
         <a href="/sepet" class="cart-link">
@@ -172,6 +172,7 @@ import CategoryMenu from './CategoryMenu.astro';
     position: relative;
     white-space: nowrap;
     padding: 0.5rem 0;
+    text-decoration: none;
   }
 
   .desktop-nav a::after {
@@ -211,6 +212,7 @@ import CategoryMenu from './CategoryMenu.astro';
     gap: 0.25rem;
     transition: color 0.3s ease;
     white-space: nowrap;
+    text-decoration: none;
   }
 
   .dropdown-btn:hover {

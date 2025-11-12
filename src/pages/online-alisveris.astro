@@ -1,32 +1,38 @@
 ---
-// src/pages/online-alisveris.astro - FIXED VERSION
+// src/pages/online-alisveris.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { supabase } from '../lib/supabase';
 
-// Kategorilere göre ürünleri çek
+// TÜM kategorilerdeki BÜTÜN ürünleri çek (limit kaldırıldı)
 const { data: pastirmaProducts } = await supabase
   .from('products')
   .select('*')
   .eq('category', 'Pastırma')
   .eq('is_active', true)
-  .order('sort_order', { ascending: true })
-  .limit(4);
+  .order('sort_order', { ascending: true });
 
 const { data: sucukProducts } = await supabase
   .from('products')
   .select('*')
   .eq('category', 'Sucuk')
   .eq('is_active', true)
-  .limit(5);
+  .order('sort_order', { ascending: true });
+
+const { data: kavurmaProducts } = await supabase
+  .from('products')
+  .select('*')
+  .eq('category', 'Kavurma')
+  .eq('is_active', true)
+  .order('sort_order', { ascending: true });
 
 const { data: mantiProducts } = await supabase
   .from('products')
   .select('*')
   .eq('category', 'Mantı')
   .eq('is_active', true)
-  .limit(2);
+  .order('sort_order', { ascending: true });
 
 const banners = [
   {
@@ -42,6 +48,12 @@ const banners = [
     link: '/sucuk'
   },
   {
+    image: '/assets/banners/kavurma-banner.jpg',
+    title: 'Dondurulmuş Kavurma',
+    subtitle: 'Pratik ve lezzetli',
+    link: '/kavurma'
+  },
+  {
     image: '/assets/banners/manti-banner.jpg',
     title: 'El Yapımı Kayseri Mantısı',
     subtitle: 'Anneanne lezzeti',
@@ -49,28 +61,23 @@ const banners = [
   }
 ];
 
-// Resim URL'sini al (array veya string olabilir) - Supabase parse
+// Resim URL'sini al
 function getImageUrl(imgs: any): string {
   const placeholder = '/assets/image/placeholder.jpg';
-
   if (!imgs) return placeholder;
 
-  // 1. Array ise
   if (Array.isArray(imgs)) {
     if (imgs.length === 0) return placeholder;
     const firstImage = String(imgs[0]).replace(/^"|"$/g, '').replace(/""/g, '').trim();
     return firstImage || placeholder;
   }
 
-  // 2. String ise
   if (typeof imgs === 'string') {
-    // PostgreSQL array: {path1,path2}
     if (imgs.startsWith('{') && imgs.endsWith('}')) {
       const paths = imgs.slice(1, -1).split(',').map(p => p.trim().replace(/^"|"$/g, ''));
       if (paths.length > 0 && paths[0]) return paths[0];
     }
 
-    // JSON array: ["path1"]
     if (imgs.startsWith('[')) {
       try {
         const cleaned = imgs.replace(/""/g, '"').replace(/\\"/g, '"');
@@ -83,7 +90,6 @@ function getImageUrl(imgs: any): string {
       }
     }
 
-    // Direkt URL
     const cleaned = imgs.replace(/^"|"$/g, '').trim();
     if (cleaned.startsWith('/') || cleaned.startsWith('http')) return cleaned;
   }
@@ -92,7 +98,10 @@ function getImageUrl(imgs: any): string {
 }
 ---
 
-<BaseLayout title="Online Alışveriş" description="Pastırma Adası ürünlerini online sipariş edin">
+<BaseLayout
+  title="Online Alışveriş - Tüm Ürünler"
+  description="Pastırma Adası ürünlerini online sipariş edin. Pastırma, sucuk, kavurma ve mantı çeşitleri."
+>
   <Header slot="header" />
 
   <!-- Hero Banner Slider -->
@@ -141,36 +150,43 @@ function getImageUrl(imgs: any): string {
   {pastirmaProducts && pastirmaProducts.length > 0 && (
     <section class="products-section">
       <div class="container">
-        <h2 class="section-title">Kayseri Pastırması</h2>
+        <div class="section-header">
+          <h2 class="section-title">Kayseri Pastırması</h2>
+        </div>
         <div class="products-grid">
           {pastirmaProducts.map((product, index) => (
-            <div class="product-card" data-product-id={product.id}>
+            <div class="product-card">
               <div class="product-image-wrapper">
-                <img
-                  src={getImageUrl(product.images)}
-                  alt={product.name}
-                  class="product-image"
-                  loading={index < 2 ? "eager" : "lazy"}
-                  fetchpriority={index < 2 ? "high" : "auto"}
-                  onerror="this.onerror=null; this.src='/assets/image/placeholder.jpg';"
-                />
-                <div class="product-overlay">
-                  <a href={`/urun/${product.slug}`} class="btn-view-product">Ürünü İncele</a>
-                </div>
-                <h3 class="product-name-overlay">{product.name}</h3>
+                <a href={`/urun/${product.slug}`} class="product-image-link">
+                  <img
+                    src={getImageUrl(product.images)}
+                    alt={product.name}
+                    class="product-image"
+                    loading={index < 4 ? "eager" : "lazy"}
+                    fetchpriority={index < 2 ? "high" : "auto"}
+                    onError="this.onerror=null; this.src='/assets/image/placeholder.jpg';"
+                  />
+                  <div class="product-overlay">
+                    <span class="btn-view-product">Ürünü İncele</span>
+                  </div>
+                  <h3 class="product-name-overlay">{product.name}</h3>
+                </a>
               </div>
               <div class="product-info">
                 <p class="product-price">
                   {product.price}₺
                   <span class="price-unit">/{product.unit}</span>
                 </p>
-                <button class="btn-add-cart" data-product={JSON.stringify({
-                  id: product.id,
-                  name: product.name,
-                  image: getImageUrl(product.images),
-                  variants: product.variants,
-                  slug: product.slug
-                })}>
+                <button
+                  class="btn-add-cart"
+                  data-product={JSON.stringify({
+                    id: product.id,
+                    name: product.name,
+                    image: getImageUrl(product.images),
+                    variants: product.variants,
+                    slug: product.slug
+                  })}
+                >
                   Sepete Ekle
                 </button>
               </div>
@@ -185,35 +201,92 @@ function getImageUrl(imgs: any): string {
   {sucukProducts && sucukProducts.length > 0 && (
     <section class="products-section bg-light">
       <div class="container">
-        <h2 class="section-title">Kayseri Sucuğu</h2>
+        <div class="section-header">
+          <h2 class="section-title">Kayseri Sucuğu</h2>
+        </div>
         <div class="products-grid">
           {sucukProducts.map((product, index) => (
-            <div class="product-card" data-product-id={product.id}>
+            <div class="product-card">
               <div class="product-image-wrapper">
-                <img
-                  src={getImageUrl(product.images)}
-                  alt={product.name}
-                  class="product-image"
-                  loading="lazy"
-                  onerror="this.onerror=null; this.src='/assets/image/placeholder.jpg';"
-                />
-                <div class="product-overlay">
-                  <a href={`/urun/${product.slug}`} class="btn-view-product">Ürünü İncele</a>
-                </div>
-                <h3 class="product-name-overlay">{product.name}</h3>
+                <a href={`/urun/${product.slug}`} class="product-image-link">
+                  <img
+                    src={getImageUrl(product.images)}
+                    alt={product.name}
+                    class="product-image"
+                    loading="lazy"
+                    onError="this.onerror=null; this.src='/assets/image/placeholder.jpg';"
+                  />
+                  <div class="product-overlay">
+                    <span class="btn-view-product">Ürünü İncele</span>
+                  </div>
+                  <h3 class="product-name-overlay">{product.name}</h3>
+                </a>
               </div>
               <div class="product-info">
                 <p class="product-price">
                   {product.price}₺
                   <span class="price-unit">/{product.unit}</span>
                 </p>
-                <button class="btn-add-cart" data-product={JSON.stringify({
-                  id: product.id,
-                  name: product.name,
-                  image: getImageUrl(product.images),
-                  variants: product.variants,
-                  slug: product.slug
-                })}>
+                <button
+                  class="btn-add-cart"
+                  data-product={JSON.stringify({
+                    id: product.id,
+                    name: product.name,
+                    image: getImageUrl(product.images),
+                    variants: product.variants,
+                    slug: product.slug
+                  })}
+                >
+                  Sepete Ekle
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Kavurma Section -->
+  {kavurmaProducts && kavurmaProducts.length > 0 && (
+    <section class="products-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Kavurma Çeşitlerimiz</h2>
+        </div>
+        <div class="products-grid">
+          {kavurmaProducts.map((product, index) => (
+            <div class="product-card">
+              <div class="product-image-wrapper">
+                <a href={`/urun/${product.slug}`} class="product-image-link">
+                  <img
+                    src={getImageUrl(product.images)}
+                    alt={product.name}
+                    class="product-image"
+                    loading="lazy"
+                    onError="this.onerror=null; this.src='/assets/image/placeholder.jpg';"
+                  />
+                  <div class="product-overlay">
+                    <span class="btn-view-product">Ürünü İncele</span>
+                  </div>
+                  <h3 class="product-name-overlay">{product.name}</h3>
+                </a>
+              </div>
+              <div class="product-info">
+                <p class="product-price">
+                  {product.price}₺
+                  <span class="price-unit">/{product.unit}</span>
+                </p>
+                <button
+                  class="btn-add-cart"
+                  data-product={JSON.stringify({
+                    id: product.id,
+                    name: product.name,
+                    image: getImageUrl(product.images),
+                    variants: product.variants,
+                    slug: product.slug
+                  })}
+                >
                   Sepete Ekle
                 </button>
               </div>
@@ -226,37 +299,44 @@ function getImageUrl(imgs: any): string {
 
   <!-- Mantı Section -->
   {mantiProducts && mantiProducts.length > 0 && (
-    <section class="products-section">
+    <section class="products-section bg-light">
       <div class="container">
-        <h2 class="section-title">Kayseri Mantısı</h2>
+        <div class="section-header">
+          <h2 class="section-title">Mantı ve Un Mamulleri</h2>
+        </div>
         <div class="products-grid">
           {mantiProducts.map((product, index) => (
-            <div class="product-card" data-product-id={product.id}>
+            <div class="product-card">
               <div class="product-image-wrapper">
-                <img
-                  src={getImageUrl(product.images)}
-                  alt={product.name}
-                  class="product-image"
-                  loading="lazy"
-                  onerror="this.onerror=null; this.src='/assets/image/placeholder.jpg';"
-                />
-                <div class="product-overlay">
-                  <a href={`/urun/${product.slug}`} class="btn-view-product">Ürünü İncele</a>
-                </div>
-                <h3 class="product-name-overlay">{product.name}</h3>
+                <a href={`/urun/${product.slug}`} class="product-image-link">
+                  <img
+                    src={getImageUrl(product.images)}
+                    alt={product.name}
+                    class="product-image"
+                    loading="lazy"
+                    onError="this.onerror=null; this.src='/assets/image/placeholder.jpg';"
+                  />
+                  <div class="product-overlay">
+                    <span class="btn-view-product">Ürünü İncele</span>
+                  </div>
+                  <h3 class="product-name-overlay">{product.name}</h3>
+                </a>
               </div>
               <div class="product-info">
                 <p class="product-price">
                   {product.price}₺
                   <span class="price-unit">/{product.unit}</span>
                 </p>
-                <button class="btn-add-cart" data-product={JSON.stringify({
-                  id: product.id,
-                  name: product.name,
-                  image: getImageUrl(product.images),
-                  variants: product.variants,
-                  slug: product.slug
-                })}>
+                <button
+                  class="btn-add-cart"
+                  data-product={JSON.stringify({
+                    id: product.id,
+                    name: product.name,
+                    image: getImageUrl(product.images),
+                    variants: product.variants,
+                    slug: product.slug
+                  })}
+                >
                   Sepete Ekle
                 </button>
               </div>
@@ -307,6 +387,12 @@ function getImageUrl(imgs: any): string {
   <!-- Cart Success Modal -->
   <div id="success-modal" class="cart-modal">
     <div class="modal-content success-content">
+      <button class="modal-close success-close" aria-label="Kapat">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
       <div class="success-icon">
         <svg width="60" height="60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -353,13 +439,6 @@ function getImageUrl(imgs: any): string {
   .banner-slide.active {
     opacity: 1;
     pointer-events: auto;
-  }
-
-  /* ÖNEMLİ: Ürün resimlerinin opacity'sini zorla 1 yap */
-  .product-image,
-  .product-card img,
-  .product-image-wrapper img {
-    opacity: 1 !important;
   }
 
   .banner-link {
@@ -477,7 +556,7 @@ function getImageUrl(imgs: any): string {
   }
 
   .products-section.bg-light {
-    background: #f8f9fa;
+    background: #F3F4F6;
   }
 
   .container {
@@ -486,18 +565,22 @@ function getImageUrl(imgs: any): string {
     padding: 0 20px;
   }
 
+  .section-header {
+    margin-bottom: 40px;
+    text-align: center;
+  }
+
   .section-title {
     font-size: 2rem;
     font-weight: 700;
-    text-align: center;
-    margin-bottom: 40px;
     color: #333;
+    margin: 0;
   }
 
   .products-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 30px;
+    gap: 2rem;
   }
 
   .product-card {
@@ -505,12 +588,12 @@ function getImageUrl(imgs: any): string {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: all 0.3s ease;
   }
 
   .product-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   }
 
   .product-image-wrapper {
@@ -521,48 +604,59 @@ function getImageUrl(imgs: any): string {
     background: #f5f5f5;
   }
 
+  .product-image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+  }
+
   .product-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s;
+    transition: transform 0.5s ease;
   }
 
   .product-card:hover .product-image {
-    transform: scale(1.05);
+    transform: scale(1.1);
   }
 
   .product-overlay {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
+    right: 0;
+    bottom: 0;
+    background: rgba(8, 145, 178, 0.9);
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
-    transition: opacity 0.3s;
+    visibility: hidden;
+    transition: all 0.3s ease;
   }
 
   .product-card:hover .product-overlay {
     opacity: 1;
+    visibility: visible;
   }
 
   .btn-view-product {
-    padding: 12px 24px;
+    padding: 0.875rem 2rem;
     background: white;
-    color: #333;
-    text-decoration: none;
-    border-radius: 6px;
+    color: #0891B2;
+    border-radius: 50px;
     font-weight: 600;
-    transition: background 0.3s, transform 0.2s;
+    font-size: 1rem;
+    transition: all 0.3s ease;
   }
 
   .btn-view-product:hover {
-    background: #f0f0f0;
+    background: #0891B2;
+    color: white;
     transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
   }
 
   .product-name-overlay {
@@ -579,14 +673,14 @@ function getImageUrl(imgs: any): string {
   }
 
   .product-info {
-    padding: 20px;
+    padding: 1.5rem;
   }
 
   .product-price {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #e74c3c;
-    margin-bottom: 15px;
+    color: #DC2626;
+    margin-bottom: 1rem;
   }
 
   .price-unit {
@@ -597,19 +691,22 @@ function getImageUrl(imgs: any): string {
 
   .btn-add-cart {
     width: 100%;
-    padding: 12px;
-    background: #e74c3c;
+    padding: 0.75rem 1.25rem;
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
     color: white;
     border: none;
-    border-radius: 6px;
-    font-size: 1rem;
+    border-radius: 8px;
     font-weight: 600;
+    font-size: 0.875rem;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
   }
 
   .btn-add-cart:hover {
-    background: #c0392b;
+    background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
   }
 
   /* Modal Styles */
@@ -643,18 +740,27 @@ function getImageUrl(imgs: any): string {
 
   .modal-close {
     position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.05);
     border: none;
     cursor: pointer;
-    color: #666;
+    color: #999;
     z-index: 10;
-    transition: color 0.3s;
+    transition: all 0.3s ease;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
   }
 
   .modal-close:hover {
-    color: #333;
+    color: white;
+    background: #DC2626;
+    transform: rotate(90deg);
   }
 
   .modal-body {
@@ -696,9 +802,8 @@ function getImageUrl(imgs: any): string {
 
   .variant-btn {
     padding: 10px 20px;
-    border: 2px solid #0891B2;
+    border: 2px solid #E5E7EB;
     background: white;
-    color: #0891B2;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s;
@@ -706,13 +811,15 @@ function getImageUrl(imgs: any): string {
   }
 
   .variant-btn:hover {
-    border-color: #e74c3c;
+    border-color: #0891B2;
+    color: #0891B2;
   }
 
   .variant-btn.active {
     background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
     color: white;
-
+    border-color: #0891B2;
+    box-shadow: 0 2px 8px rgba(8, 145, 178, 0.3);
   }
 
   .quantity-controls {
@@ -725,17 +832,17 @@ function getImageUrl(imgs: any): string {
     width: 40px;
     height: 40px;
     border: 2px solid #0891B2;
-    color: #0891B2;
     background: white;
     border-radius: 6px;
     cursor: pointer;
     font-size: 1.2rem;
     font-weight: 600;
     transition: all 0.3s;
+    color: #0891B2;
   }
 
   .qty-btn:hover {
-    border-color:linear-gradient(135deg, #0891B2, #06B6D4);
+    background: #0891B2;
     color: white;
   }
 
@@ -743,10 +850,12 @@ function getImageUrl(imgs: any): string {
     width: 80px;
     height: 40px;
     text-align: center;
-    border: 2px solid #ddd;
+    border: 2px solid #0891B2;
     border-radius: 6px;
     font-size: 1.1rem;
     font-weight: 600;
+    color: #0891B2;
+    background: #F0FDFA;
   }
 
   .modal-price {
@@ -754,9 +863,10 @@ function getImageUrl(imgs: any): string {
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    background: #f8f9fa;
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
     border-radius: 8px;
     margin-bottom: 20px;
+    border: 2px solid #FED7AA;
   }
 
   .price-label {
@@ -768,7 +878,7 @@ function getImageUrl(imgs: any): string {
   .total-price {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #e74c3c;
+    color: #DC2626;
   }
 
   .btn {
@@ -785,22 +895,25 @@ function getImageUrl(imgs: any): string {
   }
 
   .btn-primary {
-    background: #e74c3c;
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
     color: white;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
   }
 
   .btn-primary:hover {
-    background: #c0392b;
+    background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+    transform: translateY(-2px);
   }
 
   .btn-outline {
     background: white;
-    color: #e74c3c;
-    border: 2px solid #e74c3c;
+    color: #DC2626;
+    border: 2px solid #DC2626;
   }
 
   .btn-outline:hover {
-    background: #e74c3c;
+    background: #DC2626;
     color: white;
   }
 
@@ -809,7 +922,6 @@ function getImageUrl(imgs: any): string {
     font-size: 1.1rem;
   }
 
-  /* Success Modal */
   .success-content {
     padding: 40px;
     text-align: center;
@@ -819,7 +931,7 @@ function getImageUrl(imgs: any): string {
     width: 80px;
     height: 80px;
     margin: 0 auto 20px;
-    background: #27ae60;
+    background: linear-gradient(135deg, #059669 0%, #10B981 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -847,7 +959,6 @@ function getImageUrl(imgs: any): string {
     min-width: 150px;
   }
 
-  /* Responsive */
   @media (max-width: 768px) {
     .hero-banner {
       height: 350px;
@@ -868,7 +979,7 @@ function getImageUrl(imgs: any): string {
 
     .products-grid {
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
+      gap: 1.5rem;
     }
 
     .section-title {
@@ -957,9 +1068,11 @@ function getImageUrl(imgs: any): string {
   const cartModal = document.getElementById('cart-modal');
   const successModal = document.getElementById('success-modal');
 
-  // Global değişkenler - window objesine ekle
   (window as any).selectedProduct = null;
   (window as any).selectedVariant = null;
+
+  // Success Modal Timeout ID'sini sakla
+  let successModalTimeout: number | null = null;
 
   document.querySelectorAll('.btn-add-cart').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -1063,7 +1176,7 @@ function getImageUrl(imgs: any): string {
     }
   });
 
-  // ✅ EN ÖNEMLİ KISIM - Sepete Ekle
+  // Sepete ekle butonu
   document.getElementById('confirm-add-cart')?.addEventListener('click', () => {
     const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
     const quantity = parseInt(qtyInput?.value) || 1;
@@ -1071,7 +1184,6 @@ function getImageUrl(imgs: any): string {
     const selectedVariant = (window as any).selectedVariant;
 
     if (selectedProduct && selectedVariant) {
-      // ✅ ÖNEMLİ: availableVariants mutlaka eklenmeli
       const cartItem = {
         id: `${selectedProduct.id}_${selectedVariant.label}`,
         productId: selectedProduct.id,
@@ -1080,7 +1192,7 @@ function getImageUrl(imgs: any): string {
         image: selectedProduct.image,
         unit: selectedVariant.label,
         quantity: quantity,
-        availableVariants: selectedProduct.variants || [] // ✅ BURASI ÇOK ÖNEMLİ
+        availableVariants: selectedProduct.variants || []
       };
 
       console.log('🛒 Sepete eklenecek ürün:', cartItem);
@@ -1094,14 +1206,12 @@ function getImageUrl(imgs: any): string {
         cart = [];
       }
 
-      // Aynı ürün ve aynı gramaj varsa miktarı arttır
       const existingItemIndex = cart.findIndex(
         (item: any) => item.productId === cartItem.productId && item.unit === cartItem.unit
       );
 
       if (existingItemIndex > -1) {
         cart[existingItemIndex].quantity += quantity;
-        // Variants bilgisini güncelle
         cart[existingItemIndex].availableVariants = cartItem.availableVariants;
         console.log('✅ Miktar artırıldı');
       } else {
@@ -1114,27 +1224,85 @@ function getImageUrl(imgs: any): string {
 
       console.log('✅ Sepet güncellendi:', cart);
 
+      // Cart modal'ı kapat
       cartModal?.classList.remove('active');
+
+      // Success modal'ı aç
       successModal?.classList.add('active');
 
-      // 5 saniye sonra otomatik kapat
-      setTimeout(() => {
-        successModal?.classList.remove('active');
-        document.body.style.overflow = '';
+      // Önceki timeout varsa temizle
+      if (successModalTimeout) {
+        clearTimeout(successModalTimeout);
+      }
+
+      // 5 SANİYE SONRA OTOMATİK KAPAT
+      successModalTimeout = window.setTimeout(() => {
+        if (successModal?.classList.contains('active')) {
+          successModal.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+        successModalTimeout = null;
       }, 5000);
+
     } else {
       console.error('❌ Ürün veya varyant seçilmedi!');
       alert('Lütfen bir gramaj seçin!');
     }
   });
 
-  document.getElementById('go-to-cart')?.addEventListener('click', () => {
+  // Sepete Git butonu
+  document.getElementById('go-to-cart')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Timeout'u temizle
+    if (successModalTimeout) {
+      clearTimeout(successModalTimeout);
+      successModalTimeout = null;
+    }
+
     window.location.href = '/sepet';
   });
 
-  document.getElementById('continue-shopping')?.addEventListener('click', () => {
+  // Alışverişe Devam butonu
+  document.getElementById('continue-shopping')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Timeout'u temizle
+    if (successModalTimeout) {
+      clearTimeout(successModalTimeout);
+      successModalTimeout = null;
+    }
+
     successModal?.classList.remove('active');
     document.body.style.overflow = '';
+  });
+
+  // SUCCESS MODAL X BUTONU
+  document.querySelector('.success-close')?.addEventListener('click', () => {
+    // Timeout'u temizle
+    if (successModalTimeout) {
+      clearTimeout(successModalTimeout);
+      successModalTimeout = null;
+    }
+
+    successModal?.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  // SUCCESS MODAL DIŞINA TIKLANINCA KAPAT
+  successModal?.addEventListener('click', (e) => {
+    if (e.target === successModal) {
+      // Timeout'u temizle
+      if (successModalTimeout) {
+        clearTimeout(successModalTimeout);
+        successModalTimeout = null;
+      }
+
+      successModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
   });
 
   document.addEventListener('keydown', (e) => {
@@ -1144,6 +1312,12 @@ function getImageUrl(imgs: any): string {
         document.body.style.overflow = '';
       }
       if (successModal?.classList.contains('active')) {
+        // Timeout'u temizle
+        if (successModalTimeout) {
+          clearTimeout(successModalTimeout);
+          successModalTimeout = null;
+        }
+
         successModal.classList.remove('active');
         document.body.style.overflow = '';
       }
