@@ -131,7 +131,8 @@ function getImageUrl(imgs: any): string {
                     name: product.name,
                     image: getImageUrl(product.images),
                     variants: product.variants,
-                    slug: product.slug
+                    slug: product.slug,
+                    price: product.price
                   })}
                 >
                   Sepete Ekle
@@ -863,40 +864,46 @@ function getImageUrl(imgs: any): string {
 </style>
 
 <script>
-    const cartModal = document.getElementById('cart-modal');
-  const successModal = document.getElementById('success-modal');
-  let selectedProduct: any = null;
-  let selectedVariant: any = null;
+/* --- SEPET AKIŞI (TEK BLOK) --- */
+let selectedProduct = null;
+let selectedVariant = null;
 
-  // ✅ Success Modal Timeout ID'sini sakla
-  let successModalTimeout: number | null = null;
+const cartModal = document.getElementById('cart-modal');
+const successModal = document.getElementById('success-modal');
+const confirmAddCartBtn = document.getElementById('confirm-add-cart');
+const totalPriceEl = document.getElementById('modal-total-price');
 
-  document.querySelectorAll('.btn-add-cart').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const productData = btn.getAttribute('data-product');
-      if (productData) {
-        selectedProduct = JSON.parse(productData);
-        openCartModal(selectedProduct);
-      }
-    });
-  });
+function updateTotalPrice() {
+  const qtyInput = document.querySelector('.qty-input');
+  const quantity = qtyInput ? Math.max(1, parseInt(qtyInput.value) || 1) : 1;
+  const unitPrice = (selectedVariant && typeof selectedVariant.price === 'number')
+    ? selectedVariant.price
+    : (selectedProduct && typeof selectedProduct.price === 'number' ? selectedProduct.price : 0);
+  const total = (unitPrice * quantity).toFixed(2);
+  if (totalPriceEl) totalPriceEl.textContent = `${total}₺`;
+}
 
-  function openCartModal(product: any) {
-    cartModal?.classList.add('active');
-    document.body.style.overflow = 'hidden';
+function openCartModal(product) {
+  if (!product) return;
+  selectedProduct = product;
 
-    const modalImage = document.getElementById('modal-product-image') as HTMLImageElement;
-    const modalName = document.getElementById('modal-product-name');
-    const variantOptions = document.getElementById('variant-options');
+  cartModal?.classList.add('active');
+  document.body.style.overflow = 'hidden';
 
-    if (modalImage) modalImage.src = product.image;
-    if (modalName) modalName.textContent = product.name;
+  const modalImage = document.getElementById('modal-product-image');
+  const modalName = document.getElementById('modal-product-name');
+  const variantOptions = document.getElementById('variant-options');
+  const variantSelector = document.querySelector('.variant-selector');
 
-    if (variantOptions && product.variants) {
+  if (modalImage) modalImage.src = product.image || '';
+  if (modalName) modalName.textContent = product.name || '';
+
+  // Variantlar
+  if (product.variants && product.variants.length > 0) {
+    if (variantSelector) variantSelector.style.display = 'block';
+    if (variantOptions) {
       variantOptions.innerHTML = '';
-      product.variants.forEach((variant: any, index: number) => {
+      product.variants.forEach((variant, index) => {
         const btn = document.createElement('button');
         btn.className = `variant-btn ${index === 0 ? 'active' : ''}`;
         btn.textContent = `${variant.label} - ${variant.price}₺`;
@@ -908,196 +915,83 @@ function getImageUrl(imgs: any): string {
         });
         variantOptions.appendChild(btn);
       });
-
       selectedVariant = product.variants[0];
-      updateTotalPrice();
     }
-
-    const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
-    if (qtyInput) qtyInput.value = '1';
+  } else {
+    // Variant yoksa ürün fiyatını kullan
+    if (variantSelector) variantSelector.style.display = 'none';
+    selectedVariant = null;
   }
 
-  function updateTotalPrice() {
-    const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
-    const totalPriceEl = document.getElementById('modal-total-price');
+  const qtyInput = document.querySelector('.qty-input');
+  if (qtyInput) qtyInput.value = '1';
 
-    if (qtyInput && totalPriceEl && selectedVariant) {
-      const quantity = parseInt(qtyInput.value) || 1;
-      const total = selectedVariant.price * quantity;
-      totalPriceEl.textContent = `${total}₺`;
-    }
-  }
+  updateTotalPrice();
+}
 
-  document.querySelector('.qty-minus')?.addEventListener('click', () => {
-    const input = document.querySelector('.qty-input') as HTMLInputElement;
-    if (input) {
-      const currentValue = parseInt(input.value) || 1;
-      if (currentValue > 1) {
-        input.value = (currentValue - 1).toString();
-        updateTotalPrice();
-      }
-    }
+/* Sepete Ekle butonları */
+document.querySelectorAll('.btn-add-cart').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const raw = btn.getAttribute('data-product');
+    if (!raw) return;
+    try {
+      const product = JSON.parse(raw);
+      openCartModal(product);
+    } catch (e) { console.error('data-product parse error', e); }
   });
+});
 
-  document.querySelector('.qty-plus')?.addEventListener('click', () => {
-    const input = document.querySelector('.qty-input') as HTMLInputElement;
-    if (input) {
-      const currentValue = parseInt(input.value) || 1;
-      input.value = (currentValue + 1).toString();
-      updateTotalPrice();
-    }
-  });
+/* Adet +/- */
+document.querySelector('.qty-plus')?.addEventListener('click', () => {
+  const qty = document.querySelector('.qty-input');
+  qty.value = String((parseInt(qty.value) || 1) + 1);
+  updateTotalPrice();
+});
+document.querySelector('.qty-minus')?.addEventListener('click', () => {
+  const qty = document.querySelector('.qty-input');
+  const val = Math.max(1, (parseInt(qty.value) || 1) - 1);
+  qty.value = String(val);
+  updateTotalPrice();
+});
 
-  document.querySelector('.qty-input')?.addEventListener('input', updateTotalPrice);
-
-  document.querySelector('.modal-close')?.addEventListener('click', () => {
+/* Modal kapatma (X ve arkaplan) */
+document.querySelectorAll('.modal-close').forEach(btn => {
+  btn.addEventListener('click', () => {
     cartModal?.classList.remove('active');
-    document.body.style.overflow = '';
-  });
-
-  cartModal?.addEventListener('click', (e) => {
-    if (e.target === cartModal) {
-      cartModal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-  });
-
-  // ✅ Sepete ekle butonu - DÜZELTİLDİ
-  document.getElementById('confirm-add-cart')?.addEventListener('click', () => {
-    const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
-    const quantity = parseInt(qtyInput?.value) || 1;
-
-    if (selectedProduct && selectedVariant) {
-      const cartItem = {
-        id: `${selectedProduct.id}_${selectedVariant.label}`,
-        productId: selectedProduct.id,
-        name: selectedProduct.name,
-        price: selectedVariant.price,
-        image: selectedProduct.image,
-        unit: selectedVariant.label,
-        quantity: quantity,
-        availableVariants: selectedProduct.variants || []
-      };
-
-      let cart = [];
-      try {
-        const cartData = localStorage.getItem('cart');
-        cart = cartData ? JSON.parse(cartData) : [];
-      } catch (e) {
-        console.error('Sepet yüklenemedi:', e);
-        cart = [];
-      }
-
-      const existingItemIndex = cart.findIndex(
-        (item: any) => item.productId === cartItem.productId && item.unit === cartItem.unit
-      );
-
-      if (existingItemIndex > -1) {
-        cart[existingItemIndex].quantity += quantity;
-        cart[existingItemIndex].availableVariants = cartItem.availableVariants;
-      } else {
-        cart.push(cartItem);
-      }
-
-      localStorage.setItem('cart', JSON.stringify(cart));
-      window.dispatchEvent(new Event('cartUpdated'));
-
-      // Cart modal'ı kapat
-      cartModal?.classList.remove('active');
-
-      // Success modal'ı aç
-      successModal?.classList.add('active');
-
-      // ✅ Önceki timeout varsa temizle
-      if (successModalTimeout) {
-        clearTimeout(successModalTimeout);
-      }
-
-      // ✅ 5 SANİYE SONRA OTOMATİK KAPAT
-      successModalTimeout = window.setTimeout(() => {
-        if (successModal?.classList.contains('active')) {
-          successModal.classList.remove('active');
-          document.body.style.overflow = '';
-        }
-        successModalTimeout = null;
-      }, 5000);
-    } else {
-      alert('Lütfen bir gramaj seçin!');
-    }
-  });
-
-  // ✅ Sepete Git butonu
-  document.getElementById('go-to-cart')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    // Timeout'u temizle
-    if (successModalTimeout) {
-      clearTimeout(successModalTimeout);
-      successModalTimeout = null;
-    }
-
-    window.location.href = '/sepet';
-  });
-
-  // ✅ Alışverişe Devam butonu
-  document.getElementById('continue-shopping')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    // Timeout'u temizle
-    if (successModalTimeout) {
-      clearTimeout(successModalTimeout);
-      successModalTimeout = null;
-    }
-
     successModal?.classList.remove('active');
     document.body.style.overflow = '';
   });
-
-  // ✅ YENİ: SUCCESS MODAL X BUTONU
-  document.querySelector('.success-close')?.addEventListener('click', () => {
-    // Timeout'u temizle
-    if (successModalTimeout) {
-      clearTimeout(successModalTimeout);
-      successModalTimeout = null;
-    }
-
-    successModal?.classList.remove('active');
+});
+cartModal?.addEventListener('click', (e) => {
+  if (e.target === cartModal) {
+    cartModal.classList.remove('active');
     document.body.style.overflow = '';
-  });
+  }
+});
+successModal?.addEventListener('click', (e) => {
+  if (e.target === successModal) {
+    successModal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+});
 
-  // ✅ YENİ: SUCCESS MODAL DIŞINA TIKLANINCA KAPAT
-  successModal?.addEventListener('click', (e) => {
-    if (e.target === successModal) {
-      // Timeout'u temizle
-      if (successModalTimeout) {
-        clearTimeout(successModalTimeout);
-        successModalTimeout = null;
-      }
+/* Sepete eklemeyi onayla (örnek; burada sadece başarı modalı gösteriyoruz) */
+confirmAddCartBtn?.addEventListener('click', () => {
+  cartModal?.classList.remove('active');
+  successModal?.classList.add('active');
+  document.body.style.overflow = 'hidden';
 
-      successModal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-  });
+  // TODO: Burada gerçek sepet ekleme (localStorage / Supabase / API) yapılacaksa ekle
+});
 
-  // ESC tuşu
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      if (cartModal?.classList.contains('active')) {
-        cartModal.classList.remove('active');
-        document.body.style.overflow = '';
-      }
-      if (successModal?.classList.contains('active')) {
-        // Timeout'u temizle
-        if (successModalTimeout) {
-          clearTimeout(successModalTimeout);
-          successModalTimeout = null;
-        }
-
-        successModal.classList.remove('active');
-        document.body.style.overflow = '';
-      }
-    }
-  });
+/* Devam alışveriş / sepete git */
+document.getElementById('continue-shopping')?.addEventListener('click', () => {
+  successModal?.classList.remove('active');
+  document.body.style.overflow = '';
+});
+document.getElementById('go-to-cart')?.addEventListener('click', () => {
+  window.location.href = '/sepet';
+});
 </script>
+</BaseLayout>
+

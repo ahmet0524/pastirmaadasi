@@ -1,0 +1,1102 @@
+---
+// src/pages/hakkimizda.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const lastUpdate = '12/11/2025';
+---
+
+<BaseLayout
+  title="Hakkımızda - Pastırma Adası"
+  description="Pastırma Adası'nın hikayesi, değerleri ve geleneksel lezzetleri modern yaklaşımla buluşturma misyonu hakkında detaylı bilgi."
+>
+  <Header slot="header" />
+
+  <!-- Hero Section -->
+  <section class="about-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <nav class="breadcrumb">
+        <a href="/">Ana Sayfa</a>
+        <span>/</span>
+        <span>Hakkımızda</span>
+      </nav>
+      <h1>Pastırma Adası Hakkında</h1>
+      <p class="hero-subtitle">
+        Geleneksel Tatların İzlendiği Bir Yolculuk
+      </p>
+      <div class="last-update">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        Son güncelleme: {lastUpdate}
+      </div>
+    </div>
+  </section>
+
+  <!-- Story Section -->
+  <section class="story-section">
+    <div class="container">
+      <div class="story-grid">
+        <div class="story-image">
+          <img src="/assets/image/hakkimizda/in-store.webp" alt="Pastırma Adası Mağaza" />
+          <div class="image-badge">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+            </svg>
+            2022'den beri
+          </div>
+        </div>
+
+        <div class="story-content">
+          <div class="section-label">Hikayemiz</div>
+          <h2>Pastırma Adası: Geleneksel Tatların İzlendiği Bir Yolculuk</h2>
+
+          <div class="quote-box">
+            <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/>
+            </svg>
+            <blockquote>
+              <p>
+                "Lahm-i kadid (kurutulmuş et) namıyla şöhret bulan kimyonlu ve baharlı sığır pastırması ve
+                mümessek (mis kokulu) et sucuğu rub-ı meskunda (yeryüzünde) yoktur. Padişahlara hediye olarak gider."
+              </p>
+              <cite>— Evliya Çelebi, Seyahatname</cite>
+            </blockquote>
+          </div>
+
+          <p>
+            Pastırmanın 17. yüzyılda padişahtan cephedeki askere kadar geniş bir kesim tarafından tüketildiğini
+            belirten Evliya Çelebi, Seyahatnamesi'nde ayrıca Kayseri pastırması ve sucuğu hakkında detaylı bilgiler verir.
+          </p>
+
+          <p>
+            Bu sözlerden anlaşıldığı üzere, 17. yüzyıldan bu yana Kayseri'de üretilen pastırma ve sucuğun
+            <strong>Osmanlı sarayına hitap edecek kalite ve lezzette</strong> olduğu açıkça görülmektedir.
+          </p>
+
+          <p>
+            Seyahatname'de ayrıca Tuna Nehri yakınlarında pastırma üretimi yapılan
+            <strong>(Cezire-i Pastırma) Pastırma Adası</strong>'ndan bahsedilir.
+          </p>
+
+          <div class="highlight-box">
+            <div class="highlight-icon">
+              <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div>
+              <h4>Pastırma Adası</h4>
+              <p>
+                Geleneksel ve yöresel lezzetleri sizinle buluştururken modern bir yaklaşımı ve tarihi bir ismi tercih ediyoruz:
+                <strong>Pastırma Adası</strong>. 2022 yılından beri faaliyet gösterdiğimiz bu sektörde, müşterilerimize
+                hak ettikleri güveni, özeni ve kaliteyi sunmayı amaçlıyoruz.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats-section">
+    <div class="container">
+      <div class="stats-header">
+        <h2>Ürünlerimiz Kendi Adına Konuşuyor</h2>
+        <p>Kalite ve güven ile büyüyen rakamlarımız</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon sales">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+            </svg>
+          </div>
+          <div class="stat-number">5,000+</div>
+          <div class="stat-label">Satış</div>
+          <div class="stat-description">Mutlu müşteri siparişi</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon variety">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+            </svg>
+          </div>
+          <div class="stat-number">100+</div>
+          <div class="stat-label">Çeşit</div>
+          <div class="stat-description">Farklı ürün çeşitliliği</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon products">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+            </svg>
+          </div>
+          <div class="stat-number">50+</div>
+          <div class="stat-label">Ürün</div>
+          <div class="stat-description">Ana ürün kategorisi</div>
+        </div>
+
+        <div class="stat-card featured">
+          <div class="stat-icon halal">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+          </div>
+          <div class="stat-number">HELAL</div>
+          <div class="stat-label">Kesim</div>
+          <div class="stat-description">%100 helal ve güvenilir</div>
+        </div>
+      </div>
+
+      <div class="quality-banner">
+        <div class="banner-icon">
+          <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+          </svg>
+        </div>
+        <div>
+          <h3>En Üstün Kaliteye Sahip Ürünlerimiz</h3>
+          <p>En üstün kaliteye sahip ürünlerimizle bu lezzeti denemenizi kesinlikle öneriyoruz.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Products Section -->
+  <section class="products-section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Ürünlerimiz</div>
+        <h2>En Kaliteli Lezzet</h2>
+        <p>Geleneksel tatları modern standartlarla buluşturen geniş ürün yelpazemiz</p>
+      </div>
+
+      <div class="products-grid">
+        <div class="product-category">
+          <div class="category-icon">🥩</div>
+          <h4>Pastırma</h4>
+          <p>Geleneksel Kayseri pastırması, özenle seçilmiş etlerden üretilir</p>
+        </div>
+
+        <div class="product-category">
+          <div class="category-icon">🌭</div>
+          <h4>Sucuk</h4>
+          <p>Mis kokulu, baharatlı sucuklarımız sofranızın vazgeçilmezi</p>
+        </div>
+
+        <div class="product-category">
+          <div class="category-icon">🍖</div>
+          <h4>Kavurma</h4>
+          <p>Geleneksel yöntemlerle hazırlanan, lezzet dolu kavurma</p>
+        </div>
+
+        <div class="product-category">
+          <div class="category-icon">🥟</div>
+          <h4>Mantı</h4>
+          <p>El emeği, göz nuru Kayseri mantısı</p>
+        </div>
+
+        <div class="product-category">
+          <div class="category-icon">🍞</div>
+          <h4>Un Mamülleri</h4>
+          <p>Taze ve lezzetli un mamulleri çeşitleri</p>
+        </div>
+
+        <div class="product-category">
+          <div class="category-icon">🍯</div>
+          <h4>Bal Çeşitleri</h4>
+          <p>Doğal ve saf bal çeşitlerimiz</p>
+        </div>
+
+        <div class="product-category">
+          <div class="category-icon">🧀</div>
+          <h4>Peynir</h4>
+          <p>Yöresel peynir çeşitleri, geleneksel lezzetler</p>
+        </div>
+
+        <div class="product-category">
+          <div class="category-icon">🫒</div>
+          <h4>Zeytin</h4>
+          <p>Seçme zeytin çeşitleri, sofranızın süsü</p>
+        </div>
+
+        <div class="product-category">
+          <div class="category-icon">🌶️</div>
+          <h4>Baharat Çeşitleri</h4>
+          <p>Doğal ve aromalı baharat çeşitlerimiz</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Values Section -->
+  <section class="values-section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Değerlerimiz</div>
+        <h2>Neden Pastırma Adası?</h2>
+        <p>Müşterilerimize sunduğumuz değerler ve taahhütlerimiz</p>
+      </div>
+
+      <div class="values-grid">
+        <div class="value-card">
+          <div class="value-icon quality">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h4>Kalite Garantisi</h4>
+          <p>En üstün kalitede ürünler sunmak için titizlikle çalışıyoruz. Her ürünümüz kalite kontrolünden geçer.</p>
+        </div>
+
+        <div class="value-card">
+          <div class="value-icon traditional">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+          </div>
+          <h4>Geleneksel Tarifler</h4>
+          <p>Yüzyıllardır süregelen geleneksel tarifleri koruyarak, özgün tatları sunuyoruz.</p>
+        </div>
+
+        <div class="value-card">
+          <div class="value-icon fresh">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h4>Taze Üretim</h4>
+          <p>Ürünlerimiz günlük olarak taze üretilir ve size en taze haliyle ulaştırılır.</p>
+        </div>
+
+        <div class="value-card">
+          <div class="value-icon hygiene">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+          </div>
+          <h4>Hijyen Standartları</h4>
+          <p>En yüksek hijyen standartlarına uygun üretim tesislerimizde çalışıyoruz.</p>
+        </div>
+
+        <div class="value-card">
+          <div class="value-icon customer">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+          </div>
+          <h4>Müşteri Memnuniyeti</h4>
+          <p>Müşteri memnuniyeti önceliğimizdir. Sizin için en iyisini sunmak için çalışıyoruz.</p>
+        </div>
+
+        <div class="value-card">
+          <div class="value-icon fast">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
+          <h4>Hızlı Teslimat</h4>
+          <p>Siparişlerinizi özenle paketleyip, hızlı bir şekilde kapınıza kadar getiriyoruz.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2>Sipariş Ver</h2>
+        <p>
+          Geleneksel lezzetlerimizi denemek için hemen sipariş verin.
+          En kaliteli ürünlerimizle sizlere hizmet etmekten mutluluk duyarız.
+        </p>
+        <div class="cta-buttons">
+          <a href="/urunler" class="btn btn-primary">Ürünleri İncele</a>
+          <a href="tel:+905077623838" class="btn btn-outline">Bizi Arayın</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  /* Hero Section */
+  .about-hero {
+    position: relative;
+    min-height: 350px;
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: white;
+    max-width: 800px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+
+  .breadcrumb a {
+    color: rgba(255, 255, 255, 0.95);
+    text-decoration: none;
+    transition: opacity 0.3s;
+  }
+
+  .breadcrumb a:hover {
+    opacity: 0.8;
+  }
+
+  .breadcrumb span {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .hero-content h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0 0 1rem 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .hero-subtitle {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    margin: 0 0 1.5rem 0;
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  .last-update {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.25rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  /* Story Section */
+  .story-section {
+    padding: 5rem 1rem;
+    background: white;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .story-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+
+  .story-image {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  }
+
+  .story-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .image-badge {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+  }
+
+  .section-label {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 100%);
+    color: #0891B2;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 1rem;
+  }
+
+  .story-content h2 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #1F2937;
+    margin: 0 0 2rem 0;
+    line-height: 1.2;
+  }
+
+  .quote-box {
+    position: relative;
+    padding: 2rem;
+    background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%);
+    border-left: 4px solid #0891B2;
+    border-radius: 12px;
+    margin: 2rem 0;
+  }
+
+  .quote-box svg {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    color: #0891B2;
+    opacity: 0.2;
+  }
+
+  .quote-box blockquote {
+    margin: 0;
+    padding-left: 2.5rem;
+  }
+
+  .quote-box p {
+    font-size: 1.1rem;
+    font-style: italic;
+    color: #374151;
+    line-height: 1.8;
+    margin: 0 0 1rem 0;
+  }
+
+  .quote-box cite {
+    font-size: 0.95rem;
+    color: #6B7280;
+    font-style: normal;
+    font-weight: 600;
+  }
+
+  .story-content p {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #4B5563;
+    margin-bottom: 1.25rem;
+  }
+
+  .story-content strong {
+    color: #0891B2;
+    font-weight: 600;
+  }
+
+  .highlight-box {
+    display: flex;
+    gap: 1.5rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+    border-left: 4px solid #10B981;
+    border-radius: 12px;
+    margin-top: 2rem;
+  }
+
+  .highlight-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .highlight-box h4 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #065F46;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .highlight-box p {
+    font-size: 1rem;
+    color: #047857;
+    margin: 0;
+  }
+
+  /* Stats Section */
+  .stats-section {
+    padding: 5rem 1rem;
+    background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%);
+  }
+
+  .stats-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .stats-header h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1F2937;
+    margin: 0 0 1rem 0;
+  }
+
+  .stats-header p {
+    font-size: 1.125rem;
+    color: #6B7280;
+    margin: 0;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  }
+
+  .stat-card.featured {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: white;
+  }
+
+  .stat-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 1.5rem;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .stat-icon.sales {
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  }
+
+  .stat-icon.variety {
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  }
+
+  .stat-icon.products {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  }
+
+  .stat-icon.halal {
+    background: white;
+    color: #10B981;
+  }
+
+  .stat-card.featured .stat-icon {
+    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
+  }
+
+  .stat-number {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #1F2937;
+    margin-bottom: 0.5rem;
+    line-height: 1;
+  }
+
+  .stat-card.featured .stat-number {
+    color: white;
+  }
+
+  .stat-label {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0891B2;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-card.featured .stat-label {
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  .stat-description {
+    font-size: 0.95rem;
+    color: #6B7280;
+  }
+
+  .stat-card.featured .stat-description {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  /* Quality Banner */
+  .quality-banner {
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+    border-radius: 16px;
+    padding: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    color: white;
+    box-shadow: 0 8px 32px rgba(8, 145, 178, 0.3);
+  }
+
+  .banner-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .quality-banner h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem 0;
+  }
+
+  .quality-banner p {
+    font-size: 1.1rem;
+    margin: 0;
+    opacity: 0.95;
+  }
+
+  /* Products Section */
+  .products-section {
+    padding: 5rem 1rem;
+    background: white;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .section-header h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1F2937;
+    margin: 0 0 1rem 0;
+  }
+
+  .section-header p {
+    font-size: 1.125rem;
+    color: #6B7280;
+    margin: 0;
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+
+  .product-category {
+    background: #F9FAFB;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+  }
+
+  .product-category:hover {
+    background: white;
+    border-color: #0891B2;
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba(8, 145, 178, 0.15);
+  }
+
+  .category-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .product-category h4 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 0.75rem 0;
+  }
+
+  .product-category p {
+    font-size: 0.95rem;
+    color: #6B7280;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* Values Section */
+  .values-section {
+    padding: 5rem 1rem;
+    background: linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 100%);
+  }
+
+  .values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .value-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s;
+  }
+
+  .value-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  }
+
+  .value-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    color: white;
+  }
+
+  .value-icon.quality {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  }
+
+  .value-icon.traditional {
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  }
+
+  .value-icon.fresh {
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  }
+
+  .value-icon.hygiene {
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+  }
+
+  .value-icon.customer {
+    background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%);
+  }
+
+  .value-icon.fast {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  }
+
+  .value-card h4 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 0.75rem 0;
+  }
+
+  .value-card p {
+    font-size: 1rem;
+    color: #6B7280;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* CTA Section */
+  .cta-section {
+    padding: 5rem 1rem;
+    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+    color: white;
+  }
+
+  .cta-content {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .cta-content h2 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0 0 1rem 0;
+  }
+
+  .cta-content p {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    margin: 0 0 2.5rem 0;
+    opacity: 0.95;
+  }
+
+  .cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 1rem 2.5rem;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background: white;
+    color: #0891B2;
+  }
+
+  .btn-primary:hover {
+    background: #F0FDFA;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(255, 255, 255, 0.3);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: white;
+    border: 2px solid white;
+  }
+
+  .btn-outline:hover {
+    background: white;
+    color: #0891B2;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .story-grid {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    .story-image {
+      max-height: 400px;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .about-hero {
+      min-height: 280px;
+      padding: 2rem 1rem;
+    }
+
+    .hero-content h1 {
+      font-size: 2rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1rem;
+    }
+
+    .story-section,
+    .stats-section,
+    .products-section,
+    .values-section,
+    .cta-section {
+      padding: 3rem 1rem;
+    }
+
+    .story-content h2,
+    .stats-header h2,
+    .section-header h2 {
+      font-size: 1.75rem;
+    }
+
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .quality-banner {
+      flex-direction: column;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .quality-banner h3 {
+      font-size: 1.5rem;
+    }
+
+    .products-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .values-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .cta-content h2 {
+      font-size: 2rem;
+    }
+
+    .cta-content p {
+      font-size: 1.05rem;
+    }
+
+    .cta-buttons {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .btn {
+      width: 100%;
+    }
+
+    .quote-box {
+      padding: 1.5rem;
+    }
+
+    .quote-box blockquote {
+      padding-left: 0;
+    }
+
+    .quote-box svg {
+      position: static;
+      margin-bottom: 1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .stat-number {
+      font-size: 2.5rem;
+    }
+
+    .category-icon {
+      font-size: 3rem;
+    }
+
+    .image-badge {
+      top: 1rem;
+      right: 1rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+    }
+  }
+</style>
+
+<script>
+  // Add animation on scroll
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.1
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, observerOptions);
+
+  // Observe elements for animation
+  document.addEventListener('DOMContentLoaded', () => {
+    const animateElements = document.querySelectorAll('.stat-card, .product-category, .value-card');
+
+    animateElements.forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(el);
+    });
+  });
+
+  // Counter animation for stats
+  const animateCounter = (element: HTMLElement, target: number, duration: number = 2000) => {
+    let start = 0;
+    const increment = target / (duration / 16);
+
+    const updateCounter = () => {
+      start += increment;
+      if (start < target) {
+        element.textContent = Math.floor(start).toLocaleString() + '+';
+        requestAnimationFrame(updateCounter);
+      } else {
+        element.textContent = target.toLocaleString() + '+';
+      }
+    };
+
+    updateCounter();
+  };
+
+  // Observe stat numbers for counter animation
+  const statObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
+        entry.target.classList.add('animated');
+        const text = entry.target.textContent || '';
+        const number = parseInt(text.replace(/[^0-9]/g, ''));
+
+        if (!isNaN(number)) {
+          animateCounter(entry.target as HTMLElement, number);
+        }
+      }
+    });
+  }, observerOptions);
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.stat-number').forEach(stat => {
+      const text = stat.textContent || '';
+      if (/\d/.test(text) && text !== 'HELAL') {
+        statObserver.observe(stat);
+      }
+    });
+  });
+</script>
