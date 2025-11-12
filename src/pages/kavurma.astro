@@ -222,9 +222,16 @@ function getImageUrl(imgs: any): string {
     </div>
   </div>
 
-  <!-- Cart Success Modal -->
+  <!-- Cart Success Modal - ✅ X BUTONU EKLENDİ -->
   <div id="success-modal" class="cart-modal">
     <div class="modal-content success-content">
+      <!-- ✅ YENİ: X Butonu -->
+      <button class="modal-close success-close" aria-label="Kapat">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
       <div class="success-icon">
         <svg width="60" height="60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -579,21 +586,30 @@ function getImageUrl(imgs: any): string {
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   }
 
-  .modal-close {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #666;
-    z-index: 10;
-    transition: color 0.3s;
-  }
+.modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  cursor: pointer;
+  color: #999;
+  z-index: 10;
+  transition: all 0.3s ease;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+}
 
-  .modal-close:hover {
-    color: #333;
-  }
+.modal-close:hover {
+  color: white;
+  background: #DC2626;
+  transform: rotate(90deg);
+}
 
   .modal-body {
     padding: 30px;
@@ -847,10 +863,13 @@ function getImageUrl(imgs: any): string {
 </style>
 
 <script>
-  const cartModal = document.getElementById('cart-modal');
+    const cartModal = document.getElementById('cart-modal');
   const successModal = document.getElementById('success-modal');
   let selectedProduct: any = null;
   let selectedVariant: any = null;
+
+  // ✅ Success Modal Timeout ID'sini sakla
+  let successModalTimeout: number | null = null;
 
   document.querySelectorAll('.btn-add-cart').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -943,18 +962,21 @@ function getImageUrl(imgs: any): string {
     }
   });
 
+  // ✅ Sepete ekle butonu - DÜZELTİLDİ
   document.getElementById('confirm-add-cart')?.addEventListener('click', () => {
     const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
     const quantity = parseInt(qtyInput?.value) || 1;
 
     if (selectedProduct && selectedVariant) {
       const cartItem = {
-        id: selectedProduct.id,
-        name: `${selectedProduct.name} - ${selectedVariant.label}`,
+        id: `${selectedProduct.id}_${selectedVariant.label}`,
+        productId: selectedProduct.id,
+        name: selectedProduct.name,
         price: selectedVariant.price,
         image: selectedProduct.image,
         unit: selectedVariant.label,
-        quantity: quantity
+        quantity: quantity,
+        availableVariants: selectedProduct.variants || []
       };
 
       let cart = [];
@@ -962,15 +984,17 @@ function getImageUrl(imgs: any): string {
         const cartData = localStorage.getItem('cart');
         cart = cartData ? JSON.parse(cartData) : [];
       } catch (e) {
+        console.error('Sepet yüklenemedi:', e);
         cart = [];
       }
 
       const existingItemIndex = cart.findIndex(
-        (item: any) => item.id === cartItem.id && item.unit === cartItem.unit
+        (item: any) => item.productId === cartItem.productId && item.unit === cartItem.unit
       );
 
       if (existingItemIndex > -1) {
         cart[existingItemIndex].quantity += quantity;
+        cart[existingItemIndex].availableVariants = cartItem.availableVariants;
       } else {
         cart.push(cartItem);
       }
@@ -978,20 +1002,86 @@ function getImageUrl(imgs: any): string {
       localStorage.setItem('cart', JSON.stringify(cart));
       window.dispatchEvent(new Event('cartUpdated'));
 
+      // Cart modal'ı kapat
       cartModal?.classList.remove('active');
+
+      // Success modal'ı aç
       successModal?.classList.add('active');
+
+      // ✅ Önceki timeout varsa temizle
+      if (successModalTimeout) {
+        clearTimeout(successModalTimeout);
+      }
+
+      // ✅ 5 SANİYE SONRA OTOMATİK KAPAT
+      successModalTimeout = window.setTimeout(() => {
+        if (successModal?.classList.contains('active')) {
+          successModal.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+        successModalTimeout = null;
+      }, 5000);
+    } else {
+      alert('Lütfen bir gramaj seçin!');
     }
   });
 
-  document.getElementById('go-to-cart')?.addEventListener('click', () => {
+  // ✅ Sepete Git butonu
+  document.getElementById('go-to-cart')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Timeout'u temizle
+    if (successModalTimeout) {
+      clearTimeout(successModalTimeout);
+      successModalTimeout = null;
+    }
+
     window.location.href = '/sepet';
   });
 
-  document.getElementById('continue-shopping')?.addEventListener('click', () => {
+  // ✅ Alışverişe Devam butonu
+  document.getElementById('continue-shopping')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Timeout'u temizle
+    if (successModalTimeout) {
+      clearTimeout(successModalTimeout);
+      successModalTimeout = null;
+    }
+
     successModal?.classList.remove('active');
     document.body.style.overflow = '';
   });
 
+  // ✅ YENİ: SUCCESS MODAL X BUTONU
+  document.querySelector('.success-close')?.addEventListener('click', () => {
+    // Timeout'u temizle
+    if (successModalTimeout) {
+      clearTimeout(successModalTimeout);
+      successModalTimeout = null;
+    }
+
+    successModal?.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  // ✅ YENİ: SUCCESS MODAL DIŞINA TIKLANINCA KAPAT
+  successModal?.addEventListener('click', (e) => {
+    if (e.target === successModal) {
+      // Timeout'u temizle
+      if (successModalTimeout) {
+        clearTimeout(successModalTimeout);
+        successModalTimeout = null;
+      }
+
+      successModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+
+  // ESC tuşu
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       if (cartModal?.classList.contains('active')) {
@@ -999,6 +1089,12 @@ function getImageUrl(imgs: any): string {
         document.body.style.overflow = '';
       }
       if (successModal?.classList.contains('active')) {
+        // Timeout'u temizle
+        if (successModalTimeout) {
+          clearTimeout(successModalTimeout);
+          successModalTimeout = null;
+        }
+
         successModal.classList.remove('active');
         document.body.style.overflow = '';
       }

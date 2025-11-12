@@ -582,30 +582,32 @@ function getImageUrl(imgs: any): string {
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   }
 
-  .modal-close {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #666;
-    z-index: 10;
-    transition: color 0.3s;
-  }
+.modal-close {
+  position: absolute;
+  top: 20px;                              /* 15px → 20px */
+  right: 20px;                            /* 15px → 20px */
+  background: rgba(0, 0, 0, 0.05);       /* ✅ YENİ */
+  border: none;
+  cursor: pointer;
+  color: #999;                            /* #666 → #999 */
+  z-index: 10;
+  transition: all 0.3s ease;              /* ✅ YENİ - 'all' ekle */
+  padding: 0;                             /* ✅ YENİ */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;                     /* ✅ YENİ */
+  width: 36px;                            /* ✅ YENİ */
+  height: 36px;                           /* ✅ YENİ */
+}
 
-  .modal-close:hover {
-    color: #333;
-  }
+.modal-close:hover {
+  color: white;                           /* ✅ YENİ */
+  background: #DC2626;                    /* ✅ YENİ */
+  transform: rotate(90deg);               /* ✅ YENİ - DÖNME EFEKTİ */
+}
 
-  /* ✅ YENİ: Success Modal X Butonu Özel Stil */
-  .success-close {
-    color: #999;
-  }
 
-  .success-close:hover {
-    color: #DC2626;
-  }
 
   .modal-body {
     padding: 30px;
@@ -859,6 +861,9 @@ function getImageUrl(imgs: any): string {
   (window as any).selectedProduct = null;
   (window as any).selectedVariant = null;
 
+    // ✅ Success Modal Timeout ID'sini sakla
+  let successModalTimeout: number | null = null;
+
   document.querySelectorAll('.btn-add-cart').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -1009,13 +1014,24 @@ function getImageUrl(imgs: any): string {
 
       console.log('✅ Sepet güncellendi:', cart);
 
+      // Cart modal'ı kapat
       cartModal?.classList.remove('active');
+
+      // Success modal'ı aç
       successModal?.classList.add('active');
 
+      // ✅ Önceki timeout varsa temizle
+      if (successModalTimeout) {
+        clearTimeout(successModalTimeout);
+      }
+
       // ✅ 5 SANİYE SONRA OTOMATİK KAPAT
-      setTimeout(() => {
-        successModal?.classList.remove('active');
-        document.body.style.overflow = '';
+      successModalTimeout = window.setTimeout(() => {
+        if (successModal?.classList.contains('active')) {
+          successModal.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+        successModalTimeout = null;
       }, 5000);
 
     } else {
@@ -1024,11 +1040,31 @@ function getImageUrl(imgs: any): string {
     }
   });
 
-  document.getElementById('go-to-cart')?.addEventListener('click', () => {
+  // ✅ Sepete Git butonu
+  document.getElementById('go-to-cart')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Timeout'u temizle
+    if (successModalTimeout) {
+      clearTimeout(successModalTimeout);
+      successModalTimeout = null;
+    }
+
     window.location.href = '/sepet';
   });
 
-  document.getElementById('continue-shopping')?.addEventListener('click', () => {
+  // ✅ Alışverişe Devam butonu
+  document.getElementById('continue-shopping')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Timeout'u temizle
+    if (successModalTimeout) {
+      clearTimeout(successModalTimeout);
+      successModalTimeout = null;
+    }
+
     successModal?.classList.remove('active');
     document.body.style.overflow = '';
   });

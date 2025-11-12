@@ -824,43 +824,32 @@ const featuredProducts = [
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   }
 
-  .modal-close {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #666;
-    z-index: 10;
-    transition: color 0.3s;
-    padding: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+.modal-close {
+  position: absolute;
+  top: 20px;                              /* 15px → 20px */
+  right: 20px;                            /* 15px → 20px */
+  background: rgba(0, 0, 0, 0.05);       /* ✅ YENİ - Arka plan eklendi */
+  border: none;
+  cursor: pointer;
+  color: #999;                            /* #666 → #999 */
+  z-index: 10;
+  transition: all 0.3s ease;              /* ✅ YENİ - 'all' olmalı */
+  padding: 0;                             /* 5px → 0 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;                     /* ✅ YENİ - Yuvarlak yap */
+  width: 36px;                            /* ✅ YENİ - Sabit genişlik */
+  height: 36px;                           /* ✅ YENİ - Sabit yükseklik */
+}
 
-  .modal-close:hover {
-    color: #333;
-  }
+.modal-close:hover {
+  color: white;                           /* ✅ YENİ */
+  background: #DC2626;                    /* ✅ YENİ - Kırmızı arka plan */
+  transform: rotate(90deg);               /* ✅ YENİ - DÖNME EFEKTİ */
+}
 
-  /* Success Modal X Butonu Özel Stil */
-  .success-close {
-    top: 20px;
-    right: 20px;
-    color: #999;
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    transition: all 0.3s;
-  }
 
-  .success-close:hover {
-    color: white;
-    background: #DC2626;
-    transform: rotate(90deg);
-  }
 
   .modal-body {
     padding: 30px;
@@ -1374,6 +1363,22 @@ const featuredProducts = [
     successModal?.classList.remove('active');
     document.body.style.overflow = '';
   });
+
+// Success Modal X Butonu
+document.querySelector('.success-close')?.addEventListener('click', () => {
+  successModal?.classList.remove('active');
+  document.body.style.overflow = '';
+});
+
+// Success Modal dışına tıklayınca kapat
+successModal?.addEventListener('click', (e) => {
+  if (e.target === successModal) {
+    successModal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+});
+
+
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
