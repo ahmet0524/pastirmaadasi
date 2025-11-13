@@ -4,10 +4,12 @@ import { createClient } from '@supabase/supabase-js';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
-    // Auth kontrolü
-    const session = cookies.get('sb-access-token');
-    if (!session) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+    // Auth kontrolü - Cookie'den token al
+    const accessToken = cookies.get('sb-access-token')?.value;
+    const refreshToken = cookies.get('sb-refresh-token')?.value;
+
+    if (!accessToken) {
+      return new Response(JSON.stringify({ error: 'Unauthorized - No access token' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -19,14 +21,30 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       import.meta.env.SUPABASE_SERVICE_ROLE_KEY
     );
 
+    // Session'ı doğrula
+    const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken);
+
+    if (authError || !user) {
+      console.error('❌ Auth validation error:', authError);
+      return new Response(JSON.stringify({ error: 'Unauthorized - Invalid session' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    console.log('✅ Auth validated for user:', user.email);
+
     // 1️⃣ Tüm siparişleri çek
     const { data: orders, error: ordersError } = await supabase
       .from('orders')
       .select('coupon_codes, coupon_code');
 
     if (ordersError) {
+      console.error('❌ Orders fetch error:', ordersError);
       throw new Error(`Orders fetch error: ${ordersError.message}`);
     }
+
+    console.log(`📦 ${orders?.length || 0} sipariş bulundu`);
 
     // 2️⃣ Kupon kullanım sayılarını hesapla
     const couponUsageMap = new Map<string, number>();
@@ -45,13 +63,16 @@ export const POST: APIRoute = async ({ request, cookies }) => {
           try {
             const parsed = JSON.parse(order.coupon_codes);
             codes = Array.isArray(parsed) ? parsed : [];
-          } catch {
+          } catch (parseError) {
+            console.warn('⚠️ Parse error for coupon_codes:', order.coupon_codes);
             codes = [];
           }
         }
 
         codes.forEach((code: string) => {
-          couponUsageMap.set(code, (couponUsageMap.get(code) || 0) + 1);
+          if (code && typeof code === 'string') {
+            couponUsageMap.set(code, (couponUsageMap.get(code) || 0) + 1);
+          }
         });
       }
 
@@ -64,17 +85,39 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       }
     });
 
+    console.log('📊 Kupon kullanım haritası:', Object.fromEntries(couponUsageMap));
+
     // 3️⃣ Tüm kuponları çek
     const { data: coupons, error: couponsError } = await supabase
       .from('coupons')
       .select('id, code, used_count');
 
     if (couponsError) {
+      console.error('❌ Coupons fetch error:', couponsError);
       throw new Error(`Coupons fetch error: ${couponsError.message}`);
     }
 
+    console.log(`🎟️ ${coupons?.length || 0} kupon bulundu`);
+
+    if (!coupons || coupons.length === 0) {
+      return new Response(JSON.stringify({
+        success: true,
+        message: 'Güncellenecek kupon bulunamadı',
+        summary: {
+          totalCoupons: 0,
+          updated: 0,
+          unchanged: 0,
+          failed: 0,
+          details: []
+        }
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     // 4️⃣ Her kuponu güncelle
-    const updatePromises = coupons?.map(async (coupon: any) => {
+    const updatePromises = coupons.map(async (coupon: any) => {
       const actualUsage = couponUsageMap.get(coupon.code) || 0;
 
       // Eğer used_count farklıysa güncelle
@@ -86,8 +129,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
         if (updateError) {
           console.error(`❌ Coupon ${coupon.code} update error:`, updateError);
-          return { code: coupon.code, success: false, error: updateError.message };
+          return {
+            code: coupon.code,
+            success: false,
+            error: updateError.message
+          };
         }
+
+        console.log(`✅ ${coupon.code}: ${coupon.used_count} → ${actualUsage}`);
 
         return {
           code: coupon.code,
@@ -98,13 +147,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       }
 
       return { code: coupon.code, success: true, unchanged: true };
-    }) || [];
+    });
 
     const results = await Promise.all(updatePromises);
 
     // 5️⃣ Sonuçları özetle
     const summary = {
-      totalCoupons: coupons?.length || 0,
+      totalCoupons: coupons.length,
       updated: results.filter(r => r.success && !r.unchanged).length,
       unchanged: results.filter(r => r.unchanged).length,
       failed: results.filter(r => !r.success).length,
@@ -125,6 +174,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   } catch (error: any) {
     console.error('❌ Sync usage error:', error);
     return new Response(JSON.stringify({
+      success: false,
       error: error.message || 'Senkronizasyon başarısız'
     }), {
       status: 500,
