@@ -1,0 +1,719 @@
+---
+// src/pages/admin/coupons/[id].astro
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getSession } from '../../../lib/auth';
+import { createClient } from '@supabase/supabase-js';
+
+const session = await getSession();
+if (!session) {
+  return Astro.redirect('/admin/login');
+}
+
+const { id } = Astro.params;
+
+// Supabase Client
+const supabase = createClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+// Kuponu çek
+const { data: coupon, error } = await supabase
+  .from('coupons')
+  .select('*')
+  .eq('id', id)
+  .single();
+
+if (error || !coupon) {
+  return Astro.redirect('/admin/coupons');
+}
+
+// Tarihleri formatla
+const formatDateForInput = (dateString: string | null) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
+};
+---
+
+<BaseLayout title={`Kupon Düzenle: ${coupon.code}`}>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <h2>Pastırma Adası</h2>
+        <p>Admin Panel</p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-item">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          Dashboard
+        </a>
+        <a href="/admin/products" class="nav-item">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          Ürünler
+        </a>
+        <a href="/admin/orders" class="nav-item">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          Siparişler
+        </a>
+        <a href="/admin/coupons" class="nav-item active">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+          </svg>
+          Kuponlar
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="btn btn-outline btn-full">Çıkış Yap</button>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-header">
+        <div>
+          <h1>✏️ Kupon Düzenle</h1>
+          <p>Mevcut kupon bilgilerini güncelleyin</p>
+        </div>
+        <a href="/admin/coupons" class="btn btn-secondary">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Geri Dön
+        </a>
+      </header>
+
+      <div class="form-container">
+        <form id="coupon-form" class="coupon-form">
+          <input type="hidden" id="coupon-id" value={coupon.id} />
+
+          <div class="form-section">
+            <h3>Temel Bilgiler</h3>
+
+            <div class="form-group">
+              <label for="code">Kupon Kodu *</label>
+              <input
+                type="text"
+                id="code"
+                name="code"
+                required
+                value={coupon.code}
+                pattern="[A-Z0-9]+"
+                style="text-transform: uppercase"
+                readonly
+              />
+              <small>⚠️ Kupon kodu değiştirilemez</small>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="discount_percent">İndirim Oranı (%) *</label>
+                <input
+                  type="number"
+                  id="discount_percent"
+                  name="discount_percent"
+                  required
+                  min="1"
+                  max="100"
+                  step="1"
+                  value={coupon.discount_percent}
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="min_order_amount">Minimum Sipariş Tutarı (₺)</label>
+                <input
+                  type="number"
+                  id="min_order_amount"
+                  name="min_order_amount"
+                  min="0"
+                  step="0.01"
+                  value={coupon.min_order_amount || ''}
+                />
+                <small>Boş bırakılırsa minimum tutar olmaz</small>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="max_discount_amount">Maksimum İndirim Tutarı (₺)</label>
+                <input
+                  type="number"
+                  id="max_discount_amount"
+                  name="max_discount_amount"
+                  min="0"
+                  step="0.01"
+                  value={coupon.max_discount_amount || ''}
+                />
+                <small>Boş bırakılırsa limit olmaz</small>
+              </div>
+
+              <div class="form-group">
+                <label for="usage_limit">Kullanım Limiti</label>
+                <input
+                  type="number"
+                  id="usage_limit"
+                  name="usage_limit"
+                  min="1"
+                  step="1"
+                  value={coupon.usage_limit || ''}
+                />
+                <small>Boş bırakılırsa limit olmaz</small>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Kullanım Sayısı</label>
+              <div class="usage-badge">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <strong>{coupon.used_count || 0}</strong> kez kullanıldı
+              </div>
+              <small>Bu değer otomatik hesaplanır ve değiştirilemez</small>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>Geçerlilik Süresi</h3>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="valid_from">Başlangıç Tarihi</label>
+                <input
+                  type="datetime-local"
+                  id="valid_from"
+                  name="valid_from"
+                  value={formatDateForInput(coupon.valid_from)}
+                />
+                <small>Boş bırakılırsa hemen aktif olur</small>
+              </div>
+
+              <div class="form-group">
+                <label for="valid_until">Bitiş Tarihi</label>
+                <input
+                  type="datetime-local"
+                  id="valid_until"
+                  name="valid_until"
+                  value={formatDateForInput(coupon.valid_until)}
+                />
+                <small>Boş bırakılırsa süresiz olur</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>Durum</h3>
+
+            <div class="form-group checkbox-group">
+              <label>
+                <input type="checkbox" id="is_active" name="is_active" checked={coupon.is_active} />
+                <span>Kuponu aktif yap</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <a href="/admin/coupons" class="btn btn-secondary">İptal</a>
+            <button type="button" id="delete-btn" class="btn btn-danger">
+              🗑️ Kuponu Sil
+            </button>
+            <button type="submit" class="btn btn-primary" id="submit-btn">
+              💾 Değişiklikleri Kaydet
+            </button>
+          </div>
+        </form>
+
+        <div class="info-panel">
+          <h4>💡 Düzenleme İpuçları</h4>
+          <ul>
+            <li><strong>Kupon Kodu:</strong> Güvenlik nedeniyle değiştirilemez</li>
+            <li><strong>Kullanım Sayısı:</strong> Siparişlerden otomatik hesaplanır</li>
+            <li><strong>Aktif/Pasif:</strong> Pasif kuponlar kullanılamaz ancak silinmez</li>
+            <li><strong>Geçerlilik:</strong> Tarihleri boş bırakabilirsiniz</li>
+            <li><strong>Limitler:</strong> Sonradan artırabilir veya kaldırabilirsiniz</li>
+          </ul>
+
+          <div class="danger-zone">
+            <h4>⚠️ Tehlikeli Bölge</h4>
+            <p>Kuponu silmek geri alınamaz bir işlemdir. Sipariş geçmişinde bu kuponu kullanan müşteriler etkilenmez, ancak kupon artık kullanılamaz.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+
+    .admin-sidebar {
+      background: #1a1a1a;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .sidebar-header {
+      padding: 2rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-header h2 {
+      color: #d4af37;
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .sidebar-header p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.875rem;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 1.5rem 0;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1.5rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+
+    .nav-item.active {
+      background: rgba(212, 175, 55, 0.1);
+      color: #d4af37;
+      border-left: 3px solid #d4af37;
+    }
+
+    .sidebar-footer {
+      padding: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .admin-main {
+      background: #f8f9fa;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .admin-header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .admin-header p {
+      color: #6b7280;
+      margin: 0;
+    }
+
+    .form-container {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 2rem;
+      max-width: 1400px;
+    }
+
+    .coupon-form {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .form-section {
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .form-section:last-of-type {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .form-section h3 {
+      font-size: 1.25rem;
+      margin-bottom: 1.5rem;
+      color: #1f2937;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #374151;
+    }
+
+    .form-group small {
+      display: block;
+      margin-top: 0.25rem;
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #c41e3a;
+      box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.1);
+    }
+
+    .form-group input[readonly] {
+      background: #f3f4f6;
+      cursor: not-allowed;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-weight: normal;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+    }
+
+    .usage-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+      border: 2px solid #0ea5e9;
+      border-radius: 12px;
+      color: #075985;
+      font-size: 1.125rem;
+    }
+
+    .usage-badge svg {
+      flex-shrink: 0;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      font-size: 1rem;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: #c41e3a;
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #a01729;
+    }
+
+    .btn-secondary {
+      background: #6b7280;
+      color: white;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #4b5563;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: #dc2626;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-full {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .info-panel {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      height: fit-content;
+      position: sticky;
+      top: 2rem;
+    }
+
+    .info-panel h4 {
+      font-size: 1.125rem;
+      margin-bottom: 1rem;
+      color: #1f2937;
+    }
+
+    .info-panel ul {
+      list-style: none;
+    }
+
+    .info-panel li {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: #4b5563;
+    }
+
+    .info-panel li:last-child {
+      border-bottom: none;
+    }
+
+    .info-panel strong {
+      color: #1f2937;
+    }
+
+    .danger-zone {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #fef2f2;
+      border: 2px solid #fca5a5;
+      border-radius: 8px;
+    }
+
+    .danger-zone h4 {
+      color: #991b1b;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .danger-zone p {
+      color: #7f1d1d;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    @media (max-width: 1024px) {
+      .admin-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-sidebar {
+        position: relative;
+        height: auto;
+      }
+
+      .form-container {
+        grid-template-columns: 1fr;
+      }
+
+      .info-panel {
+        position: static;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .form-actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+
+  <script>
+    import { supabase } from '../../../lib/supabase';
+
+    // Logout
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = '/admin/login';
+    });
+
+    // Kupon kodunu otomatik büyük harfe çevir (sadece görsel, readonly olduğu için değişmez)
+    const codeInput = document.getElementById('code') as HTMLInputElement;
+    codeInput?.addEventListener('input', (e) => {
+      const target = e.target as HTMLInputElement;
+      target.value = target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    });
+
+    // Form submit - Güncelleme
+    const form = document.getElementById('coupon-form') as HTMLFormElement;
+    const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const couponId = (document.getElementById('coupon-id') as HTMLInputElement).value;
+
+      const formData = {
+        discount_percent: parseInt((document.getElementById('discount_percent') as HTMLInputElement).value),
+        min_order_amount: parseFloat((document.getElementById('min_order_amount') as HTMLInputElement).value) || null,
+        max_discount_amount: parseFloat((document.getElementById('max_discount_amount') as HTMLInputElement).value) || null,
+        usage_limit: parseInt((document.getElementById('usage_limit') as HTMLInputElement).value) || null,
+        valid_from: (document.getElementById('valid_from') as HTMLInputElement).value || null,
+        valid_until: (document.getElementById('valid_until') as HTMLInputElement).value || null,
+        is_active: (document.getElementById('is_active') as HTMLInputElement).checked
+      };
+
+      // Validasyon
+      if (formData.discount_percent < 1 || formData.discount_percent > 100) {
+        alert('❌ İndirim oranı 1-100 arasında olmalıdır!');
+        return;
+      }
+
+      try {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Kaydediliyor...';
+
+        const { error } = await supabase
+          .from('coupons')
+          .update(formData)
+          .eq('id', couponId);
+
+        if (error) throw error;
+
+        alert('✅ Kupon başarıyla güncellendi!');
+        window.location.href = '/admin/coupons';
+      } catch (error: any) {
+        console.error('Error:', error);
+        alert('❌ Hata: ' + error.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = '💾 Değişiklikleri Kaydet';
+      }
+    });
+
+    // Silme işlemi
+    const deleteBtn = document.getElementById('delete-btn');
+    deleteBtn?.addEventListener('click', async () => {
+      const couponId = (document.getElementById('coupon-id') as HTMLInputElement).value;
+      const couponCode = (document.getElementById('code') as HTMLInputElement).value;
+
+      if (!confirm(`"${couponCode}" kuponunu silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz!`)) {
+        return;
+      }
+
+      try {
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = '⏳ Siliniyor...';
+
+        const { error } = await supabase
+          .from('coupons')
+          .delete()
+          .eq('id', couponId);
+
+        if (error) throw error;
+
+        alert('✅ Kupon başarıyla silindi!');
+        window.location.href = '/admin/coupons';
+      } catch (error: any) {
+        console.error('Error:', error);
+        alert('❌ Hata: ' + error.message);
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = '🗑️ Kuponu Sil';
+      }
+    });
+  </script>
+</BaseLayout>

@@ -10,15 +10,22 @@ if (!session) {
   return Astro.redirect('/admin/login');
 }
 
-// İstatistikleri çek
+// İstatikleri çek
 const { data: products } = await supabaseAdmin.from('products').select('id, is_active');
-const { data: orders } = await supabaseAdmin.from('orders').select('total, status, coupon_code');
+const { data: orders } = await supabaseAdmin.from('orders').select('total, status, coupon_codes, coupon_details');
 const { data: coupons } = await supabaseAdmin.from('coupons').select('*');
 
-// Kupon kullanım sayılarını hesapla
+// ✅ DÜZELTME: Çoklu kupon kullanım sayılarını hesapla
 const couponUsageMap = new Map();
 orders?.forEach(order => {
-  if (order.coupon_code) {
+  // Yeni format: coupon_codes array
+  if (order.coupon_codes && Array.isArray(order.coupon_codes)) {
+    order.coupon_codes.forEach(code => {
+      couponUsageMap.set(code, (couponUsageMap.get(code) || 0) + 1);
+    });
+  }
+  // Eski format için backward compatibility (eski coupon_code string)
+  else if (order.coupon_code && typeof order.coupon_code === 'string') {
     couponUsageMap.set(
       order.coupon_code,
       (couponUsageMap.get(order.coupon_code) || 0) + 1
@@ -35,6 +42,12 @@ const activeCouponsCount = coupons?.filter(c => {
   return c.is_active && !isExpired && !isLimitReached;
 }).length || 0;
 
+// ✅ DÜZELTME: Kuponlu sipariş sayısı (çoklu kupon desteği)
+const ordersWithCoupon = orders?.filter(o => {
+  return (o.coupon_codes && Array.isArray(o.coupon_codes) && o.coupon_codes.length > 0) ||
+         (o.coupon_code && typeof o.coupon_code === 'string');
+}).length || 0;
+
 const stats = {
   totalProducts: products?.length || 0,
   activeProducts: products?.filter(p => p.is_active).length || 0,
@@ -44,7 +57,7 @@ const stats = {
   totalCoupons: coupons?.length || 0,
   activeCoupons: activeCouponsCount,
   couponUsage: coupons?.reduce((sum, c) => sum + (c.used_count || 0), 0) || 0,
-  ordersWithCoupon: orders?.filter(o => o.coupon_code).length || 0
+  ordersWithCoupon: ordersWithCoupon
 };
 ---
 

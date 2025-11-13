@@ -25,6 +25,53 @@ const { data: orders, error } = await supabase
 if (error) {
   console.error('❌ Orders fetch error:', error);
 }
+
+// ✅ Helper function: Kupon kodlarını parse et
+function parseCouponCodes(order: any): string[] {
+  if (!order) return [];
+
+  // Eğer coupon_codes array ise direkt döndür
+  if (Array.isArray(order.coupon_codes)) {
+    return order.coupon_codes;
+  }
+
+  // Eğer string ise parse et
+  if (typeof order.coupon_codes === 'string') {
+    try {
+      const parsed = JSON.parse(order.coupon_codes);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  // Backward compatibility: Eski coupon_code (tekil)
+  if (order.coupon_code && typeof order.coupon_code === 'string') {
+    return [order.coupon_code];
+  }
+
+  return [];
+}
+
+// ✅ Helper function: Kupon detaylarını parse et
+function parseCouponDetails(order: any): Array<{ code: string; percent: number; discountAmount: number }> {
+  if (!order || !order.coupon_details) return [];
+
+  if (Array.isArray(order.coupon_details)) {
+    return order.coupon_details;
+  }
+
+  if (typeof order.coupon_details === 'string') {
+    try {
+      const parsed = JSON.parse(order.coupon_details);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  return [];
+}
 ---
 
 <BaseLayout title="Siparişler - Admin">
@@ -54,6 +101,12 @@ if (error) {
           </svg>
           Siparişler
         </a>
+        <a href="/admin/coupons" class="nav-item">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+          </svg>
+          Kuponlar
+        </a>
       </nav>
 
       <div class="sidebar-footer">
@@ -69,98 +122,172 @@ if (error) {
 
       <div class="orders-list">
         {orders && orders.length > 0 ? (
-          orders.map((order) => (
-            <div class="order-card" data-order-id={order.id}>
-              <div class="order-header">
-                <div>
-                  <h3>Sipariş #{order.payment_id || order.id}</h3>
-                  <p class="order-date">{new Date(order.created_at).toLocaleString('tr-TR')}</p>
-                </div>
-                <div class="order-status">
-                  <span class={`status-badge status-${order.status}`}>
-                    {order.status === 'pending' ? '⏳ Bekliyor' :
-                     order.status === 'shipped' ? '📦 Kargoda' :
-                     order.status === 'delivered' ? '✅ Teslim Edildi' : '❌ İptal'}
-                  </span>
-                </div>
-              </div>
+          orders.map((order) => {
+            const couponCodes = parseCouponCodes(order);
+            const couponDetails = parseCouponDetails(order);
 
- <div class="order-details">
-  <div class="detail-row">
-    <strong>Müşteri:</strong>
-    <span>{order.customer_name}</span>
-  </div>
-  <div class="detail-row">
-    <strong>Email:</strong>
-    <span>{order.customer_email}</span>
-  </div>
-  {order.customer_phone && (
-    <div class="detail-row">
-      <strong>Telefon:</strong>
-      <span>{order.customer_phone}</span>
-    </div>
-  )}
-  <div class="detail-row">
-    <strong>Adres:</strong>
-    <span>{order.customer_address || order.shipping_address}</span>
-  </div>
-
-  <!-- ✅ YENİ: Çoklu Kupon Gösterimi -->
-  {order.coupon_codes && order.coupon_codes.length > 0 && (
-    <div class="detail-row">
-      <strong>🎟️ Kuponlar:</strong>
-      <div class="coupon-tags">
-        {order.coupon_codes.map((code, index) => {
-          const detail = order.coupon_details?.[index];
-          return (
-            <span class="coupon-tag">
-              {code}
-              {detail && <small>-%{detail.percent}</small>}
-            </span>
-          );
-        })}
-      </div>
-    </div>
-  )}
-
-  {order.total_discount && order.total_discount > 0 && (
-    <div class="detail-row">
-      <strong>💰 Toplam İndirim:</strong>
-      <span class="discount-amount">-{order.total_discount}₺</span>
-    </div>
-  )}
-
-  <div class="detail-row">
-    <strong>Toplam:</strong>
-    <span class="price">{order.total}₺</span>
-  </div>
-</div>
-
-                {order.tracking_number && (
-                  <div class="detail-row">
-                    <strong>Kargo Takip:</strong>
-                    <span>{order.tracking_number}</span>
+            return (
+              <div class="order-card" data-order-id={order.id}>
+                <div class="order-header">
+                  <div>
+                    <h3>Sipariş #{order.payment_id || order.id}</h3>
+                    <p class="order-date">{new Date(order.created_at).toLocaleString('tr-TR')}</p>
                   </div>
-                )}
-              </div>
+                  <div class="order-status">
+                    <span class={`status-badge status-${order.status}`}>
+                      {order.status === 'pending' ? '⏳ Bekliyor' :
+                       order.status === 'shipped' ? '📦 Kargoda' :
+                       order.status === 'delivered' ? '✅ Teslim Edildi' : '❌ İptal'}
+                    </span>
+                  </div>
+                </div>
 
-              <div class="order-actions">
-                <button
-                  class="btn btn-sm btn-primary send-tracking-btn"
-                  data-order-id={order.id}
-                  data-payment-id={order.payment_id || order.id}
-                  data-email={order.customer_email}
-                  data-name={order.customer_name}>
-                  📧 Kargo Takip Gönder
-                </button>
-                <button
-                  class="btn btn-sm btn-secondary view-details-btn"
-                  data-items={JSON.stringify(order.items || [])}>
-                  👁️ Ürünleri Gör
-                </button>
+                <div class="order-details">
+                  <div class="detail-row">
+                    <strong>Müşteri:</strong>
+                    <span>{order.customer_name}</span>
+                  </div>
+                  <div class="detail-row">
+                    <strong>Email:</strong>
+                    <span>{order.customer_email}</span>
+                  </div>
+                  {order.customer_phone && (
+                    <div class="detail-row">
+                      <strong>Telefon:</strong>
+                      <span>{order.customer_phone}</span>
+                    </div>
+                  )}
+                  <div class="detail-row">
+                    <strong>Adres:</strong>
+                    <span>{order.customer_address || order.shipping_address}</span>
+                  </div>
+
+                  {/* ✅ Adres Başlığı */}
+                  {order.address_title && (
+                    <div class="detail-row">
+                      <strong>📍 Adres Türü:</strong>
+                      <span class="badge-info">{order.address_title}</span>
+                    </div>
+                  )}
+
+                  {/* ✅ Fatura Bilgileri */}
+                  {order.invoice_type && (
+                    <div class="detail-row">
+                      <strong>🧾 Fatura Tipi:</strong>
+                      <span class="badge-info">
+                        {order.invoice_type === 'individual' ? 'Bireysel' : 'Kurumsal'}
+                      </span>
+                    </div>
+                  )}
+
+                  {order.invoice_type === 'corporate' && (
+                    <>
+                      {order.company_name && (
+                        <div class="detail-row">
+                          <strong>Şirket Adı:</strong>
+                          <span>{order.company_name}</span>
+                        </div>
+                      )}
+                      {order.tax_office && (
+                        <div class="detail-row">
+                          <strong>Vergi Dairesi:</strong>
+                          <span>{order.tax_office}</span>
+                        </div>
+                      )}
+                      {order.tax_number && (
+                        <div class="detail-row">
+                          <strong>Vergi No:</strong>
+                          <span>{order.tax_number}</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* ✅ Fatura Adresi Farklıysa */}
+                  {order.is_different_billing && order.billing_address && (
+                    <div class="detail-row">
+                      <strong>📮 Fatura Adresi:</strong>
+                      <span class="small-text">{order.billing_address}</span>
+                    </div>
+                  )}
+
+                  {/* ✅ Sipariş Notu */}
+                  {order.order_note && (
+                    <div class="detail-row">
+                      <strong>📝 Sipariş Notu:</strong>
+                      <span class="small-text">{order.order_note}</span>
+                    </div>
+                  )}
+
+                  {/* ✅ Ödeme Yöntemi */}
+                  {order.payment_method && (
+                    <div class="detail-row">
+                      <strong>💳 Ödeme:</strong>
+                      <span class="badge-payment">
+                        {order.payment_method === 'online' ? 'Online Ödeme' : 'Kapıda Ödeme'}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* ✅ ÇOKLU KUPON GÖSTERİMİ */}
+                  {couponCodes.length > 0 && (
+                    <div class="detail-row">
+                      <strong>🎟️ Kuponlar:</strong>
+                      <div class="coupon-tags">
+                        {couponCodes.map((code, index) => {
+                          const detail = couponDetails[index];
+                          return (
+                            <span class="coupon-tag">
+                              {code}
+                              {detail && detail.percent && (
+                                <small>-{detail.percent}%</small>
+                              )}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ✅ Toplam İndirim */}
+                  {order.total_discount && order.total_discount > 0 && (
+                    <div class="detail-row">
+                      <strong>💰 Toplam İndirim:</strong>
+                      <span class="discount-amount">-{order.total_discount}₺</span>
+                    </div>
+                  )}
+
+                  <div class="detail-row">
+                    <strong>Toplam:</strong>
+                    <span class="price">{order.total}₺</span>
+                  </div>
+
+                  {order.tracking_number && (
+                    <div class="detail-row">
+                      <strong>Kargo Takip:</strong>
+                      <span>{order.tracking_number}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div class="order-actions">
+                  <button
+                    class="btn btn-sm btn-primary send-tracking-btn"
+                    data-order-id={order.id}
+                    data-payment-id={order.payment_id || order.id}
+                    data-email={order.customer_email}
+                    data-name={order.customer_name}>
+                    📧 Kargo Takip Gönder
+                  </button>
+                  <button
+                    class="btn btn-sm btn-secondary view-details-btn"
+                    data-items={JSON.stringify(order.items || [])}>
+                    👁️ Ürünleri Gör
+                  </button>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         ) : (
           <div class="empty-state">
             <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -352,7 +479,7 @@ if (error) {
     .detail-row strong {
       color: #495057;
       font-size: 0.875rem;
-      min-width: 100px;
+      min-width: 120px;
     }
 
     .detail-row span {
@@ -361,10 +488,68 @@ if (error) {
       text-align: right;
     }
 
+    .small-text {
+      font-size: 0.875rem;
+      color: #6c757d;
+    }
+
+    .badge-info {
+      background: #e7f5ff;
+      color: #0c5dad;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .badge-payment {
+      background: #d3f9d8;
+      color: #2f9e44;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
     .price {
       font-weight: 600;
       color: #c92a2a;
       font-size: 1.125rem;
+    }
+
+    /* ✅ Çoklu Kupon Stilleri */
+    .coupon-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+
+    .coupon-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+      border: 2px solid #10b981;
+      color: #065f46;
+      padding: 0.375rem 0.75rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .coupon-tag small {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 0.125rem 0.5rem;
+      border-radius: 10px;
+      color: #059669;
+      font-weight: 700;
+    }
+
+    .discount-amount {
+      color: #059669;
+      font-weight: 700;
+      font-size: 1.1rem;
     }
 
     .order-actions {
@@ -555,38 +740,10 @@ if (error) {
       .detail-row span {
         text-align: left;
       }
+
       .coupon-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.coupon-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  border: 2px solid #10b981;
-  color: #065f46;
-  padding: 0.375rem 0.75rem;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 0.875rem;
-}
-
-.coupon-tag small {
-  background: rgba(255, 255, 255, 0.9);
-  padding: 0.125rem 0.5rem;
-  border-radius: 10px;
-  color: #059669;
-  font-weight: 700;
-}
-
-.discount-amount {
-  color: #059669;
-  font-weight: 700;
-  font-size: 1.1rem;
-}
+        justify-content: flex-start;
+      }
     }
   </style>
 
@@ -704,7 +861,6 @@ if (error) {
       if (e.target === modal) {
         modal.classList.remove('show');
       }
-
     });
   </script>
 </BaseLayout>
