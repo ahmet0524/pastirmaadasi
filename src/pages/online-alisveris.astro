@@ -16,14 +16,14 @@ const { data: pastirmaProducts } = await supabase
 const { data: sucukProducts } = await supabase
   .from('products')
   .select('*')
-  .eq('category', 'Sucuk')
+  .eq('category', 'sucuk')
   .eq('is_active', true)
   .order('sort_order', { ascending: true });
 
 const { data: kavurmaProducts } = await supabase
   .from('products')
   .select('*')
-  .eq('category', 'Kavurma')
+  .eq('category', 'kavurma')
   .eq('is_active', true)
   .order('sort_order', { ascending: true });
 
