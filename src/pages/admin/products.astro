@@ -856,6 +856,21 @@ if (error) {
       }
     });
 
+    // Kategori değiştiğinde alt kategori alanını göster/gizle
+    document.getElementById('category')?.addEventListener('change', (e) => {
+      const subcategoryGroup = document.getElementById('subcategory-group');
+      const subcategorySelect = document.getElementById('subcategory');
+
+      if (e.target.value === 'sarkuteri') {
+        subcategoryGroup.style.display = 'block';
+        subcategorySelect.required = true;
+      } else {
+        subcategoryGroup.style.display = 'none';
+        subcategorySelect.required = false;
+        subcategorySelect.value = '';
+      }
+    });
+
     // Varyant checkbox toggle
     hasVariantsCheckbox?.addEventListener('change', (e) => {
       if (e.target.checked) {
@@ -931,6 +946,19 @@ if (error) {
         document.getElementById('name').value = product.name;
         document.getElementById('slug').value = product.slug || '';
         document.getElementById('category').value = product.category || 'pastirma';
+
+        // Alt kategori kontrolü
+        const subcategoryGroup = document.getElementById('subcategory-group');
+        const subcategorySelect = document.getElementById('subcategory');
+        if (product.category === 'sarkuteri') {
+          subcategoryGroup.style.display = 'block';
+          subcategorySelect.required = true;
+          subcategorySelect.value = product.subcategory || '';
+        } else {
+          subcategoryGroup.style.display = 'none';
+          subcategorySelect.required = false;
+        }
+
         document.getElementById('unit').value = product.unit || 'kg';
         document.getElementById('description').value = product.description || '';
         document.getElementById('sort_order').value = product.sort_order || 0;
@@ -967,6 +995,10 @@ if (error) {
         hasVariantsCheckbox.checked = false;
         variantsSection.style.display = 'none';
         singlePriceSection.style.display = 'block';
+
+        // Alt kategori alanını gizle
+        document.getElementById('subcategory-group').style.display = 'none';
+        document.getElementById('subcategory').required = false;
       }
     }
 
@@ -1079,6 +1111,9 @@ if (error) {
         name: document.getElementById('name').value,
         slug: document.getElementById('slug').value,
         category: document.getElementById('category').value,
+        subcategory: document.getElementById('category').value === 'sarkuteri'
+          ? document.getElementById('subcategory').value
+          : null,
         unit: document.getElementById('unit').value,
         price: price,
         stock: stock,
