@@ -186,15 +186,26 @@ if (error) {
             </select>
           </div>
 
-          <div class="form-group">
-            <label for="unit">Birim *</label>
-            <select id="unit" required>
-              <option value="kg">Kilogram (kg)</option>
-              <option value="500gr">500 gram</option>
-              <option value="1000 gr">1000 gram</option>
-              <option value="adet">Adet</option>
+          <div class="form-group" id="subcategory-group" style="display: none;">
+            <label for="subcategory">Alt Kategori *</label>
+            <select id="subcategory">
+              <option value="">Seçiniz</option>
+              <option value="peynir">Peynir</option>
+              <option value="zeytin">Zeytin</option>
+              <option value="bal">Bal</option>
+              <option value="baharat">Baharat</option>
             </select>
           </div>
+        </div>
+
+        <div class="form-group">
+          <label for="unit">Birim *</label>
+          <select id="unit" required>
+            <option value="kg">Kilogram (kg)</option>
+            <option value="500gr">500 gram</option>
+            <option value="1000 gr">1000 gram</option>
+            <option value="adet">Adet</option>
+          </select>
         </div>
 
         <div class="form-group">
