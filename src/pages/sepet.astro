@@ -1003,6 +1003,8 @@ const cities = [
 <script>
 import { supabase } from '../lib/supabase';
 
+console.log('🚀 Sepet script yüklendi');
+
 interface CartItem {
   id: string;
   productId: string;
@@ -1024,19 +1026,33 @@ let cart: CartItem[] = [];
 let appliedCoupons: AppliedCoupon[] = [];
 
 (window as any).renderCart = function renderCart() {
+  console.log('🎨 renderCart çağrıldı');
+
   const cartContainer = document.getElementById('cart-items');
   const emptyCart = document.getElementById('empty-cart');
   const checkoutBtn = document.getElementById('checkout-btn') as HTMLButtonElement | null;
 
-  if (!cartContainer || !emptyCart) return;
+  console.log('🔍 DOM Elements:', {
+    cartContainer: !!cartContainer,
+    emptyCart: !!emptyCart,
+    checkoutBtn: !!checkoutBtn,
+    cartLength: cart.length
+  });
+
+  if (!cartContainer || !emptyCart) {
+    console.error('❌ DOM elementleri bulunamadı!');
+    return;
+  }
 
   if (cart.length === 0) {
+    console.log('⚠️ Sepet boş');
     cartContainer.innerHTML = '';
     emptyCart.classList.remove('hidden');
     if (checkoutBtn) checkoutBtn.disabled = true;
     return;
   }
 
+  console.log('✅ Sepet dolu, render ediliyor...', cart);
   emptyCart.classList.add('hidden');
   if (checkoutBtn) checkoutBtn.disabled = false;
 
@@ -1092,6 +1108,8 @@ let appliedCoupons: AppliedCoupon[] = [];
   `;
   }).join('');
 
+  console.log('✅ HTML render edildi');
+
   // Event listeners
   document.querySelectorAll('.increase-qty').forEach(btn => {
     btn.addEventListener('click', e => {
@@ -1146,6 +1164,8 @@ let appliedCoupons: AppliedCoupon[] = [];
       }
     });
   });
+
+  console.log('✅ Event listeners eklendi');
 }
 
 function saveCart() {
@@ -1157,7 +1177,13 @@ function saveCart() {
 }
 
 function loadCart() {
-  cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  const cartData = localStorage.getItem('cart');
+  console.log('📦 localStorage cart:', cartData);
+
+  cart = JSON.parse(cartData || '[]');
+  console.log('✅ Parsed cart:', cart);
+  console.log('📊 Cart length:', cart.length);
+
   appliedCoupons = JSON.parse(localStorage.getItem('appliedCoupons') || '[]');
   (window as any).renderCart();
   updateSummary();
@@ -1438,35 +1464,6 @@ async function handleCheckout() {
     return;
   }
 
-  // Bilgileri kaydet
-  localStorage.setItem('lastOrderEmail', email);
-  localStorage.setItem('lastOrderName', name);
-  localStorage.setItem('lastOrderSurname', surname);
-  localStorage.setItem('lastOrderPhone', cleanedPhone);
-  localStorage.setItem('lastOrderIdentity', identity);
-  localStorage.setItem('lastOrderAddress', address);
-  localStorage.setItem('lastOrderCity', city);
-  localStorage.setItem('lastOrderZipcode', zipcode);
-  localStorage.setItem('lastOrderCart', JSON.stringify(cart));
-  localStorage.setItem('lastOrderCoupons', JSON.stringify(appliedCoupons));
-
-  // ✅ YENİ ALANLAR - Adres başlığı kaldırıldı
-  localStorage.setItem('lastOrderInvoiceType', invoiceType);
-  if (invoiceType === 'corporate') {
-    localStorage.setItem('lastOrderCompanyName', companyName);
-    localStorage.setItem('lastOrderTaxOffice', taxOffice);
-    localStorage.setItem('lastOrderTaxNumber', taxNumber);
-  }
-  localStorage.setItem('lastOrderNote', orderNote);
-
-  // ✅ Fatura adresi
-  localStorage.setItem('lastOrderDifferentBilling', isDifferentBilling.toString());
-  if (isDifferentBilling) {
-    localStorage.setItem('lastOrderBillingAddress', billingAddress);
-    localStorage.setItem('lastOrderBillingCity', billingCity);
-    localStorage.setItem('lastOrderBillingZipcode', billingZipcode);
-  }
-
   const btn = document.getElementById('checkout-btn') as HTMLButtonElement;
   const btnText = document.getElementById('checkout-btn-text');
 
@@ -1524,17 +1521,19 @@ async function handleCheckout() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          customerName: `${name} ${surname}`,
-          customerEmail: email,
-          customerPhone: cleanedPhone,
-          customerIdentity: identity,
-          customerAddress: address,
-          customerCity: city,
-          customerZipcode: zipcode,
           items: cart,
+          total: subtotal + shipping - totalDiscount,
+          customerInfo: {
+            name: `${name} ${surname}`,
+            email,
+            phone: cleanedPhone,
+            identity,
+            address,
+            city,
+            zipcode
+          },
           subtotal,
           shipping,
-          total: subtotal + shipping - totalDiscount,
           invoiceType,
           companyName,
           taxOffice,
@@ -1545,7 +1544,7 @@ async function handleCheckout() {
           billingCity: isDifferentBilling ? billingCity : city,
           billingZipcode: isDifferentBilling ? billingZipcode : zipcode,
           isDifferentBilling,
-          paymentMethod
+          paymentMethod: paymentMethod === 'cash-on-delivery' ? 'cod' : 'bank-transfer'
         }),
       });
 
@@ -1590,7 +1589,7 @@ async function handleCheckout() {
         buyer,
         shippingAddress,
         billingAddress: billingAddressObj,
-        // ✅ YENİ ALANLAR (addressTitle kaldırıldı)
+        // ✅ YENİ ALANLAR
         invoiceType,
         companyName,
         taxOffice,
@@ -1598,6 +1597,20 @@ async function handleCheckout() {
         orderNote,
         appliedCoupons,
         isDifferentBilling,
+        // ✅ ÖNEMLİ: Frontend'den verify-payment'a gönderilecek bilgiler
+        customerEmail: email,
+        customerName: name,
+        customerSurname: surname,
+        customerPhone: cleanedPhone,
+        customerIdentity: identity,
+        customerAddress: address,
+        customerCity: city,
+        customerZipcode: zipcode,
+        cartItems: cart,
+        billingAddressText: billingAddress,
+        billingCity: billingCity,
+        billingZipcode: billingZipcode,
+        paymentMethod: 'online'
       }),
     });
 
@@ -1610,6 +1623,31 @@ async function handleCheckout() {
     const data = await response.json();
 
     if (data.success && data.paymentPageUrl) {
+      // ✅ Bilgileri localStorage'a kaydet (verify-payment için)
+      localStorage.setItem('lastOrderEmail', email);
+      localStorage.setItem('lastOrderName', name);
+      localStorage.setItem('lastOrderSurname', surname);
+      localStorage.setItem('lastOrderPhone', cleanedPhone);
+      localStorage.setItem('lastOrderIdentity', identity);
+      localStorage.setItem('lastOrderAddress', address);
+      localStorage.setItem('lastOrderCity', city);
+      localStorage.setItem('lastOrderZipcode', zipcode);
+      localStorage.setItem('lastOrderCart', JSON.stringify(cart));
+      localStorage.setItem('lastOrderCoupons', JSON.stringify(appliedCoupons));
+      localStorage.setItem('lastOrderInvoiceType', invoiceType);
+      if (invoiceType === 'corporate') {
+        localStorage.setItem('lastOrderCompanyName', companyName);
+        localStorage.setItem('lastOrderTaxOffice', taxOffice);
+        localStorage.setItem('lastOrderTaxNumber', taxNumber);
+      }
+      localStorage.setItem('lastOrderNote', orderNote);
+      localStorage.setItem('lastOrderDifferentBilling', isDifferentBilling.toString());
+      if (isDifferentBilling) {
+        localStorage.setItem('lastOrderBillingAddress', billingAddress);
+        localStorage.setItem('lastOrderBillingCity', billingCity);
+        localStorage.setItem('lastOrderBillingZipcode', billingZipcode);
+      }
+
       window.location.href = data.paymentPageUrl;
     } else {
       throw new Error(data.error || 'Ödeme başlatılamadı!');
@@ -1625,6 +1663,7 @@ async function handleCheckout() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('🎬 DOMContentLoaded tetiklendi');
   loadCart();
 
   const checkoutBtn = document.getElementById('checkout-btn');
@@ -1661,30 +1700,6 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       applyCoupon();
     }
-  });
-
-  // ✅ Adres başlığı seçimi
-  document.querySelectorAll('.address-title-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const target = e.currentTarget as HTMLElement;
-      const title = target.dataset.title || '';
-
-      document.querySelectorAll('.address-title-btn').forEach(b => b.classList.remove('active'));
-      target.classList.add('active');
-
-      const customInput = document.getElementById('custom-address-title') as HTMLInputElement;
-      const hiddenInput = document.getElementById('selected-address-title') as HTMLInputElement;
-
-      if (title === 'Diğer') {
-        customInput.classList.remove('hidden');
-        customInput.required = true;
-        hiddenInput.value = '';
-      } else {
-        customInput.classList.add('hidden');
-        customInput.required = false;
-        hiddenInput.value = title;
-      }
-    });
   });
 
   // ✅ Fatura tipi değişimi
@@ -1759,4 +1774,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+console.log('✅ Script tamamen yüklendi');
 </script>
