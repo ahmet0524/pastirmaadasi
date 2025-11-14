@@ -9,7 +9,7 @@ import { supabase } from '../lib/supabase';
 const { data: pastirmaProducts } = await supabase
   .from('products')
   .select('*')
-  .eq('category', 'Pastırma')
+  .eq('category', 'pastirma')
   .eq('is_active', true)
   .order('sort_order', { ascending: true });
 
@@ -30,7 +30,7 @@ const { data: kavurmaProducts } = await supabase
 const { data: mantiProducts } = await supabase
   .from('products')
   .select('*')
-  .eq('category', 'Mantı')
+  .eq('category', 'manti')
   .eq('is_active', true)
   .order('sort_order', { ascending: true });
 

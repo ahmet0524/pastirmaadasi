@@ -5,6 +5,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 
+// ✅ BU SATIRI EKLEYİN
+export const prerender = true;
+
 export async function getStaticPaths() {
   const { data: products } = await supabaseAdmin
     .from('products')
@@ -107,7 +110,8 @@ const { data: relatedProducts } = await supabaseAdmin
             <span class="price-unit">/ <span id="display-unit">{product.unit}</span></span>
           </div>
 
-          {product.variants && (
+          {/* ✅ DÜZELTİLMİŞ VARYANT BUTONLARI */}
+          {product.variants && product.variants.length > 0 && (
             <div class="variant-section">
               <label>Miktar Seçin:</label>
               <div class="variant-buttons" id="variant-buttons">
@@ -115,11 +119,11 @@ const { data: relatedProducts } = await supabaseAdmin
                   <button
                     type="button"
                     class={`variant-btn ${index === 0 ? 'active' : ''}`}
-                    data-value={variant.value}
-                    data-label={variant.label}
+                    data-size={variant.size}
                     data-price={variant.price}
+                    data-stock={variant.stock || 999}
                   >
-                    {variant.label}
+                    {variant.size}
                     <span class="variant-price">{variant.price}₺</span>
                   </button>
                 ))}
@@ -866,68 +870,128 @@ const { data: relatedProducts } = await supabaseAdmin
 </script>
 
 <script define:vars={{ product, productImages }}>
-  let selectedVariant = product.variants ? product.variants[0] : null;
+  // ✅ İlk yüklemede varyantı ayarla
+  let selectedVariant = null;
   let quantity = 1;
+  let successModalTimeout = null;
 
-  // Variant selection
+  // Eğer varyantlar varsa ilk varyantı seç
+  if (product.variants && Array.isArray(product.variants) && product.variants.length > 0) {
+    selectedVariant = {
+      size: product.variants[0].size,
+      price: product.variants[0].price,
+      stock: product.variants[0].stock || 999
+    };
+  } else {
+    // Varyant yoksa ürünün kendi fiyatını kullan
+    selectedVariant = {
+      size: product.unit,
+      price: product.price,
+      stock: product.stock || 999
+    };
+  }
+
+  console.log('🎯 İlk seçilen varyant:', selectedVariant);
+
+  // ✅ Fiyat ve toplam güncelleme
+  function updateDisplay() {
+    if (!selectedVariant) return;
+
+    const unitPrice = selectedVariant.price;
+    const total = unitPrice * quantity;
+
+    console.log('💰 Display güncelleniyor:', {
+      unitPrice,
+      quantity,
+      total,
+      selectedVariant
+    });
+
+    const displayPrice = document.getElementById('display-price');
+    const displayUnit = document.getElementById('display-unit');
+    const totalPrice = document.getElementById('total-price');
+
+    if (displayPrice) displayPrice.textContent = `${unitPrice.toFixed(2)}₺`;
+    if (displayUnit) displayUnit.textContent = selectedVariant.size;
+    if (totalPrice) totalPrice.textContent = `${total.toFixed(2)}₺`;
+  }
+
+  // ✅ Varyant butonlarına event listener
   document.querySelectorAll('.variant-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+      // Tüm butonlardan active sınıfını kaldır
       document.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
+
+      // Tıklanan butona active ekle
       btn.classList.add('active');
 
+      // ✅ Supabase formatını kullan
       selectedVariant = {
-        value: parseFloat(btn.dataset.value),
-        label: btn.dataset.label,
-        price: parseFloat(btn.dataset.price)
+        size: btn.dataset.size,
+        price: parseFloat(btn.dataset.price || '0'),
+        stock: parseInt(btn.dataset.stock || '999')
       };
 
+      console.log('🔄 Varyant değiştirildi:', selectedVariant);
       updateDisplay();
     });
   });
 
-  // Quantity controls
+  // ✅ Miktar artır
   document.getElementById('increase-qty')?.addEventListener('click', () => {
     quantity++;
-    document.getElementById('quantity').value = quantity;
+    const qtyInput = document.getElementById('quantity');
+    if (qtyInput) qtyInput.value = quantity.toString();
+    console.log('➕ Miktar artırıldı:', quantity);
     updateDisplay();
   });
 
+  // ✅ Miktar azalt
   document.getElementById('decrease-qty')?.addEventListener('click', () => {
     if (quantity > 1) {
       quantity--;
-      document.getElementById('quantity').value = quantity;
+      const qtyInput = document.getElementById('quantity');
+      if (qtyInput) qtyInput.value = quantity.toString();
+      console.log('➖ Miktar azaltıldı:', quantity);
       updateDisplay();
     }
   });
 
-  function updateDisplay() {
-    const unitPrice = selectedVariant ? selectedVariant.price : product.price;
-    const total = unitPrice * quantity;
+  // İlk yüklemede fiyatı göster
+  updateDisplay();
 
-    document.getElementById('display-price').textContent = unitPrice + '₺';
-    document.getElementById('display-unit').textContent = selectedVariant ? selectedVariant.label : product.unit;
-    document.getElementById('total-price').textContent = total.toFixed(2) + '₺';
-  }
-
-  // ✅ DÜZELTME: Sepete ekleme mantığı pastirma.astro ile uyumlu hale getirildi
+  // ✅ SEPETE EKLEME - sepet.astro ile uyumlu
   document.getElementById('add-to-cart-btn')?.addEventListener('click', () => {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    if (!selectedVariant) {
+      alert('❌ Lütfen bir gramaj seçin!');
+      return;
+    }
 
-    // ✅ pastirma.astro ile aynı yapı kullanılıyor
+    // ✅ sepet.astro ile uyumlu cart item
     const cartItem = {
-      id: `${product.id}_${selectedVariant ? selectedVariant.label : product.unit}`,
+      id: `${product.id}_${selectedVariant.size}`,
       productId: product.id,
       name: product.name,
-      price: selectedVariant ? selectedVariant.price : product.price,
+      price: selectedVariant.price,
       image: productImages[0],
-      unit: selectedVariant ? selectedVariant.label : product.unit,
+      unit: selectedVariant.size,
       quantity: quantity,
-      availableVariants: product.variants || [] // ✅ Sepet sayfası için gerekli
+      availableVariants: product.variants || []
     };
 
     console.log('🛒 Sepete eklenecek ürün:', cartItem);
 
-    // Aynı ürün ve aynı gramaj var mı kontrol et
+    // Mevcut sepeti al
+    let cart = [];
+    try {
+      const cartData = localStorage.getItem('cart');
+      cart = cartData ? JSON.parse(cartData) : [];
+    } catch (e) {
+      console.error('Sepet yüklenemedi:', e);
+      cart = [];
+    }
+
+    // Aynı ürün ve aynı varyant var mı?
     const existingItemIndex = cart.findIndex(
       (item) => item.productId === cartItem.productId && item.unit === cartItem.unit
     );
@@ -935,14 +999,15 @@ const { data: relatedProducts } = await supabaseAdmin
     if (existingItemIndex > -1) {
       // Mevcut ürünün miktarını artır
       cart[existingItemIndex].quantity += quantity;
-      cart[existingItemIndex].availableVariants = cartItem.availableVariants; // Varyantları güncelle
-      console.log('✅ Miktar artırıldı');
+      cart[existingItemIndex].availableVariants = cartItem.availableVariants;
+      console.log('✅ Miktar artırıldı:', cart[existingItemIndex]);
     } else {
       // Yeni ürün ekle
       cart.push(cartItem);
       console.log('✅ Yeni ürün eklendi');
     }
 
+    // Sepeti kaydet
     localStorage.setItem('cart', JSON.stringify(cart));
     window.dispatchEvent(new Event('cartUpdated'));
 
@@ -950,63 +1015,141 @@ const { data: relatedProducts } = await supabaseAdmin
 
     // Buton animasyonu
     const btn = document.getElementById('add-to-cart-btn');
-    btn.innerHTML = '<svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Eklendi!';
-    btn.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
+    if (btn) {
+      btn.innerHTML = '<svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Eklendi!';
+      btn.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
+    }
 
-    // Modal göster
+    // Success modal'ı aç
     setTimeout(() => {
-      document.getElementById('success-modal')?.classList.add('active');
-      document.body.style.overflow = 'hidden';
+      const modal = document.getElementById('success-modal');
+      if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
 
-      // 5 saniye sonra otomatik kapat
-      setTimeout(() => {
-        const modal = document.getElementById('success-modal');
-        if (modal?.classList.contains('active')) {
-          document.getElementById('continue-shopping')?.click();
+        // Önceki timeout varsa temizle
+        if (successModalTimeout) {
+          clearTimeout(successModalTimeout);
         }
-      }, 5000);
+
+        // 5 SANİYE SONRA OTOMATİK KAPAT
+        successModalTimeout = window.setTimeout(() => {
+          if (modal.classList.contains('active')) {
+            const continueBtn = document.getElementById('continue-shopping');
+            if (continueBtn) continueBtn.click();
+          }
+          successModalTimeout = null;
+        }, 5000);
+      }
     }, 300);
   });
 
-  // Modal butonları
-  document.getElementById('go-to-cart')?.addEventListener('click', () => {
+  // ✅ Modal butonları - SEPETE GİT
+  document.getElementById('go-to-cart')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (successModalTimeout) {
+      clearTimeout(successModalTimeout);
+      successModalTimeout = null;
+    }
+
     window.location.href = '/sepet';
   });
 
-  document.getElementById('continue-shopping')?.addEventListener('click', () => {
+  // ✅ Modal butonları - ALIŞVERİŞE DEVAM
+  document.getElementById('continue-shopping')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (successModalTimeout) {
+      clearTimeout(successModalTimeout);
+      successModalTimeout = null;
+    }
+
     const modal = document.getElementById('success-modal');
-    modal?.classList.remove('active');
-    document.body.style.overflow = '';
+    if (modal) {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
 
     // Butonu sıfırla
     const btn = document.getElementById('add-to-cart-btn');
-    btn.innerHTML = '<svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg> Sepete Ekle';
-    btn.style.background = 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)';
+    if (btn) {
+      btn.innerHTML = '<svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg> Sepete Ekle';
+      btn.style.background = 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)';
+    }
 
-    // Miktarı sıfırla
+    // ✅ ÖNCE MİKTARI SIFIRLA
     quantity = 1;
-    document.getElementById('quantity').value = '1';
+    const qtyInput = document.getElementById('quantity');
+    if (qtyInput) qtyInput.value = '1';
+
+    // ✅ İlk varyantı yeniden seç
+    if (product.variants && Array.isArray(product.variants) && product.variants.length > 0) {
+      selectedVariant = {
+        size: product.variants[0].size,
+        price: product.variants[0].price,
+        stock: product.variants[0].stock || 999
+      };
+
+      // İlk varyant butonunu aktif yap
+      document.querySelectorAll('.variant-btn').forEach((btn, index) => {
+        btn.classList.toggle('active', index === 0);
+      });
+    } else {
+      selectedVariant = {
+        size: product.unit,
+        price: product.price,
+        stock: product.stock || 999
+      };
+    }
+
+    // ✅ Display'i güncelle
     updateDisplay();
+
+    console.log('🔄 Modal kapatıldı, başlangıç durumu:', {
+      selectedVariant,
+      quantity
+    });
   });
 
-  // X butonu
+  // ✅ X butonu
   document.querySelector('.success-close')?.addEventListener('click', () => {
-    document.getElementById('continue-shopping')?.click();
+    if (successModalTimeout) {
+      clearTimeout(successModalTimeout);
+      successModalTimeout = null;
+    }
+
+    const continueBtn = document.getElementById('continue-shopping');
+    if (continueBtn) continueBtn.click();
   });
 
-  // Modal dışına tıklama
+  // ✅ Modal dışına tıklama
   document.getElementById('success-modal')?.addEventListener('click', (e) => {
     if (e.target.id === 'success-modal') {
-      document.getElementById('continue-shopping')?.click();
+      if (successModalTimeout) {
+        clearTimeout(successModalTimeout);
+        successModalTimeout = null;
+      }
+
+      const continueBtn = document.getElementById('continue-shopping');
+      if (continueBtn) continueBtn.click();
     }
   });
 
-  // ESC tuşu
+  // ✅ ESC tuşu
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       const modal = document.getElementById('success-modal');
       if (modal?.classList.contains('active')) {
-        document.getElementById('continue-shopping')?.click();
+        if (successModalTimeout) {
+          clearTimeout(successModalTimeout);
+          successModalTimeout = null;
+        }
+
+        const continueBtn = document.getElementById('continue-shopping');
+        if (continueBtn) continueBtn.click();
       }
     }
   });

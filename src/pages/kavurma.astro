@@ -1,856 +1,3 @@
----
-// src/pages/kavurma.astro
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import { supabase } from '../lib/supabase';
-
-// Kavurma kategorisindeki tüm ürünleri çek
-const { data: kavurmaProducts } = await supabase
-  .from('products')
-  .select('*')
-  .eq('category', 'Kavurma')
-  .eq('is_active', true)
-  .order('sort_order', { ascending: true });
-
-// Resim URL'sini al
-function getImageUrl(imgs: any): string {
-  const placeholder = '/assets/image/placeholder.jpg';
-  if (!imgs) return placeholder;
-
-  if (Array.isArray(imgs)) {
-    if (imgs.length === 0) return placeholder;
-    const firstImage = String(imgs[0]).replace(/^"|"$/g, '').replace(/""/g, '').trim();
-    return firstImage || placeholder;
-  }
-
-  if (typeof imgs === 'string') {
-    if (imgs.startsWith('{') && imgs.endsWith('}')) {
-      const paths = imgs.slice(1, -1).split(',').map(p => p.trim().replace(/^"|"$/g, ''));
-      if (paths.length > 0 && paths[0]) return paths[0];
-    }
-
-    if (imgs.startsWith('[')) {
-      try {
-        const cleaned = imgs.replace(/""/g, '"').replace(/\\"/g, '"');
-        const parsed = JSON.parse(cleaned);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return String(parsed[0]).replace(/^"|"$/g, '').trim() || placeholder;
-        }
-      } catch (e) {
-        console.error('Image parse error:', e);
-      }
-    }
-
-    const cleaned = imgs.replace(/^"|"$/g, '').trim();
-    if (cleaned.startsWith('/') || cleaned.startsWith('http')) return cleaned;
-  }
-
-  return placeholder;
-}
----
-
-<BaseLayout
-  title="Kayseri Kavurması - Kavurma Çeşitlerimiz"
-  description="Geleneksel yöntemlerle üretilen, farklı şekil ve boyutlarda Kayseri kavurması çeşitlerimizi keşfedin."
->
-  <Header slot="header" />
-
-  <!-- Hero Section -->
-  <section class="pastirma-hero">
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <nav class="breadcrumb">
-        <a href="/">Ana Sayfa</a>
-        <span>/</span>
-        <span>Kavurma Çeşitlerimiz</span>
-      </nav>
-      <h1>Kavurma Çeşitlerimiz</h1>
-      <p class="hero-subtitle">
-        Özenle seçilmiş dana etinden, özel baharat karışımımızla hazırlanan geleneksel Kayseri kavurmalarımız
-      </p>
-      <div class="hero-features">
-        <div class="feature-badge">
-          <svg width="20" height="20" fill="#059669" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-          </svg>
-          100% Dana Eti
-        </div>
-        <div class="feature-badge">
-          <svg width="20" height="20" fill="#059669" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-          </svg>
-          Dondurulmuş
-        </div>
-        <div class="feature-badge">
-          <svg width="20" height="20" fill="#059669" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-          </svg>
-          Geleneksel Üretim
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Products Grid -->
-  <section class="products-section">
-    <div class="container">
-      <div class="section-header">
-        <h2>{kavurmaProducts?.length || 0} sonucun tümü gösteriliyor</h2>
-      </div>
-
-      {kavurmaProducts && kavurmaProducts.length > 0 && (
-        <div class="products-grid">
-          {kavurmaProducts.map((product, index) => (
-            <div class="product-card">
-              <div class="product-image-wrapper">
-                <a href={`/urun/${product.slug}`} class="product-image-link">
-                  <img
-                    src={getImageUrl(product.images)}
-                    alt={product.name}
-                    class="product-image"
-                    loading={index < 4 ? "eager" : "lazy"}
-                    fetchpriority={index < 2 ? "high" : "auto"}
-                    onError="this.onerror=null; this.src='/assets/image/placeholder.jpg';"
-                  />
-                  <div class="product-overlay">
-                    <span class="btn-view-product">Ürünü İncele</span>
-                  </div>
-                  <h3 class="product-name-overlay">{product.name}</h3>
-                </a>
-              </div>
-              <div class="product-info">
-                <p class="product-price">
-                  {product.price}₺
-                  <span class="price-unit">/{product.unit}</span>
-                </p>
-                <button
-                  class="btn-add-cart"
-                  data-product={JSON.stringify({
-                    id: product.id,
-                    name: product.name,
-                    image: getImageUrl(product.images),
-                    variants: product.variants,
-                    slug: product.slug
-                  })}
-                >
-                  Sepete Ekle
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {(!kavurmaProducts || kavurmaProducts.length === 0) && (
-        <div class="no-products">
-          <p>Şu anda görüntülenecek ürün bulunmamaktadır.</p>
-        </div>
-      )}
-    </div>
-  </section>
-
-  <!-- Info Section -->
-  <section class="info-section">
-    <div class="container">
-      <div class="info-grid">
-        <div class="info-card">
-          <div class="info-icon">
-            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-          </div>
-          <h3>Kalite Garantisi</h3>
-          <p>Tüm ürünlerimiz hijyenik ortamlarda, kalite kontrolünden geçerek üretilir.</p>
-        </div>
-        <div class="info-card">
-          <div class="info-icon">
-            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-          </div>
-          <h3>Hızlı Teslimat</h3>
-          <p>Siparişleriniz özenle paketlenir ve hızlı kargo ile gönderilir.</p>
-        </div>
-        <div class="info-card">
-          <div class="info-icon">
-            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-            </svg>
-          </div>
-          <h3>Güvenli Ödeme</h3>
-          <p>Tüm ödemeleriniz SSL sertifikası ile güvence altındadır.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Add to Cart Modal -->
-  <div id="cart-modal" class="cart-modal">
-    <div class="modal-content">
-      <button class="modal-close" aria-label="Kapat">
-        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-
-      <div class="modal-body">
-        <img id="modal-product-image" src="" alt="" class="modal-product-image" />
-        <h3 id="modal-product-name"></h3>
-
-        <div class="variant-selector">
-          <label>Gramaj Seçin:</label>
-          <div id="variant-options" class="variant-options"></div>
-        </div>
-
-        <div class="quantity-selector">
-          <label>Adet:</label>
-          <div class="quantity-controls">
-            <button class="qty-btn qty-minus">-</button>
-            <input type="number" class="qty-input" value="1" min="1" />
-            <button class="qty-btn qty-plus">+</button>
-          </div>
-        </div>
-
-        <div class="modal-price">
-          <span class="price-label">Toplam:</span>
-          <span id="modal-total-price" class="total-price">0₺</span>
-        </div>
-
-        <button id="confirm-add-cart" class="btn btn-primary btn-large">Sepete Ekle</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Cart Success Modal -->
-  <div id="success-modal" class="cart-modal">
-    <div class="modal-content success-content">
-      <button class="modal-close success-close" aria-label="Kapat">
-        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-
-      <div class="success-icon">
-        <svg width="60" height="60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-        </svg>
-      </div>
-      <h3>Ürün sepete eklendi!</h3>
-      <div class="success-buttons">
-        <button id="go-to-cart" class="btn btn-primary">Sepete Git</button>
-        <button id="continue-shopping" class="btn btn-outline">Alışverişe Devam</button>
-      </div>
-    </div>
-  </div>
-
-  <Footer slot="footer" />
-</BaseLayout>
-
-<style>
-  /* Hero Section - TURKUAZ (Marka Kimliği) */
-  .pastirma-hero {
-    position: relative;
-    min-height: 400px;
-    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem 1rem;
-  }
-
-  .hero-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
-  }
-
-  .hero-content {
-    position: relative;
-    z-index: 2;
-    text-align: center;
-    color: white;
-    max-width: 1000px;
-  }
-
-  .breadcrumb {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
-    font-size: 0.875rem;
-  }
-
-  .breadcrumb a {
-    color: rgba(255, 255, 255, 0.95);
-    opacity: 1;
-    transition: opacity 0.3s;
-    text-decoration: none;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  }
-
-  .breadcrumb a:hover {
-    opacity: 0.8;
-  }
-
-  .breadcrumb span {
-    color: rgba(255, 255, 255, 0.9);
-  }
-
-  .hero-content h1 {
-    font-size: 3.5rem;
-    font-weight: 800;
-    margin: 0 0 1.5rem 0;
-    color: white;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  }
-
-  .hero-subtitle {
-    font-size: 1.25rem;
-    line-height: 1.6;
-    margin: 0 0 2rem 0;
-    color: rgba(255, 255, 255, 0.98);
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-  }
-
-  .hero-features {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-  }
-
-  .feature-badge {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    border-radius: 50px;
-    font-weight: 600;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-  }
-
-  .feature-badge svg {
-    color: #059669;
-  }
-
-  .products-section {
-    padding: 4rem 1rem;
-    background: #F3F4F6;
-  }
-
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .section-header {
-    margin-bottom: 3rem;
-  }
-
-  .section-header h2 {
-    font-size: 1.125rem;
-    color: #6B7280;
-    font-weight: 400;
-  }
-
-  .products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2rem;
-  }
-
-  .product-card {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-  }
-
-  .product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  }
-
-  .product-image-wrapper {
-    position: relative;
-    width: 100%;
-    height: 280px;
-    overflow: hidden;
-    background: #f5f5f5;
-  }
-
-  .product-image-link {
-    display: block;
-    width: 100%;
-    height: 100%;
-    text-decoration: none;
-  }
-
-  .product-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease;
-  }
-
-  .product-card:hover .product-image {
-    transform: scale(1.1);
-  }
-
-  .product-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(8, 145, 178, 0.9);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-  }
-
-  .product-card:hover .product-overlay {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .btn-view-product {
-    padding: 0.875rem 2rem;
-    background: white;
-    color: #0891B2;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-  }
-
-  .btn-view-product:hover {
-    background: #0891B2;
-    color: white;
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
-  }
-
-  .product-name-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 15px;
-    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-    color: white;
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin: 0;
-  }
-
-  .product-info {
-    padding: 1.5rem;
-  }
-
-  .product-price {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #DC2626;
-    margin-bottom: 1rem;
-  }
-
-  .price-unit {
-    font-size: 1rem;
-    color: #666;
-    font-weight: 400;
-  }
-
-  .btn-add-cart {
-    width: 100%;
-    padding: 0.75rem 1.25rem;
-    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
-  }
-
-  .btn-add-cart:hover {
-    background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-  }
-
-  .no-products {
-    text-align: center;
-    padding: 4rem 1rem;
-    color: #6B7280;
-  }
-
-  .info-section {
-    padding: 4rem 1rem;
-    background: white;
-  }
-
-  .info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .info-card {
-    text-align: center;
-    padding: 2rem;
-    background: #F3F4F6;
-    border-radius: 16px;
-    transition: all 0.3s ease;
-  }
-
-  .info-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(8, 145, 178, 0.15);
-  }
-
-  .info-icon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 1.5rem;
-    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-  }
-
-  .info-card h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #1F2937;
-    margin: 0 0 0.75rem 0;
-  }
-
-  .info-card p {
-    font-size: 1rem;
-    color: #6B7280;
-    line-height: 1.6;
-    margin: 0;
-  }
-
-  /* Modal Styles */
-  .cart-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .cart-modal.active {
-    display: flex;
-  }
-
-  .modal-content {
-    background: white;
-    border-radius: 12px;
-    max-width: 500px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  }
-
-  .modal-close {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(0, 0, 0, 0.05);
-    border: none;
-    cursor: pointer;
-    color: #999;
-    z-index: 10;
-    transition: all 0.3s ease;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-  }
-
-  .modal-close:hover {
-    color: white;
-    background: #DC2626;
-    transform: rotate(90deg);
-  }
-
-  .modal-body {
-    padding: 30px;
-  }
-
-  .modal-product-image {
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 20px;
-  }
-
-  .modal-body h3 {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-    color: #333;
-  }
-
-  .variant-selector,
-  .quantity-selector {
-    margin-bottom: 25px;
-  }
-
-  .variant-selector label,
-  .quantity-selector label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 10px;
-    color: #333;
-  }
-
-  .variant-options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .variant-btn {
-    padding: 10px 20px;
-    border: 2px solid #E5E7EB;
-    background: white;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-weight: 500;
-  }
-
-  .variant-btn:hover {
-    border-color: #0891B2;
-    color: #0891B2;
-  }
-
-  .variant-btn.active {
-    background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
-    color: white;
-    border-color: #0891B2;
-    box-shadow: 0 2px 8px rgba(8, 145, 178, 0.3);
-  }
-
-  .quantity-controls {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-
-  .qty-btn {
-    width: 40px;
-    height: 40px;
-    border: 2px solid #0891B2;
-    background: white;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.2rem;
-    font-weight: 600;
-    transition: all 0.3s;
-    color: #0891B2;
-  }
-
-  .qty-btn:hover {
-    background: #0891B2;
-    color: white;
-  }
-
-  .qty-input {
-    width: 80px;
-    height: 40px;
-    text-align: center;
-    border: 2px solid #0891B2;
-    border-radius: 6px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #0891B2;
-    background: #F0FDFA;
-  }
-
-  .modal-price {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
-    border-radius: 8px;
-    margin-bottom: 20px;
-    border: 2px solid #FED7AA;
-  }
-
-  .price-label {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #333;
-  }
-
-  .total-price {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #DC2626;
-  }
-
-  .btn {
-    padding: 14px 28px;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-    text-decoration: none;
-    display: inline-block;
-    text-align: center;
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
-    color: white;
-    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
-  }
-
-  .btn-primary:hover {
-    background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
-    transform: translateY(-2px);
-  }
-
-  .btn-outline {
-    background: white;
-    color: #DC2626;
-    border: 2px solid #DC2626;
-  }
-
-  .btn-outline:hover {
-    background: #DC2626;
-    color: white;
-  }
-
-  .btn-large {
-    width: 100%;
-    font-size: 1.1rem;
-  }
-
-  .success-content {
-    padding: 40px;
-    text-align: center;
-  }
-
-  .success-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 20px;
-    background: linear-gradient(135deg, #059669 0%, #10B981 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .success-icon svg {
-    stroke: white;
-  }
-
-  .success-content h3 {
-    font-size: 1.5rem;
-    margin-bottom: 30px;
-    color: #333;
-  }
-
-  .success-buttons {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-  }
-
-  .success-buttons .btn {
-    flex: 1;
-    min-width: 150px;
-  }
-
-  @media (max-width: 768px) {
-    .pastirma-hero {
-      min-height: 300px;
-      padding: 3rem 1rem;
-    }
-
-    .hero-content h1 {
-      font-size: 2.5rem;
-    }
-
-    .hero-subtitle {
-      font-size: 1rem;
-    }
-
-    .hero-features {
-      flex-direction: column;
-      gap: 1rem;
-      align-items: center;
-    }
-
-    .products-grid {
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .info-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .success-buttons {
-      flex-direction: column;
-    }
-
-    .success-buttons .btn {
-      width: 100%;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .products-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .product-image-wrapper {
-      height: 250px;
-    }
-  }
-</style>
-
 <script>
   const cartModal = document.getElementById('cart-modal');
   const successModal = document.getElementById('success-modal');
@@ -861,6 +8,7 @@ function getImageUrl(imgs: any): string {
   // Success Modal Timeout ID'sini sakla
   let successModalTimeout: number | null = null;
 
+  // ✅ Sepete Ekle Butonlarına Event Listener
   document.querySelectorAll('.btn-add-cart').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -879,6 +27,7 @@ function getImageUrl(imgs: any): string {
     });
   });
 
+  // ✅ Modal Açma Fonksiyonu
   function openCartModal(product: any) {
     cartModal?.classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -890,6 +39,7 @@ function getImageUrl(imgs: any): string {
     if (modalImage) modalImage.src = product.image;
     if (modalName) modalName.textContent = product.name;
 
+    // ✅ Varyantları Renderla (Hem size hem label destekli)
     if (variantOptions && product.variants && Array.isArray(product.variants)) {
       variantOptions.innerHTML = '';
       console.log('📦 Varyantlar:', product.variants);
@@ -897,17 +47,35 @@ function getImageUrl(imgs: any): string {
       product.variants.forEach((variant: any, index: number) => {
         const btn = document.createElement('button');
         btn.className = `variant-btn ${index === 0 ? 'active' : ''}`;
-        btn.textContent = `${variant.label} - ${variant.price}₺`;
+
+        // ✅ Hem size hem label destekle
+        const variantSize = variant.size || variant.label;
+        btn.textContent = `${variantSize} - ${variant.price}₺`;
+
         btn.addEventListener('click', () => {
           document.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          (window as any).selectedVariant = variant;
+
+          // ✅ Seçilen varyantı kaydet (hem size hem label destekle)
+          (window as any).selectedVariant = {
+            size: variant.size || variant.label,
+            price: variant.price,
+            stock: variant.stock
+          };
+
           updateTotalPrice();
         });
+
         variantOptions.appendChild(btn);
       });
 
-      (window as any).selectedVariant = product.variants[0];
+      // İlk varyantı varsayılan olarak seç
+      (window as any).selectedVariant = {
+        size: product.variants[0].size || product.variants[0].label,
+        price: product.variants[0].price,
+        stock: product.variants[0].stock
+      };
+
       updateTotalPrice();
     } else {
       console.error('❌ Varyant bulunamadı!');
@@ -917,6 +85,7 @@ function getImageUrl(imgs: any): string {
     if (qtyInput) qtyInput.value = '1';
   }
 
+  // ✅ Toplam Fiyat Güncelleme
   function updateTotalPrice() {
     const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
     const totalPriceEl = document.getElementById('modal-total-price');
@@ -925,10 +94,11 @@ function getImageUrl(imgs: any): string {
     if (qtyInput && totalPriceEl && selectedVariant) {
       const quantity = parseInt(qtyInput.value) || 1;
       const total = selectedVariant.price * quantity;
-      totalPriceEl.textContent = `${total}₺`;
+      totalPriceEl.textContent = `${total.toFixed(2)}₺`;
     }
   }
 
+  // Miktar Azalt
   document.querySelector('.qty-minus')?.addEventListener('click', () => {
     const input = document.querySelector('.qty-input') as HTMLInputElement;
     if (input) {
@@ -940,6 +110,7 @@ function getImageUrl(imgs: any): string {
     }
   });
 
+  // Miktar Artır
   document.querySelector('.qty-plus')?.addEventListener('click', () => {
     const input = document.querySelector('.qty-input') as HTMLInputElement;
     if (input) {
@@ -951,6 +122,7 @@ function getImageUrl(imgs: any): string {
 
   document.querySelector('.qty-input')?.addEventListener('input', updateTotalPrice);
 
+  // Modal Kapat
   document.querySelector('.modal-close')?.addEventListener('click', () => {
     cartModal?.classList.remove('active');
     document.body.style.overflow = '';
@@ -963,78 +135,78 @@ function getImageUrl(imgs: any): string {
     }
   });
 
-  // Sepete ekle butonu
+  // ✅ SEPETE EKLE
   document.getElementById('confirm-add-cart')?.addEventListener('click', () => {
     const qtyInput = document.querySelector('.qty-input') as HTMLInputElement;
     const quantity = parseInt(qtyInput?.value) || 1;
     const selectedProduct = (window as any).selectedProduct;
     const selectedVariant = (window as any).selectedVariant;
 
-    if (selectedProduct && selectedVariant) {
-      const cartItem = {
-        id: `${selectedProduct.id}_${selectedVariant.label}`,
-        productId: selectedProduct.id,
-        name: selectedProduct.name,
-        price: selectedVariant.price,
-        image: selectedProduct.image,
-        unit: selectedVariant.label,
-        quantity: quantity,
-        availableVariants: selectedProduct.variants || []
-      };
-
-      console.log('🛒 Sepete eklenecek ürün:', cartItem);
-
-      let cart = [];
-      try {
-        const cartData = localStorage.getItem('cart');
-        cart = cartData ? JSON.parse(cartData) : [];
-      } catch (e) {
-        console.error('Sepet yüklenemedi:', e);
-        cart = [];
-      }
-
-      const existingItemIndex = cart.findIndex(
-        (item: any) => item.productId === cartItem.productId && item.unit === cartItem.unit
-      );
-
-      if (existingItemIndex > -1) {
-        cart[existingItemIndex].quantity += quantity;
-        cart[existingItemIndex].availableVariants = cartItem.availableVariants;
-        console.log('✅ Miktar artırıldı');
-      } else {
-        cart.push(cartItem);
-        console.log('✅ Yeni ürün eklendi');
-      }
-
-      localStorage.setItem('cart', JSON.stringify(cart));
-      window.dispatchEvent(new Event('cartUpdated'));
-
-      console.log('✅ Sepet güncellendi:', cart);
-
-      // Cart modal'ı kapat
-      cartModal?.classList.remove('active');
-
-      // Success modal'ı aç
-      successModal?.classList.add('active');
-
-      // Önceki timeout varsa temizle
-      if (successModalTimeout) {
-        clearTimeout(successModalTimeout);
-      }
-
-      // 5 SANİYE SONRA OTOMATİK KAPAT
-      successModalTimeout = window.setTimeout(() => {
-        if (successModal?.classList.contains('active')) {
-          successModal.classList.remove('active');
-          document.body.style.overflow = '';
-        }
-        successModalTimeout = null;
-      }, 5000);
-
-    } else {
-      console.error('❌ Ürün veya varyant seçilmedi!');
-      alert('Lütfen bir gramaj seçin!');
+    if (!selectedProduct || !selectedVariant) {
+      alert('❌ Lütfen bir gramaj seçin!');
+      return;
     }
+
+    // ✅ sepet.astro ile uyumlu cart item
+    const cartItem = {
+      id: `${selectedProduct.id}_${selectedVariant.size}`,
+      productId: selectedProduct.id,
+      name: selectedProduct.name,
+      price: selectedVariant.price,
+      image: selectedProduct.image,
+      unit: selectedVariant.size,
+      quantity: quantity,
+      availableVariants: selectedProduct.variants || []
+    };
+
+    console.log('🛒 Sepete eklenecek ürün:', cartItem);
+
+    let cart = [];
+    try {
+      const cartData = localStorage.getItem('cart');
+      cart = cartData ? JSON.parse(cartData) : [];
+    } catch (e) {
+      console.error('Sepet yüklenemedi:', e);
+      cart = [];
+    }
+
+    const existingItemIndex = cart.findIndex(
+      (item: any) => item.productId === cartItem.productId && item.unit === cartItem.unit
+    );
+
+    if (existingItemIndex > -1) {
+      cart[existingItemIndex].quantity += quantity;
+      cart[existingItemIndex].availableVariants = cartItem.availableVariants;
+      console.log('✅ Miktar artırıldı');
+    } else {
+      cart.push(cartItem);
+      console.log('✅ Yeni ürün eklendi');
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    window.dispatchEvent(new Event('cartUpdated'));
+
+    console.log('✅ Sepet güncellendi:', cart);
+
+    // Cart modal'ı kapat
+    cartModal?.classList.remove('active');
+
+    // Success modal'ı aç
+    successModal?.classList.add('active');
+
+    // Önceki timeout varsa temizle
+    if (successModalTimeout) {
+      clearTimeout(successModalTimeout);
+    }
+
+    // 5 SANİYE SONRA OTOMATİK KAPAT
+    successModalTimeout = window.setTimeout(() => {
+      if (successModal?.classList.contains('active')) {
+        successModal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+      successModalTimeout = null;
+    }, 5000);
   });
 
   // Sepete Git butonu
@@ -1042,7 +214,6 @@ function getImageUrl(imgs: any): string {
     e.preventDefault();
     e.stopPropagation();
 
-    // Timeout'u temizle
     if (successModalTimeout) {
       clearTimeout(successModalTimeout);
       successModalTimeout = null;
@@ -1056,7 +227,6 @@ function getImageUrl(imgs: any): string {
     e.preventDefault();
     e.stopPropagation();
 
-    // Timeout'u temizle
     if (successModalTimeout) {
       clearTimeout(successModalTimeout);
       successModalTimeout = null;
@@ -1068,7 +238,6 @@ function getImageUrl(imgs: any): string {
 
   // SUCCESS MODAL X BUTONU
   document.querySelector('.success-close')?.addEventListener('click', () => {
-    // Timeout'u temizle
     if (successModalTimeout) {
       clearTimeout(successModalTimeout);
       successModalTimeout = null;
@@ -1081,7 +250,6 @@ function getImageUrl(imgs: any): string {
   // SUCCESS MODAL DIŞINA TIKLANINCA KAPAT
   successModal?.addEventListener('click', (e) => {
     if (e.target === successModal) {
-      // Timeout'u temizle
       if (successModalTimeout) {
         clearTimeout(successModalTimeout);
         successModalTimeout = null;
@@ -1092,6 +260,7 @@ function getImageUrl(imgs: any): string {
     }
   });
 
+  // ESC TUŞU İLE KAPAT
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       if (cartModal?.classList.contains('active')) {
@@ -1099,7 +268,6 @@ function getImageUrl(imgs: any): string {
         document.body.style.overflow = '';
       }
       if (successModal?.classList.contains('active')) {
-        // Timeout'u temizle
         if (successModalTimeout) {
           clearTimeout(successModalTimeout);
           successModalTimeout = null;
