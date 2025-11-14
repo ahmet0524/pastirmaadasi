@@ -8,13 +8,9 @@ interface ImageUploadProps {
   label?: string;
 }
 
-export function ImageUpload({
-  currentImage = '',
-  onImageUploaded,
-  label = "Ürün Resmi"
-}: ImageUploadProps) {
+export function ImageUpload({ currentImage, onImageUploaded, label = "Ürün Resmi" }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
-  const [preview, setPreview] = useState<string>(currentImage);
+  const [preview, setPreview] = useState<string>(currentImage || '');
   const [error, setError] = useState<string>('');
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,37 +48,29 @@ export function ImageUpload({
         setPreview(imageUrl);
       } else {
         setError('Resim yüklenemedi. Lütfen tekrar deneyin.');
-        setPreview('');
       }
     } catch (err) {
       setError('Bir hata oluştu: ' + (err as Error).message);
-      setPreview('');
     } finally {
       setUploading(false);
     }
   };
 
-  const handleRemove = () => {
-    setPreview('');
-    onImageUploaded('');
-    // Input'u temizle
-    const input = document.getElementById('image-upload') as HTMLInputElement;
-    if (input) input.value = '';
-  };
-
   return (
-    <div style={styles.container}>
-      <label style={styles.label}>{label}</label>
+    <div className="image-upload-container">
+      <label className="upload-label">{label}</label>
 
       {/* Preview */}
       {preview && (
-        <div style={styles.previewContainer}>
-          <img src={preview} alt="Preview" style={styles.previewImage} />
+        <div className="image-preview">
+          <img src={preview} alt="Preview" />
           <button
             type="button"
-            style={styles.removeBtn}
-            onClick={handleRemove}
-            disabled={uploading}
+            className="remove-image-btn"
+            onClick={() => {
+              setPreview('');
+              onImageUploaded('');
+            }}
           >
             ❌ Kaldır
           </button>
@@ -90,26 +78,19 @@ export function ImageUpload({
       )}
 
       {/* Upload Button */}
-      <div style={styles.uploadWrapper}>
+      <div className="upload-input-wrapper">
         <input
           type="file"
           accept="image/jpeg,image/jpg,image/png,image/webp"
           onChange={handleFileSelect}
           disabled={uploading}
           id="image-upload"
-          style={styles.fileInput}
+          className="file-input"
         />
-        <label
-          htmlFor="image-upload"
-          style={{
-            ...styles.fileLabel,
-            opacity: uploading ? 0.6 : 1,
-            cursor: uploading ? 'not-allowed' : 'pointer'
-          }}
-        >
+        <label htmlFor="image-upload" className="file-input-label">
           {uploading ? (
             <>
-              <span style={styles.spinner}>⏳</span> Yükleniyor...
+              <span className="spinner">⏳</span> Yükleniyor...
             </>
           ) : (
             <>
@@ -121,100 +102,131 @@ export function ImageUpload({
 
       {/* Error Message */}
       {error && (
-        <div style={styles.errorMessage}>
+        <div className="error-message">
           ⚠️ {error}
         </div>
       )}
 
       {/* Info */}
-      <small style={styles.info}>
+      <small className="upload-info">
         JPG, PNG veya WEBP • Max 5MB
       </small>
+
+      <style jsx>{`
+        .image-upload-container {
+          margin-bottom: 1.5rem;
+        }
+
+        .upload-label {
+          display: block;
+          font-weight: 700;
+          margin-bottom: 0.75rem;
+          color: #134e4a;
+          font-size: 1rem;
+        }
+
+        .image-preview {
+          position: relative;
+          width: 100%;
+          max-width: 300px;
+          margin-bottom: 1rem;
+          border-radius: 12px;
+          overflow: hidden;
+          border: 2px solid #e5e7eb;
+        }
+
+        .image-preview img {
+          width: 100%;
+          height: 200px;
+          object-fit: cover;
+          display: block;
+        }
+
+        .remove-image-btn {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          background: rgba(239, 68, 68, 0.95);
+          color: white;
+          border: none;
+          padding: 6px 12px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 0.875rem;
+          font-weight: 700;
+          transition: all 0.2s;
+        }
+
+        .remove-image-btn:hover {
+          background: #dc2626;
+          transform: scale(1.05);
+        }
+
+        .upload-input-wrapper {
+          position: relative;
+        }
+
+        .file-input {
+          position: absolute;
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+
+        .file-input-label {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.875rem 1.5rem;
+          background: linear-gradient(135deg, #0891b2, #06b6d4);
+          color: white;
+          border-radius: 10px;
+          cursor: pointer;
+          font-weight: 700;
+          transition: all 0.3s;
+          border: none;
+        }
+
+        .file-input-label:hover {
+          background: linear-gradient(135deg, #06b6d4, #22d3ee);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+        }
+
+        .file-input:disabled + .file-input-label {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        .spinner {
+          display: inline-block;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+          margin-top: 0.75rem;
+          padding: 0.75rem;
+          background: #fee2e2;
+          border: 1px solid #fecaca;
+          border-radius: 8px;
+          color: #991b1b;
+          font-weight: 600;
+          font-size: 0.875rem;
+        }
+
+        .upload-info {
+          display: block;
+          margin-top: 0.5rem;
+          color: #64748b;
+          font-size: 0.875rem;
+        }
+      `}</style>
     </div>
   );
 }
-
-// Inline styles
-const styles = {
-  container: {
-    marginBottom: '1.5rem',
-  },
-  label: {
-    display: 'block',
-    fontWeight: 700,
-    marginBottom: '0.75rem',
-    color: '#134e4a',
-    fontSize: '1rem',
-  },
-  previewContainer: {
-    position: 'relative' as const,
-    width: '100%',
-    maxWidth: '300px',
-    marginBottom: '1rem',
-    borderRadius: '12px',
-    overflow: 'hidden',
-    border: '2px solid #e5e7eb',
-  },
-  previewImage: {
-    width: '100%',
-    height: '200px',
-    objectFit: 'cover' as const,
-    display: 'block',
-  },
-  removeBtn: {
-    position: 'absolute' as const,
-    top: '8px',
-    right: '8px',
-    background: 'rgba(239, 68, 68, 0.95)',
-    color: 'white',
-    border: 'none',
-    padding: '6px 12px',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: '0.875rem',
-    fontWeight: 700,
-    transition: 'all 0.2s',
-  },
-  uploadWrapper: {
-    position: 'relative' as const,
-  },
-  fileInput: {
-    position: 'absolute' as const,
-    opacity: 0,
-    width: 0,
-    height: 0,
-  },
-  fileLabel: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    padding: '0.875rem 1.5rem',
-    background: 'linear-gradient(135deg, #0891b2, #06b6d4)',
-    color: 'white',
-    borderRadius: '10px',
-    cursor: 'pointer',
-    fontWeight: 700,
-    transition: 'all 0.3s',
-    border: 'none',
-  },
-  spinner: {
-    display: 'inline-block',
-    animation: 'spin 1s linear infinite',
-  },
-  errorMessage: {
-    marginTop: '0.75rem',
-    padding: '0.75rem',
-    background: '#fee2e2',
-    border: '1px solid #fecaca',
-    borderRadius: '8px',
-    color: '#991b1b',
-    fontWeight: 600,
-    fontSize: '0.875rem',
-  },
-  info: {
-    display: 'block',
-    marginTop: '0.5rem',
-    color: '#64748b',
-    fontSize: '0.875rem',
-  },
-};
