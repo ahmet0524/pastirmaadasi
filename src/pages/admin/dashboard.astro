@@ -11,11 +11,20 @@ if (!session) {
 }
 
 // İstatikleri çek
-const { data: products } = await supabaseAdmin.from('products').select('id, is_active');
+const { data: products } = await supabaseAdmin.from('products').select('id, is_active, category');
 const { data: orders } = await supabaseAdmin.from('orders').select('total, status, coupon_codes, coupon_details');
 const { data: coupons } = await supabaseAdmin.from('coupons').select('*');
 
-// ✅ DÜZELTME: Çoklu kupon kullanım sayılarını hesapla
+// Kategori bazlı ürün sayıları
+const categoryStats = {
+  pastirma: products?.filter(p => p.category === 'pastirma').length || 0,
+  sucuk: products?.filter(p => p.category === 'sucuk').length || 0,
+  manti: products?.filter(p => p.category === 'manti').length || 0,
+  kavurma: products?.filter(p => p.category === 'kavurma').length || 0,
+  sarkuteri: products?.filter(p => p.category === 'sarkuteri').length || 0,
+};
+
+// Çoklu kupon kullanım sayılarını hesapla
 const couponUsageMap = new Map();
 orders?.forEach(order => {
   // Yeni format: coupon_codes array
@@ -42,7 +51,7 @@ const activeCouponsCount = coupons?.filter(c => {
   return c.is_active && !isExpired && !isLimitReached;
 }).length || 0;
 
-// ✅ DÜZELTME: Kuponlu sipariş sayısı (çoklu kupon desteği)
+// Kuponlu sipariş sayısı (çoklu kupon desteği)
 const ordersWithCoupon = orders?.filter(o => {
   return (o.coupon_codes && Array.isArray(o.coupon_codes) && o.coupon_codes.length > 0) ||
          (o.coupon_code && typeof o.coupon_code === 'string');
@@ -155,33 +164,87 @@ const stats = {
           </div>
         </div>
 
-       <div class="stat-card">
-  <div class="stat-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">
-    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-    </svg>
-  </div>
-  <div class="stat-content">
-    <p class="stat-label">Kuponlar</p>
-    <p class="stat-value">{stats.activeCoupons}</p>
-    <p class="stat-detail">{stats.totalCoupons} toplam · {stats.couponUsage} kullanım</p>
-  </div>
-</div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Kuponlar</p>
+            <p class="stat-value">{stats.activeCoupons}</p>
+            <p class="stat-detail">{stats.totalCoupons} toplam · {stats.couponUsage} kullanım</p>
+          </div>
+        </div>
 
-<div class="stat-card">
-  <div class="stat-icon" style="background: rgba(236, 72, 153, 0.1); color: #ec4899;">
-    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-    </svg>
-  </div>
-  <div class="stat-content">
-    <p class="stat-label">Kuponlu Siparişler</p>
-    <p class="stat-value">{stats.ordersWithCoupon}</p>
-    <p class="stat-detail">%{stats.totalOrders > 0 ? Math.round((stats.ordersWithCoupon / stats.totalOrders) * 100) : 0} oran</p>
-  </div>
-</div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(236, 72, 153, 0.1); color: #ec4899;">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+            </svg>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Kuponlu Siparişler</p>
+            <p class="stat-value">{stats.ordersWithCoupon}</p>
+            <p class="stat-detail">%{stats.totalOrders > 0 ? Math.round((stats.ordersWithCoupon / stats.totalOrders) * 100) : 0} oran</p>
+          </div>
+        </div>
+      </div>
 
+      <!-- Kategori İstatistikleri -->
+      <div class="category-stats">
+        <h2>Kategorilere Göre Ürünler</h2>
+        <div class="category-grid">
+          <div class="category-card">
+            <div class="category-icon" style="background: #FEE2E2; color: #DC2626;">
+              🥩
+            </div>
+            <div class="category-info">
+              <h3>Pastırma</h3>
+              <p class="category-count">{categoryStats.pastirma} ürün</p>
+            </div>
+          </div>
 
+          <div class="category-card">
+            <div class="category-icon" style="background: #FECACA; color: #B91C1C;">
+              🌭
+            </div>
+            <div class="category-info">
+              <h3>Sucuk</h3>
+              <p class="category-count">{categoryStats.sucuk} ürün</p>
+            </div>
+          </div>
+
+          <div class="category-card">
+            <div class="category-icon" style="background: #FED7AA; color: #EA580C;">
+              🥟
+            </div>
+            <div class="category-info">
+              <h3>Mantı</h3>
+              <p class="category-count">{categoryStats.manti} ürün</p>
+            </div>
+          </div>
+
+          <div class="category-card">
+            <div class="category-icon" style="background: #FEF3C7; color: #CA8A04;">
+              🍖
+            </div>
+            <div class="category-info">
+              <h3>Kavurma</h3>
+              <p class="category-count">{categoryStats.kavurma} ürün</p>
+            </div>
+          </div>
+
+          <div class="category-card">
+            <div class="category-icon" style="background: #D1FAE5; color: #059669;">
+              🧀
+            </div>
+            <div class="category-info">
+              <h3>Şarküteri</h3>
+              <p class="category-count">{categoryStats.sarkuteri} ürün</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="quick-actions">
@@ -261,6 +324,7 @@ const stats = {
     padding: 0.875rem 1.5rem;
     color: rgba(255, 255, 255, 0.7);
     transition: all 0.2s;
+    text-decoration: none;
   }
 
   .nav-item:hover {
@@ -346,6 +410,64 @@ const stats = {
     color: var(--text-light);
   }
 
+  /* Kategori İstatistikleri */
+  .category-stats {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px var(--shadow);
+  }
+
+  .category-stats h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+  }
+
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .category-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #F9FAFB;
+    border-radius: 12px;
+    transition: all 0.2s;
+  }
+
+  .category-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .category-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .category-info h3 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    color: #1F2937;
+  }
+
+  .category-count {
+    font-size: 0.875rem;
+    color: #6B7280;
+    margin: 0;
+  }
+
   .quick-actions {
     background: white;
     border-radius: var(--radius-md);
@@ -369,6 +491,8 @@ const stats = {
     padding: 1.5rem;
     text-align: center;
     transition: var(--transition);
+    text-decoration: none;
+    color: inherit;
   }
 
   .action-card:hover {
@@ -390,6 +514,29 @@ const stats = {
   .action-card p {
     font-size: 0.875rem;
     color: var(--text-gray);
+  }
+
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+  }
+
+  .btn-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .btn-full {
+    width: 100%;
   }
 
   @media (max-width: 1024px) {

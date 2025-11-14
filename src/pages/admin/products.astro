@@ -60,6 +60,12 @@ if (error) {
           </svg>
           Siparişler
         </a>
+        <a href="/admin/coupons" class="nav-item">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+          </svg>
+          Kuponlar
+        </a>
       </nav>
 
       <div class="sidebar-footer">
@@ -148,7 +154,11 @@ if (error) {
     <div class="modal-content">
       <div class="modal-header">
         <h2 id="modal-title">🆕 Yeni Ürün Ekle</h2>
-        <button class="modal-close" type="button">&times;</button>
+        <button class="modal-close" type="button" aria-label="Kapat">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
       </div>
       <form id="product-form" class="modal-body">
         <input type="hidden" id="product-id" />
@@ -168,11 +178,11 @@ if (error) {
           <div class="form-group">
             <label for="category">Kategori *</label>
             <select id="category" required>
-              <option value="Pastırma">Pastırma</option>
-              <option value="Sucuk">Sucuk</option>
-              <option value="Mantı">Mantı</option>
-              <option value="Kavurma">Kavurma</option>
-              <option value="Diğer">Diğer</option>
+              <option value="pastirma">Pastırma</option>
+              <option value="sucuk">Sucuk</option>
+              <option value="manti">Mantı</option>
+              <option value="kavurma">Kavurma</option>
+              <option value="sarkuteri">Şarküteri</option>
             </select>
           </div>
 
@@ -196,16 +206,19 @@ if (error) {
         <div class="form-group checkbox-group">
           <label>
             <input type="checkbox" id="has_variants" />
-            <span>Bu ürünün varyantları var (farklı gramajlar)</span>
+            <span>Bu ürünün varyantları var (farklı gramajlar/boyutlar)</span>
           </label>
+          <small style="display: block; margin-top: 0.5rem; color: #6b7280;">
+            ℹ️ Varyantlar: Aynı ürünün farklı gramaj/boyutlarıdır (örn: 250gr, 500gr, 1kg)
+          </small>
         </div>
 
         <div id="variants-section" style="display: none;">
           <div class="form-group">
-            <label>Varyantlar</label>
+            <label>📦 Varyantlar (Gramaj/Boyut Seçenekleri)</label>
             <div id="variants-list"></div>
             <button type="button" id="add-variant-btn" class="btn btn-secondary btn-sm">
-              ➕ Varyant Ekle
+              ➕ Yeni Varyant Ekle
             </button>
           </div>
         </div>
@@ -604,19 +617,23 @@ if (error) {
     }
 
     .modal-close {
-      background: none;
+      background: #f3f4f6;
       border: none;
-      font-size: 2rem;
       cursor: pointer;
-      color: #9ca3af;
-      line-height: 1;
-      padding: 0;
-      width: 32px;
-      height: 32px;
+      color: #6b7280;
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
     }
 
     .modal-close:hover {
-      color: #1f2937;
+      background: #DC2626;
+      color: white;
+      transform: rotate(90deg);
     }
 
     .modal-body {
@@ -691,12 +708,18 @@ if (error) {
 
     /* VARYANT STİLLERİ */
     .variant-card {
-      background: #f8f9fa;
-      border: 1px solid #e9ecef;
-      border-radius: 8px;
-      padding: 1rem;
-      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border: 2px solid #dee2e6;
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
       position: relative;
+      transition: all 0.2s;
+    }
+
+    .variant-card:hover {
+      border-color: #c41e3a;
+      box-shadow: 0 4px 12px rgba(196, 30, 58, 0.15);
     }
 
     .variant-card .form-row {
@@ -709,25 +732,39 @@ if (error) {
 
     .variant-remove {
       position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
+      top: 0.75rem;
+      right: 0.75rem;
       background: #dc3545;
       color: white;
       border: none;
-      border-radius: 4px;
-      width: 28px;
-      height: 28px;
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      font-size: 20px;
       line-height: 1;
       padding: 0;
+      transition: all 0.2s;
     }
 
     .variant-remove:hover {
       background: #c82333;
+      transform: scale(1.1);
+    }
+
+    #variants-list:empty::before {
+      content: '⚠️ Henüz varyant eklenmedi. "Yeni Varyant Ekle" butonuna tıklayın.';
+      display: block;
+      padding: 1.5rem;
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      color: #856404;
+      text-align: center;
+      margin-bottom: 1rem;
     }
 
     @media (max-width: 1024px) {
@@ -831,17 +868,12 @@ if (error) {
       variantCard.dataset.variantId = variantId;
 
       variantCard.innerHTML = `
-        <button type="button" class="variant-remove" onclick="window.removeVariant(${variantId})">×</button>
-        <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr;">
+        <button type="button" class="variant-remove" onclick="window.removeVariant(${variantId})" title="Varyantı Sil">×</button>
+        <div class="form-row" style="grid-template-columns: 2fr 1.5fr 1fr;">
           <div class="form-group">
-            <label>Gramaj</label>
-            <select class="variant-size" required>
-              <option value="250gr">250 gram</option>
-              <option value="500gr">500 gram</option>
-              <option value="1000gr">1 kg</option>
-              <option value="1500gr">1.5 kg</option>
-              <option value="2000gr">2 kg</option>
-            </select>
+            <label>Gramaj/Boyut</label>
+            <input type="text" class="variant-label" required placeholder="Örn: 250gr, 500gr, 1kg" />
+            <small>Müşterinin göreceği etiket</small>
           </div>
           <div class="form-group">
             <label>Fiyat (₺)</label>
@@ -855,7 +887,7 @@ if (error) {
       `;
 
       if (data) {
-        variantCard.querySelector('.variant-size').value = data.size;
+        variantCard.querySelector('.variant-label').value = data.label || data.size || '';
         variantCard.querySelector('.variant-price').value = data.price;
         variantCard.querySelector('.variant-stock').value = data.stock || 100;
       }
@@ -887,7 +919,7 @@ if (error) {
         document.getElementById('product-id').value = product.id;
         document.getElementById('name').value = product.name;
         document.getElementById('slug').value = product.slug || '';
-        document.getElementById('category').value = product.category || 'Pastırma';
+        document.getElementById('category').value = product.category || 'pastirma';
         document.getElementById('unit').value = product.unit || 'kg';
         document.getElementById('description').value = product.description || '';
         document.getElementById('sort_order').value = product.sort_order || 0;
@@ -1001,13 +1033,20 @@ if (error) {
         }
 
         variantCards.forEach(card => {
+          const variantLabel = card.querySelector('.variant-label').value.trim();
           const variantPrice = parseFloat(card.querySelector('.variant-price').value);
           const variantStock = parseInt(card.querySelector('.variant-stock').value) || 0;
 
+          if (!variantLabel || !variantPrice) {
+            alert('❌ Tüm varyant alanlarını doldurun!');
+            return;
+          }
+
           variants.push({
-            size: card.querySelector('.variant-size').value,
+            label: variantLabel,
             price: variantPrice,
-            stock: variantStock
+            stock: variantStock,
+            value: parseFloat(variantLabel.replace(/[^\d.]/g, '')) / 1000 || 0
           });
 
           stock += variantStock;
@@ -1064,6 +1103,13 @@ if (error) {
         alert('❌ Hata: ' + error.message);
         submitBtn.disabled = false;
         submitBtn.textContent = '💾 Kaydet';
+      }
+    });
+
+    // ESC tuşu ile kapat
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal?.classList.contains('show')) {
+        closeModal();
       }
     });
   </script>
