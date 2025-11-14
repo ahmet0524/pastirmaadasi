@@ -76,7 +76,7 @@ const categories = [
 // Ürünleri kategorilere göre grupla
 const groupedProducts = categories.map(cat => ({
   ...cat,
-  products: products?.filter(p => p.slug.includes(cat.slug)) || []
+  products: products?.filter(p => p.subcategory === cat.slug) || []
 }));
 
 // Resim URL'sini al
