@@ -497,40 +497,55 @@ export async function POST({ request }) {
     };
 
     // ----- DB + Emails -----
-    const [dbResult, customerEmailResult, adminEmailResult] = await Promise.allSettled([
-      supabase
-        .from('orders')
-        .insert({
-          order_number: orderNumber,
-          payment_id: paymentId,
-          payment_method: selectedPaymentMethod,
-          customer_name: fullName,
-          customer_email: customerEmail,
-          customer_phone: normalizedPhone || '',
-          customer_address: shippingAddress,
-          items: items,
-          subtotal: paidPrice,
-          shipping_cost: 0,
-          discount_amount: totalDiscountAmount,
-          total: paidPrice,
-          invoice_type: frontendInvoiceType || 'individual',
-          company_name: frontendCompanyName || null,
-          tax_office: frontendTaxOffice || null,
-          tax_number: frontendTaxNumber || null,
-          order_note: frontendOrderNote || null,
-          billing_address: frontendIsDifferentBilling ? billingAddress : null,
-          is_different_billing: frontendIsDifferentBilling || false,
-          coupon_codes: couponCodes.length > 0 ? couponCodes : null,
-          coupon_details: couponDetails.length > 0 ? couponDetails : null,
-          total_discount: totalDiscountAmount,
-          coupon_code: couponCodes.length > 0 ? couponCodes[0] : null,
-          status: 'pending',
-          payment_status: paymentStatus,
-          notes: customerIdentity ? `TC: ${customerIdentity}` : null,
-          created_at: new Date().toISOString()
-        })
-        .select()
-        .single(),
+// ✅ DÜZELTME: verify-payment.js dosyasındaki Supabase insert kısmını
+// Satır ~300 civarında şu kod bloğunu bul ve değiştir:
+
+const [dbResult, customerEmailResult, adminEmailResult] = await Promise.allSettled([
+  supabase
+    .from('orders')
+    .insert({
+      order_number: orderNumber,
+      payment_id: paymentId,
+      payment_method: selectedPaymentMethod,
+      customer_name: fullName,
+      customer_email: customerEmail,
+      // ✅ DOĞRU: customer_address (shipping_address değil!)
+      customer_address: shippingAddress,
+      // ✅ DOĞRU: customer_phone
+      customer_phone: normalizedPhone || '',
+      items: items,
+      subtotal: paidPrice,
+      shipping: 0, // shipping_cost yerine shipping
+      // ✅ DOĞRU: discount (discount_amount değil!)
+      discount: totalDiscountAmount,
+      total: paidPrice,
+      // ✅ Fatura bilgileri - Kolonlar mevcut
+      invoice_type: frontendInvoiceType || 'individual',
+      company_name: frontendCompanyName || null,
+      tax_office: frontendTaxOffice || null,
+      tax_number: frontendTaxNumber || null,
+      order_note: frontendOrderNote || null,
+      billing_address: frontendIsDifferentBilling ? billingAddress : null,
+      is_different_billing: frontendIsDifferentBilling || false,
+      // ✅ Kupon bilgileri - Kolonlar mevcut
+      coupon_codes: couponCodes.length > 0 ? couponCodes : null,
+      coupon_details: couponDetails.length > 0 ? couponDetails : null,
+      total_discount: totalDiscountAmount,
+      coupon_code: couponCodes.length > 0 ? couponCodes[0] : null,
+      // ✅ Durum bilgileri
+      status: 'pending',
+      payment_status: paymentStatus,
+      // ✅ Notes alanına sadece TC kimlik ve ekstra önemli notlar
+      notes: [
+        selectedPaymentMethod === 'bank_transfer' ? 'Havale/EFT' :
+        selectedPaymentMethod === 'cod' ? 'Kapıda Ödeme' : null,
+        customerIdentity ? `TC: ${customerIdentity}` : null,
+        frontendOrderNote ? `Not: ${frontendOrderNote}` : null
+      ].filter(Boolean).join(' | ') || null,
+      created_at: new Date().toISOString()
+    })
+    .select()
+    .single(),
 
       isCustomerMailValid
         ? resend.emails.send({
